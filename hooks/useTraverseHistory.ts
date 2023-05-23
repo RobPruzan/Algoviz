@@ -2,21 +2,13 @@ import { ControlBarContextData } from '@/Context/ControlBarContext';
 import { HistoryNode, NodeMetadata } from '@/lib/types';
 import { useState } from 'react';
 
-type UseVisualizerParams = {
-  nodeRows: NodeMetadata[][];
-  setNodeRows: React.Dispatch<React.SetStateAction<NodeMetadata[][]>>;
-  tempNodeRows: HistoryNode[];
-} & ControlBarContextData;
+// type UseVisualizerParams = Pick<ControlBarContextData, 'setState'>;
+type UseVisualizerParams = ControlBarContextData;
 
-export const useVisualizeSort = ({
-  nodeRows,
-  setNodeRows,
+export const useTraverseHistory = ({
   setState,
   state,
-  tempNodeRows,
 }: UseVisualizerParams) => {
-  const [history, setHistory] = useState<HistoryNode | null>(null);
-
   // we need to update the actual state of the node rows, so we will need the setHandler
   // need sometimeout while we loop through it
   // need to be able to control it
@@ -27,6 +19,7 @@ export const useVisualizeSort = ({
   const handleMoveForward = () => {
     setState((prev) => {
       const newPointer = prev.historyPointer ? prev.historyPointer.next : null;
+      if (!newPointer) return prev;
       return {
         ...prev,
         historyPointer: newPointer,
@@ -36,10 +29,16 @@ export const useVisualizeSort = ({
   const handleMoveBackward = () => {
     setState((prev) => {
       const newPointer = prev.historyPointer ? prev.historyPointer.prev : null;
+      if (!newPointer) return prev;
       return {
         ...prev,
         historyPointer: newPointer,
       };
     });
+  };
+
+  return {
+    handleMoveForward,
+    handleMoveBackward,
   };
 };

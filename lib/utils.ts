@@ -1,6 +1,6 @@
 import { ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { NodeMetadata } from './types';
+import { HistoryNode, NodeMetadata } from './types';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -20,4 +20,20 @@ export const getNodeArray = (nodeRow: NodeMetadata[]) => {
     tempArray.push(newNode);
   });
   return arrays;
+};
+
+export const getHistoryArray = (historyPointer: HistoryNode | null) => {
+  const nodeArrayList = [];
+  let curr: HistoryNode | null = historyPointer;
+
+  console.log('da history pointer', historyPointer);
+
+  while (curr) {
+    nodeArrayList.push(curr);
+    console.log('inside');
+    curr = curr.prev;
+  }
+  nodeArrayList.reverse();
+  console.log('da list', nodeArrayList);
+  return nodeArrayList;
 };

@@ -1,6 +1,8 @@
 import React, { useContext, useRef, useState } from 'react';
 import { SpeedSlider } from './SpeedSlider';
 import {
+  ArrowLeft,
+  ArrowRight,
   MinusCircle,
   MinusIcon,
   Pause,
@@ -13,21 +15,22 @@ import { ControlBarContext } from '../../Context/ControlBarContext';
 import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
 import { useQuickSort } from '@/hooks/useQuickSort';
 import { z } from 'zod';
+import { getHistoryArray } from '@/lib/utils';
+import { useTraverseHistory } from '@/hooks/useTraverseHistory';
 
 type Props = {};
 
 const ControlBar = (props: Props) => {
-  const [test, setTest] = useState(0);
-  const controlBarState = useContext(ControlBarContext);
-  const nodeContextState = useContext(HistoryNodesContext);
   const { handleQuickSort } = useQuickSort();
 
-  const {
-    state: { multiplier, playing },
-    setState: setControlBarState,
-  } = useContext(ControlBarContext);
+  const { state, setState: setControlBarState } = useContext(ControlBarContext);
   const { historyNodes: nodeRows, setHistoryNodes } =
     useContext(HistoryNodesContext);
+
+  const { handleMoveBackward, handleMoveForward } = useTraverseHistory({
+    setState: setControlBarState,
+    state,
+  });
 
   const firstRow = nodeRows[0]?.element;
 
@@ -47,35 +50,38 @@ const ControlBar = (props: Props) => {
       color: 'white',
     };
     if (nodeRows.length == 0) {
-      setHistoryNodes([
-        {
-          element: [newNode],
-          next: null,
-          prev: null,
-          stateContext: '',
-        },
-      ]);
+      const initialNode = {
+        element: [newNode],
+        next: null,
+        prev: null,
+        stateContext: '',
+      };
+      const newHistoryArrayList = [initialNode];
+      setControlBarState((prev) => ({
+        ...prev,
+        historyPointer: initialNode,
+        // historyPointer:
+      }));
+      setHistoryNodes(newHistoryArrayList);
       return;
     }
 
     // ideal behavior is an initial node array/discriminated union for holding nodes, but just updating the array and blocking adds else will work
-    // setNodeRows((prev) => [[...currentNodeRow, newNode]]);
-    // setHistoryNodes((prev) => {
-    //   const lastInsert = prev[0].at(-1);
-    //   lastInsert ? (lastInsert.next = newNode) : null;
-    //   return [[...prev[0], newNode]];
-    // });
+
     setHistoryNodes((prev) => {
       const lastInsert = prev[0].element.at(-1);
       lastInsert ? (lastInsert.next = newNode) : null;
-      return [
-        {
-          element: [...prev[0].element, newNode],
-          next: null,
-          prev: null,
-          stateContext: '',
-        },
-      ];
+      const newArrayList = {
+        element: [...prev[0].element, newNode],
+        next: null,
+        prev: null,
+        stateContext: '',
+      };
+      setControlBarState((prev) => ({
+        ...prev,
+        historyPointer: newArrayList,
+      }));
+      return [newArrayList];
     });
   };
 
@@ -96,21 +102,26 @@ const ControlBar = (props: Props) => {
     setHistoryNodes((prev) => {
       const newTail = prev[0].element.at(-2);
       newTail ? (newTail.next = null) : null;
+      const newArrayList = {
+        element: [...prev[0].element.slice(0, -1)],
+        next: null,
+        prev: null,
+        stateContext: '',
+      };
+      setControlBarState((prev) => ({
+        ...prev,
+        historyPointer: newArrayList,
+      }));
 
-      return [
-        {
-          element: [...prev[0].element.slice(0, -1)],
-          next: null,
-          prev: null,
-          stateContext: '',
-        },
-      ];
+      return [newArrayList];
     });
   };
 
+  const tailToHeadHistory = getHistoryArray(state.historyPointer);
+
   return (
     <div className="w-full border-b-4 border-secondary h-20 flex items-center justify-evenly">
-      {playing ? (
+      {state.playing ? (
         <Pause
           onClick={() => {
             setControlBarState((prevState) => ({
@@ -138,7 +149,7 @@ const ControlBar = (props: Props) => {
           size={32}
         />
       )}
-      <div className="w-2/5 flex justify-evenly">
+      {/* <div className="w-2/5 flex justify-evenly">
         <SpeedSlider
           min={0}
           max={10}
@@ -148,6 +159,32 @@ const ControlBar = (props: Props) => {
           }
         />
         <label className="font-bold">x{multiplier}</label>
+      </div> */}
+      <div className="w-3/5 flex justify-evenly items-center">
+        <ArrowLeft
+          className="cursor-pointer hover:scale-105 transition"
+          onClick={() => {
+            handleMoveBackward();
+          }}
+          size={32}
+        />
+        <SpeedSlider
+          min={0}
+          max={10}
+          value={[tailToHeadHistory.length]}
+          onValueChange={(value) =>
+            setControlBarState((prev) => ({ ...prev, multiplier: value }))
+          }
+        />
+        <ArrowRight
+          className="cursor-pointer hover:scale-105 transition"
+          onClick={() => {
+            handleMoveForward();
+          }}
+          size={32}
+        />
+
+        <label className="font-bold">Step {tailToHeadHistory.length}</label>
       </div>
       <div className="flex justify-evenly items-center w-1/4 ">
         <label className="font-bold">Items: {numItems}</label>
