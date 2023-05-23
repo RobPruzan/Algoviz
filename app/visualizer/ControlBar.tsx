@@ -9,8 +9,8 @@ import {
   PlusIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ControlBarContext } from '../Context/ControlBarContext';
-import { NodesContext } from '../Context/NodesContext';
+import { ControlBarContext } from '../../Context/ControlBarContext';
+import { NodesContext } from '../../Context/NodesContext';
 
 type Props = {};
 
@@ -34,6 +34,7 @@ const ControlBar = (props: Props) => {
       id: crypto.randomUUID(),
       position: 0,
       next: null,
+      color: 'white',
     };
     if (nodeRows.length == 0) {
       setNodeRows([[newNode]]);

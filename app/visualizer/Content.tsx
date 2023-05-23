@@ -6,9 +6,9 @@ import {
   ControlBarContext,
   ControlBarContextState,
   defaultState,
-} from '../Context/ControlBarContext';
+} from '../../Context/ControlBarContext';
 import { NodeMetadata } from '@/lib/types';
-import { NodesContext } from '../Context/NodesContext';
+import { NodesContext } from '../../Context/NodesContext';
 
 const Content = () => {
   const [nodeRows, setNodeRows] = useState<NodeMetadata[][]>([]);

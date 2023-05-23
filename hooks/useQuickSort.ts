@@ -1,5 +1,5 @@
-import { ControlBarContextState } from '@/app/Context/ControlBarContext';
-import { NodeContextState } from '@/app/Context/NodesContext';
+import { ControlBarContextState } from '@/Context/ControlBarContext';
+import { NodeContextState } from '@/Context/NodesContext';
 import { NodeMetadata } from '@/lib/types';
 import { useState } from 'react';
 
@@ -13,5 +13,6 @@ export const useQuickSort = ({
 }: QuickSortParams) => {
   // we obviously need to actually quicksort the array
   // we should have a temp, and then once we're done we can visualize the new array however we want
+  // could be as simple as if the node has no next then it has a border which represents the new array :thinking
   const [tempNodeRow, setTempNodeRow] = useState<NodeMetadata[]>();
 };

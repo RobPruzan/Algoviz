@@ -3,4 +3,5 @@ export type NodeMetadata = {
   position: number;
   id: string;
   next?: NodeMetadata | null;
+  color: string;
 };

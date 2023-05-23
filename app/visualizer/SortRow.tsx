@@ -1,5 +1,6 @@
 import Node from '@/components/Visualizers/Node';
 import { NodeMetadata } from '@/lib/types';
+import { useState } from 'react';
 
 type Props = {
   nodes: NodeMetadata[];

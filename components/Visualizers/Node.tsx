@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { SVGProps, useEffect, useRef, useState } from 'react';
 type Props = {
   value: number;
-};
-const Node = ({ value }: Props) => {
+} & SVGProps<SVGSVGElement>;
+const Node = ({ value, ...props }: Props) => {
+  const ref = useRef<SVGSVGElement>(null);
+
   return (
-    <svg className="animate-in duration-300 zoom-in" height="100" width="100">
+    <svg
+      ref={ref}
+      className="animate-in duration-300 zoom-in "
+      height="100"
+      width="100"
+      {...props}
+    >
       <circle
+        className="transition duration-300 ease-in"
         cx="50"
         cy="50"
         r="40"
