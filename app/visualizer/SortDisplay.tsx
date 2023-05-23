@@ -1,27 +1,27 @@
 import Node from '@/components/Visualizers/Node';
-import React from 'react';
+import { NodeMetadata } from '@/lib/types';
+import React, { useState } from 'react';
+import SortRow from './SortRow';
+import { NodesContext } from '../Context/NodesContext';
 
 type Props = {};
 
-type NodesMetadata = {
-  value: number;
-  position: number;
-  id: number;
-}[];
-
 const SortDisplay = (props: Props) => {
-  const [sortMetaData, setSortMetaData] = React.useState<NodesMetadata[]>([]);
+  const [nodeRows, setNodeRows] = useState<NodeMetadata[][]>([]);
 
   return (
-    <div className="w-full h-4/6 bg-primary">
-      {sortMetaData.map((nodes) => (
-        <div key={nodes.toString()} className="border-2 border-secondary">
-          {nodes.map((node, index) => (
-            <Node key={node.id} value={node.value} />
-          ))}
-        </div>
-      ))}
-    </div>
+    <NodesContext.Provider
+      value={{
+        nodeRows: nodeRows,
+        setNodeRows: setNodeRows,
+      }}
+    >
+      <div className="w-full h-4/6 bg-primary">
+        {nodeRows.map((nodes) => (
+          <SortRow nodes={nodes} key={nodes.toString()} />
+        ))}
+      </div>
+    </NodesContext.Provider>
   );
 };
 

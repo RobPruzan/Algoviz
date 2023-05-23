@@ -1,6 +1,6 @@
 import { AlgoComboBox } from '@/app/visualizer/AlgoComboBox';
 import React, { useState } from 'react';
-import SortVisualize from './Visualize';
+import SortVisualize from './SortVisualize';
 import Node from '@/components/Visualizers/Node';
 import {
   ControlBarContext,

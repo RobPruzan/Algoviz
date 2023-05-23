@@ -1,5 +1,5 @@
 'use client';
-import SortVisualize from '@/app/visualizer/Visualize';
+import SortVisualize from '@/app/visualizer/SortVisualize';
 import { AlgoComboBox } from '@/app/visualizer/AlgoComboBox';
 
 import { useState } from 'react';

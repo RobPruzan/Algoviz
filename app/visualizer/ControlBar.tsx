@@ -22,7 +22,7 @@ const ControlBar = (props: Props) => {
   } = useContext(ControlBarContext);
 
   return (
-    <div className="w-full bg-secondary h-20 flex items-center justify-evenly">
+    <div className="w-full bg-secondar border-b-4 border-secondary h-20 flex items-center justify-evenly">
       {playing ? (
         <Pause
           onClick={() =>
