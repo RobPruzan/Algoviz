@@ -2,23 +2,24 @@ import {
   ControlBarContextData,
   ControlBarContextState,
 } from '@/Context/ControlBarContext';
-import { NodeContextState } from '@/Context/NodesContext';
+import { HistoryNodesContextState } from '@/Context/HistoryNodesContext';
 import { NodeMetadata } from '@/lib/types';
 import { MutableRefObject, useRef, useState } from 'react';
 
-type QuickSortParams = ControlBarContextData & NodeContextState;
+type NodeRowState = { nodes: NodeMetadata[]; context: string };
+
+type QuickSortParams = ControlBarContextData & HistoryNodesContextState;
+
 export const useQuickSort = ({
   state,
   setState,
-
-  nodeRows,
-
-  setNodeRows,
+  historyNodes: nodeRows,
+  setHistoryNodes: setNodeRows,
 }: QuickSortParams) => {
   // we obviously need to actually quicksort the array
   // we should have a temp, and then once we're done we can visualize the new array however we want
   // could be as simple as if the node has no next then it has a border which represents the new array :thinking
-  const tempNodeRows = useRef<NodeMetadata[][]>([]);
+  const tempNodeRows = useRef<NodeRowState[]>([]);
 
   const quicksort = (
     arr: NodeMetadata[],
@@ -49,7 +50,10 @@ export const useQuickSort = ({
       }
     }
     [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
-    tempNodeRows.current.push(arr);
+    tempNodeRows.current.push({
+      nodes: arr,
+      context: `Swapped ${arr[i + 1].value} with ${arr[high].value}`,
+    });
 
     return i + 1;
   };
@@ -59,7 +63,7 @@ export const useQuickSort = ({
     onFinish,
   }: {
     arr: NodeMetadata[];
-    onFinish: (tempNodesRows: NodeMetadata[][]) => void;
+    onFinish: (tempNodesRows: NodeRowState[]) => void;
   }) => {
     const sorted = quicksort(arr);
     onFinish(tempNodeRows.current);

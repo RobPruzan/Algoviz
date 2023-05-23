@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ControlBarContext } from '../../Context/ControlBarContext';
-import { NodesContext } from '../../Context/NodesContext';
+import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
 import { useQuickSort } from '@/hooks/useQuickSort';
 
 type Props = {};
@@ -18,7 +18,7 @@ type Props = {};
 const ControlBar = (props: Props) => {
   const [test, setTest] = useState(0);
   const controlBarState = useContext(ControlBarContext);
-  const nodeContextState = useContext(NodesContext);
+  const nodeContextState = useContext(HistoryNodesContext);
   const { handleQuickSort } = useQuickSort({
     ...nodeContextState,
     ...controlBarState,
@@ -28,11 +28,12 @@ const ControlBar = (props: Props) => {
     state: { multiplier, playing },
     setState: setControlBarState,
   } = useContext(ControlBarContext);
-  const { nodeRows, setNodeRows } = useContext(NodesContext);
+  const { historyNodes: nodeRows, setHistoryNodes } =
+    useContext(HistoryNodesContext);
 
   const firstRow = nodeRows[0];
 
-  const numItems = nodeRows.length === 1 ? nodeRows[0].length : 0;
+  const numItems = nodeRows.length === 1 ? nodeRows[0].element.length : 0;
 
   const handleAddNode = () => {
     if (nodeRows.length > 1) {
@@ -46,21 +47,35 @@ const ControlBar = (props: Props) => {
       color: 'white',
     };
     if (nodeRows.length == 0) {
-      setNodeRows([[newNode]]);
+      setHistoryNodes([
+        {
+          element: [newNode],
+          next: null,
+          prev: null,
+          stateContext: '',
+        },
+      ]);
       return;
     }
 
-    const currentNodeRow = nodeRows[0];
-    const lastInsert = currentNodeRow.at(-1);
-    lastInsert ? (lastInsert.next = newNode) : null;
-    console.log('rows', nodeRows);
-
     // ideal behavior is an initial node array/discriminated union for holding nodes, but just updating the array and blocking adds else will work
     // setNodeRows((prev) => [[...currentNodeRow, newNode]]);
-    setNodeRows((prev) => {
-      const lastInsert = prev[0].at(-1);
+    // setHistoryNodes((prev) => {
+    //   const lastInsert = prev[0].at(-1);
+    //   lastInsert ? (lastInsert.next = newNode) : null;
+    //   return [[...prev[0], newNode]];
+    // });
+    setHistoryNodes((prev) => {
+      const lastInsert = prev[0].element.at(-1);
       lastInsert ? (lastInsert.next = newNode) : null;
-      return [[...prev[0], newNode]];
+      return [
+        {
+          element: [...prev[0].element, newNode],
+          next: null,
+          prev: null,
+          stateContext: '',
+        },
+      ];
     });
   };
 
@@ -73,16 +88,23 @@ const ControlBar = (props: Props) => {
       return;
     }
     const currentNodeRow = nodeRows[0];
-    if (currentNodeRow.length === 0) {
+    if (currentNodeRow.element.length === 0) {
       return;
     }
-    const newTail = currentNodeRow.at(-2);
-    newTail ? (newTail.next = null) : null;
+
     // setNodeRows((prev) => [[...currentNodeRow.slice(0, -1)]]);
-    setNodeRows((prev) => {
-      const newTail = prev[0].at(-2);
+    setHistoryNodes((prev) => {
+      const newTail = prev[0].element.at(-2);
       newTail ? (newTail.next = null) : null;
-      return [[...prev[0].slice(0, -1)]];
+
+      return [
+        {
+          element: [...prev[0].element.slice(0, -1)],
+          next: null,
+          prev: null,
+          stateContext: '',
+        },
+      ];
     });
   };
 

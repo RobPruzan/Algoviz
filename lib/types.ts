@@ -5,3 +5,10 @@ export type NodeMetadata = {
   next?: NodeMetadata | null;
   color: string;
 };
+
+export type HistoryNode = {
+  next: HistoryNode | null;
+  prev: HistoryNode | null;
+  element: NodeMetadata[];
+  stateContext: string;
+};

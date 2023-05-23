@@ -8,20 +8,20 @@ import {
   ControlBarContextState,
   defaultState,
 } from '../../Context/ControlBarContext';
-import { NodeMetadata } from '@/lib/types';
-import { NodesContext } from '../../Context/NodesContext';
+import { HistoryNode, NodeMetadata } from '@/lib/types';
+import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
 
 const Content = () => {
-  const [nodeRows, setNodeRows] = useState<NodeMetadata[][]>([]);
+  const [historyNodes, setHistoryNodes] = useState<HistoryNode[]>([]);
 
   const [algorithm, setAlgorithm] = useState<string>('');
   const [controlBarState, setControlBarState] =
     useState<ControlBarContextState>(defaultState);
   return (
-    <NodesContext.Provider
+    <HistoryNodesContext.Provider
       value={{
-        nodeRows: nodeRows,
-        setNodeRows: setNodeRows,
+        historyNodes: historyNodes,
+        setHistoryNodes: setHistoryNodes,
       }}
     >
       <ControlBarContext.Provider
@@ -35,7 +35,7 @@ const Content = () => {
         </div>
         <SortVisualize algorithm={algorithm} />
       </ControlBarContext.Provider>
-    </NodesContext.Provider>
+    </HistoryNodesContext.Provider>
   );
 };
 
