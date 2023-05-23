@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { ControlBarContext } from '../../Context/ControlBarContext';
 import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
 import { useQuickSort } from '@/hooks/useQuickSort';
+import { z } from 'zod';
 
 type Props = {};
 
@@ -19,10 +20,7 @@ const ControlBar = (props: Props) => {
   const [test, setTest] = useState(0);
   const controlBarState = useContext(ControlBarContext);
   const nodeContextState = useContext(HistoryNodesContext);
-  const { handleQuickSort } = useQuickSort({
-    ...nodeContextState,
-    ...controlBarState,
-  });
+  const { handleQuickSort } = useQuickSort();
 
   const {
     state: { multiplier, playing },
@@ -31,7 +29,9 @@ const ControlBar = (props: Props) => {
   const { historyNodes: nodeRows, setHistoryNodes } =
     useContext(HistoryNodesContext);
 
-  const firstRow = nodeRows[0];
+  const firstRow = nodeRows[0]?.element;
+
+  console.log('da first row', firstRow);
 
   const numItems = nodeRows.length === 1 ? nodeRows[0].element.length : 0;
 
@@ -125,8 +125,13 @@ const ControlBar = (props: Props) => {
         <Play
           onClick={() => {
             setControlBarState((prev) => ({ ...prev, playing: true }));
-
-            const res = handleQuickSort(JSON.parse(JSON.stringify(firstRow)));
+            const copyArray = JSON.parse(JSON.stringify(firstRow));
+            console.log(z.array(z.unknown()).safeParse(copyArray));
+            console.log('copy array', copyArray);
+            const res = handleQuickSort({
+              arr: copyArray,
+              onFinish: (sortedArr) => console.warn('not implemented'),
+            });
             // we will probably need to call a use visualizer hook handler here
           }}
           className="cursor-pointer hover:scale-105 transition "

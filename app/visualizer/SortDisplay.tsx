@@ -9,11 +9,11 @@ import { ControlBarContext } from '@/Context/ControlBarContext';
 type Props = {};
 
 const SortDisplay = (props: Props) => {
-  const nodeContextState = useContext(HistoryNodesContext);
+  const historyNodesState = useContext(HistoryNodesContext);
 
   return (
     <div className=" h-4/6 bg-primary">
-      {nodeContextState.historyNodes.map((historyNode) => (
+      {historyNodesState.historyNodes.map((historyNode) => (
         <SortRow
           nodes={historyNode.element}
           key={historyNode.element.toString()}

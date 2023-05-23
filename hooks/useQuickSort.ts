@@ -8,14 +8,7 @@ import { MutableRefObject, useRef, useState } from 'react';
 
 type NodeRowState = { nodes: NodeMetadata[]; context: string };
 
-type QuickSortParams = ControlBarContextData & HistoryNodesContextState;
-
-export const useQuickSort = ({
-  state,
-  setState,
-  historyNodes: nodeRows,
-  setHistoryNodes: setNodeRows,
-}: QuickSortParams) => {
+export const useQuickSort = () => {
   // we obviously need to actually quicksort the array
   // we should have a temp, and then once we're done we can visualize the new array however we want
   // could be as simple as if the node has no next then it has a border which represents the new array :thinking
@@ -65,6 +58,7 @@ export const useQuickSort = ({
     arr: NodeMetadata[];
     onFinish: (tempNodesRows: NodeRowState[]) => void;
   }) => {
+    console.log('passed array');
     const sorted = quicksort(arr);
     onFinish(tempNodeRows.current);
 
