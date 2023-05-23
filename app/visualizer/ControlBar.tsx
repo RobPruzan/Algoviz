@@ -11,17 +11,26 @@ import {
 import { Button } from '@/components/ui/button';
 import { ControlBarContext } from '../../Context/ControlBarContext';
 import { NodesContext } from '../../Context/NodesContext';
+import { useQuickSort } from '@/hooks/useQuickSort';
 
 type Props = {};
 
 const ControlBar = (props: Props) => {
   const [test, setTest] = useState(0);
+  const controlBarState = useContext(ControlBarContext);
+  const nodeContextState = useContext(NodesContext);
+  const { handleQuickSort } = useQuickSort({
+    ...nodeContextState,
+    ...controlBarState,
+  });
 
   const {
     state: { multiplier, playing },
     setState: setControlBarState,
   } = useContext(ControlBarContext);
   const { nodeRows, setNodeRows } = useContext(NodesContext);
+
+  const firstRow = nodeRows[0];
 
   const numItems = nodeRows.length === 1 ? nodeRows[0].length : 0;
 
@@ -47,7 +56,12 @@ const ControlBar = (props: Props) => {
     console.log('rows', nodeRows);
 
     // ideal behavior is an initial node array/discriminated union for holding nodes, but just updating the array and blocking adds else will work
-    setNodeRows((prev) => [[...currentNodeRow, newNode]]);
+    // setNodeRows((prev) => [[...currentNodeRow, newNode]]);
+    setNodeRows((prev) => {
+      const lastInsert = prev[0].at(-1);
+      lastInsert ? (lastInsert.next = newNode) : null;
+      return [[...prev[0], newNode]];
+    });
   };
 
   const handleRemoveItem = () => {
@@ -64,27 +78,35 @@ const ControlBar = (props: Props) => {
     }
     const newTail = currentNodeRow.at(-2);
     newTail ? (newTail.next = null) : null;
-    setNodeRows((prev) => [[...currentNodeRow.slice(0, -1)]]);
+    // setNodeRows((prev) => [[...currentNodeRow.slice(0, -1)]]);
+    setNodeRows((prev) => {
+      const newTail = prev[0].at(-2);
+      newTail ? (newTail.next = null) : null;
+      return [[...prev[0].slice(0, -1)]];
+    });
   };
 
   return (
     <div className="w-full border-b-4 border-secondary h-20 flex items-center justify-evenly">
       {playing ? (
         <Pause
-          onClick={() =>
+          onClick={() => {
             setControlBarState((prevState) => ({
               ...prevState,
               playing: false,
-            }))
-          }
+            }));
+          }}
           size={32}
           className="cursor-pointer hover:scale-105 transition animate-pulse"
         />
       ) : (
         <Play
-          onClick={() =>
-            setControlBarState((prev) => ({ ...prev, playing: true }))
-          }
+          onClick={() => {
+            setControlBarState((prev) => ({ ...prev, playing: true }));
+
+            const res = handleQuickSort(JSON.parse(JSON.stringify(firstRow)));
+            // we will probably need to call a use visualizer hook handler here
+          }}
           className="cursor-pointer hover:scale-105 transition "
           size={32}
         />

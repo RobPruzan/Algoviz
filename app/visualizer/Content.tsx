@@ -4,6 +4,7 @@ import SortVisualize from './SortVisualize';
 import Node from '@/components/Visualizers/Node';
 import {
   ControlBarContext,
+  ControlBarContextData,
   ControlBarContextState,
   defaultState,
 } from '../../Context/ControlBarContext';

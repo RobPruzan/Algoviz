@@ -12,7 +12,7 @@ export const defaultState = {
   items: 10,
 };
 
-type ControlBarContextData = {
+export type ControlBarContextData = {
   state: ControlBarContextState;
   setState: Dispatch<SetStateAction<ControlBarContextState>>;
 };
