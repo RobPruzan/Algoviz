@@ -7,7 +7,7 @@ type Props = {
 
 const SortRow = ({ nodes }: Props) => {
   return (
-    <div className="p-4 w-full border-foreground border-y flex justify-evenly">
+    <div className="p-4 overflow-y-scroll w-full  border-foreground border-y flex justify-evenly">
       {nodes.map((node) => (
         <Node key={node.id} value={node.value} />
       ))}

@@ -8,7 +8,7 @@ type Props = {
 
 const SortVisualize = ({ algorithm }: Props) => {
   return (
-    <div className="w-3/5 h-[90%] border-4 border-secondary rounded-md">
+    <div className="w-[750px] h-[90%] border-4 border-secondary rounded-md">
       <ControlBar />
 
       <SortDisplay />

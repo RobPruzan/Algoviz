@@ -1,5 +1,6 @@
 export type NodeMetadata = {
   value: number;
   position: number;
-  id: number;
+  id: string;
+  next?: NodeMetadata | null;
 };

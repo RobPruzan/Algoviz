@@ -7,25 +7,34 @@ import {
   ControlBarContextState,
   defaultState,
 } from '../Context/ControlBarContext';
+import { NodeMetadata } from '@/lib/types';
+import { NodesContext } from '../Context/NodesContext';
 
-type Props = {};
+const Content = () => {
+  const [nodeRows, setNodeRows] = useState<NodeMetadata[][]>([]);
 
-const Content = (props: Props) => {
   const [algorithm, setAlgorithm] = useState<string>('');
   const [controlBarState, setControlBarState] =
     useState<ControlBarContextState>(defaultState);
   return (
-    <ControlBarContext.Provider
+    <NodesContext.Provider
       value={{
-        state: controlBarState,
-        setState: setControlBarState,
+        nodeRows: nodeRows,
+        setNodeRows: setNodeRows,
       }}
     >
-      <div className="w-44 min-w-fit h-[90%] rounded-md border-4 border-secondary flex flex-col justify-start items-center p-5">
-        <AlgoComboBox value={algorithm} setValue={setAlgorithm} />
-      </div>
-      <SortVisualize algorithm={algorithm} />
-    </ControlBarContext.Provider>
+      <ControlBarContext.Provider
+        value={{
+          state: controlBarState,
+          setState: setControlBarState,
+        }}
+      >
+        <div className="w-44 min-w-fit h-[90%] rounded-md border-4 border-secondary flex flex-col justify-start items-center p-5">
+          <AlgoComboBox value={algorithm} setValue={setAlgorithm} />
+        </div>
+        <SortVisualize algorithm={algorithm} />
+      </ControlBarContext.Provider>
+    </NodesContext.Provider>
   );
 };
 

@@ -4,7 +4,7 @@ type Props = {
 };
 const Node = ({ value }: Props) => {
   return (
-    <svg height="100" width="100">
+    <svg className="animate-in duration-300 zoom-in" height="100" width="100">
       <circle
         cx="50"
         cy="50"

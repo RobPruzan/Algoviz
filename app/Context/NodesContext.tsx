@@ -1,7 +1,7 @@
 import { NodeMetadata } from '@/lib/types';
 import { Dispatch, SetStateAction, createContext } from 'react';
 
-type NodeContextState = {
+export type NodeContextState = {
   nodeRows: NodeMetadata[][];
   setNodeRows: Dispatch<SetStateAction<NodeMetadata[][]>>;
 };
