@@ -17,33 +17,26 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { SetStateAction, useState } from 'react';
 
 const frameworks = [
   {
-    value: 'next.js',
-    label: 'Next.js',
+    value: 'merge sort',
+    label: 'Merge Sort',
   },
   {
-    value: 'sveltekit',
-    label: 'SvelteKit',
-  },
-  {
-    value: 'nuxt.js',
-    label: 'Nuxt.js',
-  },
-  {
-    value: 'remix',
-    label: 'Remix',
-  },
-  {
-    value: 'astro',
-    label: 'Astro',
+    value: 'quick sort',
+    label: 'Quick Sort',
   },
 ];
 
-export function ComboboxDemo() {
-  const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState('');
+type Props = {
+  value: string;
+  setValue: React.Dispatch<SetStateAction<string>>;
+};
+
+export function AlgoComboBox({ setValue, value }: Props) {
+  const [open, setOpen] = useState(false);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -52,18 +45,18 @@ export function ComboboxDemo() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-[200px] justify-between font-bold"
         >
           {value
             ? frameworks.find((framework) => framework.value === value)?.label
-            : 'Select framework...'}
+            : 'Sorting Algorithm...'}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
-          <CommandEmpty>No framework found.</CommandEmpty>
+          <CommandInput placeholder="Search Sorting Algorithm..." />
+          <CommandEmpty>No algorithm found.</CommandEmpty>
           <CommandGroup>
             {frameworks.map((framework) => (
               <CommandItem

@@ -1,7 +1,8 @@
+import { cn } from '@/lib/utils';
 import AuthProvider from './AuthProvider';
 import './globals.css';
 import { Inter } from 'next/font/google';
-
+import { fontSans } from '@/lib/fonts';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -17,7 +18,14 @@ export default function RootLayout({
   return (
     <AuthProvider>
       <html lang="en">
-        <body className={inter.className}>{children}</body>
+        <body
+          className={cn(
+            'min-h-screen bg-background dark font-sans antialiased',
+            fontSans.variable
+          )}
+        >
+          {children}
+        </body>
       </html>
     </AuthProvider>
   );
