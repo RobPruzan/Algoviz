@@ -33,9 +33,7 @@ export const useQuickSort = ({
   ): NodeMetadata[] => {
     if (low < high) {
       const partitionIndex = partition(arr, low, high);
-      console.log('da array 1');
       quicksort(arr, low, partitionIndex - 1);
-      console.log('da array 2');
 
       quicksort(arr, partitionIndex + 1, high);
     }
@@ -50,10 +48,11 @@ export const useQuickSort = ({
   ): number => {
     const pivot = arr[high];
     let pivotPointer = low - 1;
+    var swappedWithAnyElements = false;
     pushNewHistoryNode({
       arr,
       pivotId: pivot.id,
-      stateContext: `Initializing the pivot to: ${pivot.value} `,
+      stateContext: `Initializing the pivot to: ${pivot.value}; moving nodes smaller than pivot to left of pivot pointer`,
       pivotPointerPosition: pivotPointer,
       fakeArrayBounds: [low, high],
     });
@@ -61,6 +60,13 @@ export const useQuickSort = ({
     for (let j = low; j < high; j++) {
       if (arr[j].value < pivot.value) {
         pivotPointer++;
+        pushNewHistoryNode({
+          stateContext: 'Incrementing pivot pointer',
+          arr,
+          pivotId: pivot.id,
+          pivotPointerPosition: pivotPointer,
+          fakeArrayBounds: [low, high],
+        });
         const iSwap = arr[pivotPointer].id;
         const jSwap = arr[j].id;
 
@@ -70,10 +76,11 @@ export const useQuickSort = ({
           arr,
           swap: [iSwap, jSwap],
           pivotId: pivot.id,
-          stateContext: `Swapped ${arr[pivotPointer].value} with ${arr[j].value}`,
+          stateContext: `Moving ${arr[pivotPointer].value} to left of pivot pointer by swapping with ${arr[j].value}`,
           pivotPointerPosition: pivotPointer,
           fakeArrayBounds: [low, high],
         });
+        swappedWithAnyElements = true;
       }
     }
     [arr[pivotPointer + 1], arr[high]] = [arr[high], arr[pivotPointer + 1]];
@@ -85,9 +92,11 @@ export const useQuickSort = ({
       arr,
       swap: [swap1, swap2],
       pivotId: pivot.id,
-      stateContext: `Moving pivot value: ${
+      stateContext: `${
+        swappedWithAnyElements ? '' : 'All nodes already greater than pivot. '
+      }Moving pivot node to pivot pointer location by swapping: ${
         arr[pivotPointer + 1].value
-      } by swapping with ${arr[high].value}`,
+      } with ${arr[high].value}`,
       pivotPointerPosition: pivotPointer,
       fakeArrayBounds: [low, high],
     });
@@ -150,6 +159,13 @@ export const useQuickSort = ({
   }) => {
     tempHistoryArrayList.current = [...currentHistory];
     const sorted = quicksort(arr);
+    currentHistory.length > 0 &&
+      pushNewHistoryNode({
+        stateContext: 'Completed Sort',
+        arr: sorted,
+        pivotPointerPosition: -2,
+        fakeArrayBounds: [-1, -1],
+      });
 
     onFinish(tempHistoryArrayList.current);
 

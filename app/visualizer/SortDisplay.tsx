@@ -39,6 +39,7 @@ const SortDisplay = (props: Props) => {
 
   const firstRow = historyNodes[0]?.element;
   // this sucks, need constant reference for handle quickSort
+  console.log('te first row', firstRow);
   const { sorted } = useMemo(
     () =>
       handleQuickSort({
@@ -54,17 +55,28 @@ const SortDisplay = (props: Props) => {
     historyNodesState.tempHistoryArrayList
   );
 
+  const truncatedHistoryArray = getHistoryArray(
+    historyNodesState.tempHistoryArrayList.current,
+    historyPointer
+  );
+
+  console.log(
+    'ahh hist',
+    historyNodesState.tempHistoryArrayList.current,
+    truncatedHistoryArray.length
+  );
+
   return (
     <div ref={scrollRef} className="bg-primary">
-      {getHistoryArray(
-        historyNodesState.tempHistoryArrayList.current,
-        historyPointer
-      ).map((historyNode) => (
-        <SortRow
-          historyNode={historyNode}
-          key={historyNode.element.map((_) => _.id).join('')}
-        />
-      ))}
+      {truncatedHistoryArray.length > 0 ? (
+        truncatedHistoryArray.map((historyNode, idx) => (
+          <SortRow historyNode={historyNode} key={idx} />
+        ))
+      ) : (
+        <div className="flex w-full justify-center items-center mt-5 text-foreground font-bold text-3xl opacity-40">
+          Add some nodes to get started!
+        </div>
+      )}
     </div>
   );
 };

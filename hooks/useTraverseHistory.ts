@@ -19,10 +19,9 @@ export const useTraverseHistory = ({
     }));
   };
   const handleMoveBackward = () => {
-    if (controlBarState.historyPointer === 0) return;
     setControlBarState((prev) => {
       const newPointer = prev.historyPointer - 1;
-      if (!newPointer) return prev;
+      if (newPointer < 0) return prev;
       return {
         ...prev,
         historyPointer: newPointer,

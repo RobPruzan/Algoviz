@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { SpeedSlider } from './SpeedSlider';
 import {
   ArrowLeft,
@@ -40,9 +40,11 @@ const ControlBar = (props: Props) => {
     historyNodes.length === 1 ? historyNodes[0].element.length : 0;
 
   const handleAddNode = () => {
+    console.log('1');
     if (historyNodes.length > 1) {
       return;
     }
+    console.log('2');
 
     const newNode = {
       value: Math.floor(Math.random() * 100),
@@ -58,6 +60,8 @@ const ControlBar = (props: Props) => {
         prev: null,
         stateContext: '',
       };
+      console.log('3');
+
       const newHistoryArrayList = [initialNode];
       setHistoryNodes((_) => {
         tempHistoryArrayList.current = [];
@@ -77,10 +81,6 @@ const ControlBar = (props: Props) => {
         stateContext: '',
       };
       tempHistoryArrayList.current = [];
-      // setControlBarState((prev) => ({
-      //   ...prev,
-      //   historyPointer: newArrayList,
-      // }));
       return [newArrayList];
     });
   };
@@ -114,39 +114,61 @@ const ControlBar = (props: Props) => {
     });
   };
 
-  const tailToHeadHistory = getHistoryArray(
-    historyNodes,
-    controlBarState.historyPointer
-  );
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+
+    if (controlBarState.playing) {
+      intervalId = setInterval(() => {
+        if (
+          controlBarState.historyPointer ===
+          tempHistoryArrayList.current.length - 1
+        ) {
+          setControlBarState((prevState) => ({
+            ...prevState,
+            playing: false,
+          }));
+          return;
+        }
+        if (controlBarState.playing) {
+          handleMoveForward(tempHistoryArrayList.current);
+        }
+      }, 1000);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [controlBarState.playing, handleMoveForward]);
 
   return (
     <div className="w-full border-b-4 border-secondary h-20 flex items-center justify-evenly">
-      {controlBarState.playing ? (
-        <Pause
-          onClick={() => {
-            setControlBarState((prevState) => ({
-              ...prevState,
-              playing: false,
-            }));
-          }}
-          size={32}
-          className="cursor-pointer hover:scale-105 transition animate-pulse"
-        />
-      ) : (
-        <Play
-          onClick={() => {
-            setControlBarState((prev) => ({ ...prev, playing: true }));
-            const copyArray = JSON.parse(JSON.stringify(firstRow));
-            const res = handleQuickSort({
-              arr: copyArray,
-              onFinish: (sortedArr) => console.warn('not implemented'),
-            });
-            // we will probably need to call a use visualizer hook handler here
-          }}
-          className="cursor-pointer hover:scale-105 transition "
-          size={32}
-        />
-      )}
+      <Button>
+        {controlBarState.playing ? (
+          <Pause
+            onClick={() => {
+              setControlBarState((prevState) => ({
+                ...prevState,
+                playing: false,
+              }));
+            }}
+            size={32}
+            className="cursor-pointer hover:scale-105 transition animate-pulse"
+          />
+        ) : (
+          <Play
+            onClick={async () => {
+              setControlBarState((prev) => ({ ...prev, playing: true }));
+
+              // we will probably need to call a use visualizer hook handler here
+            }}
+            className="cursor-pointer hover:scale-105 transition "
+            size={32}
+          />
+        )}
+      </Button>
       <div className="w-3/5 flex justify-evenly items-center">
         <Button>
           <ArrowLeft
@@ -160,10 +182,15 @@ const ControlBar = (props: Props) => {
 
         <SpeedSlider
           min={0}
-          max={10}
-          value={[tailToHeadHistory.length]}
-          onValueChange={(value) =>
-            setControlBarState((prev) => ({ ...prev, multiplier: value }))
+          max={tempHistoryArrayList.current.length - 1}
+          value={[controlBarState.historyPointer]}
+          onValueChange={
+            (value) =>
+              setControlBarState((prev) => ({
+                ...prev,
+                historyPointer: value[0],
+              }))
+            // setControlBarState((prev) => ({ ...prev, multiplier: value }))
           }
         />
         <Button>
