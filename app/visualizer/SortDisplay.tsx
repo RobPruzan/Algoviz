@@ -1,6 +1,6 @@
 import Node from '@/components/Visualizers/Node';
 import { NodeMetadata } from '@/lib/types';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import SortRow from './SortRow';
 import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
 import { useQuickSort } from '@/hooks/useQuickSort';
@@ -12,6 +12,22 @@ type Props = {};
 const SortDisplay = (props: Props) => {
   const historyNodesState = useContext(HistoryNodesContext);
   const controlBarData = useContext(ControlBarContext);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (scrollRef.current) {
+      const lastChild = scrollRef.current.lastElementChild;
+      if (lastChild) {
+        lastChild.scrollIntoView({
+          behavior: 'smooth',
+          block: 'end',
+          inline: 'nearest',
+        });
+      }
+    }
+  }, [controlBarData]);
+  // useEffect(() => {
+  //   scrollRef.current?.scrollTo(0, scrollRef.current?.scrollHeight);
+  // }, [scrollRef]);
 
   const historyPointer = controlBarData.controlBarState.historyPointer;
 
@@ -22,7 +38,7 @@ const SortDisplay = (props: Props) => {
   const { historyNodes, setHistoryNodes } = useContext(HistoryNodesContext);
 
   const firstRow = historyNodes[0]?.element;
-
+  // this sucks, need constant reference for handle quickSort
   const { sorted } = useMemo(
     () =>
       handleQuickSort({
@@ -38,23 +54,16 @@ const SortDisplay = (props: Props) => {
     historyNodesState.tempHistoryArrayList
   );
 
-  // const tailToHeadHistory = [
-  //   ...historyNodes,
-  //   ...getHistoryArray(tempHistoryArrayList, historyPointer),
-  // ];
-
-  // console.log(
-  //   'the history array',
-  //   getHistoryArray(tempHistoryArrayList, historyPointer)
-  // );
-
   return (
-    <div className="bg-primary">
+    <div ref={scrollRef} className="bg-primary">
       {getHistoryArray(
         historyNodesState.tempHistoryArrayList.current,
         historyPointer
       ).map((historyNode) => (
-        <SortRow nodes={historyNode.element} key={Date.now() + Math.random()} />
+        <SortRow
+          historyNode={historyNode}
+          key={historyNode.element.map((_) => _.id).join('')}
+        />
       ))}
     </div>
   );

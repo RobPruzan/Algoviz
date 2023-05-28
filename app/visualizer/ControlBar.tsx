@@ -148,13 +148,16 @@ const ControlBar = (props: Props) => {
         />
       )}
       <div className="w-3/5 flex justify-evenly items-center">
-        <ArrowLeft
-          className="cursor-pointer hover:scale-105 transition"
-          onClick={() => {
-            handleMoveBackward();
-          }}
-          size={32}
-        />
+        <Button>
+          <ArrowLeft
+            className="cursor-pointer hover:scale-105 transition"
+            onClick={() => {
+              handleMoveBackward();
+            }}
+            size={32}
+          />
+        </Button>
+
         <SpeedSlider
           min={0}
           max={10}
@@ -163,13 +166,15 @@ const ControlBar = (props: Props) => {
             setControlBarState((prev) => ({ ...prev, multiplier: value }))
           }
         />
-        <ArrowRight
-          className="cursor-pointer hover:scale-105 transition"
-          onClick={() => {
-            handleMoveForward(tempHistoryArrayList.current);
-          }}
-          size={32}
-        />
+        <Button>
+          <ArrowRight
+            className="cursor-pointer hover:scale-105 transition"
+            onClick={() => {
+              handleMoveForward(tempHistoryArrayList.current);
+            }}
+            size={32}
+          />
+        </Button>
 
         <label className="font-bold">
           Step {controlBarState.historyPointer}

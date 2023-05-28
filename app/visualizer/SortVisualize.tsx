@@ -8,11 +8,11 @@ type Props = {
 
 const SortVisualize = ({ algorithm }: Props) => {
   return (
-    <div className="flex flex-col h-[800px]">
-      <div className="w-[750px] h-1/5\ border-2 border-b-0 rounded-b-none border-foreground rounded-md">
+    <div className="flex flex-col h-[900px] items-center justify-center w-4/5">
+      <div className="w-full border-2 border-b-0 rounded-b-none border-foreground rounded-md">
         <ControlBar />
       </div>
-      <div className="w-[750px] overflow-y-scroll rounded-t-none h-4/5 border-2 border-foreground rounded-md">
+      <div className="w-full overflow-y-scroll rounded-t-none h-4/5 border-2 border-foreground rounded-md">
         <SortDisplay />
       </div>
     </div>

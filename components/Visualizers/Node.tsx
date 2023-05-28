@@ -1,26 +1,32 @@
-import React, { SVGProps, useEffect, useRef, useState } from 'react';
+import React, {
+  ComponentProps,
+  SVGProps,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 type Props = {
   value: number;
-} & SVGProps<SVGSVGElement>;
+} & ComponentProps<'circle'>;
 const Node = ({ value, ...props }: Props) => {
   const ref = useRef<SVGSVGElement>(null);
 
   return (
     <svg
       ref={ref}
-      className="animate-in duration-300 zoom-in "
+      className="animate-in duration-300 zoom-in mr-4 "
       height="100"
-      width="100"
-      {...props}
+      width="80"
     >
       <circle
         className="transition duration-300 ease-in"
-        cx="50"
+        cx="42"
         cy="50"
-        r="40"
+        r="30"
         stroke="black"
         strokeWidth="3"
         fill="white"
+        {...props}
       />
       <text
         x="50%"

@@ -14,4 +14,6 @@ export type HistoryNode = {
   prev: HistoryNode | null;
   element: NodeMetadata[];
   stateContext: string;
+  pivotPointerPosition?: number;
+  fakeArrayBounds?: [number, number];
 };
