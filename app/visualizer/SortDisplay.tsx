@@ -1,6 +1,6 @@
 import Node from '@/components/Visualizers/Node';
 import { NodeMetadata } from '@/lib/types';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import SortRow from './SortRow';
 import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
 import { useQuickSort } from '@/hooks/useQuickSort';
@@ -13,18 +13,48 @@ const SortDisplay = (props: Props) => {
   const historyNodesState = useContext(HistoryNodesContext);
   const controlBarData = useContext(ControlBarContext);
 
-  const historyPointer = controlBarData.state.historyPointer;
-  const tailToHeadHistory = getHistoryArray(historyPointer);
+  const historyPointer = controlBarData.controlBarState.historyPointer;
 
-  console.log('debug', historyNodesState, tailToHeadHistory);
+  const { handleQuickSort } = useQuickSort({
+    currentHistory: historyNodesState.historyNodes,
+    tempHistoryArrayList: historyNodesState.tempHistoryArrayList,
+  });
+  const { historyNodes, setHistoryNodes } = useContext(HistoryNodesContext);
+
+  const firstRow = historyNodes[0]?.element;
+
+  const { sorted } = useMemo(
+    () =>
+      handleQuickSort({
+        arr: JSON.parse(JSON.stringify(firstRow ?? [])),
+        onFinish: (sortedArr) => console.warn('not implemented'),
+      }),
+    [firstRow]
+  );
+
+  console.log(
+    'da sorted result',
+
+    historyNodesState.tempHistoryArrayList
+  );
+
+  // const tailToHeadHistory = [
+  //   ...historyNodes,
+  //   ...getHistoryArray(tempHistoryArrayList, historyPointer),
+  // ];
+
+  // console.log(
+  //   'the history array',
+  //   getHistoryArray(tempHistoryArrayList, historyPointer)
+  // );
 
   return (
-    <div className="h-4/6 bg-primary">
-      {tailToHeadHistory.map((historyNode) => (
-        <SortRow
-          nodes={historyNode.element}
-          key={historyNode.element.toString()}
-        />
+    <div className="bg-primary">
+      {getHistoryArray(
+        historyNodesState.tempHistoryArrayList.current,
+        historyPointer
+      ).map((historyNode) => (
+        <SortRow nodes={historyNode.element} key={Date.now() + Math.random()} />
       ))}
     </div>
   );

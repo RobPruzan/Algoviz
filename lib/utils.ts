@@ -22,18 +22,18 @@ export const getNodeArray = (nodeRow: NodeMetadata[]) => {
   return arrays;
 };
 
-export const getHistoryArray = (historyPointer: HistoryNode | null) => {
-  const nodeArrayList = [];
-  let curr: HistoryNode | null = historyPointer;
-
-  console.log('da history pointer', historyPointer);
-
-  while (curr) {
-    nodeArrayList.push(curr);
-    console.log('inside');
-    curr = curr.prev;
+export const getHistoryArray = (
+  history: HistoryNode[],
+  historyIndex: number
+) => {
+  const nodeArrayList: HistoryNode[] = [];
+  const node = history.at(historyIndex);
+  var curr = historyIndex;
+  while (curr >= 0) {
+    const at = history.at(curr);
+    at && nodeArrayList.push(at);
+    curr -= 1;
   }
-  nodeArrayList.reverse();
-  console.log('da list', nodeArrayList);
+
   return nodeArrayList;
 };

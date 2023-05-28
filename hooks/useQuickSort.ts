@@ -3,16 +3,28 @@ import {
   ControlBarContextState,
 } from '@/Context/ControlBarContext';
 import { HistoryNodesContextState } from '@/Context/HistoryNodesContext';
-import { NodeMetadata } from '@/lib/types';
-import { MutableRefObject, useRef, useState } from 'react';
+import { HistoryNode, NodeMetadata } from '@/lib/types';
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useRef,
+  useState,
+} from 'react';
 
-type NodeRowState = { nodes: NodeMetadata[]; context: string };
+export type NodeRowState = { nodes: NodeMetadata[]; context: string };
 
-export const useQuickSort = () => {
+export const useQuickSort = ({
+  currentHistory,
+  tempHistoryArrayList,
+}: {
+  currentHistory: HistoryNode[];
+  tempHistoryArrayList: MutableRefObject<HistoryNode[]>;
+}) => {
   // we obviously need to actually quicksort the array
   // we should have a temp, and then once we're done we can visualize the new array however we want
   // could be as simple as if the node has no next then it has a border which represents the new array :thinking
-  const tempNodeRows = useRef<NodeRowState[]>([]);
+  // const tempHistoryArrayList = useRef<HistoryNode[]>([]);
 
   const quicksort = (
     arr: NodeMetadata[],
@@ -21,7 +33,10 @@ export const useQuickSort = () => {
   ): NodeMetadata[] => {
     if (low < high) {
       const partitionIndex = partition(arr, low, high);
+      console.log('da array 1');
       quicksort(arr, low, partitionIndex - 1);
+      console.log('da array 2');
+
       quicksort(arr, partitionIndex + 1, high);
     }
 
@@ -43,11 +58,21 @@ export const useQuickSort = () => {
       }
     }
     [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
-    tempNodeRows.current.push({
-      nodes: arr,
-      context: `Swapped ${arr[i + 1].value} with ${arr[high].value}`,
-    });
+    const tail = tempHistoryArrayList.current.at(-1);
 
+    const copiedArray = arr.map((node) => ({ ...node }));
+
+    const newHistoryNode: HistoryNode = {
+      prev: tail ?? null,
+      next: null,
+      element: copiedArray,
+      stateContext: `Swapped ${arr[i + 1].value} with ${arr[high].value}`,
+    };
+
+    tail ? (tail.next = newHistoryNode) : null;
+
+    tempHistoryArrayList.current.push(newHistoryNode);
+    console.log('pusing');
     return i + 1;
   };
 
@@ -56,13 +81,17 @@ export const useQuickSort = () => {
     onFinish,
   }: {
     arr: NodeMetadata[];
-    onFinish: (tempNodesRows: NodeRowState[]) => void;
+    onFinish: (tempNodesRows: HistoryNode[]) => void;
   }) => {
-    console.log('passed array');
+    tempHistoryArrayList.current = [
+      ...currentHistory,
+      ...tempHistoryArrayList.current,
+    ];
     const sorted = quicksort(arr);
-    onFinish(tempNodeRows.current);
 
-    return sorted;
+    onFinish(tempHistoryArrayList.current);
+
+    return { sorted };
   };
 
   return { handleQuickSort };

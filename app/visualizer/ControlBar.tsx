@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useMemo, useRef, useState } from 'react';
 import { SpeedSlider } from './SpeedSlider';
 import {
   ArrowLeft,
@@ -21,27 +21,29 @@ import { useTraverseHistory } from '@/hooks/useTraverseHistory';
 type Props = {};
 
 const ControlBar = (props: Props) => {
-  const { handleQuickSort } = useQuickSort();
-
-  const { state, setState: setControlBarState } = useContext(ControlBarContext);
-  const { historyNodes: nodeRows, setHistoryNodes } =
+  const { controlBarState, setControlBarState } = useContext(ControlBarContext);
+  const { historyNodes, setHistoryNodes, tempHistoryArrayList } =
     useContext(HistoryNodesContext);
-
-  const { handleMoveBackward, handleMoveForward } = useTraverseHistory({
-    setState: setControlBarState,
-    state,
+  const { handleQuickSort } = useQuickSort({
+    currentHistory: historyNodes,
+    tempHistoryArrayList,
   });
 
-  const firstRow = nodeRows[0]?.element;
+  const firstRow = historyNodes[0]?.element;
 
-  console.log('da first row', firstRow);
+  const { handleMoveBackward, handleMoveForward } = useTraverseHistory({
+    setControlBarState: setControlBarState,
+    controlBarState: controlBarState,
+  });
 
-  const numItems = nodeRows.length === 1 ? nodeRows[0].element.length : 0;
+  const numItems =
+    historyNodes.length === 1 ? historyNodes[0].element.length : 0;
 
   const handleAddNode = () => {
-    if (nodeRows.length > 1) {
+    if (historyNodes.length > 1) {
       return;
     }
+
     const newNode = {
       value: Math.floor(Math.random() * 100),
       id: crypto.randomUUID(),
@@ -49,7 +51,7 @@ const ControlBar = (props: Props) => {
       next: null,
       color: 'white',
     };
-    if (nodeRows.length == 0) {
+    if (historyNodes.length == 0) {
       const initialNode = {
         element: [newNode],
         next: null,
@@ -57,17 +59,14 @@ const ControlBar = (props: Props) => {
         stateContext: '',
       };
       const newHistoryArrayList = [initialNode];
-      setControlBarState((prev) => ({
-        ...prev,
-        historyPointer: initialNode,
-        // historyPointer:
-      }));
-      setHistoryNodes(newHistoryArrayList);
+      setHistoryNodes((_) => {
+        tempHistoryArrayList.current = [];
+        return newHistoryArrayList;
+      });
       return;
     }
 
     // ideal behavior is an initial node array/discriminated union for holding nodes, but just updating the array and blocking adds else will work
-
     setHistoryNodes((prev) => {
       const lastInsert = prev[0].element.at(-1);
       lastInsert ? (lastInsert.next = newNode) : null;
@@ -77,23 +76,24 @@ const ControlBar = (props: Props) => {
         prev: null,
         stateContext: '',
       };
-      setControlBarState((prev) => ({
-        ...prev,
-        historyPointer: newArrayList,
-      }));
+      tempHistoryArrayList.current = [];
+      // setControlBarState((prev) => ({
+      //   ...prev,
+      //   historyPointer: newArrayList,
+      // }));
       return [newArrayList];
     });
   };
 
   const handleRemoveItem = () => {
-    console.log(nodeRows);
-    if (nodeRows.length > 1) {
+    if (historyNodes.length > 1) {
       return;
     }
-    if (nodeRows.length == 0) {
+    if (historyNodes.length == 0) {
       return;
     }
-    const currentNodeRow = nodeRows[0];
+
+    const currentNodeRow = historyNodes[0];
     if (currentNodeRow.element.length === 0) {
       return;
     }
@@ -108,20 +108,20 @@ const ControlBar = (props: Props) => {
         prev: null,
         stateContext: '',
       };
-      setControlBarState((prev) => ({
-        ...prev,
-        historyPointer: newArrayList,
-      }));
+      tempHistoryArrayList.current = [];
 
       return [newArrayList];
     });
   };
 
-  const tailToHeadHistory = getHistoryArray(state.historyPointer);
+  const tailToHeadHistory = getHistoryArray(
+    historyNodes,
+    controlBarState.historyPointer
+  );
 
   return (
     <div className="w-full border-b-4 border-secondary h-20 flex items-center justify-evenly">
-      {state.playing ? (
+      {controlBarState.playing ? (
         <Pause
           onClick={() => {
             setControlBarState((prevState) => ({
@@ -137,8 +137,6 @@ const ControlBar = (props: Props) => {
           onClick={() => {
             setControlBarState((prev) => ({ ...prev, playing: true }));
             const copyArray = JSON.parse(JSON.stringify(firstRow));
-            console.log(z.array(z.unknown()).safeParse(copyArray));
-            console.log('copy array', copyArray);
             const res = handleQuickSort({
               arr: copyArray,
               onFinish: (sortedArr) => console.warn('not implemented'),
@@ -149,17 +147,6 @@ const ControlBar = (props: Props) => {
           size={32}
         />
       )}
-      {/* <div className="w-2/5 flex justify-evenly">
-        <SpeedSlider
-          min={0}
-          max={10}
-          value={multiplier}
-          onValueChange={(value) =>
-            setControlBarState((prev) => ({ ...prev, multiplier: value }))
-          }
-        />
-        <label className="font-bold">x{multiplier}</label>
-      </div> */}
       <div className="w-3/5 flex justify-evenly items-center">
         <ArrowLeft
           className="cursor-pointer hover:scale-105 transition"
@@ -179,12 +166,14 @@ const ControlBar = (props: Props) => {
         <ArrowRight
           className="cursor-pointer hover:scale-105 transition"
           onClick={() => {
-            handleMoveForward();
+            handleMoveForward(tempHistoryArrayList.current);
           }}
           size={32}
         />
 
-        <label className="font-bold">Step {tailToHeadHistory.length}</label>
+        <label className="font-bold">
+          Step {controlBarState.historyPointer}
+        </label>
       </div>
       <div className="flex justify-evenly items-center w-1/4 ">
         <label className="font-bold">Items: {numItems}</label>

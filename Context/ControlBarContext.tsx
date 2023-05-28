@@ -5,22 +5,22 @@ export type ControlBarContextState = {
   playing: boolean;
   multiplier: number[];
   items: number;
-  historyPointer: HistoryNode | null;
+  historyPointer: number;
 };
 
 export const defaultState = {
   playing: false,
   multiplier: [1],
   items: 10,
-  historyPointer: null,
+  historyPointer: 0,
 };
 
 export type ControlBarContextData = {
-  state: ControlBarContextState;
-  setState: Dispatch<SetStateAction<ControlBarContextState>>;
+  controlBarState: ControlBarContextState;
+  setControlBarState: Dispatch<SetStateAction<ControlBarContextState>>;
 };
 
 export const ControlBarContext = createContext<ControlBarContextData>({
-  state: defaultState,
-  setState: () => console.warn('no state provider'),
+  controlBarState: defaultState,
+  setControlBarState: () => console.warn('no state provider'),
 });
