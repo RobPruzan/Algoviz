@@ -12,6 +12,7 @@ export type NodeMetadata = {
 // in inner array list links represent if they are split into new arrays or not
 // quick sort is inplace, so its always in one array, but merge sort creates sub array
 export type HistoryNode = {
+  id: string;
   next: HistoryNode | null;
   prev: HistoryNode | null;
   element: NodeMetadata[];
@@ -23,4 +24,9 @@ export type HistoryNode = {
 export type UseSortParams = {
   currentHistory: HistoryNode[];
   tempHistoryArrayList: MutableRefObject<HistoryNode[]>;
+};
+
+export type HandleSortParams = {
+  arr: NodeMetadata[];
+  onFinish: (tempNodesRows: HistoryNode[]) => void;
 };

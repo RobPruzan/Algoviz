@@ -1,4 +1,9 @@
-import { HistoryNode, NodeMetadata, UseSortParams } from '@/lib/types';
+import {
+  HandleSortParams,
+  HistoryNode,
+  NodeMetadata,
+  UseSortParams,
+} from '@/lib/types';
 
 export type NodeRowState = { nodes: NodeMetadata[]; context: string };
 
@@ -116,6 +121,7 @@ export const useQuickSort = ({
 
         return node;
       }),
+      id: crypto.randomUUID(),
       stateContext,
       pivotPointerPosition,
       fakeArrayBounds,
@@ -126,13 +132,7 @@ export const useQuickSort = ({
     tempHistoryArrayList.current.push(newHistoryNode);
   }
 
-  const handleQuickSort = ({
-    arr,
-    onFinish,
-  }: {
-    arr: NodeMetadata[];
-    onFinish: (tempNodesRows: HistoryNode[]) => void;
-  }) => {
+  const handleQuickSort = ({ arr, onFinish }: HandleSortParams) => {
     tempHistoryArrayList.current = [...currentHistory];
     const sorted = quicksort(arr);
     currentHistory.length > 0 &&

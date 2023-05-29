@@ -11,7 +11,9 @@ import SortRow from './SortRow';
 import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
 import { useQuickSort } from '@/hooks/useQuickSort';
 import { ControlBarContext } from '@/Context/ControlBarContext';
-import { getHistoryArray } from '@/lib/utils';
+
+import { useMergeSort } from '@/hooks/useMergeSort';
+import { useTransition, animated, config } from 'react-spring';
 
 type Props = {};
 
@@ -31,9 +33,6 @@ const SortDisplay = (props: Props) => {
       }
     }
   }, [controlBarData]);
-  // useEffect(() => {
-  //   scrollRef.current?.scrollTo(0, scrollRef.current?.scrollHeight);
-  // }, [scrollRef]);
 
   const historyPointer = controlBarData.controlBarState.historyPointer;
 
@@ -45,8 +44,7 @@ const SortDisplay = (props: Props) => {
   const { historyNodes, setHistoryNodes } = useContext(HistoryNodesContext);
 
   const firstRow = historyNodes[0]?.element;
-  // this sucks, need constant reference for handle quickSort
-  console.log('te first row', firstRow);
+
   const { sorted } = useMemo(
     () =>
       handleQuickSort({
@@ -56,19 +54,20 @@ const SortDisplay = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [firstRow]
   );
+  // const { handleMergeSort } = useMergeSort({
+  //   currentHistory: historyNodesState.historyNodes,
+  //   tempHistoryArrayList: historyNodesState.tempHistoryArrayList,
+  // });
 
-  console.log(
-    'da sorted result',
-
-    historyNodesState.tempHistoryArrayList
-  );
-
-  const truncatedHistoryArray = getHistoryArray(
-    historyNodesState.tempHistoryArrayList.current,
-    historyPointer
-  );
+  const truncatedHistoryArray = [
+    ...historyNodesState.tempHistoryArrayList.current.slice(
+      0,
+      historyPointer + 1
+    ),
+  ];
 
   return (
+    // we want to have the -/+ that each node moved each step. Then after it's rendered, we begin an animation sequence that shows the nodes being moved to their actual position
     <div ref={scrollRef} className="bg-primary">
       {truncatedHistoryArray.length > 0 ? (
         truncatedHistoryArray.map((historyNode, idx) => (

@@ -15,7 +15,7 @@ import { ControlBarContext } from '../../Context/ControlBarContext';
 import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
 import { useQuickSort } from '@/hooks/useQuickSort';
 import { z } from 'zod';
-import { getHistoryArray } from '@/lib/utils';
+
 import { useTraverseHistory } from '@/hooks/useTraverseHistory';
 
 type Props = {};
@@ -83,6 +83,7 @@ const ControlBar = (props: Props) => {
         next: null,
         prev: null,
         stateContext: 'Beginning sort',
+        id: crypto.randomUUID(),
       };
 
       const newHistoryArrayList = [initialNode];
@@ -103,6 +104,7 @@ const ControlBar = (props: Props) => {
         next: null,
         prev: null,
         stateContext: 'Beginning sort',
+        id: crypto.randomUUID(),
       };
       tempHistoryArrayList.current = [];
       return [newArrayList];
@@ -131,6 +133,7 @@ const ControlBar = (props: Props) => {
         next: null,
         prev: null,
         stateContext: 'Beginning sort',
+        id: crypto.randomUUID(),
       };
       tempHistoryArrayList.current = [];
 
@@ -138,9 +141,13 @@ const ControlBar = (props: Props) => {
     });
   };
 
-  const truncatedHistoryArray = getHistoryArray(
-    tempHistoryArrayList.current,
-    controlBarState.historyPointer
+  // const truncatedHistoryArray = getHistoryArray(
+  //   tempHistoryArrayList.current,
+  //   controlBarState.historyPointer
+  // );
+  const truncatedHistoryArray = tempHistoryArrayList.current.slice(
+    0,
+    controlBarState.historyPointer + 1
   );
   return (
     <div className="w-full border-b-4 border-secondary h-20 flex items-center justify-evenly">

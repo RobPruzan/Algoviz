@@ -1,4 +1,9 @@
-import { HistoryNode, NodeMetadata, UseSortParams } from '@/lib/types';
+import {
+  HandleSortParams,
+  HistoryNode,
+  NodeMetadata,
+  UseSortParams,
+} from '@/lib/types';
 
 export const useMergeSort = ({
   currentHistory,
@@ -10,10 +15,20 @@ export const useMergeSort = ({
     }
 
     const middle = Math.floor(arr.length / 2);
+
+    // need to update the arraylist to break the connection at the middle, not simply just slicing
     const left = arr.slice(0, middle);
+    const tailLinkBrokenLeft = left.slice(0, -1).concat([
+      {
+        ...left.slice(-1)[0],
+        next: null,
+      },
+    ]);
     const right = arr.slice(middle);
 
-    return merge(mergeSort(left), mergeSort(right));
+    console.log([...tailLinkBrokenLeft, ...right], 'vs', arr);
+
+    return merge(mergeSort(tailLinkBrokenLeft), mergeSort(right));
   }
 
   function merge(left: NodeMetadata[], right: NodeMetadata[]): NodeMetadata[] {
@@ -24,7 +39,7 @@ export const useMergeSort = ({
     while (leftIndex < left.length && rightIndex < right.length) {
       if (left[leftIndex].value < right[rightIndex].value) {
         resultArray.push(left[leftIndex]);
-        leftIndex++; // move left array cursor
+        leftIndex++;
       } else {
         resultArray.push(right[rightIndex]);
         rightIndex++;
@@ -51,8 +66,21 @@ export const useMergeSort = ({
         id: `${value}`,
         color: 'blue',
       })),
+      id: crypto.randomUUID(),
       stateContext,
     };
     tempHistoryArrayList.current.push(newNode);
   }
+
+  const handleMergeSort = ({ arr, onFinish }: HandleSortParams) => {
+    tempHistoryArrayList.current = [...currentHistory];
+    const sorted = mergeSort(arr);
+    pushNewHistoryNode({
+      stateContext: 'Completed Sort',
+      arr: sorted.map((node) => node.value),
+    });
+    onFinish(tempHistoryArrayList.current);
+  };
+
+  return { handleMergeSort };
 };
