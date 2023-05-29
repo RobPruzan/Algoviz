@@ -29,91 +29,10 @@ const ControlBar = (props: Props) => {
     tempHistoryArrayList,
   });
 
-  const firstRow = historyNodes[0]?.element;
-
   const { handleMoveBackward, handleMoveForward } = useTraverseHistory({
     setControlBarState: setControlBarState,
     controlBarState: controlBarState,
   });
-
-  const numItems =
-    historyNodes.length === 1 ? historyNodes[0].element.length : 0;
-
-  const handleAddNode = () => {
-    console.log('1');
-    if (historyNodes.length > 1) {
-      return;
-    }
-    console.log('2');
-
-    const newNode = {
-      value: Math.floor(Math.random() * 100),
-      id: crypto.randomUUID(),
-      position: 0,
-      next: null,
-      color: 'white',
-    };
-    if (historyNodes.length == 0) {
-      const initialNode = {
-        element: [newNode],
-        next: null,
-        prev: null,
-        stateContext: '',
-      };
-      console.log('3');
-
-      const newHistoryArrayList = [initialNode];
-      setHistoryNodes((_) => {
-        tempHistoryArrayList.current = [];
-        return newHistoryArrayList;
-      });
-      return;
-    }
-
-    // ideal behavior is an initial node array/discriminated union for holding nodes, but just updating the array and blocking adds else will work
-    setHistoryNodes((prev) => {
-      const lastInsert = prev[0].element.at(-1);
-      lastInsert ? (lastInsert.next = newNode) : null;
-      const newArrayList = {
-        element: [...prev[0].element, newNode],
-        next: null,
-        prev: null,
-        stateContext: '',
-      };
-      tempHistoryArrayList.current = [];
-      return [newArrayList];
-    });
-  };
-
-  const handleRemoveItem = () => {
-    if (historyNodes.length > 1) {
-      return;
-    }
-    if (historyNodes.length == 0) {
-      return;
-    }
-
-    const currentNodeRow = historyNodes[0];
-    if (currentNodeRow.element.length === 0) {
-      return;
-    }
-
-    // setNodeRows((prev) => [[...currentNodeRow.slice(0, -1)]]);
-    setHistoryNodes((prev) => {
-      const newTail = prev[0].element.at(-2);
-      newTail ? (newTail.next = null) : null;
-      const newArrayList = {
-        element: [...prev[0].element.slice(0, -1)],
-        next: null,
-        prev: null,
-        stateContext: '',
-      };
-      tempHistoryArrayList.current = [];
-
-      return [newArrayList];
-    });
-  };
-
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
 
@@ -143,6 +62,86 @@ const ControlBar = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [controlBarState.playing, handleMoveForward]);
 
+  const numItems =
+    historyNodes.length === 1 ? historyNodes[0].element.length : 0;
+
+  const handleAddNode = () => {
+    if (historyNodes.length > 1) {
+      return;
+    }
+
+    const newNode = {
+      value: Math.floor(Math.random() * 100),
+      id: crypto.randomUUID(),
+      position: 0,
+      next: null,
+      color: 'white',
+    };
+    if (historyNodes.length == 0) {
+      const initialNode = {
+        element: [newNode],
+        next: null,
+        prev: null,
+        stateContext: 'Beginning sort',
+      };
+
+      const newHistoryArrayList = [initialNode];
+      setHistoryNodes((_) => {
+        tempHistoryArrayList.current = [];
+
+        return newHistoryArrayList;
+      });
+      return;
+    }
+
+    // ideal behavior is an initial node array/discriminated union for holding nodes, but just updating the array and blocking adds else will work
+    setHistoryNodes((prev) => {
+      const lastInsert = prev[0].element.at(-1);
+      lastInsert ? (lastInsert.next = newNode) : null;
+      const newArrayList = {
+        element: [...prev[0].element, newNode],
+        next: null,
+        prev: null,
+        stateContext: 'Beginning sort',
+      };
+      tempHistoryArrayList.current = [];
+      return [newArrayList];
+    });
+  };
+
+  const handleRemoveItem = () => {
+    if (historyNodes.length > 1) {
+      return;
+    }
+    if (historyNodes.length == 0) {
+      return;
+    }
+
+    const currentNodeRow = historyNodes[0];
+    if (currentNodeRow.element.length === 0) {
+      return;
+    }
+
+    // setNodeRows((prev) => [[...currentNodeRow.slice(0, -1)]]);
+    setHistoryNodes((prev) => {
+      const newTail = prev[0].element.at(-2);
+      newTail ? (newTail.next = null) : null;
+      const newArrayList = {
+        element: [...prev[0].element.slice(0, -1)],
+        next: null,
+        prev: null,
+        stateContext: 'Beginning sort',
+      };
+      tempHistoryArrayList.current = [];
+
+      return [newArrayList];
+    });
+  };
+
+  const truncatedHistoryArray = getHistoryArray(
+    tempHistoryArrayList.current,
+    controlBarState.historyPointer
+  );
   return (
     <div className="w-full border-b-4 border-secondary h-20 flex items-center justify-evenly">
       <Button>
@@ -212,13 +211,27 @@ const ControlBar = (props: Props) => {
 
         <div className="bg-secondary flex border border-primary rounded-md">
           <Button
-            onClick={handleAddNode}
+            disabled={truncatedHistoryArray.length > 1}
+            onClick={() => {
+              handleAddNode();
+              // handleQuickSort({
+              //   arr: JSON.parse(JSON.stringify(firstRow ?? [])),
+              //   onFinish: (sortedArr) => console.warn('not implemented'),
+              // });
+            }}
             className="bg-primary border-r rounded-r-none  border-primary w-1/2 p-3 hover:bg-slate-800  "
           >
             <PlusIcon className="" />
           </Button>
           <Button
-            onClick={handleRemoveItem}
+            disabled={truncatedHistoryArray.length > 1}
+            onClick={() => {
+              handleRemoveItem();
+              // handleQuickSort({
+              //   arr: JSON.parse(JSON.stringify(firstRow ?? [])),
+              //   onFinish: (sortedArr) => console.warn('not implemented'),
+              // });
+            }}
             className="bg-primary w-1/2 p-3 rounded-md hover:bg-slate-800"
           >
             <MinusIcon className="" />

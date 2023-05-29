@@ -1,31 +1,11 @@
-import {
-  ControlBarContextData,
-  ControlBarContextState,
-} from '@/Context/ControlBarContext';
-import { HistoryNodesContextState } from '@/Context/HistoryNodesContext';
-import { HistoryNode, NodeMetadata } from '@/lib/types';
-import {
-  Dispatch,
-  MutableRefObject,
-  SetStateAction,
-  useRef,
-  useState,
-} from 'react';
+import { HistoryNode, NodeMetadata, UseSortParams } from '@/lib/types';
 
 export type NodeRowState = { nodes: NodeMetadata[]; context: string };
 
 export const useQuickSort = ({
   currentHistory,
   tempHistoryArrayList,
-}: {
-  currentHistory: HistoryNode[];
-  tempHistoryArrayList: MutableRefObject<HistoryNode[]>;
-}) => {
-  // we obviously need to actually quicksort the array
-  // we should have a temp, and then once we're done we can visualize the new array however we want
-  // could be as simple as if the node has no next then it has a border which represents the new array :thinking
-  // const tempHistoryArrayList = useRef<HistoryNode[]>([]);
-
+}: UseSortParams) => {
   const quicksort = (
     arr: NodeMetadata[],
     low: number = 0,
@@ -119,10 +99,6 @@ export const useQuickSort = ({
     pivotPointerPosition: number;
     fakeArrayBounds: [number, number];
   }) {
-    // arr: NodeMetadata[],
-    // swap: string[],
-    // pivotId:string,
-    // stateContext: string
     const tail = tempHistoryArrayList.current.at(-1);
 
     const copiedArray = arr.map((node) => ({ ...node }));

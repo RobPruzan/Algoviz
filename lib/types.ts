@@ -1,3 +1,5 @@
+import { MutableRefObject } from 'react';
+
 export type NodeMetadata = {
   value: number;
 
@@ -16,4 +18,9 @@ export type HistoryNode = {
   stateContext: string;
   pivotPointerPosition?: number;
   fakeArrayBounds?: [number, number];
+};
+
+export type UseSortParams = {
+  currentHistory: HistoryNode[];
+  tempHistoryArrayList: MutableRefObject<HistoryNode[]>;
 };

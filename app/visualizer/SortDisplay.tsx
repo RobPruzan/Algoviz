@@ -1,6 +1,12 @@
 import Node from '@/components/Visualizers/Node';
 import { NodeMetadata } from '@/lib/types';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import SortRow from './SortRow';
 import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
 import { useQuickSort } from '@/hooks/useQuickSort';
@@ -35,6 +41,7 @@ const SortDisplay = (props: Props) => {
     currentHistory: historyNodesState.historyNodes,
     tempHistoryArrayList: historyNodesState.tempHistoryArrayList,
   });
+
   const { historyNodes, setHistoryNodes } = useContext(HistoryNodesContext);
 
   const firstRow = historyNodes[0]?.element;
@@ -46,6 +53,7 @@ const SortDisplay = (props: Props) => {
         arr: JSON.parse(JSON.stringify(firstRow ?? [])),
         onFinish: (sortedArr) => console.warn('not implemented'),
       }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [firstRow]
   );
 
@@ -58,12 +66,6 @@ const SortDisplay = (props: Props) => {
   const truncatedHistoryArray = getHistoryArray(
     historyNodesState.tempHistoryArrayList.current,
     historyPointer
-  );
-
-  console.log(
-    'ahh hist',
-    historyNodesState.tempHistoryArrayList.current,
-    truncatedHistoryArray.length
   );
 
   return (
