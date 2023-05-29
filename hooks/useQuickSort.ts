@@ -133,7 +133,6 @@ export const useQuickSort = ({
   }
 
   const handleQuickSort = ({ arr, onFinish }: HandleSortParams) => {
-    tempHistoryArrayList.current = [...currentHistory];
     const sorted = quicksort(arr);
     currentHistory.length > 0 &&
       pushNewHistoryNode({

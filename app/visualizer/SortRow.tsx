@@ -19,7 +19,7 @@ const SortRow = ({ historyNode }: Props) => {
   console.log('da history node', historyNode);
   return (
     <div className="flex w-full">
-      <div className="p-4  w-3/4  border-foreground border-y flex justify-evenly">
+      <div className="p-4  w-3/4  border-foreground border-y flex items-center justify-evenly">
         {historyNode.element.map((node, idx) =>
           historyNode.fakeArrayBounds?.[0] === idx ? (
             <NodeWithLeftBound

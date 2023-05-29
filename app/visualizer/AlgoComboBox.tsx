@@ -18,8 +18,9 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { SetStateAction, useState } from 'react';
+import { ALGORITHMS, AlgorithmInfo, Algorithms } from '@/lib/types';
 
-const frameworks = [
+const algorithmsInfo: AlgorithmInfo[] = [
   {
     value: 'merge sort',
     label: 'Merge Sort',
@@ -31,13 +32,18 @@ const frameworks = [
 ];
 
 type Props = {
-  value: string;
-  setValue: React.Dispatch<SetStateAction<string>>;
+  value: Algorithms | undefined;
+  setValue: React.Dispatch<SetStateAction<Algorithms | undefined>>;
+};
+
+export const isStringAlgorithm = (s: string): s is Algorithms => {
+  console.log('da string', s, ALGORITHMS.includes(s as Algorithms));
+  return ALGORITHMS.includes(s as Algorithms);
 };
 
 export function AlgoComboBox({ setValue, value }: Props) {
   const [open, setOpen] = useState(false);
-
+  console.log('the value', value);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -48,7 +54,8 @@ export function AlgoComboBox({ setValue, value }: Props) {
           className="w-[200px] justify-between font-bold"
         >
           {value
-            ? frameworks.find((framework) => framework.value === value)?.label
+            ? algorithmsInfo.find((framework) => framework.value === value)
+                ?.label
             : 'Sorting Algorithm...'}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -58,11 +65,15 @@ export function AlgoComboBox({ setValue, value }: Props) {
           <CommandInput placeholder="Search Sorting Algorithm..." />
           <CommandEmpty>No algorithm found.</CommandEmpty>
           <CommandGroup>
-            {frameworks.map((framework) => (
+            {algorithmsInfo.map((framework) => (
               <CommandItem
                 key={framework.value}
                 onSelect={(currentValue) => {
-                  setValue(currentValue === value ? '' : currentValue);
+                  console.log('currentValue', currentValue);
+                  if (!isStringAlgorithm(currentValue)) return;
+                  // setValue(currentValue === value ? '' : currentValue);
+                  setValue(currentValue);
+                  console.log('set value to', currentValue);
                   setOpen(false);
                 }}
               >

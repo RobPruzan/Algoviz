@@ -17,13 +17,19 @@ import { useQuickSort } from '@/hooks/useQuickSort';
 import { z } from 'zod';
 
 import { useTraverseHistory } from '@/hooks/useTraverseHistory';
+import { Algorithms } from '@/lib/types';
 
-type Props = {};
+type Props = {
+  algorithm: Algorithms | undefined;
+};
 
-const ControlBar = (props: Props) => {
+const ControlBar = ({ algorithm }: Props) => {
   const { controlBarState, setControlBarState } = useContext(ControlBarContext);
-  const { historyNodes, setHistoryNodes, tempHistoryArrayList } =
-    useContext(HistoryNodesContext);
+  const {
+    historyNodes,
+    setHistoryNodes,
+    quickSortTempHistoryArrayList: tempHistoryArrayList,
+  } = useContext(HistoryNodesContext);
   const { handleQuickSort } = useQuickSort({
     currentHistory: historyNodes,
     tempHistoryArrayList,

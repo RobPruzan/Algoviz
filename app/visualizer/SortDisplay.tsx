@@ -1,5 +1,5 @@
 import Node from '@/components/Visualizers/Node';
-import { NodeMetadata } from '@/lib/types';
+import { Algorithms, NodeMetadata } from '@/lib/types';
 import React, {
   useCallback,
   useContext,
@@ -15,9 +15,11 @@ import { ControlBarContext } from '@/Context/ControlBarContext';
 import { useMergeSort } from '@/hooks/useMergeSort';
 import { useTransition, animated, config } from 'react-spring';
 
-type Props = {};
+type Props = {
+  algorithm: Algorithms | undefined;
+};
 
-const SortDisplay = (props: Props) => {
+const SortDisplay = ({ algorithm }: Props) => {
   const historyNodesState = useContext(HistoryNodesContext);
   const controlBarData = useContext(ControlBarContext);
   const scrollRef = React.useRef<HTMLDivElement>(null);
@@ -38,46 +40,73 @@ const SortDisplay = (props: Props) => {
 
   const { handleQuickSort } = useQuickSort({
     currentHistory: historyNodesState.historyNodes,
-    tempHistoryArrayList: historyNodesState.tempHistoryArrayList,
+    tempHistoryArrayList: historyNodesState.quickSortTempHistoryArrayList,
   });
 
   const { historyNodes, setHistoryNodes } = useContext(HistoryNodesContext);
 
   const firstRow = historyNodes[0]?.element;
 
-  const { sorted } = useMemo(
-    () =>
-      handleQuickSort({
-        arr: JSON.parse(JSON.stringify(firstRow ?? [])),
-        onFinish: (sortedArr) => console.warn('not implemented'),
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [firstRow]
-  );
+  // const { sorted } = useMemo(
+  //   () =>
+  //     handleQuickSort({
+  //       arr: JSON.parse(JSON.stringify(firstRow ?? [])),
+  //       onFinish: (sortedArr) => console.warn('not implemented'),
+  //     }),
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [firstRow]
+  // );
+  // useEffect(() => {
+  //   handleQuickSort({
+  //     arr: JSON.parse(JSON.stringify(firstRow ?? [])),
+  //     onFinish: (sortedArr) => console.warn('not implemented'),
+  //   });
+  // }, [firstRow]);
+  useEffect(() => {
+    console.log('da algorithim', algorithm);
+    switch (algorithm) {
+      case 'quick sort':
+        historyNodesState.quickSortTempHistoryArrayList.current = [];
+        handleQuickSort({
+          arr: JSON.parse(JSON.stringify(firstRow ?? [])),
+          onFinish: (sortedArr) => console.warn('not implemented'),
+        });
+    }
+  }, [firstRow, algorithm]);
+
   // const { handleMergeSort } = useMergeSort({
   //   currentHistory: historyNodesState.historyNodes,
   //   tempHistoryArrayList: historyNodesState.tempHistoryArrayList,
   // });
 
-  const truncatedHistoryArray = [
-    ...historyNodesState.tempHistoryArrayList.current.slice(
-      0,
+  const truncatedQuickSortHistoryArray = [
+    ...historyNodesState.quickSortTempHistoryArrayList.current.slice(
+      1,
       historyPointer + 1
     ),
   ];
 
+  console.log('debug history', historyNodesState);
+
   return (
-    // we want to have the -/+ that each node moved each step. Then after it's rendered, we begin an animation sequence that shows the nodes being moved to their actual position
+    // have a floating box above each node showing it's +/- like a leader board
     <div ref={scrollRef} className="bg-primary">
-      {truncatedHistoryArray.length > 0 ? (
-        truncatedHistoryArray.map((historyNode, idx) => (
+      {[
+        ...historyNodesState.historyNodes,
+        ...truncatedQuickSortHistoryArray,
+      ].map((historyNode, idx) => (
+        <SortRow historyNode={historyNode} key={idx} />
+      ))}
+
+      {/* {truncatedQuickSortHistoryArray.length > 0 ? (
+        truncatedQuickSortHistoryArray.map((historyNode, idx) => (
           <SortRow historyNode={historyNode} key={idx} />
         ))
       ) : (
         <div className="flex w-full justify-center items-center mt-5 text-foreground font-bold text-3xl opacity-40">
           Add some nodes to get started!
         </div>
-      )}
+      )} */}
     </div>
   );
 };

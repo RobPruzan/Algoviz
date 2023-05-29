@@ -30,3 +30,24 @@ export type HandleSortParams = {
   arr: NodeMetadata[];
   onFinish: (tempNodesRows: HistoryNode[]) => void;
 };
+export type BaseFirstLetterUpperCase<S extends string> =
+  S extends `${infer L1}${infer L2}` ? `${Uppercase<L1>}${L2}` : S;
+
+export type FirstLetterUpperCase<S extends string> =
+  S extends `${infer L1}${infer L2} ${infer Rest}`
+    ? `${Uppercase<L1>}${L2} ${FirstLetterUpperCase<Rest>}`
+    : BaseFirstLetterUpperCase<S>;
+
+export const ALGORITHMS = [
+  'merge sort',
+  'quick sort',
+  'bubble sort',
+  'insertion sort',
+] as const;
+
+export type Algorithms = (typeof ALGORITHMS)[number];
+
+export type AlgorithmInfo = {
+  value: Algorithms;
+  label: FirstLetterUpperCase<Algorithms>;
+};

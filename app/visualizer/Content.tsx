@@ -8,13 +8,15 @@ import {
   ControlBarContextState,
   defaultState,
 } from '../../Context/ControlBarContext';
-import { HistoryNode, NodeMetadata } from '@/lib/types';
+import { Algorithms, HistoryNode, NodeMetadata } from '@/lib/types';
 import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
+import SideBar from './SideBar';
 
 const Content = () => {
   const [historyNodes, setHistoryNodes] = useState<HistoryNode[]>([]);
-  const tempHistoryArrayList = useRef<HistoryNode[]>([]);
-  const [algorithm, setAlgorithm] = useState<string>('');
+  const quickSortTempHistoryArrayList = useRef<HistoryNode[]>([]);
+  const mergeSortTempHistoryArrayList = useRef<HistoryNode[]>([]);
+  const [algorithm, setAlgorithm] = useState<Algorithms>();
   const [controlBarState, setControlBarState] =
     useState<ControlBarContextState>(defaultState);
   return (
@@ -22,7 +24,8 @@ const Content = () => {
       value={{
         historyNodes,
         setHistoryNodes,
-        tempHistoryArrayList,
+        quickSortTempHistoryArrayList,
+        mergeSortTempHistoryArrayList,
       }}
     >
       <ControlBarContext.Provider
@@ -31,9 +34,7 @@ const Content = () => {
           setControlBarState,
         }}
       >
-        <div className="w-44 min-w-fit h-[90%] rounded-md border-2 border-foreground flex flex-col justify-start items-center p-5">
-          <AlgoComboBox value={algorithm} setValue={setAlgorithm} />
-        </div>
+        <SideBar algorithm={algorithm} setAlgorithm={setAlgorithm} />
         <SortVisualize algorithm={algorithm} />
       </ControlBarContext.Provider>
     </HistoryNodesContext.Provider>

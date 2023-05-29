@@ -9,11 +9,13 @@ import {
 export type HistoryNodesContextState = {
   historyNodes: HistoryNode[];
   setHistoryNodes: Dispatch<SetStateAction<HistoryNode[]>>;
-  tempHistoryArrayList: MutableRefObject<HistoryNode[]>;
+  quickSortTempHistoryArrayList: MutableRefObject<HistoryNode[]>;
+  mergeSortTempHistoryArrayList: MutableRefObject<HistoryNode[]>;
 };
 
 export const HistoryNodesContext = createContext<HistoryNodesContextState>({
   historyNodes: [],
   setHistoryNodes: () => console.error('no state provider for node context'),
-  tempHistoryArrayList: { current: [] },
+  quickSortTempHistoryArrayList: { current: [] },
+  mergeSortTempHistoryArrayList: { current: [] },
 });
