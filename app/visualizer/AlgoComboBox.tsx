@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/popover';
 import { SetStateAction, useState } from 'react';
 import { ALGORITHMS, AlgorithmInfo, Algorithms } from '@/lib/types';
+import { SideBarContextState } from '@/Context/SideBarContext';
 
 const algorithmsInfo: AlgorithmInfo[] = [
   {
@@ -33,17 +34,15 @@ const algorithmsInfo: AlgorithmInfo[] = [
 
 type Props = {
   value: Algorithms | undefined;
-  setValue: React.Dispatch<SetStateAction<Algorithms | undefined>>;
+  setValue: React.Dispatch<SetStateAction<SideBarContextState>>;
 };
 
 export const isStringAlgorithm = (s: string): s is Algorithms => {
-  console.log('da string', s, ALGORITHMS.includes(s as Algorithms));
   return ALGORITHMS.includes(s as Algorithms);
 };
 
 export function AlgoComboBox({ setValue, value }: Props) {
   const [open, setOpen] = useState(false);
-  console.log('the value', value);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -69,11 +68,9 @@ export function AlgoComboBox({ setValue, value }: Props) {
               <CommandItem
                 key={framework.value}
                 onSelect={(currentValue) => {
-                  console.log('currentValue', currentValue);
                   if (!isStringAlgorithm(currentValue)) return;
                   // setValue(currentValue === value ? '' : currentValue);
-                  setValue(currentValue);
-                  console.log('set value to', currentValue);
+                  setValue((prev) => ({ ...prev, algorithm: currentValue }));
                   setOpen(false);
                 }}
               >

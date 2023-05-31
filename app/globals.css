@@ -81,3 +81,12 @@
     font-feature-settings: 'rlig' 1, 'calt' 1;
   }
 }
+
+.fancy-background {
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.1) 1px,
+    transparent 1px
+  );
+
+  background-size: 1.1rem 1.1rem;
+}

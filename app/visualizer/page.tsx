@@ -1,16 +1,18 @@
 'use client';
-import SortVisualize from '@/app/visualizer/SortVisualize';
+import Visualize from '@/app/visualizer/Visualize';
 import { AlgoComboBox } from '@/app/visualizer/AlgoComboBox';
 
 import { useState } from 'react';
 import Content from './Content';
-
-// type Props = {}
+import SideBar from './SideBar';
 
 const page = () => {
   return (
-    <div className="h-screen w-screen flex justify-evenly items-center">
-      <Content />
+    <div className="h-screen w-screen flex justify-evenly items-start">
+      <Content>
+        <SideBar />
+        <Visualize />
+      </Content>
     </div>
   );
 };

@@ -1,6 +1,7 @@
+'use client';
 import { AlgoComboBox } from '@/app/visualizer/AlgoComboBox';
-import React, { useRef, useState } from 'react';
-import SortVisualize from './SortVisualize';
+import React, { useContext, useRef, useState } from 'react';
+import Visualize from './Visualize';
 import Node from '@/components/Visualizers/Node';
 import {
   ControlBarContext,
@@ -8,36 +9,56 @@ import {
   ControlBarContextState,
   defaultState,
 } from '../../Context/ControlBarContext';
-import { Algorithms, HistoryNode, NodeMetadata } from '@/lib/types';
+import {
+  Algorithms,
+  DisplayTypes,
+  HistoryNode,
+  NodeMetadata,
+} from '@/lib/types';
 import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
 import SideBar from './SideBar';
+import {
+  INITIAL_SIDE_BAR_STATE,
+  SideBarContext,
+} from '@/Context/SideBarContext';
 
-const Content = () => {
+type Props = {
+  children: React.ReactNode;
+};
+const Content = ({ children }: Props) => {
   const [historyNodes, setHistoryNodes] = useState<HistoryNode[]>([]);
   const quickSortTempHistoryArrayList = useRef<HistoryNode[]>([]);
   const mergeSortTempHistoryArrayList = useRef<HistoryNode[]>([]);
-  const [algorithm, setAlgorithm] = useState<Algorithms>();
+  const [sideBarState, setSideBarState] = useState(INITIAL_SIDE_BAR_STATE);
+
   const [controlBarState, setControlBarState] =
     useState<ControlBarContextState>(defaultState);
+
   return (
-    <HistoryNodesContext.Provider
+    <SideBarContext.Provider
       value={{
-        historyNodes,
-        setHistoryNodes,
-        quickSortTempHistoryArrayList,
-        mergeSortTempHistoryArrayList,
+        sideBarState,
+        setSideBarState,
       }}
     >
-      <ControlBarContext.Provider
+      <HistoryNodesContext.Provider
         value={{
-          controlBarState,
-          setControlBarState,
+          historyNodes,
+          setHistoryNodes,
+          quickSortTempHistoryArrayList,
+          mergeSortTempHistoryArrayList,
         }}
       >
-        <SideBar algorithm={algorithm} setAlgorithm={setAlgorithm} />
-        <SortVisualize algorithm={algorithm} />
-      </ControlBarContext.Provider>
-    </HistoryNodesContext.Provider>
+        <ControlBarContext.Provider
+          value={{
+            controlBarState,
+            setControlBarState,
+          }}
+        >
+          {children}
+        </ControlBarContext.Provider>
+      </HistoryNodesContext.Provider>
+    </SideBarContext.Provider>
   );
 };
 

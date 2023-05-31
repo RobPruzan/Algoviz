@@ -4,7 +4,7 @@ export type NodeMetadata = {
   value: number;
 
   id: string;
-  next?: NodeMetadata | null;
+  hasNext?: boolean;
   color: string;
 };
 
@@ -13,8 +13,8 @@ export type NodeMetadata = {
 // quick sort is inplace, so its always in one array, but merge sort creates sub array
 export type HistoryNode = {
   id: string;
-  next: HistoryNode | null;
-  prev: HistoryNode | null;
+  next?: HistoryNode | null;
+  prev?: HistoryNode | null;
   element: NodeMetadata[];
   stateContext: string;
   pivotPointerPosition?: number;
@@ -51,3 +51,7 @@ export type AlgorithmInfo = {
   value: Algorithms;
   label: FirstLetterUpperCase<Algorithms>;
 };
+
+export const DISPLAY_TYPES = ['nodes', 'canvas', 'bar'] as const;
+
+export type DisplayTypes = (typeof DISPLAY_TYPES)[number];

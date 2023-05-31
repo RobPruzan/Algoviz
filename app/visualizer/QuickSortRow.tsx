@@ -15,8 +15,7 @@ type Props = {
   historyNode: HistoryNode;
 };
 
-const SortRow = ({ historyNode }: Props) => {
-  console.log('da history node', historyNode);
+const QuickSortRow = ({ historyNode }: Props) => {
   return (
     <div className="flex w-full">
       <div className="p-4  w-3/4  border-foreground border-y flex items-center justify-evenly">
@@ -91,7 +90,7 @@ function NodeWithRightBound({
   );
 }
 
-function SubArrayBarrier() {
+export function SubArrayBarrier() {
   return (
     <div className="flex flex-col justify-center items-center">
       <Minus size={75} className="rotate-90" />
@@ -99,4 +98,4 @@ function SubArrayBarrier() {
   );
 }
 
-export default SortRow;
+export default QuickSortRow;

@@ -12,7 +12,7 @@ export const getNodeArray = (nodeRow: NodeMetadata[]) => {
 
   nodeRow.forEach((node, index) => {
     const newNode = { ...node, arrayPosition: index };
-    if (!node.next) {
+    if (!node.hasNext) {
       tempArray.push(newNode);
       arrays.push(tempArray);
       return;

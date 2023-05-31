@@ -18,17 +18,22 @@ export const useMergeSort = ({
 
     // need to update the arraylist to break the connection at the middle, not simply just slicing
     const left = arr.slice(0, middle);
-    const tailLinkBrokenLeft = left.slice(0, -1).concat([
-      {
-        ...left.slice(-1)[0],
-        next: null,
-      },
-    ]);
+    const leftTail = left.at(-1);
+    leftTail ? (leftTail.hasNext = false) : null;
+    // const tailLinkBrokenLeft = left.slice(0, -1).concat([
+    //   {
+    //     ...left.slice(-1)[0],
+    //     hasNext: false,
+    //   },
+    // ]);
     const right = arr.slice(middle);
 
-    console.log([...tailLinkBrokenLeft, ...right], 'vs', arr);
+    pushNewHistoryNode({
+      stateContext: `Splitting array into two halves:`,
+      arr: [...left, ...right],
+    });
 
-    return merge(mergeSort(tailLinkBrokenLeft), mergeSort(right));
+    return merge(mergeSort(left), mergeSort(right));
   }
 
   function merge(left: NodeMetadata[], right: NodeMetadata[]): NodeMetadata[] {
@@ -55,17 +60,26 @@ export const useMergeSort = ({
     arr,
     stateContext,
   }: {
-    arr: number[];
+    arr: NodeMetadata[];
     stateContext: string;
   }) {
+    const copiedSubArray = arr.map((node) => ({ ...node }));
+    const copiedFullArray = tempHistoryArrayList.current
+      .at(0)
+      ?.element.map((node) => ({ ...node }));
+
+    console.log(
+      'actual vs current',
+      arr,
+      'vs',
+      copiedFullArray
+      // JSON.parse(JSON.stringify(tempHistoryArrayList.current.at(0)) ?? [])
+    );
     const newNode: HistoryNode = {
       next: null,
       prev: null,
-      element: arr.map((value) => ({
-        value,
-        id: `${value}`,
-        color: 'blue',
-      })),
+      // TODO determine what this is doing
+      element: copiedFullArray ?? arr,
       id: crypto.randomUUID(),
       stateContext,
     };
@@ -73,11 +87,10 @@ export const useMergeSort = ({
   }
 
   const handleMergeSort = ({ arr, onFinish }: HandleSortParams) => {
-    tempHistoryArrayList.current = [...currentHistory];
     const sorted = mergeSort(arr);
     pushNewHistoryNode({
       stateContext: 'Completed Sort',
-      arr: sorted.map((node) => node.value),
+      arr: sorted,
     });
     onFinish(tempHistoryArrayList.current);
   };

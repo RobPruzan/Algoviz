@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { ControlBarContext } from '../../Context/ControlBarContext';
 import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
 import { useQuickSort } from '@/hooks/useQuickSort';
-import { z } from 'zod';
+import { boolean, z } from 'zod';
 
 import { useTraverseHistory } from '@/hooks/useTraverseHistory';
 import { Algorithms } from '@/lib/types';
@@ -28,11 +28,16 @@ const ControlBar = ({ algorithm }: Props) => {
   const {
     historyNodes,
     setHistoryNodes,
-    quickSortTempHistoryArrayList: tempHistoryArrayList,
+    quickSortTempHistoryArrayList,
+    mergeSortTempHistoryArrayList,
   } = useContext(HistoryNodesContext);
+  const currTempHistList =
+    algorithm === 'quick sort'
+      ? quickSortTempHistoryArrayList
+      : mergeSortTempHistoryArrayList;
   const { handleQuickSort } = useQuickSort({
     currentHistory: historyNodes,
-    tempHistoryArrayList,
+    tempHistoryArrayList: currTempHistList,
   });
 
   const { handleMoveBackward, handleMoveForward } = useTraverseHistory({
@@ -46,7 +51,7 @@ const ControlBar = ({ algorithm }: Props) => {
       intervalId = setInterval(() => {
         if (
           controlBarState.historyPointer ===
-          tempHistoryArrayList.current.length - 1
+          currTempHistList.current.length - 1
         ) {
           setControlBarState((prevState) => ({
             ...prevState,
@@ -55,7 +60,7 @@ const ControlBar = ({ algorithm }: Props) => {
           return;
         }
         if (controlBarState.playing) {
-          handleMoveForward(tempHistoryArrayList.current);
+          handleMoveForward(currTempHistList.current);
         }
       }, 1000);
     }
@@ -73,6 +78,7 @@ const ControlBar = ({ algorithm }: Props) => {
 
   const handleAddNode = () => {
     if (historyNodes.length > 1) {
+      console.log('1');
       return;
     }
 
@@ -80,39 +86,37 @@ const ControlBar = ({ algorithm }: Props) => {
       value: Math.floor(Math.random() * 100),
       id: crypto.randomUUID(),
       position: 0,
-      next: null,
+      next: true,
+
       color: 'white',
     };
     if (historyNodes.length == 0) {
       const initialNode = {
         element: [newNode],
-        next: null,
-        prev: null,
         stateContext: 'Beginning sort',
         id: crypto.randomUUID(),
       };
 
       const newHistoryArrayList = [initialNode];
       setHistoryNodes((_) => {
-        tempHistoryArrayList.current = [];
+        currTempHistList.current = [];
 
         return newHistoryArrayList;
       });
+
       return;
     }
 
     // ideal behavior is an initial node array/discriminated union for holding nodes, but just updating the array and blocking adds else will work
     setHistoryNodes((prev) => {
-      const lastInsert = prev[0].element.at(-1);
-      lastInsert ? (lastInsert.next = newNode) : null;
       const newArrayList = {
         element: [...prev[0].element, newNode],
-        next: null,
-        prev: null,
+
         stateContext: 'Beginning sort',
         id: crypto.randomUUID(),
       };
-      tempHistoryArrayList.current = [];
+      currTempHistList.current = [];
+
       return [newArrayList];
     });
   };
@@ -132,16 +136,12 @@ const ControlBar = ({ algorithm }: Props) => {
 
     // setNodeRows((prev) => [[...currentNodeRow.slice(0, -1)]]);
     setHistoryNodes((prev) => {
-      const newTail = prev[0].element.at(-2);
-      newTail ? (newTail.next = null) : null;
       const newArrayList = {
         element: [...prev[0].element.slice(0, -1)],
-        next: null,
-        prev: null,
         stateContext: 'Beginning sort',
         id: crypto.randomUUID(),
       };
-      tempHistoryArrayList.current = [];
+      currTempHistList.current = [];
 
       return [newArrayList];
     });
@@ -151,7 +151,7 @@ const ControlBar = ({ algorithm }: Props) => {
   //   tempHistoryArrayList.current,
   //   controlBarState.historyPointer
   // );
-  const truncatedHistoryArray = tempHistoryArrayList.current.slice(
+  const truncatedHistoryArray = currTempHistList.current.slice(
     0,
     controlBarState.historyPointer + 1
   );
@@ -194,7 +194,7 @@ const ControlBar = ({ algorithm }: Props) => {
 
         <SpeedSlider
           min={0}
-          max={tempHistoryArrayList.current.length - 1}
+          max={currTempHistList.current.length - 1}
           value={[controlBarState.historyPointer]}
           onValueChange={
             (value) =>
@@ -209,7 +209,7 @@ const ControlBar = ({ algorithm }: Props) => {
           <ArrowRight
             className="cursor-pointer hover:scale-105 transition"
             onClick={() => {
-              handleMoveForward(tempHistoryArrayList.current);
+              handleMoveForward(currTempHistList.current);
             }}
             size={32}
           />
