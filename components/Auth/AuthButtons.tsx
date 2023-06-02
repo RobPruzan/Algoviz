@@ -13,6 +13,7 @@ export const SignOutButton = () => {
 
 export const SignInButton = () => {
   const session = useSession();
+
   if (session.status === 'loading') {
     return <>...</>;
   }

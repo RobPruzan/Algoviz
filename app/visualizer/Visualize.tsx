@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import ControlBar from './ControlBar';
 import SortDisplay from './SortDisplay';
 import { SideBarContext } from '@/Context/SideBarContext';
-import { CanvasDisplay } from '@/components/Canvas/CanvasDisplay';
 
 const Visualize = () => {
   const { sideBarState } = useContext(SideBarContext);
@@ -16,7 +15,7 @@ const Visualize = () => {
         {sideBarState.display === 'nodes' ? (
           <SortDisplay algorithm={sideBarState.algorithm} />
         ) : (
-          <CanvasDisplay />
+          <p>Hello</p>
         )}
       </div>
     </div>
