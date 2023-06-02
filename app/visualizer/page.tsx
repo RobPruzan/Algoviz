@@ -1,6 +1,6 @@
 'use client';
 import Visualize from '@/app/visualizer/Visualize';
-import { AlgoComboBox } from '@/app/visualizer/AlgoComboBox';
+import { AlgoComboBox } from '@/app/visualizer/Sort/AlgoComboBox';
 
 import { useState } from 'react';
 import Content from './Content';

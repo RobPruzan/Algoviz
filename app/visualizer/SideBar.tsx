@@ -1,6 +1,6 @@
 'use client';
 import React, { Dispatch, SetStateAction, useContext, useState } from 'react';
-import { AlgoComboBox } from './AlgoComboBox';
+import { AlgoComboBox } from './Sort/AlgoComboBox';
 import { Algorithms, DisplayTypes } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DisplayTypeTabs from './DisplayTypeTabs';

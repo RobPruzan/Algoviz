@@ -9,7 +9,7 @@ import React, {
   useState,
 } from 'react';
 import QuickSortRow, { SubArrayBarrier } from './QuickSortRow';
-import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
+import { HistoryNodesContext } from '../../../Context/HistoryNodesContext';
 import { useQuickSort } from '@/hooks/useQuickSort';
 import { ControlBarContext } from '@/Context/ControlBarContext';
 

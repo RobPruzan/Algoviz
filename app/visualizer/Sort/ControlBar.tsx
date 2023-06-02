@@ -11,8 +11,8 @@ import {
   PlusIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ControlBarContext } from '../../Context/ControlBarContext';
-import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
+import { ControlBarContext } from '../../../Context/ControlBarContext';
+import { HistoryNodesContext } from '../../../Context/HistoryNodesContext';
 import { useQuickSort } from '@/hooks/useQuickSort';
 import { boolean, z } from 'zod';
 
