@@ -91,7 +91,12 @@ const CircleApp = () => {
     const activeCircle = circles.find((circle) => circle.id === activeCircleId);
     const activeRect = rects.find((line) => line.id === activeRectID);
     const activeItem = activeCircle || activeRect;
-    console.log('active item', activeItem);
+    console.log(
+      'active item',
+      activeItem,
+      event.nativeEvent.offsetX,
+      event.nativeEvent.offsetY
+    );
     switch (activeItem?.type) {
       case 'circle':
         if (!activeCircle) return;
@@ -187,8 +192,13 @@ const CircleApp = () => {
     });
     rects.forEach((line) => {
       ctx.beginPath();
-      ctx.moveTo(line.center[0], line.center[1]);
-      ctx.lineTo(line.center[0], line.center[1] - line.length);
+      ctx.moveTo(line.center[0], line.center[1] - line.length / 2);
+      ctx.lineTo(line.center[0], line.center[1] + line.length / 2);
+      //       ctx.beginPath();
+      // ctx.moveTo(centerX - length / 2, centerY);
+      // ctx.lineTo(centerX + length / 2, centerY);
+      // ctx.stroke();
+
       ctx.strokeStyle = line.color;
       ctx.lineWidth = line.width;
       ctx.stroke();
