@@ -23,7 +23,7 @@ type Props = {
   algorithm: Algorithms | undefined;
 };
 
-const ControlBar = ({ algorithm }: Props) => {
+const SortControlBar = ({ algorithm }: Props) => {
   const { controlBarState, setControlBarState } = useContext(ControlBarContext);
   const {
     historyNodes,
@@ -134,7 +134,6 @@ const ControlBar = ({ algorithm }: Props) => {
       return;
     }
 
-    // setNodeRows((prev) => [[...currentNodeRow.slice(0, -1)]]);
     setHistoryNodes((prev) => {
       const newArrayList = {
         element: [...prev[0].element.slice(0, -1)],
@@ -147,10 +146,6 @@ const ControlBar = ({ algorithm }: Props) => {
     });
   };
 
-  // const truncatedHistoryArray = getHistoryArray(
-  //   tempHistoryArrayList.current,
-  //   controlBarState.historyPointer
-  // );
   const truncatedHistoryArray = currTempHistList.current.slice(
     0,
     controlBarState.historyPointer + 1
@@ -196,13 +191,11 @@ const ControlBar = ({ algorithm }: Props) => {
           min={0}
           max={currTempHistList.current.length - 1}
           value={[controlBarState.historyPointer]}
-          onValueChange={
-            (value) =>
-              setControlBarState((prev) => ({
-                ...prev,
-                historyPointer: value[0],
-              }))
-            // setControlBarState((prev) => ({ ...prev, multiplier: value }))
+          onValueChange={(value) =>
+            setControlBarState((prev) => ({
+              ...prev,
+              historyPointer: value[0],
+            }))
           }
         />
         <Button>
@@ -255,4 +248,4 @@ const ControlBar = ({ algorithm }: Props) => {
   );
 };
 
-export default ControlBar;
+export default SortControlBar;
