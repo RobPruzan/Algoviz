@@ -56,7 +56,9 @@ export const DISPLAY_TYPES = ['nodes', 'canvas', 'bar'] as const;
 
 export type DisplayTypes = (typeof DISPLAY_TYPES)[number];
 
-export type NodeConnector = Omit<Circle, 'nodeConnector'>;
+export type NodeConnector = Omit<Circle, 'nodeConnector' | 'type'> & {
+  type: 'node1' | 'node2' | 'circle';
+};
 
 export type Circle = {
   id: string;
@@ -76,4 +78,9 @@ export type Rect = {
   y2: number;
   width: number;
   color: string;
+};
+
+export type AttachableLine = Rect & {
+  attachNodeOne: NodeConnector;
+  attachNodeTwo: NodeConnector;
 };

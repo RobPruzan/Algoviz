@@ -20,7 +20,7 @@ export const getActiveCircle = ({
 }: {
   event: MouseEvent<HTMLCanvasElement>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
-  circles: Circle[];
+  circles: (Circle | NodeConnector)[];
 }) => {
   const canvas = canvasRef.current;
   if (!canvas) return;
@@ -61,22 +61,11 @@ export const isPointInRect = ({
   x2: number;
   y2: number;
 }) => {
-  console.log(
-    px,
-    py,
-    '(',
-    x1,
-    x2,
-    ')',
-    y1,
-    y2,
-    px <= x1 && px >= x2 && py <= y1 && py >= y2
-  );
+  if (x1 > x2) [x1, x2] = [x2, x1];
+  if (y1 > y2) [y1, y2] = [y2, y1];
 
-  const isXInBetween = x1 >= px && px >= x2;
-  const isYInBetween = y1 >= py && py >= y2;
-  console.log(isXInBetween, isYInBetween);
-  return isXInBetween && isYInBetween;
+  // Check if px is between x1 and x2 and py is between y1 and y2
+  return px >= x1 && px <= x2 && py >= y1 && py <= y2;
 };
 
 export const getActiveRect = ({
@@ -133,3 +122,20 @@ export const findRectIntersectingCircle = ({
 
   return intersectingCircle;
 };
+
+export const findCircleIntersectingCircle = ({
+  circle,
+  circles,
+}: {
+  circle: Circle | NodeConnector;
+  circles: (Circle | NodeConnector)[];
+}) =>
+  circles.find((c) =>
+    isPointInCircle(
+      circle.center[0],
+      circle.center[1],
+      c.center[0],
+      c.center[1],
+      c.radius
+    )
+  );
