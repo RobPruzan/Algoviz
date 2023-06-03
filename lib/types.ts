@@ -58,6 +58,7 @@ export type DisplayTypes = (typeof DISPLAY_TYPES)[number];
 
 export type Circle = {
   id: string;
+  type: 'circle';
   x: number;
   y: number;
   color: string;
@@ -70,8 +71,9 @@ export type Circle = {
   };
 };
 
-export type Line = {
+export type Rect = {
   id: string;
+  type: 'rect';
   center: [number, number];
   length: number;
   width: number;

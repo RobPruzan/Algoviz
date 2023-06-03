@@ -1,44 +1,62 @@
 'use client';
-import { Circle, Line } from '@/lib/types';
+import { Circle, Rect } from '@/lib/types';
 import React, { useRef, useState, useEffect, MouseEvent } from 'react';
 import * as Canvas from '@/lib/canvas';
+import { Button } from '@/components/ui/button';
 const CircleApp = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [circles, setCircles] = useState<Circle[]>([]);
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
 
-  const [lines, setLines] = useState<Line[]>([]);
-  const [selectedLineID, setSelectedLineID] = useState<string | null>(null);
+  const [rects, setRects] = useState<Rect[]>([]);
+  const [selectedRectID, setSelectedRectID] = useState<string | null>(null);
+
+  const activeTask =
+    selectedCircleID === null
+      ? selectedRectID === null
+        ? null
+        : 'line'
+      : 'circle';
 
   const handleUpdateCircles = (newCircle: Circle) => {
     setCircles((prev) =>
-      Canvas.replaceCircle({
+      Canvas.replaceCanvasElement({
         oldArray: prev,
-        newCircle,
+        newElement: newCircle,
+      })
+    );
+  };
+  const handleUpdateRects = (newRect: Rect) => {
+    setRects((prev) =>
+      Canvas.replaceCanvasElement({
+        oldArray: prev,
+        newElement: newRect,
       })
     );
   };
 
-  const handleAddLine = () => {
-    const newLine: Line = {
-      center: [Math.random() * 400, Math.random() * 400],
+  const handleAddRect = () => {
+    const newLine: Rect = {
       id: crypto.randomUUID(),
+      type: 'rect',
+      center: [Math.random() * 400, Math.random() * 400],
       length: 50,
       width: 5,
       color: 'white',
     };
 
-    setLines((prevLines) => [...prevLines, newLine]);
+    setRects((prevLines) => [...prevLines, newLine]);
   };
 
-  const addCircle = () => {
+  const handleAddCircle = () => {
     const newCircle: Circle = {
+      id: crypto.randomUUID(),
+      type: 'circle',
       x: Math.random() * 400,
       y: Math.random() * 400,
       radius: 50,
       color: 'red',
-      id: crypto.randomUUID(),
       boundingBox: {
         x: 0,
         y: 0,
@@ -63,33 +81,95 @@ const CircleApp = () => {
       event,
       canvasRef,
     });
-    if (!activeCircleId) return;
+    const activeRectID = Canvas.getActiveRect({
+      canvasRef,
+      event,
+      rects,
+    });
+
+    if (!activeCircleId && !activeRectID) return;
     const activeCircle = circles.find((circle) => circle.id === activeCircleId);
-    if (!activeCircle) return;
-    setSelectedCircleID(activeCircleId);
+    const activeRect = rects.find((line) => line.id === activeRectID);
+    const activeItem = activeCircle || activeRect;
+    console.log('active item', activeItem);
+    switch (activeItem?.type) {
+      case 'circle':
+        if (!activeCircle) return;
+        setSelectedCircleID(activeCircle.id);
 
-    const newCircle: Circle = {
-      ...activeCircle,
-      color: 'white',
-    };
+        const newCircle: Circle = {
+          ...activeCircle,
+          color: 'white',
+        };
 
-    handleUpdateCircles(newCircle);
+        handleUpdateCircles(newCircle);
+        break;
+      case 'rect':
+        if (!activeRect) return;
+        setSelectedRectID(activeRect.id);
+
+        const newRect: Rect = {
+          ...activeRect,
+          color: 'gray',
+        };
+        handleUpdateRects(newRect);
+
+        break;
+      default:
+        break;
+    }
   };
 
   const handleMouseMove = (event: MouseEvent<HTMLCanvasElement>) => {
+    switch (activeTask) {
+      case 'circle':
+        const activeCircle = circles.find(
+          (circle) => circle.id === selectedCircleID
+        );
+        if (!activeCircle) return;
+        const mousePositionX = event.nativeEvent.offsetX;
+        const mousePositionY = event.nativeEvent.offsetY;
+
+        const newCircle: Circle = {
+          ...activeCircle,
+          x: mousePositionX,
+          y: mousePositionY,
+        };
+        handleUpdateCircles(newCircle);
+        break;
+      case 'line':
+    }
+  };
+
+  const handleMouseUp = (event: MouseEvent<HTMLCanvasElement>) => {
     const activeCircle = circles.find(
       (circle) => circle.id === selectedCircleID
     );
-    if (!activeCircle) return;
-    const mousePositionX = event.nativeEvent.offsetX;
-    const mousePositionY = event.nativeEvent.offsetY;
+    const activeRect = rects.find((rect) => rect.id === selectedRectID);
+    if (!activeCircle && !activeRect) return;
+    const activeItem = activeCircle || activeRect;
 
-    const newCircle: Circle = {
-      ...activeCircle,
-      x: mousePositionX,
-      y: mousePositionY,
-    };
-    handleUpdateCircles(newCircle);
+    switch (activeItem?.type) {
+      case 'circle':
+        if (!activeCircle) return;
+        handleUpdateCircles({
+          ...activeCircle,
+          color: 'red',
+        });
+        setSelectedCircleID(null);
+        break;
+      case 'rect':
+        if (!activeRect) return;
+        handleUpdateRects({
+          ...activeRect,
+          color: 'white',
+        });
+        break;
+      default:
+        break;
+    }
+
+    console.log('up');
   };
 
   useEffect(() => {
@@ -97,7 +177,6 @@ const CircleApp = () => {
     const ctx = canvas?.getContext('2d');
     if (!ctx) return;
     if (!canvas) return;
-    console.log('adding ahh');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     circles.forEach((circle) => {
@@ -106,7 +185,7 @@ const CircleApp = () => {
       ctx.fillStyle = circle.color;
       ctx.fill();
     });
-    lines.forEach((line) => {
+    rects.forEach((line) => {
       ctx.beginPath();
       ctx.moveTo(line.center[0], line.center[1]);
       ctx.lineTo(line.center[0], line.center[1] - line.length);
@@ -114,30 +193,23 @@ const CircleApp = () => {
       ctx.lineWidth = line.width;
       ctx.stroke();
     });
-  }, [circles, lines]);
+  }, [circles, rects]);
 
   return (
     <>
-      <button onClick={addCircle}>Add Circle</button>
-      <button onClick={handleAddLine}>Add Circle</button>
+      <Button className="bg-secondary" onClick={handleAddCircle}>
+        Add Circle
+      </Button>
+      <Button className="bg-secondary" onClick={handleAddRect}>
+        Add Line
+      </Button>
 
       <canvas
         className="bg-fancy"
         ref={canvasRef}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
-        onMouseUp={() => {
-          const activeCircle = circles.find(
-            (circle) => circle.id === selectedCircleID
-          );
-          if (!activeCircle) return;
-          handleUpdateCircles({
-            ...activeCircle,
-            color: 'red',
-          });
-          setSelectedCircleID(null);
-          console.log('up');
-        }}
+        onMouseUp={handleMouseUp}
         width={750}
         height={500}
       />

@@ -1,11 +1,11 @@
-import { Circle } from './types';
+import { Circle, Rect } from './types';
 import { type MouseEvent } from 'react';
-export const replaceCircle = ({
+export const replaceCanvasElement = <T extends { id: string }>({
   oldArray,
-  newCircle,
+  newElement: newCircle,
 }: {
-  oldArray: Circle[];
-  newCircle: Circle;
+  oldArray: T[];
+  newElement: T;
 }) => {
   const newId = newCircle.id;
   const newArray = oldArray.filter((circle) => circle.id !== newId);
@@ -44,4 +44,42 @@ export const isPointInCircle = (
 ) => {
   const distance = Math.sqrt((x - px) ** 2 + (y - py) ** 2);
   return distance <= radius;
+};
+
+export const isPointInRect = (
+  px: number,
+  py: number,
+  center: [number, number],
+  width: number,
+  height: number
+) => {
+  const [x, y] = center;
+  const xMin = x - width / 2;
+  const xMax = x + width / 2;
+  const yMin = y - height / 2;
+  const yMax = y + height / 2;
+  return px >= xMin && px <= xMax && py >= yMin && py <= yMax;
+};
+
+export const getActiveRect = ({
+  event,
+  canvasRef,
+  rects,
+}: {
+  event: MouseEvent<HTMLCanvasElement>;
+
+  canvasRef: React.RefObject<HTMLCanvasElement>;
+  rects: Rect[];
+}) => {
+  const canvas = canvasRef.current;
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  const activeLineIndex = rects.find((rect) =>
+    isPointInRect(x, y, rect.center, rect.width, rect.length)
+  );
+
+  return activeLineIndex?.id;
 };
