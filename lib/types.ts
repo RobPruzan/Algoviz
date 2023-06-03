@@ -58,6 +58,7 @@ export type DisplayTypes = (typeof DISPLAY_TYPES)[number];
 
 export type NodeConnector = Omit<Circle, 'nodeConnector' | 'type'> & {
   type: 'node1' | 'node2' | 'circle';
+  connectedToId: string | null;
 };
 
 export type Circle = {

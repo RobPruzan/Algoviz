@@ -123,12 +123,12 @@ export const findRectIntersectingCircle = ({
   return intersectingCircle;
 };
 
-export const findCircleIntersectingCircle = ({
+export const findConnectorIntersectingConnector = ({
   circle,
   circles,
 }: {
-  circle: Circle | NodeConnector;
-  circles: (Circle | NodeConnector)[];
+  circle: NodeConnector;
+  circles: NodeConnector[];
 }) =>
   circles.find((c) =>
     isPointInCircle(
