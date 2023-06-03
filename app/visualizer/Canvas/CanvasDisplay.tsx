@@ -37,11 +37,16 @@ const CircleApp = () => {
   };
 
   const handleAddRect = () => {
+    const [x1, y1] = [Math.random() * 400, Math.random() * 400];
     const newLine: Rect = {
       id: crypto.randomUUID(),
       type: 'rect',
-      center: [Math.random() * 400, Math.random() * 400],
-      length: 50,
+      // center: [Math.random() * 400, Math.random() * 400],
+      x1: x1,
+      y1: y1,
+      x2: x1 - 10,
+      y2: y1 - 50,
+
       width: 5,
       color: 'white',
     };
@@ -86,10 +91,14 @@ const CircleApp = () => {
       rects,
     });
 
+    console.log('active rect', activeRectID);
+
     if (!activeCircleId && !activeRectID) return;
     const activeCircle = circles.find((circle) => circle.id === activeCircleId);
     const activeRect = rects.find((line) => line.id === activeRectID);
     const activeItem = activeCircle || activeRect;
+
+    console.log('active item', activeItem);
     switch (activeItem?.type) {
       case 'circle':
         if (!activeCircle) return;
@@ -119,6 +128,7 @@ const CircleApp = () => {
   };
 
   const handleMouseMove = (event: MouseEvent<HTMLCanvasElement>) => {
+    console.log('fds');
     const mousePositionX = event.nativeEvent.offsetX;
     const mousePositionY = event.nativeEvent.offsetY;
     switch (activeTask) {
@@ -143,8 +153,23 @@ const CircleApp = () => {
         if (!activeRect) return;
         const newRect: Rect = {
           ...activeRect,
-          center: [mousePositionX, mousePositionY],
+          // center: [mousePositionX, mousePositionY],
+          x1: mousePositionX,
+          y1: mousePositionY,
+          x2: mousePositionX - 10,
+          y2: mousePositionY - 100,
         };
+
+        const intersectingCircle = Canvas.findRectIntersectingCircle({
+          circles: circles.map((circle) => circle.nodeConnector),
+          rect: activeRect,
+        });
+
+        if (intersectingCircle) {
+          newRect.x2 = intersectingCircle.center[0];
+          newRect.y2 = intersectingCircle.center[1];
+        }
+        console.log('the intersectingCircle', intersectingCircle);
         handleUpdateRects(newRect);
         break;
       default:
@@ -206,8 +231,8 @@ const CircleApp = () => {
     });
     rects.forEach((line) => {
       ctx.beginPath();
-      ctx.moveTo(line.center[0], line.center[1] - line.length / 2);
-      ctx.lineTo(line.center[0], line.center[1] + line.length / 2);
+      ctx.moveTo(line.x1, line.y1);
+      ctx.lineTo(line.x2, line.y2);
       ctx.strokeStyle = line.color;
       ctx.lineWidth = line.width;
       ctx.stroke();
@@ -244,8 +269,8 @@ const CircleApp = () => {
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
-        width={900}
-        height={800}
+        width={2000}
+        height={2000}
       />
     </>
   );

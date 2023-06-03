@@ -56,20 +56,24 @@ export const DISPLAY_TYPES = ['nodes', 'canvas', 'bar'] as const;
 
 export type DisplayTypes = (typeof DISPLAY_TYPES)[number];
 
+export type NodeConnector = Omit<Circle, 'nodeConnector'>;
+
 export type Circle = {
   id: string;
   type: 'circle';
   center: [number, number];
   color: string;
   radius: number;
-  nodeConnector: Omit<Circle, 'nodeConnector'>;
+  nodeConnector: NodeConnector;
 };
 
 export type Rect = {
   id: string;
   type: 'rect';
-  center: [number, number];
-  length: number;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
   width: number;
   color: string;
 };
