@@ -1,4 +1,10 @@
-import { Circle, NodeConnector, Rect } from './types';
+import {
+  CircleConnector,
+  CircleReceiver,
+  NodeConnector,
+  NodeReceiver,
+  Rect,
+} from './types';
 import { type MouseEvent } from 'react';
 export const replaceCanvasElement = <T extends { id: string }>({
   oldArray,
@@ -20,7 +26,7 @@ export const getActiveCircle = ({
 }: {
   event: MouseEvent<HTMLCanvasElement>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
-  circles: (Circle | NodeConnector)[];
+  circles: (CircleConnector | CircleReceiver | NodeConnector)[];
 }) => {
   const canvas = canvasRef.current;
   if (!canvas) return;
@@ -104,7 +110,7 @@ export const findRectIntersectingCircle = ({
   rect,
 }: {
   rect: Rect;
-  circles: (Circle | NodeConnector)[];
+  circles: (CircleConnector | NodeConnector)[];
 }) => {
   // get corners and check if point is in circle, can do that with width/height and center
   const corners = [
@@ -123,13 +129,16 @@ export const findRectIntersectingCircle = ({
   return intersectingCircle;
 };
 
-export const findConnectorIntersectingConnector = ({
+export const findConnectorIntersectingConnector = <
+  T extends NodeConnector | NodeReceiver,
+  D extends NodeConnector | NodeReceiver
+>({
   circle,
   circles,
 }: {
-  circle: NodeConnector;
-  circles: NodeConnector[];
-}) =>
+  circle: T;
+  circles: D[];
+}): D | undefined =>
   circles.find((c) =>
     isPointInCircle(
       circle.center[0],

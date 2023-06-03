@@ -1,12 +1,19 @@
 'use client';
-import { AttachableLine, Circle, NodeConnector, Rect } from '@/lib/types';
+import {
+  AttachableLine,
+  CircleConnector,
+  CircleReceiver,
+  NodeConnector,
+  NodeReceiver,
+  Rect,
+} from '@/lib/types';
 import React, { useRef, useState, useEffect, MouseEvent } from 'react';
 import * as Canvas from '@/lib/canvas';
 import { Button } from '@/components/ui/button';
 const CircleApp = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [circles, setCircles] = useState<Circle[]>([]);
+  const [circles, setCircles] = useState<CircleReceiver[]>([]);
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
 
   const [attachableLines, setAttachableLines] = useState<AttachableLine[]>([]);
@@ -15,7 +22,7 @@ const CircleApp = () => {
     selected: 'line' | 'node1' | 'node2';
   } | null>(null);
 
-  const handleUpdateCircles = (newCircle: Circle) => {
+  const handleUpdateCircles = (newCircle: CircleReceiver) => {
     setCircles((prev) =>
       Canvas.replaceCanvasElement({
         oldArray: prev,
@@ -71,21 +78,21 @@ const CircleApp = () => {
       Math.random() * 400,
     ];
     const circleRadius = 50;
-    const newNodeConnector: Circle['nodeConnector'] = {
+    const newNodeConnector: CircleReceiver['nodeReceiver'] = {
       id: crypto.randomUUID(),
       center: circleCenter,
       radius: circleRadius / 5,
       color: 'blue',
       type: 'circle',
-      connectedToId: null,
+      attachedIds: [],
     };
-    const newCircle: Circle = {
+    const newCircle: CircleReceiver = {
       id: crypto.randomUUID(),
       type: 'circle',
       center: circleCenter,
       radius: circleRadius,
       color: 'red',
-      nodeConnector: newNodeConnector,
+      nodeReceiver: newNodeConnector,
     };
 
     setCircles((prevCircles) => [...prevCircles, newCircle]);
@@ -139,7 +146,7 @@ const CircleApp = () => {
         if (!activeCircle) return;
         setSelectedCircleID(activeCircle.id);
 
-        const newCircle: Circle = {
+        const newCircle: CircleReceiver = {
           ...activeCircle,
           color: 'white',
         };
@@ -217,29 +224,25 @@ const CircleApp = () => {
           (circle) => circle.id === selectedCircleID
         );
         if (!activeCircle) return;
-        const connectedToNodeOneContainer = attachableLines.find(
-          (line) =>
-            line.attachNodeOne.id === activeCircle.nodeConnector.connectedToId
+        // problem needs structual fixing
+        const connectedToNodeOneContainer = attachableLines.find((line) =>
+          activeCircle.nodeReceiver.attachedIds.some(
+            (id) => id === line.attachNodeOne.id
+          )
         );
-        const connectedToNodeTwoContainer = attachableLines.find(
-          (line) =>
-            line.attachNodeTwo.id === activeCircle.nodeConnector.connectedToId
+        const connectedToNodeTwoContainer = attachableLines.find((line) =>
+          activeCircle.nodeReceiver.attachedIds.some(
+            (id) => id === line.attachNodeTwo.id
+          )
         );
 
-        console.log('circles', circles, attachableLines);
-
-        console.log(
-          'connected to containers',
-          connectedToNodeOneContainer,
-          connectedToNodeTwoContainer
-        );
         // const connectedToNodeContainer = attachableLines.find(line => line.attachNodeOne.id === activeCircle.nodeConnector.connectedToId || line.attachNodeTwo.id === activeCircle.nodeConnector.connectedToId)
 
-        const newCircle: Circle = {
+        const newCircle: CircleReceiver = {
           ...activeCircle,
           center: [mousePositionX, mousePositionY],
-          nodeConnector: {
-            ...activeCircle.nodeConnector,
+          nodeReceiver: {
+            ...activeCircle.nodeReceiver,
             center: [mousePositionX, mousePositionY],
           },
         };
@@ -314,7 +317,7 @@ const CircleApp = () => {
         const intersectingCircleOne = Canvas.findConnectorIntersectingConnector(
           {
             circle: activeRectContainingNodeOne.attachNodeOne,
-            circles: circles.map((c) => c.nodeConnector),
+            circles: circles.map((c) => c.nodeReceiver),
           }
         );
 
@@ -329,21 +332,24 @@ const CircleApp = () => {
           newRectContainingNodeOne.attachNodeOne.connectedToId =
             intersectingCircleOne.id;
 
-          const newIntersectingCircleOne: NodeConnector = {
+          const newIntersectingCircleOne: NodeReceiver = {
             ...intersectingCircleOne,
-            connectedToId: activeRectContainingNodeOne.attachNodeOne.id,
+            // connectedToId: activeRectContainingNodeOne.attachNodeOne.id,
+            attachedIds: [
+              ...intersectingCircleOne.attachedIds,
+              activeRectContainingNodeOne.attachNodeOne.id,
+            ],
           };
-          const nodeConnectorContainerOne = circles.find(
-            (c) => c.nodeConnector.id === newIntersectingCircleOne.id
+          // needs structual change to fix
+          const nodeRecieverContainerOne = circles.find(
+            // (c) => c.nodeConnector.id === newIntersectingCircleOne.id
+            (c) => c.nodeReceiver.id === newIntersectingCircleOne.id
           );
-          console.log(
-            'foundnodeConnectorContainerOne ',
-            nodeConnectorContainerOne
-          );
-          nodeConnectorContainerOne &&
+
+          nodeRecieverContainerOne &&
             handleUpdateCircles({
-              ...nodeConnectorContainerOne,
-              nodeConnector: newIntersectingCircleOne,
+              ...nodeRecieverContainerOne,
+              nodeReceiver: newIntersectingCircleOne,
             });
         }
 
@@ -370,7 +376,7 @@ const CircleApp = () => {
         const intersectingCircleTwo = Canvas.findConnectorIntersectingConnector(
           {
             circle: activeRectContainingNodeTwo.attachNodeTwo,
-            circles: circles.map((c) => c.nodeConnector),
+            circles: circles.map((c) => c.nodeReceiver),
           }
         );
 
@@ -385,18 +391,22 @@ const CircleApp = () => {
           newRectContainingNodeTwo.attachNodeOne.connectedToId =
             intersectingCircleTwo.id;
 
-          const newIntersectingCircleTwo: NodeConnector = {
+          const newIntersectingCircleTwo: NodeReceiver = {
             ...intersectingCircleTwo,
-            connectedToId: activeRectContainingNodeTwo.attachNodeTwo.id,
+            // connectedToId: activeRectContainingNodeTwo.attachNodeTwo.id,
+            attachedIds: [
+              ...intersectingCircleTwo.attachedIds,
+              activeRectContainingNodeTwo.attachNodeTwo.id,
+            ],
           };
           const nodeConnectorContainerTwo = circles.find(
-            (c) => c.nodeConnector.id === newIntersectingCircleTwo.id
+            (c) => c.nodeReceiver.id === newIntersectingCircleTwo.id
           );
 
           nodeConnectorContainerTwo &&
             handleUpdateCircles({
               ...nodeConnectorContainerTwo,
-              nodeConnector: newIntersectingCircleTwo,
+              nodeReceiver: newIntersectingCircleTwo,
             });
         }
         handleUpdateRects(newRectContainingNodeTwo);
@@ -542,17 +552,17 @@ const CircleApp = () => {
       });
 
     circles.forEach((circle) => {
-      const nodeConnector = circle.nodeConnector;
+      const nodeReceiver = circle.nodeReceiver;
       ctx.beginPath();
       ctx.arc(
-        nodeConnector.center[0],
-        nodeConnector.center[1],
-        nodeConnector.radius,
+        nodeReceiver.center[0],
+        nodeReceiver.center[1],
+        nodeReceiver.radius,
         0,
         2 * Math.PI,
         false
       );
-      ctx.fillStyle = nodeConnector.color;
+      ctx.fillStyle = nodeReceiver.color;
       ctx.fill();
     });
   }, [circles, attachableLines]);

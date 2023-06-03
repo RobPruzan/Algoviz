@@ -56,18 +56,27 @@ export const DISPLAY_TYPES = ['nodes', 'canvas', 'bar'] as const;
 
 export type DisplayTypes = (typeof DISPLAY_TYPES)[number];
 
-export type NodeConnector = Omit<Circle, 'nodeConnector' | 'type'> & {
+export type NodeConnector = Omit<CircleConnector, 'nodeConnector' | 'type'> & {
   type: 'node1' | 'node2' | 'circle';
   connectedToId: string | null;
 };
 
-export type Circle = {
+export type NodeReceiver = Omit<CircleConnector, 'nodeConnector' | 'type'> & {
+  type: 'node1' | 'node2' | 'circle';
+  attachedIds: string[];
+};
+
+export type CircleConnector = {
   id: string;
   type: 'circle';
   center: [number, number];
   color: string;
   radius: number;
   nodeConnector: NodeConnector;
+};
+
+export type CircleReceiver = Omit<CircleConnector, 'nodeConnector'> & {
+  nodeReceiver: NodeReceiver;
 };
 
 export type Rect = {
