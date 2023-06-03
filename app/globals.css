@@ -82,10 +82,10 @@
   }
 }
 
-.fancy-background {
+.bg-fancy {
   background-image: radial-gradient(
     rgba(255, 255, 255, 0.1) 1px,
-    transparent 1px
+    transparent 1.5px
   );
 
   background-size: 1.1rem 1.1rem;

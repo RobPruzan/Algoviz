@@ -55,3 +55,17 @@ export type AlgorithmInfo = {
 export const DISPLAY_TYPES = ['nodes', 'canvas', 'bar'] as const;
 
 export type DisplayTypes = (typeof DISPLAY_TYPES)[number];
+
+export type Circle = {
+  id: string;
+  x: number;
+  y: number;
+  color: string;
+  radius: number;
+  boundingBox: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+};
