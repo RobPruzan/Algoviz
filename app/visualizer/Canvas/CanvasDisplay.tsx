@@ -50,12 +50,25 @@ const CircleApp = () => {
   };
 
   const handleAddCircle = () => {
+    const circleCenter: [number, number] = [
+      Math.random() * 400,
+      Math.random() * 400,
+    ];
+    const circleRadius = 50;
+    const newNodeConnector: Circle['nodeConnector'] = {
+      id: crypto.randomUUID(),
+      center: circleCenter,
+      radius: circleRadius / 5,
+      color: 'blue',
+      type: 'circle',
+    };
     const newCircle: Circle = {
       id: crypto.randomUUID(),
       type: 'circle',
-      center: [Math.random() * 400, Math.random() * 400],
-      radius: 50,
+      center: circleCenter,
+      radius: circleRadius,
       color: 'red',
+      nodeConnector: newNodeConnector,
     };
 
     setCircles((prevCircles) => [...prevCircles, newCircle]);
@@ -118,6 +131,10 @@ const CircleApp = () => {
         const newCircle: Circle = {
           ...activeCircle,
           center: [mousePositionX, mousePositionY],
+          nodeConnector: {
+            ...activeCircle.nodeConnector,
+            center: [mousePositionX, mousePositionY],
+          },
         };
         handleUpdateCircles(newCircle);
         break;
@@ -195,6 +212,21 @@ const CircleApp = () => {
       ctx.lineWidth = line.width;
       ctx.stroke();
     });
+
+    circles.forEach((circle) => {
+      const nodeConnector = circle.nodeConnector;
+      ctx.beginPath();
+      ctx.arc(
+        nodeConnector.center[0],
+        nodeConnector.center[1],
+        nodeConnector.radius,
+        0,
+        2 * Math.PI,
+        false
+      );
+      ctx.fillStyle = nodeConnector.color;
+      ctx.fill();
+    });
   }, [circles, rects]);
 
   return (
@@ -212,8 +244,8 @@ const CircleApp = () => {
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
-        width={750}
-        height={500}
+        width={900}
+        height={800}
       />
     </>
   );

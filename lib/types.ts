@@ -62,6 +62,7 @@ export type Circle = {
   center: [number, number];
   color: string;
   radius: number;
+  nodeConnector: Omit<Circle, 'nodeConnector'>;
 };
 
 export type Rect = {
