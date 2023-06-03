@@ -1,10 +1,36 @@
-import { Circle } from '@/lib/types';
+'use client';
+import { Circle, Line } from '@/lib/types';
 import React, { useRef, useState, useEffect, MouseEvent } from 'react';
 import * as Canvas from '@/lib/canvas';
 const CircleApp = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const [circles, setCircles] = useState<Circle[]>([]);
-  const [selectedCircle, setSelectedCircle] = useState<Circle | null>(null);
+  const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
+
+  const [lines, setLines] = useState<Line[]>([]);
+  const [selectedLineID, setSelectedLineID] = useState<string | null>(null);
+
+  const handleUpdateCircles = (newCircle: Circle) => {
+    setCircles((prev) =>
+      Canvas.replaceCircle({
+        oldArray: prev,
+        newCircle,
+      })
+    );
+  };
+
+  const handleAddLine = () => {
+    const newLine: Line = {
+      center: [Math.random() * 400, Math.random() * 400],
+      id: crypto.randomUUID(),
+      length: 50,
+      width: 5,
+      color: 'white',
+    };
+
+    setLines((prevLines) => [...prevLines, newLine]);
+  };
 
   const addCircle = () => {
     const newCircle: Circle = {
@@ -31,79 +57,85 @@ const CircleApp = () => {
     setCircles((prevCircles) => [...prevCircles, newCircle]);
   };
 
-  const handleMouseDown = (e: MouseEvent<HTMLCanvasElement>) => {
-    if (canvasRef.current) {
-      const rect = canvasRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+  const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
+    const activeCircleId = Canvas.getActiveCircle({
+      circles,
+      event,
+      canvasRef,
+    });
+    if (!activeCircleId) return;
+    const activeCircle = circles.find((circle) => circle.id === activeCircleId);
+    if (!activeCircle) return;
+    setSelectedCircleID(activeCircleId);
 
-      circles.some((circle) => {
-        if (
-          x >= circle.boundingBox.x &&
-          x <= circle.boundingBox.x + circle.boundingBox.width &&
-          y >= circle.boundingBox.y &&
-          y <= circle.boundingBox.y + circle.boundingBox.height
-        ) {
-          console.log(circle);
-          const newCircle: Circle = {
-            ...circle,
-            color: 'white',
-          };
+    const newCircle: Circle = {
+      ...activeCircle,
+      color: 'white',
+    };
 
-          setSelectedCircle(circle);
-          setCircles((prev) =>
-            Canvas.replaceCircle({
-              oldArray: prev,
-              newCircle,
-            })
-          );
-          return true;
-        }
-        return false;
-      });
-    }
+    handleUpdateCircles(newCircle);
+  };
+
+  const handleMouseMove = (event: MouseEvent<HTMLCanvasElement>) => {
+    const activeCircle = circles.find(
+      (circle) => circle.id === selectedCircleID
+    );
+    if (!activeCircle) return;
+    const mousePositionX = event.nativeEvent.offsetX;
+    const mousePositionY = event.nativeEvent.offsetY;
+
+    const newCircle: Circle = {
+      ...activeCircle,
+      x: mousePositionX,
+      y: mousePositionY,
+    };
+    handleUpdateCircles(newCircle);
   };
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const ctx = canvas?.getContext('2d');
+    if (!ctx) return;
+    if (!canvas) return;
+    console.log('adding ahh');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        circles.forEach((circle) => {
-          ctx.beginPath();
-          ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI, false);
-          ctx.fillStyle = circle.color;
-          ctx.fill();
-        });
-      }
-    }
-  }, [circles]);
+    circles.forEach((circle) => {
+      ctx.beginPath();
+      ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI, false);
+      ctx.fillStyle = circle.color;
+      ctx.fill();
+    });
+    lines.forEach((line) => {
+      ctx.beginPath();
+      ctx.moveTo(line.center[0], line.center[1]);
+      ctx.lineTo(line.center[0], line.center[1] - line.length);
+      ctx.strokeStyle = line.color;
+      ctx.lineWidth = line.width;
+      ctx.stroke();
+    });
+  }, [circles, lines]);
 
   return (
     <>
       <button onClick={addCircle}>Add Circle</button>
+      <button onClick={handleAddLine}>Add Circle</button>
+
       <canvas
         className="bg-fancy"
         ref={canvasRef}
+        onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
         onMouseUp={() => {
-          const selectedCircleId = selectedCircle?.id;
-          if (!selectedCircleId) {
-            return;
-          }
-          setCircles((prev) =>
-            Canvas.replaceCircle({
-              oldArray: prev,
-              newCircle: {
-                ...selectedCircle,
-                color: 'red',
-              },
-            })
+          const activeCircle = circles.find(
+            (circle) => circle.id === selectedCircleID
           );
-
-          setSelectedCircle(null);
+          if (!activeCircle) return;
+          handleUpdateCircles({
+            ...activeCircle,
+            color: 'red',
+          });
+          setSelectedCircleID(null);
           console.log('up');
         }}
         width={750}

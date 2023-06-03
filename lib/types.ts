@@ -69,3 +69,11 @@ export type Circle = {
     height: number;
   };
 };
+
+export type Line = {
+  id: string;
+  center: [number, number];
+  length: number;
+  width: number;
+  color: string;
+};
