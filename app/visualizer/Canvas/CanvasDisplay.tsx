@@ -242,7 +242,7 @@ const CircleApp = () => {
             center: [mousePositionX, mousePositionY],
           },
           attachNodeTwo: {
-            ...activeRect.attachNodeOne,
+            ...activeRect.attachNodeTwo,
             center: [mousePositionX - 10, mousePositionY - 100],
           },
         };
