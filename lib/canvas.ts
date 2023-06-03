@@ -29,7 +29,7 @@ export const getActiveCircle = ({
   const y = event.clientY - rect.top;
 
   const activeCircleIndex = circles.find((circle) =>
-    isPointInCircle(x, y, circle.x, circle.y, circle.radius)
+    isPointInCircle(x, y, circle.center[0], circle.center[1], circle.radius)
   );
 
   return activeCircleIndex?.id;

@@ -59,16 +59,9 @@ export type DisplayTypes = (typeof DISPLAY_TYPES)[number];
 export type Circle = {
   id: string;
   type: 'circle';
-  x: number;
-  y: number;
+  center: [number, number];
   color: string;
   radius: number;
-  boundingBox: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
 };
 
 export type Rect = {

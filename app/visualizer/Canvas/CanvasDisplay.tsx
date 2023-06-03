@@ -53,23 +53,9 @@ const CircleApp = () => {
     const newCircle: Circle = {
       id: crypto.randomUUID(),
       type: 'circle',
-      x: Math.random() * 400,
-      y: Math.random() * 400,
+      center: [Math.random() * 400, Math.random() * 400],
       radius: 50,
       color: 'red',
-      boundingBox: {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-      },
-    };
-
-    newCircle.boundingBox = {
-      x: newCircle.x - newCircle.radius,
-      y: newCircle.y - newCircle.radius,
-      width: newCircle.radius * 2,
-      height: newCircle.radius * 2,
     };
 
     setCircles((prevCircles) => [...prevCircles, newCircle]);
@@ -91,12 +77,6 @@ const CircleApp = () => {
     const activeCircle = circles.find((circle) => circle.id === activeCircleId);
     const activeRect = rects.find((line) => line.id === activeRectID);
     const activeItem = activeCircle || activeRect;
-    console.log(
-      'active item',
-      activeItem,
-      event.nativeEvent.offsetX,
-      event.nativeEvent.offsetY
-    );
     switch (activeItem?.type) {
       case 'circle':
         if (!activeCircle) return;
@@ -126,23 +106,32 @@ const CircleApp = () => {
   };
 
   const handleMouseMove = (event: MouseEvent<HTMLCanvasElement>) => {
+    const mousePositionX = event.nativeEvent.offsetX;
+    const mousePositionY = event.nativeEvent.offsetY;
     switch (activeTask) {
       case 'circle':
         const activeCircle = circles.find(
           (circle) => circle.id === selectedCircleID
         );
         if (!activeCircle) return;
-        const mousePositionX = event.nativeEvent.offsetX;
-        const mousePositionY = event.nativeEvent.offsetY;
 
         const newCircle: Circle = {
           ...activeCircle,
-          x: mousePositionX,
-          y: mousePositionY,
+          center: [mousePositionX, mousePositionY],
         };
         handleUpdateCircles(newCircle);
         break;
       case 'line':
+        const activeRect = rects.find((rect) => rect.id === selectedRectID);
+        if (!activeRect) return;
+        const newRect: Rect = {
+          ...activeRect,
+          center: [mousePositionX, mousePositionY],
+        };
+        handleUpdateRects(newRect);
+        break;
+      default:
+        break;
     }
   };
 
@@ -169,6 +158,7 @@ const CircleApp = () => {
           ...activeRect,
           color: 'white',
         });
+        setSelectedRectID(null);
         break;
       default:
         break;
@@ -186,7 +176,14 @@ const CircleApp = () => {
 
     circles.forEach((circle) => {
       ctx.beginPath();
-      ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI, false);
+      ctx.arc(
+        circle.center[0],
+        circle.center[1],
+        circle.radius,
+        0,
+        2 * Math.PI,
+        false
+      );
       ctx.fillStyle = circle.color;
       ctx.fill();
     });
@@ -194,11 +191,6 @@ const CircleApp = () => {
       ctx.beginPath();
       ctx.moveTo(line.center[0], line.center[1] - line.length / 2);
       ctx.lineTo(line.center[0], line.center[1] + line.length / 2);
-      //       ctx.beginPath();
-      // ctx.moveTo(centerX - length / 2, centerY);
-      // ctx.lineTo(centerX + length / 2, centerY);
-      // ctx.stroke();
-
       ctx.strokeStyle = line.color;
       ctx.lineWidth = line.width;
       ctx.stroke();
