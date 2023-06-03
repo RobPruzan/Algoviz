@@ -21,7 +21,10 @@ const CircleApp = () => {
     id: string;
     selected: 'line' | 'node1' | 'node2';
   } | null>(null);
-
+  console.log(
+    'circles adj list',
+    circles.map((c) => [c.nodeReceiver.id, c.nodeReceiver.attachedIds])
+  );
   const handleUpdateCircles = (newCircle: CircleReceiver) => {
     setCircles((prev) =>
       Canvas.replaceCanvasElement({
@@ -334,15 +337,15 @@ const CircleApp = () => {
 
           const newIntersectingCircleOne: NodeReceiver = {
             ...intersectingCircleOne,
-            // connectedToId: activeRectContainingNodeOne.attachNodeOne.id,
-            attachedIds: [
-              ...intersectingCircleOne.attachedIds,
-              activeRectContainingNodeOne.attachNodeOne.id,
-            ],
+            attachedIds:
+              // ...intersectingCircleOne.attachedIds,
+              // activeRectContainingNodeOne.attachNodeOne.id,
+              Canvas.concatIdUniquely(
+                activeRectContainingNodeOne.attachNodeOne.id,
+                intersectingCircleOne.attachedIds
+              ),
           };
-          // needs structual change to fix
           const nodeRecieverContainerOne = circles.find(
-            // (c) => c.nodeConnector.id === newIntersectingCircleOne.id
             (c) => c.nodeReceiver.id === newIntersectingCircleOne.id
           );
 
@@ -394,10 +397,13 @@ const CircleApp = () => {
           const newIntersectingCircleTwo: NodeReceiver = {
             ...intersectingCircleTwo,
             // connectedToId: activeRectContainingNodeTwo.attachNodeTwo.id,
-            attachedIds: [
-              ...intersectingCircleTwo.attachedIds,
-              activeRectContainingNodeTwo.attachNodeTwo.id,
-            ],
+            attachedIds:
+              // ...intersectingCircleTwo.attachedIds,
+              // activeRectContainingNodeTwo.attachNodeTwo.id,
+              Canvas.concatIdUniquely(
+                activeRectContainingNodeTwo.attachNodeTwo.id,
+                intersectingCircleTwo.attachedIds
+              ),
           };
           const nodeConnectorContainerTwo = circles.find(
             (c) => c.nodeReceiver.id === newIntersectingCircleTwo.id
@@ -410,9 +416,6 @@ const CircleApp = () => {
             });
         }
         handleUpdateRects(newRectContainingNodeTwo);
-        // if you select the node, you expect the node to expand/move
-        // you also expect the attach behavior with the circle nodes
-        // you also expect the line to move with it
         break;
       default:
         break;

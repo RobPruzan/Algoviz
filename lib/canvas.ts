@@ -148,3 +148,12 @@ export const findConnectorIntersectingConnector = <
       c.radius
     )
   );
+
+export const concatIdUniquely = <TItem extends string>(
+  itemId: TItem,
+  items: TItem[]
+) => {
+  const filteredArray = items.filter((i) => i != itemId);
+  filteredArray.push(itemId);
+  return filteredArray;
+};

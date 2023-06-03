@@ -63,6 +63,7 @@ export type NodeConnector = Omit<CircleConnector, 'nodeConnector' | 'type'> & {
 
 export type NodeReceiver = Omit<CircleConnector, 'nodeConnector' | 'type'> & {
   type: 'node1' | 'node2' | 'circle';
+  // should just make this a map
   attachedIds: string[];
 };
 
