@@ -34,6 +34,8 @@ Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
+  // used to offset items when dragging
+  const previousMousePositionRef = useRef<[number, number]>();
 
   const dispatch = useAppDispatch();
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
@@ -59,65 +61,6 @@ Props) => {
   //     })
   //   );
   // };
-
-  const handleAddRect = () => {
-    const [x1, y1] = [Math.random() * 400, Math.random() * 400];
-    const newLine: AttachableLine = {
-      id: crypto.randomUUID(),
-      type: 'rect',
-      x1,
-      y1,
-      x2: x1 - 10,
-      y2: y1 - 50,
-      width: 5,
-      color: 'white',
-      attachNodeOne: {
-        center: [x1, y1],
-        radius: 5,
-        color: 'blue',
-        id: crypto.randomUUID(),
-        type: 'node1',
-        connectedToId: null,
-      },
-      attachNodeTwo: {
-        center: [x1 - 10, y1 - 50],
-        radius: 5,
-        color: 'blue',
-        id: crypto.randomUUID(),
-        type: 'node2',
-        connectedToId: null,
-      },
-    };
-
-    dispatch(CanvasActions.addLine(newLine));
-  };
-
-  const handleAddCircle = () => {
-    const circleCenter: [number, number] = [
-      Math.random() * 400,
-      Math.random() * 400,
-    ];
-    const circleRadius = 50;
-    const newNodeConnector: CircleReceiver['nodeReceiver'] = {
-      id: crypto.randomUUID(),
-      center: circleCenter,
-      radius: circleRadius / 5,
-      color: 'blue',
-      type: 'circle',
-      attachedIds: [],
-    };
-    const newCircle: CircleReceiver = {
-      id: crypto.randomUUID(),
-      type: 'circle',
-      center: circleCenter,
-      radius: circleRadius,
-      color: 'red',
-      nodeReceiver: newNodeConnector,
-    };
-
-    // setCircles((prevCircles) => [...prevCircles, newCircle]);
-    dispatch(CanvasActions.addCircle(newCircle));
-  };
 
   const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
     const activeCircleId = Canvas.getActiveCircle({
@@ -203,7 +146,7 @@ Props) => {
           ...activeRectContainerOne,
           attachNodeOne: {
             ...activeRectContainerOne.attachNodeOne,
-            color: 'orange',
+            color: '#1c356b',
           },
         };
 
@@ -225,7 +168,7 @@ Props) => {
           ...activeRectContainerTwo,
           attachNodeTwo: {
             ...activeRectContainerTwo.attachNodeTwo,
-            color: 'orange',
+            color: '#1c356b',
           },
         };
         // handleUpdateRects(newRectContainerTwo);
@@ -490,7 +433,7 @@ Props) => {
         dispatch(
           CanvasActions.replaceCircle({
             ...activeCircle,
-            color: 'red',
+            color: '#181e2b',
           })
         );
         setSelectedCircleID(null);
@@ -513,7 +456,7 @@ Props) => {
             // color: 'blue',
             attachNodeOne: {
               ...activeRectContainerOne.attachNodeOne,
-              color: 'blue',
+              color: '#42506e',
             },
           })
         );
@@ -525,7 +468,7 @@ Props) => {
             ...activeRectContainerTwo,
             attachNodeTwo: {
               ...activeRectContainerTwo.attachNodeTwo,
-              color: 'blue',
+              color: '#42506e',
             },
           })
         );
@@ -612,13 +555,6 @@ Props) => {
 
   return (
     <>
-      <Button className="bg-secondary" onClick={handleAddCircle}>
-        Add Circle
-      </Button>
-      <Button className="bg-secondary" onClick={handleAddRect}>
-        Add Line
-      </Button>
-
       <canvas
         className="bg-fancy"
         ref={canvasRef}

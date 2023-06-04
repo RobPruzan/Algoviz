@@ -52,6 +52,41 @@ export const isPointInCircle = (
   return distance <= radius;
 };
 
+// export const isPointInRect = ({
+//   px,
+//   py,
+//   x1,
+//   x2,
+//   y1,
+//   y2,
+// }: {
+//   px: number;
+//   py: number;
+//   x1: number;
+//   y1: number;
+//   x2: number;
+//   y2: number;
+// }) => {
+//   if (x1 > x2) [x1, x2] = [x2, x1];
+//   if (y1 > y2) [y1, y2] = [y2, y1];
+
+//   console.log(
+//     'gah',
+//     {
+//       px,
+//       py,
+//       x1,
+//       x2,
+//       y1,
+//       y2,
+//     },
+//     px >= x1 && px <= x2,
+//     py >= y1 && py <= y2
+//   );
+
+//   // Check if px is between x1 and x2 and py is between y1 and y2
+//   return px >= x1 && px <= x2 && py >= y1 && py <= y2;
+// };
 export const isPointInRect = ({
   px,
   py,
@@ -59,6 +94,7 @@ export const isPointInRect = ({
   x2,
   y1,
   y2,
+  width,
 }: {
   px: number;
   py: number;
@@ -66,12 +102,31 @@ export const isPointInRect = ({
   y1: number;
   x2: number;
   y2: number;
+  width: number;
 }) => {
-  if (x1 > x2) [x1, x2] = [x2, x1];
-  if (y1 > y2) [y1, y2] = [y2, y1];
+  let lineLengthSquared = Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2);
+  let crossProduct = (px - x1) * (x2 - x1) + (py - y1) * (y2 - y1);
+  let factor = crossProduct / lineLengthSquared;
 
-  // Check if px is between x1 and x2 and py is between y1 and y2
-  return px >= x1 && px <= x2 && py >= y1 && py <= y2;
+  let closestPoint;
+
+  if (factor < 0) {
+    closestPoint = { x: x1, y: y1 };
+  } else if (factor > 1) {
+    closestPoint = { x: x2, y: y2 };
+  } else {
+    closestPoint = {
+      x: x1 + factor * (x2 - x1),
+      y: y1 + factor * (y2 - y1),
+    };
+  }
+
+  let dx = px - closestPoint.x;
+  let dy = py - closestPoint.y;
+
+  let distanceSquared = dx * dx + dy * dy;
+
+  return distanceSquared <= Math.pow(width, 2);
 };
 
 export const getActiveRect = ({
@@ -99,6 +154,7 @@ export const getActiveRect = ({
       x2: rect.x2,
       y1: rect.y1,
       y2: rect.y2,
+      width: rect.width,
     })
   );
 
