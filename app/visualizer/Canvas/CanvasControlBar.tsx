@@ -14,7 +14,10 @@ const CanvasControlBar = () => {
     variableInspector: { show },
   } = useAppSelector((store) => store.canvas);
 
-  const adjacencyList = Graph.buildAdjacencyList(circles);
+  const adjacencyList = Graph.getAdjacencyList({
+    edges: attachableLines,
+    vertices: circles,
+  });
 
   const { handleBfs } = useBreadthFirstSearch({
     adjacencyList,
@@ -107,7 +110,13 @@ const CanvasControlBar = () => {
       </Button>
       <Button
         className="bg-secondary hover:bg-primary border border-secondary"
-        onClick={() => console.log(handleBfs())}
+        onClick={() => {
+          Graph.getAdjacencyList({
+            edges: attachableLines,
+            vertices: circles,
+          });
+          console.log(handleBfs());
+        }}
       >
         handleBfs
       </Button>

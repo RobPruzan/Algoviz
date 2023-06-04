@@ -131,7 +131,6 @@ const CanvasDisplay = () => {
         break;
 
       case 'node2':
-        console.log('2');
         if (!activeSelectNodeTwo) return;
         const activeRectContainerTwo = attachableLines.find(
           (line) => line.attachNodeTwo.id === activeSelectNodeTwo.id

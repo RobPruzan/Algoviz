@@ -1,4 +1,4 @@
-import { CircleReceiver } from './types';
+import { CircleReceiver, Edge } from './types';
 
 export {};
 
@@ -47,7 +47,7 @@ export class ImmutableSet<T> {
   }
 }
 
-export const buildAdjacencyList = (vertices: CircleReceiver[]) => {
+export const buildNaiveAdjacencyList = (vertices: CircleReceiver[]) => {
   const adjList = new Map<string, string[]>();
 
   vertices.forEach((v) => {
@@ -55,4 +55,86 @@ export const buildAdjacencyList = (vertices: CircleReceiver[]) => {
   });
 
   return adjList;
+};
+
+export const getAdjacencyList = ({
+  vertices,
+  edges,
+}: {
+  vertices: CircleReceiver[];
+  edges: Edge[];
+}) => {
+  // given vertices and attach node id
+  // generate the adjacency list with the helper func
+  // that gives us all the attached nodes to the reciever
+  // need to map that id to the opposing vertices to show a neighbor connection
+  // need to get the edges from the attach node
+  // need to get the opposite attach nodes
+  // need to find the circle that its connected to the opposite attach node
+  // need to return the circles
+
+  // need to make these ids to their actual's
+  const brokenAdjacencyList = vertices.reduce<string[]>((prev, curr) => {
+    return [...prev, ...curr.nodeReceiver.attachedIds];
+  }, []);
+
+  console.log('the broken adjaceny list', brokenAdjacencyList);
+  const idMap = new Map<string, string>();
+
+  brokenAdjacencyList.forEach((id) => {
+    // looking for the container edge for this node
+    const containerEdge = edges.find(
+      (edge) => edge.attachNodeOne.id === id || edge.attachNodeTwo.id === id
+    );
+    if (!containerEdge) {
+      throw new Error(`You have some id in this array that doesn't make sense`);
+    }
+    // Because we are looking for the opposite connector on the edge
+    const opposingNode =
+      containerEdge.attachNodeOne.id === id
+        ? containerEdge.attachNodeTwo
+        : containerEdge.attachNodeOne;
+    // console.log('mapping connectors', containerEdge, id);
+
+    const neighbor = vertices.find((v) =>
+      v.nodeReceiver.attachedIds.includes(opposingNode.id)
+    );
+
+    console.log(
+      'last thing to get by',
+      neighbor,
+      opposingNode.id,
+      vertices.map((v) => v.nodeReceiver.attachedIds)
+    );
+
+    if (neighbor) {
+      idMap.set(id, neighbor.id);
+    }
+  });
+
+  console.log('id map', idMap.entries());
+
+  const correctVerticesList = vertices.map((v) => {
+    const newV: CircleReceiver = {
+      ...v,
+      nodeReceiver: {
+        ...v.nodeReceiver,
+        attachedIds: v.nodeReceiver.attachedIds.reduce<string[]>(
+          (prev, curr) => {
+            const newId = idMap.get(curr);
+            if (newId) {
+              return [...prev, newId];
+            }
+            return prev;
+          },
+          []
+        ),
+      },
+    };
+    return newV;
+  });
+
+  console.log('done', buildNaiveAdjacencyList(correctVerticesList));
+
+  return buildNaiveAdjacencyList(correctVerticesList);
 };

@@ -78,7 +78,6 @@ const SortControlBar = ({ algorithm }: Props) => {
 
   const handleAddNode = () => {
     if (historyNodes.length > 1) {
-      console.log('1');
       return;
     }
 
