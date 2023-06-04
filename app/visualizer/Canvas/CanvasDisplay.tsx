@@ -20,6 +20,17 @@ import * as Graph from '@/lib/canvas';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu';
 
 const CanvasDisplay = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -509,20 +520,59 @@ const CanvasDisplay = () => {
       );
       ctx.fillStyle = nodeReceiver.color;
       ctx.fill();
+      // set the text style
+      ctx.font = '25px Arial'; // change to whatever font style you want
+      ctx.fillStyle = 'white'; // text color
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Draw the text
+      // This will draw the text in the center of the circle
+      var text = '5';
+      ctx.fillText(
+        text,
+        Math.floor(circle.center[0]),
+        Math.floor(circle.center[1])
+      );
     });
   }, [circles, attachableLines]);
 
   return (
     <>
-      <canvas
-        className="bg-fancy"
-        ref={canvasRef}
-        onMouseMove={handleMouseMove}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        width={2000}
-        height={2000}
-      />
+      <ContextMenu>
+        <ContextMenuTrigger>
+          <canvas
+            className="bg-fancy"
+            ref={canvasRef}
+            onMouseMove={handleMouseMove}
+            onMouseDown={handleMouseDown}
+            // temporary, should have its own handler
+            onContextMenu={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            width={2000}
+            height={2000}
+          />
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuSub>
+            <ContextMenuItem inset>
+              Delete
+              <ContextMenuShortcut>⌘D</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuSubTrigger inset>Edit Node</ContextMenuSubTrigger>
+            <ContextMenuSubContent className="w-48">
+              <ContextMenuItem>
+                Save Page As...
+                <ContextMenuShortcut>⇧⌘S</ContextMenuShortcut>
+              </ContextMenuItem>
+              <ContextMenuItem>Create Shortcut...</ContextMenuItem>
+              <ContextMenuItem>Name Window...</ContextMenuItem>
+              <ContextMenuSeparator />
+              <ContextMenuItem>Developer Tools</ContextMenuItem>
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        </ContextMenuContent>
+      </ContextMenu>
     </>
   );
 };

@@ -41,7 +41,7 @@ const CanvasControlBar = () => {
       color: 'white',
       attachNodeOne: {
         center: [x1, y1],
-        radius: 7,
+        radius: 10,
         color: '#42506e',
         id: crypto.randomUUID(),
         type: 'node1',
@@ -49,7 +49,7 @@ const CanvasControlBar = () => {
       },
       attachNodeTwo: {
         center: [x1 - 10, y1 - 50],
-        radius: 7,
+        radius: 10,
         color: '#42506e',
         id: crypto.randomUUID(),
         type: 'node2',
@@ -69,7 +69,7 @@ const CanvasControlBar = () => {
     const newNodeConnector: CircleReceiver['nodeReceiver'] = {
       id: crypto.randomUUID(),
       center: circleCenter,
-      radius: circleRadius / 5,
+      radius: circleRadius * 0.4,
       color: '#42506e',
       type: 'circle',
       attachedIds: [],
@@ -111,11 +111,7 @@ const CanvasControlBar = () => {
       <Button
         className="bg-secondary hover:bg-primary border border-secondary"
         onClick={() => {
-          Graph.getAdjacencyList({
-            edges: attachableLines,
-            vertices: circles,
-          });
-          console.log(handleBfs());
+          handleBfs();
         }}
       >
         handleBfs

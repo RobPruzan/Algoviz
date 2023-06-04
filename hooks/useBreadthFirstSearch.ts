@@ -1,4 +1,5 @@
 import { ImmutableQueue, ImmutableSet } from '@/lib/graph';
+import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppSelector } from '@/redux/store';
 import { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -28,17 +29,21 @@ export const useBreadthFirstSearch = ({
 
     while (queueRef.current.size() > 0) {
       const { poppedItem, newQueue } = queueRef.current.dequeue();
-      // console.log('popped', poppedItem?.toString());
+      if (!poppedItem) {
+        continue;
+      }
+      console.log('popped', poppedItem?.toString());
       queueRef.current = newQueue;
-      const neighbors = poppedItem ? adjacencyList.get(poppedItem) : undefined;
+      const neighbors = adjacencyList.get(poppedItem);
       // console.log('the neighbors', neighbors);
       if (!neighbors || neighbors.length <= 0) {
         continue;
       }
       for (const neighbor of neighbors) {
         // console.log('iterating over neighbor', neighbor);
+        // console.log('visited', visitedRef.current.toString());
         if (!visitedRef.current.has(neighbor)) {
-          visitedRef.current = visitedRef.current.add(neighbor);
+          visitedRef.current = visitedRef.current.add(poppedItem);
           queueRef.current = queueRef.current.enqueue(neighbor);
           historyRef.current = [
             ...(historyRef.current ?? []),
@@ -62,8 +67,13 @@ export const useBreadthFirstSearch = ({
   };
 
   const handleBfs = () => {
-    const state = bfs();
     clearState();
+    const state = bfs();
+    state.historyRef.current &&
+      // dispatch(
+      //   CanvasActions.updateVariableInspectorQueue(state.historyRef.current)
+      // );
+      console.log('state', state);
   };
   return { handleBfs };
 };

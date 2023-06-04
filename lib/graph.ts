@@ -19,6 +19,20 @@ export class ImmutableQueue<T> {
     };
   }
 
+  [Symbol.iterator]() {
+    let index = 0;
+    let data = this.#arr;
+
+    return {
+      next: () => {
+        return {
+          value: data[index],
+          done: index++ >= data.length,
+        };
+      },
+    };
+  }
+
   size() {
     return this.#arr.length;
   }
@@ -44,6 +58,10 @@ export class ImmutableSet<T> {
 
   has(item: T) {
     return this.#mutSet.has(item);
+  }
+
+  toString() {
+    return `[${[...this.#mutSet.keys()].join(',')}]`;
   }
 }
 
@@ -78,7 +96,6 @@ export const getAdjacencyList = ({
     return [...prev, ...curr.nodeReceiver.attachedIds];
   }, []);
 
-  console.log('the broken adjaceny list', brokenAdjacencyList);
   const idMap = new Map<string, string>();
 
   brokenAdjacencyList.forEach((id) => {
@@ -94,25 +111,15 @@ export const getAdjacencyList = ({
       containerEdge.attachNodeOne.id === id
         ? containerEdge.attachNodeTwo
         : containerEdge.attachNodeOne;
-    // console.log('mapping connectors', containerEdge, id);
 
     const neighbor = vertices.find((v) =>
       v.nodeReceiver.attachedIds.includes(opposingNode.id)
-    );
-
-    console.log(
-      'last thing to get by',
-      neighbor,
-      opposingNode.id,
-      vertices.map((v) => v.nodeReceiver.attachedIds)
     );
 
     if (neighbor) {
       idMap.set(id, neighbor.id);
     }
   });
-
-  console.log('id map', idMap.entries());
 
   const correctVerticesList = vertices.map((v) => {
     const newV: CircleReceiver = {
@@ -133,8 +140,6 @@ export const getAdjacencyList = ({
     };
     return newV;
   });
-
-  console.log('done', buildNaiveAdjacencyList(correctVerticesList));
 
   return buildNaiveAdjacencyList(correctVerticesList);
 };

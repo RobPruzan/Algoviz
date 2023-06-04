@@ -1,16 +1,21 @@
 import { CircleReceiver, Edge, AlgorithmMetadata } from '@/lib/types';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import * as Canvas from '@/lib/canvas';
+import { ImmutableQueue } from '@/lib/graph';
 export type CanvasState = {
   circles: CircleReceiver[];
   attachableLines: Edge[];
-  variableInspector: { show: false } | { show: true };
+  variableInspector: {
+    show: boolean;
+    stack: unknown[];
+    queues: ImmutableQueue<unknown>[];
+  };
 };
 
 const initialState: CanvasState = {
   attachableLines: [],
   circles: [],
-  variableInspector: { show: false },
+  variableInspector: { show: false, queues: [], stack: [] },
 };
 
 const canvasSlice = createSlice({
@@ -36,7 +41,15 @@ const canvasSlice = createSlice({
       state.circles = [...state.circles, action.payload];
     },
     updateInspectorVisibility: (state, action: PayloadAction<boolean>) => {
-      state.variableInspector = { show: action.payload };
+      state.variableInspector.show = action.payload;
+    },
+    updateVariableInspectorQueue: (
+      state,
+      action: PayloadAction<ImmutableQueue<unknown>[]>
+    ) => {
+      if (state.variableInspector.show) {
+        state.variableInspector.queues = action.payload;
+      }
     },
   },
 });

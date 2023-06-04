@@ -5,10 +5,12 @@ import React from 'react';
 type Props = {};
 
 const CanvasVariableInspector = (props: Props) => {
-  const { show } = useAppSelector((store) => store.canvas.variableInspector);
+  const variables = useAppSelector((store) => store.canvas.variableInspector);
 
-  return show ? (
-    <div className="w-60 rounded-md flex flex-col h-[85%] border-2 border-foreground transition"></div>
+  return variables.show ? (
+    <div className="w-60 rounded-md flex flex-col h-[85%] border-2 border-foreground transition">
+      {variables.queues.map((item) => item.toString())}
+    </div>
   ) : null;
 };
 
