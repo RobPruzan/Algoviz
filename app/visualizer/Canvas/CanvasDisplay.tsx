@@ -18,21 +18,25 @@ import React, {
 import * as Canvas from '@/lib/canvas';
 import * as Graph from '@/lib/canvas';
 import { Button } from '@/components/ui/button';
+import { useAppDispatch, useAppSelector } from '@/redux/store';
+import { CanvasActions } from '@/redux/slices/canvasSlice';
 type Props = {
   circles: CircleReceiver[];
   setCircles: Dispatch<SetStateAction<CircleReceiver[]>>;
   attachableLines: AttachableLine[];
   setAttachableLines: Dispatch<SetStateAction<AttachableLine[]>>;
 };
-const CanvasDisplay = ({
-  attachableLines,
-  circles,
-  setAttachableLines,
-  setCircles,
-}: Props) => {
+const CanvasDisplay = ({}: // attachableLines,
+// circles,
+// setAttachableLines,
+// setCircles,
+Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
+
+  const dispatch = useAppDispatch();
+  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
 
   const [selectedAttachableLine, setSelectedAttachableLine] = useState<{
     id: string;
@@ -42,23 +46,19 @@ const CanvasDisplay = ({
     c.nodeReceiver.id,
     c.nodeReceiver.attachedIds,
   ]);
-  console.log('circles adj list', adjacencyList);
-  const handleUpdateCircles = (newCircle: CircleReceiver) => {
-    setCircles((prev) =>
-      Canvas.replaceCanvasElement({
-        oldArray: prev,
-        newElement: newCircle,
-      })
-    );
-  };
-  const handleUpdateRects = (newRect: AttachableLine) => {
-    setAttachableLines((prev) =>
-      Canvas.replaceCanvasElement({
-        oldArray: prev,
-        newElement: newRect,
-      })
-    );
-  };
+  // console.log('circles adj list', adjacencyList);
+  // const handleUpdateCircles = (newCircle: CircleReceiver) => {
+  //   CanvasActions.addCircle(newCircle)
+
+  // };
+  // const handleUpdateRects = (newRect: AttachableLine) => {
+  //   setAttachableLines((prev) =>
+  //     Canvas.replaceCanvasElement({
+  //       oldArray: prev,
+  //       newElement: newRect,
+  //     })
+  //   );
+  // };
 
   const handleAddRect = () => {
     const [x1, y1] = [Math.random() * 400, Math.random() * 400];
@@ -89,7 +89,7 @@ const CanvasDisplay = ({
       },
     };
 
-    setAttachableLines((prevLines) => [...prevLines, newLine]);
+    dispatch(CanvasActions.addLine(newLine));
   };
 
   const handleAddCircle = () => {
@@ -115,7 +115,8 @@ const CanvasDisplay = ({
       nodeReceiver: newNodeConnector,
     };
 
-    setCircles((prevCircles) => [...prevCircles, newCircle]);
+    // setCircles((prevCircles) => [...prevCircles, newCircle]);
+    dispatch(CanvasActions.addCircle(newCircle));
   };
 
   const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
@@ -171,7 +172,7 @@ const CanvasDisplay = ({
           color: 'white',
         };
 
-        handleUpdateCircles(newCircle);
+        dispatch(CanvasActions.replaceCircle(newCircle));
         break;
       case 'rect':
         if (!activeRect) return;
@@ -182,10 +183,13 @@ const CanvasDisplay = ({
           ...activeRect,
           color: 'gray',
         };
-        handleUpdateRects(newRect);
+        // handleUpdateRects(newRect);
+        dispatch(CanvasActions.replaceAttachableLine(newRect));
 
         break;
       case 'node1':
+        // node one attaches are completely fucked up
+        console.log('1');
         if (!activeSelectNodeOne) return;
         const activeRectContainerOne = attachableLines.find(
           (line) => line.attachNodeOne.id === activeSelectNodeOne.id
@@ -203,9 +207,11 @@ const CanvasDisplay = ({
           },
         };
 
-        handleUpdateRects(newRectContainerOne);
+        // handleUpdateRects(newRectContainerOne);
+        dispatch(CanvasActions.replaceAttachableLine(newRectContainerOne));
         break;
       case 'node2':
+        console.log('2');
         if (!activeSelectNodeTwo) return;
         const activeRectContainerTwo = attachableLines.find(
           (line) => line.attachNodeTwo.id === activeSelectNodeTwo.id
@@ -222,7 +228,8 @@ const CanvasDisplay = ({
             color: 'orange',
           },
         };
-        handleUpdateRects(newRectContainerTwo);
+        // handleUpdateRects(newRectContainerTwo);
+        dispatch(CanvasActions.replaceAttachableLine(newRectContainerTwo));
       default:
         break;
     }
@@ -243,6 +250,7 @@ const CanvasDisplay = ({
         const activeCircle = circles.find(
           (circle) => circle.id === selectedCircleID
         );
+        console.log('active circle abc', activeCircle);
         if (!activeCircle) return;
         // problem needs structual fixing
         const connectedToNodeOneContainer = attachableLines.find((line) =>
@@ -250,6 +258,8 @@ const CanvasDisplay = ({
             (id) => id === line.attachNodeOne.id
           )
         );
+
+        console.log('should be connected 1 abc', connectedToNodeOneContainer);
         const connectedToNodeTwoContainer = attachableLines.find((line) =>
           activeCircle.nodeReceiver.attachedIds.some(
             (id) => id === line.attachNodeTwo.id
@@ -278,7 +288,10 @@ const CanvasDisplay = ({
               center: newCircle.center,
             },
           };
-          handleUpdateRects(newConnectedToNodeOneContainer);
+          // handleUpdateRects(newConnectedToNodeOneContainer);
+          dispatch(
+            CanvasActions.replaceAttachableLine(newConnectedToNodeOneContainer)
+          );
         }
         if (connectedToNodeTwoContainer) {
           // should have an updater function to smoothly handle updating both connector and line, and same for circle
@@ -291,10 +304,12 @@ const CanvasDisplay = ({
               center: newCircle.center,
             },
           };
-          handleUpdateRects(newConnectedToNodeTwoContainer);
+          dispatch(
+            CanvasActions.replaceAttachableLine(newConnectedToNodeTwoContainer)
+          );
         }
 
-        handleUpdateCircles(newCircle);
+        dispatch(CanvasActions.replaceCircle(newCircle));
         break;
       case 'line':
         const activeRect = attachableLines.find(
@@ -316,7 +331,7 @@ const CanvasDisplay = ({
             center: [mousePositionX - 10, mousePositionY - 100],
           },
         };
-        handleUpdateRects(newRect);
+        dispatch(CanvasActions.replaceAttachableLine(newRect));
         break;
       case 'node1':
         const activeRectContainingNodeOne = attachableLines.find(
@@ -367,13 +382,15 @@ const CanvasDisplay = ({
           );
 
           nodeRecieverContainerOne &&
-            handleUpdateCircles({
-              ...nodeRecieverContainerOne,
-              nodeReceiver: newIntersectingCircleOne,
-            });
+            dispatch(
+              CanvasActions.replaceCircle({
+                ...nodeRecieverContainerOne,
+                nodeReceiver: newIntersectingCircleOne,
+              })
+            );
         }
 
-        handleUpdateRects(newRectContainingNodeOne);
+        dispatch(CanvasActions.replaceAttachableLine(newRectContainingNodeOne));
         // if you select the node, you expect the node to expand/move
         // you also expect the attach behavior with the circle nodes
         // you also expect the line to move with it
@@ -408,7 +425,7 @@ const CanvasDisplay = ({
             newRectContainingNodeTwo.y2,
           ];
 
-          newRectContainingNodeTwo.attachNodeOne.connectedToId =
+          newRectContainingNodeTwo.attachNodeTwo.connectedToId =
             intersectingCircleTwo.id;
 
           const newIntersectingCircleTwo: NodeReceiver = {
@@ -423,12 +440,14 @@ const CanvasDisplay = ({
           );
 
           nodeConnectorContainerTwo &&
-            handleUpdateCircles({
-              ...nodeConnectorContainerTwo,
-              nodeReceiver: newIntersectingCircleTwo,
-            });
+            dispatch(
+              CanvasActions.replaceCircle({
+                ...nodeConnectorContainerTwo,
+                nodeReceiver: newIntersectingCircleTwo,
+              })
+            );
         }
-        handleUpdateRects(newRectContainingNodeTwo);
+        dispatch(CanvasActions.replaceAttachableLine(newRectContainingNodeTwo));
         break;
       default:
         break;
@@ -468,40 +487,48 @@ const CanvasDisplay = ({
     switch (activeItem?.type) {
       case 'circle':
         if (!activeCircle) return;
-        handleUpdateCircles({
-          ...activeCircle,
-          color: 'red',
-        });
+        dispatch(
+          CanvasActions.replaceCircle({
+            ...activeCircle,
+            color: 'red',
+          })
+        );
         setSelectedCircleID(null);
         break;
       case 'rect':
         if (!activeRect) return;
-        handleUpdateRects({
-          ...activeRect,
-          color: 'white',
-        });
+        dispatch(
+          CanvasActions.replaceAttachableLine({
+            ...activeRect,
+            color: 'white',
+          })
+        );
         setSelectedAttachableLine(null);
         break;
       case 'node1':
         if (!activeRectContainerOne) return;
-        handleUpdateRects({
-          ...activeRectContainerOne,
-          // color: 'blue',
-          attachNodeOne: {
-            ...activeRectContainerOne.attachNodeOne,
-            color: 'blue',
-          },
-        });
+        dispatch(
+          CanvasActions.replaceAttachableLine({
+            ...activeRectContainerOne,
+            // color: 'blue',
+            attachNodeOne: {
+              ...activeRectContainerOne.attachNodeOne,
+              color: 'blue',
+            },
+          })
+        );
         setSelectedAttachableLine(null);
       default:
         if (!activeRectContainerTwo) return;
-        handleUpdateRects({
-          ...activeRectContainerTwo,
-          attachNodeTwo: {
-            ...activeRectContainerTwo.attachNodeTwo,
-            color: 'blue',
-          },
-        });
+        dispatch(
+          CanvasActions.replaceAttachableLine({
+            ...activeRectContainerTwo,
+            attachNodeTwo: {
+              ...activeRectContainerTwo.attachNodeTwo,
+              color: 'blue',
+            },
+          })
+        );
         setSelectedAttachableLine(null);
         break;
     }

@@ -1,6 +1,7 @@
 'use client';
 import { AlgoComboBox } from '@/app/visualizer/Sort/AlgoComboBox';
 import React, { useContext, useRef, useState } from 'react';
+import { Provider } from 'react-redux';
 import Visualize from './Visualize';
 import Node from '@/components/Visualizers/Node';
 import {
@@ -21,6 +22,7 @@ import {
   INITIAL_SIDE_BAR_STATE,
   SideBarContext,
 } from '@/Context/SideBarContext';
+import { store } from '@/redux/store';
 
 type Props = {
   children: React.ReactNode;
@@ -35,30 +37,32 @@ const Content = ({ children }: Props) => {
     useState<ControlBarContextState>(defaultState);
 
   return (
-    <SideBarContext.Provider
-      value={{
-        sideBarState,
-        setSideBarState,
-      }}
-    >
-      <HistoryNodesContext.Provider
+    <Provider store={store}>
+      <SideBarContext.Provider
         value={{
-          historyNodes,
-          setHistoryNodes,
-          quickSortTempHistoryArrayList,
-          mergeSortTempHistoryArrayList,
+          sideBarState,
+          setSideBarState,
         }}
       >
-        <ControlBarContext.Provider
+        <HistoryNodesContext.Provider
           value={{
-            controlBarState,
-            setControlBarState,
+            historyNodes,
+            setHistoryNodes,
+            quickSortTempHistoryArrayList,
+            mergeSortTempHistoryArrayList,
           }}
         >
-          {children}
-        </ControlBarContext.Provider>
-      </HistoryNodesContext.Provider>
-    </SideBarContext.Provider>
+          <ControlBarContext.Provider
+            value={{
+              controlBarState,
+              setControlBarState,
+            }}
+          >
+            {children}
+          </ControlBarContext.Provider>
+        </HistoryNodesContext.Provider>
+      </SideBarContext.Provider>
+    </Provider>
   );
 };
 
