@@ -88,6 +88,8 @@ const CanvasDisplay = () => {
         if (!activeCircle) return;
         setSelectedCircleID(activeCircle.id);
 
+        console.log('circle is:', activeCircle.id);
+
         const newCircle: CircleReceiver = {
           ...activeCircle,
           color: 'white',

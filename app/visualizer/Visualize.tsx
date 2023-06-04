@@ -1,3 +1,4 @@
+'use client';
 import React, { useContext, useState } from 'react';
 import SortControlBar from './Sort/SortControlBar';
 import SortDisplay from './Sort/SortDisplay';

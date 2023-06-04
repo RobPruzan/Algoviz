@@ -1,4 +1,6 @@
 import { Button } from '@/components/ui/button';
+import { useBreadthFirstSearch } from '@/hooks/useBreadthFirstSearch';
+import * as Graph from '@/lib/graph';
 import { CircleReceiver, Edge } from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
@@ -7,9 +9,18 @@ import React, { Dispatch, SetStateAction } from 'react';
 const CanvasControlBar = () => {
   const dispatch = useAppDispatch();
   const {
+    circles,
     attachableLines,
     variableInspector: { show },
   } = useAppSelector((store) => store.canvas);
+
+  const adjacencyList = Graph.buildAdjacencyList(circles);
+
+  const { handleBfs } = useBreadthFirstSearch({
+    adjacencyList,
+    // temporary until select is implemented
+    startingNode: [...adjacencyList.keys()].at(0) ?? '',
+  });
 
   const handleAddRect = () => {
     const [x1, y1] = [Math.random() * 400, Math.random() * 400];
@@ -93,6 +104,12 @@ const CanvasControlBar = () => {
         onClick={() => dispatch(CanvasActions.updateInspectorVisibility(!show))}
       >
         Open Variable Inspector
+      </Button>
+      <Button
+        className="bg-secondary hover:bg-primary border border-secondary"
+        onClick={() => console.log(handleBfs())}
+      >
+        handleBfs
       </Button>
     </div>
   );
