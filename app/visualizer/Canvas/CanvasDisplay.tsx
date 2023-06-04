@@ -1,6 +1,6 @@
 'use client';
 import {
-  AttachableLine,
+  Edge,
   CircleConnector,
   CircleReceiver,
   NodeConnector,
@@ -101,7 +101,7 @@ const CanvasDisplay = () => {
 
         setSelectedAttachableLine({ id: activeRect.id, selected: 'line' });
 
-        const newRect: AttachableLine = {
+        const newRect: Edge = {
           ...activeRect,
           color: 'gray',
         };
@@ -118,7 +118,7 @@ const CanvasDisplay = () => {
           id: activeSelectNodeOne.id,
           selected: 'node1',
         });
-        const newRectContainerOne: AttachableLine = {
+        const newRectContainerOne: Edge = {
           ...activeRectContainerOne,
           attachNodeOne: {
             ...activeRectContainerOne.attachNodeOne,
@@ -139,7 +139,7 @@ const CanvasDisplay = () => {
           id: activeSelectNodeTwo.id,
           selected: 'node2',
         });
-        const newRectContainerTwo: AttachableLine = {
+        const newRectContainerTwo: Edge = {
           ...activeRectContainerTwo,
           attachNodeTwo: {
             ...activeRectContainerTwo.attachNodeTwo,
@@ -210,7 +210,7 @@ const CanvasDisplay = () => {
           (rect) => rect.id === selectedAttachableLine?.id
         );
         if (!activeRect) return;
-        const newRect: AttachableLine = {
+        const newRect: Edge = {
           ...activeRect,
           x1: mousePositionX,
           y1: mousePositionY,
@@ -233,7 +233,7 @@ const CanvasDisplay = () => {
         );
         if (!activeRectContainingNodeOne) return;
 
-        const newRectContainingNodeOne: AttachableLine = {
+        const newRectContainingNodeOne: Edge = {
           ...activeRectContainingNodeOne,
           x1: mousePositionX,
           y1: mousePositionY,
@@ -288,7 +288,7 @@ const CanvasDisplay = () => {
           (rect) => rect.attachNodeTwo.id === selectedAttachableLine?.id
         );
         if (!activeRectContainingNodeTwo) return;
-        const newRectContainingNodeTwo: AttachableLine = {
+        const newRectContainingNodeTwo: Edge = {
           ...activeRectContainingNodeTwo,
           x2: mousePositionX,
           y2: mousePositionY,
@@ -427,6 +427,19 @@ const CanvasDisplay = () => {
     const ctx = canvas?.getContext('2d');
     if (!ctx) return;
     if (!canvas) return;
+    const dpr = window.devicePixelRatio;
+    const rect = canvas.getBoundingClientRect();
+
+    // Set the "actual" size of the canvas
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+
+    // Scale the context to ensure correct drawing operations
+    ctx.scale(dpr, dpr);
+
+    // Set the "drawn" size of the canvas
+    canvas.style.width = `${rect.width}px`;
+    canvas.style.height = `${rect.height}px`;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     circles.forEach((circle) => {
@@ -444,10 +457,10 @@ const CanvasDisplay = () => {
     });
     attachableLines.forEach((line) => {
       ctx.beginPath();
-      ctx.moveTo(line.x1, line.y1);
-      ctx.lineTo(line.x2, line.y2);
+      ctx.moveTo(Math.floor(line.x1), Math.floor(line.y1));
+      ctx.lineTo(Math.floor(line.x2), Math.floor(line.y2));
       ctx.strokeStyle = line.color;
-      ctx.lineWidth = line.width;
+      ctx.lineWidth = Math.floor(line.width);
       ctx.stroke();
     });
 
@@ -456,9 +469,9 @@ const CanvasDisplay = () => {
       .forEach((circle) => {
         ctx.beginPath();
         ctx.arc(
-          circle.center[0],
-          circle.center[1],
-          circle.radius,
+          Math.floor(circle.center[0]),
+          Math.floor(circle.center[1]),
+          Math.floor(circle.radius),
           0,
           2 * Math.PI,
           false
@@ -471,8 +484,8 @@ const CanvasDisplay = () => {
       .forEach((circle) => {
         ctx.beginPath();
         ctx.arc(
-          circle.center[0],
-          circle.center[1],
+          Math.floor(circle.center[0]),
+          Math.floor(circle.center[1]),
           circle.radius,
           0,
           2 * Math.PI,
@@ -486,9 +499,9 @@ const CanvasDisplay = () => {
       const nodeReceiver = circle.nodeReceiver;
       ctx.beginPath();
       ctx.arc(
-        nodeReceiver.center[0],
-        nodeReceiver.center[1],
-        nodeReceiver.radius,
+        Math.floor(nodeReceiver.center[0]),
+        Math.floor(nodeReceiver.center[1]),
+        Math.floor(nodeReceiver.radius),
         0,
         2 * Math.PI,
         false

@@ -5,6 +5,7 @@ import { AlgoComboBox } from '@/app/visualizer/Sort/AlgoComboBox';
 import { useState } from 'react';
 import Content from './Content';
 import SideBar from './SideBar';
+import CanvasVariableInspector from './Canvas/CanvasVariableInspector';
 
 const page = () => {
   return (
@@ -12,6 +13,7 @@ const page = () => {
       <Content>
         <SideBar />
         <Visualize />
+        <CanvasVariableInspector />
       </Content>
     </div>
   );

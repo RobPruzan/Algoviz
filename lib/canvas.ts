@@ -1,6 +1,6 @@
 import { P } from 'ts-pattern';
 import {
-  AttachableLine,
+  Edge,
   CircleConnector,
   CircleReceiver,
   LineNodeTaggedUnion,
@@ -203,10 +203,10 @@ export const getLineAttachedToNodeReciever = <T extends 'one' | 'two'>({
   attachableLines,
   nodeConnectedSide,
 }: {
-  attachableLines: AttachableLine[];
+  attachableLines: Edge[];
   activeCircle: CircleReceiver;
   nodeConnectedSide: T;
-}): (AttachableLine & { nodeConnectedSide: T }) | undefined => {
+}): (Edge & { nodeConnectedSide: T }) | undefined => {
   switch (nodeConnectedSide) {
     case 'one':
       const connectedToNodeOneContainer = attachableLines.find((line) =>
@@ -244,10 +244,10 @@ export const builtUpdatedAttachedLine = ({
   currentLine,
   nodeRecieverType,
 }: {
-  currentLine: AttachableLine;
+  currentLine: Edge;
   circleReciever: CircleReceiver;
   nodeRecieverType: 'one' | 'two';
-}): AttachableLine => {
+}): Edge => {
   if (nodeRecieverType === 'one') {
     return {
       ...currentLine,

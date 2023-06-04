@@ -1,23 +1,23 @@
 import { Button } from '@/components/ui/button';
-import { CircleReceiver, AttachableLine } from '@/lib/types';
+import { CircleReceiver, Edge } from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import React, { Dispatch, SetStateAction } from 'react';
 
-type Props = {
-  circles: CircleReceiver[];
-  setCircles: Dispatch<SetStateAction<CircleReceiver[]>>;
-  attachableLines: AttachableLine[];
-  setAttachableLines: Dispatch<SetStateAction<AttachableLine[]>>;
-};
-
-const CanvasControlBar = ({}: Props) => {
+const CanvasControlBar = () => {
   const dispatch = useAppDispatch();
-  const { attachableLines } = useAppSelector((store) => store.canvas);
+  const {
+    attachableLines,
+    variableInspector: { show },
+  } = useAppSelector((store) => store.canvas);
+
   const handleAddRect = () => {
     const [x1, y1] = [Math.random() * 400, Math.random() * 400];
-    const newLine: AttachableLine = {
+    const newLine: Edge = {
       id: crypto.randomUUID(),
+      algorithmMetadata: {
+        active: false,
+      },
       type: 'rect',
       x1,
       y1,
@@ -62,6 +62,9 @@ const CanvasControlBar = ({}: Props) => {
     };
     const newCircle: CircleReceiver = {
       id: crypto.randomUUID(),
+      algorithmMetadata: {
+        active: false,
+      },
       type: 'circle',
       center: circleCenter,
       radius: circleRadius,
@@ -69,7 +72,6 @@ const CanvasControlBar = ({}: Props) => {
       nodeReceiver: newNodeConnector,
     };
 
-    // setCircles((prevCircles) => [...prevCircles, newCircle]);
     dispatch(CanvasActions.addCircle(newCircle));
   };
   return (
@@ -85,6 +87,12 @@ const CanvasControlBar = ({}: Props) => {
         onClick={handleAddRect}
       >
         Add Line
+      </Button>
+      <Button
+        className="bg-secondary hover:bg-primary border border-secondary"
+        onClick={() => dispatch(CanvasActions.updateInspectorVisibility(!show))}
+      >
+        Open Variable Inspector
       </Button>
     </div>
   );

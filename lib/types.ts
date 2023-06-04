@@ -63,7 +63,6 @@ export type NodeConnector = Omit<CircleConnector, 'nodeConnector' | 'type'> & {
 
 export type NodeReceiver = Omit<CircleConnector, 'nodeConnector' | 'type'> & {
   type: 'node1' | 'node2' | 'circle';
-  // should just make this a map
   attachedIds: string[];
 };
 
@@ -78,6 +77,7 @@ export type CircleConnector = {
 
 export type CircleReceiver = Omit<CircleConnector, 'nodeConnector'> & {
   nodeReceiver: NodeReceiver;
+  algorithmMetadata: AlgorithmMetadata;
 };
 
 export type Rect = {
@@ -91,11 +91,16 @@ export type Rect = {
   color: string;
 };
 
-export type AttachableLine = Rect & {
+export type Edge = Rect & {
   attachNodeOne: NodeConnector;
   attachNodeTwo: NodeConnector;
+  algorithmMetadata: AlgorithmMetadata;
 };
 
 export type LineNodeTaggedUnion =
-  | (AttachableLine & { nodeConnectedSide: 'one' })
-  | (AttachableLine & { nodeConnectedSide: 'two' });
+  | (Edge & { nodeConnectedSide: 'one' })
+  | (Edge & { nodeConnectedSide: 'two' });
+
+export type AlgorithmMetadata = {
+  active: boolean;
+};
