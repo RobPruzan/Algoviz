@@ -13,7 +13,7 @@ export type SideBarContextData = {
 
 export const INITIAL_SIDE_BAR_STATE: SideBarContextState = {
   algorithm: 'quick sort',
-  display: 'nodes',
+  display: 'canvas',
 };
 
 export const SideBarContext = createContext<SideBarContextData>({
