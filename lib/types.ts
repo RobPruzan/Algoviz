@@ -95,3 +95,7 @@ export type AttachableLine = Rect & {
   attachNodeOne: NodeConnector;
   attachNodeTwo: NodeConnector;
 };
+
+export type LineNodeTaggedUnion =
+  | (AttachableLine & { nodeConnectedSide: 'one' })
+  | (AttachableLine & { nodeConnectedSide: 'two' });

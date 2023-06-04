@@ -1,6 +1,9 @@
+import { P } from 'ts-pattern';
 import {
+  AttachableLine,
   CircleConnector,
   CircleReceiver,
+  LineNodeTaggedUnion,
   NodeConnector,
   NodeReceiver,
   Rect,
@@ -52,41 +55,6 @@ export const isPointInCircle = (
   return distance <= radius;
 };
 
-// export const isPointInRect = ({
-//   px,
-//   py,
-//   x1,
-//   x2,
-//   y1,
-//   y2,
-// }: {
-//   px: number;
-//   py: number;
-//   x1: number;
-//   y1: number;
-//   x2: number;
-//   y2: number;
-// }) => {
-//   if (x1 > x2) [x1, x2] = [x2, x1];
-//   if (y1 > y2) [y1, y2] = [y2, y1];
-
-//   console.log(
-//     'gah',
-//     {
-//       px,
-//       py,
-//       x1,
-//       x2,
-//       y1,
-//       y2,
-//     },
-//     px >= x1 && px <= x2,
-//     py >= y1 && py <= y2
-//   );
-
-//   // Check if px is between x1 and x2 and py is between y1 and y2
-//   return px >= x1 && px <= x2 && py >= y1 && py <= y2;
-// };
 export const isPointInRect = ({
   px,
   py,
@@ -212,4 +180,93 @@ export const concatIdUniquely = <TItem extends string>(
   const filteredArray = items.filter((i) => i != itemId);
   filteredArray.push(itemId);
   return filteredArray;
+};
+
+export const getActiveGeometry = ({
+  selectedCircleID,
+  selectedAttachableLine,
+}: {
+  selectedCircleID: string | null;
+  selectedAttachableLine: {
+    id: string;
+    selected: 'line' | 'node1' | 'node2';
+  } | null;
+}) => {
+  if (selectedCircleID !== null) {
+    return 'circle';
+  }
+  return selectedAttachableLine?.selected;
+};
+
+export const getLineAttachedToNodeReciever = <T extends 'one' | 'two'>({
+  activeCircle,
+  attachableLines,
+  nodeConnectedSide,
+}: {
+  attachableLines: AttachableLine[];
+  activeCircle: CircleReceiver;
+  nodeConnectedSide: T;
+}): (AttachableLine & { nodeConnectedSide: T }) | undefined => {
+  switch (nodeConnectedSide) {
+    case 'one':
+      const connectedToNodeOneContainer = attachableLines.find((line) =>
+        activeCircle.nodeReceiver.attachedIds.some(
+          (id) => id === line.attachNodeOne.id
+        )
+      );
+      if (connectedToNodeOneContainer) {
+        return {
+          nodeConnectedSide,
+          ...connectedToNodeOneContainer,
+        };
+      }
+
+      break;
+    case 'two':
+      const connectedToNodeTwoContainer = attachableLines.find((line) =>
+        activeCircle.nodeReceiver.attachedIds.some(
+          (id) => id === line.attachNodeTwo.id
+        )
+      );
+      if (connectedToNodeTwoContainer) {
+        return {
+          nodeConnectedSide,
+          ...connectedToNodeTwoContainer,
+        };
+      }
+
+      break;
+  }
+};
+
+export const builtUpdatedAttachedLine = ({
+  circleReciever,
+  currentLine,
+  nodeRecieverType,
+}: {
+  currentLine: AttachableLine;
+  circleReciever: CircleReceiver;
+  nodeRecieverType: 'one' | 'two';
+}): AttachableLine => {
+  if (nodeRecieverType === 'one') {
+    return {
+      ...currentLine,
+      x1: circleReciever.center[0],
+      y1: circleReciever.center[1],
+      attachNodeOne: {
+        ...currentLine.attachNodeOne,
+        center: circleReciever.center,
+      },
+    };
+  } else {
+    return {
+      ...currentLine,
+      x2: circleReciever.center[0],
+      y2: circleReciever.center[1],
+      attachNodeTwo: {
+        ...currentLine.attachNodeTwo,
+        center: circleReciever.center,
+      },
+    };
+  }
 };

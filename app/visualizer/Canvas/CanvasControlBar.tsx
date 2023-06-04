@@ -73,7 +73,7 @@ const CanvasControlBar = ({}: Props) => {
     dispatch(CanvasActions.addCircle(newCircle));
   };
   return (
-    <div className="w-full border-b-4 border-secondary h-20 flex items-center justify-evenly">
+    <div className="w-full  h-20 flex items-center justify-evenly">
       <Button
         className="bg-secondary hover:bg-primary border border-secondary"
         onClick={handleAddCircle}
