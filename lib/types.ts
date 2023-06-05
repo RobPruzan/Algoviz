@@ -111,3 +111,8 @@ export type LineNodeTaggedUnion =
 export type AlgorithmMetadata = {
   active: boolean;
 };
+
+export type SelectedAttachableLine = {
+  id: string;
+  selected: 'line' | 'node1' | 'node2';
+};

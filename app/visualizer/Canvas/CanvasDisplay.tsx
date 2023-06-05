@@ -6,6 +6,7 @@ import {
   NodeConnector,
   NodeReceiver,
   Rect,
+  SelectedAttachableLine,
 } from '@/lib/types';
 import React, {
   useRef,
@@ -39,72 +40,35 @@ const CanvasDisplay = () => {
 
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
 
-  const previousMousePositionRef = useRef<[number, number]>();
+  const previousMousePositionRef = useRef<[number, number]>(); //this will be used for everything down the line to make
 
   const dispatch = useAppDispatch();
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
 
-  const [selectedAttachableLine, setSelectedAttachableLine] = useState<{
-    id: string;
-    selected: 'line' | 'node1' | 'node2';
-  } | null>(null);
+  const [selectedAttachableLine, setSelectedAttachableLine] =
+    useState<SelectedAttachableLine | null>(null);
   const adjacencyList = circles.map((c) => [
     c.nodeReceiver.id,
     c.nodeReceiver.attachedIds,
   ]);
 
   const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
-    const activeCircleId = Canvas.getActiveCircle({
+    const activeItemInfo = Canvas.getMouseDownActiveItem({
+      attachableLines,
+      canvasRef,
       circles,
       event,
-      canvasRef,
-    });
-    const activeRectID = Canvas.getActiveRect({
-      canvasRef,
-      event,
-      rects: attachableLines,
     });
 
-    const activeSelectableNodeOneId = Canvas.getActiveCircle({
-      canvasRef,
-      event,
-      circles: attachableLines.map((line) => line.attachNodeOne),
-    });
-
-    const activeSelectableNodeTwoId = Canvas.getActiveCircle({
-      canvasRef,
-      event,
-      circles: attachableLines.map((line) => line.attachNodeTwo),
-    });
-
-    if (
-      !activeCircleId &&
-      !activeRectID &&
-      !activeSelectableNodeOneId &&
-      !activeSelectableNodeTwoId
-    )
-      return;
-    const activeCircle = circles.find((circle) => circle.id === activeCircleId);
-    const activeRect = attachableLines.find((line) => line.id === activeRectID);
-    const activeSelectNodeOne = attachableLines.find(
-      (line) => line.attachNodeOne.id === activeSelectableNodeOneId
-    )?.attachNodeOne;
-    const activeSelectNodeTwo = attachableLines.find(
-      (line) => line.attachNodeTwo.id === activeSelectableNodeTwoId
-    )?.attachNodeTwo;
-
-    const activeItem =
-      activeSelectNodeOne || activeSelectNodeTwo || activeCircle || activeRect;
-
-    switch (activeItem?.type) {
+    switch (activeItemInfo?.activeItem?.type) {
       case 'circle':
-        if (!activeCircle) return;
-        setSelectedCircleID(activeCircle.id);
+        if (!activeItemInfo.activeCircle) return;
+        setSelectedCircleID(activeItemInfo.activeCircle.id);
 
-        console.log('circle is:', activeCircle.id);
+        console.log('circle is:', activeItemInfo.activeCircle.id);
 
         const newCircle: CircleReceiver = {
-          ...activeCircle,
+          ...activeItemInfo.activeCircle,
           color: 'white',
         };
 
@@ -112,25 +76,29 @@ const CanvasDisplay = () => {
         break;
 
       case 'rect':
-        if (!activeRect) return;
+        if (!activeItemInfo.activeRect) return;
 
-        setSelectedAttachableLine({ id: activeRect.id, selected: 'line' });
+        setSelectedAttachableLine({
+          id: activeItemInfo.activeRect.id,
+          selected: 'line',
+        });
 
         const newRect: Edge = {
-          ...activeRect,
+          ...activeItemInfo.activeRect,
           color: 'gray',
         };
         dispatch(CanvasActions.replaceAttachableLine(newRect));
         break;
 
       case 'node1':
-        if (!activeSelectNodeOne) return;
+        if (!activeItemInfo.activeSelectNodeOne) return;
         const activeRectContainerOne = attachableLines.find(
-          (line) => line.attachNodeOne.id === activeSelectNodeOne.id
+          (line) =>
+            line.attachNodeOne.id === activeItemInfo.activeSelectNodeOne?.id
         );
         if (!activeRectContainerOne) return;
         setSelectedAttachableLine({
-          id: activeSelectNodeOne.id,
+          id: activeItemInfo.activeSelectNodeOne.id,
           selected: 'node1',
         });
         const newRectContainerOne: Edge = {
@@ -144,13 +112,14 @@ const CanvasDisplay = () => {
         break;
 
       case 'node2':
-        if (!activeSelectNodeTwo) return;
+        if (!activeItemInfo.activeSelectNodeTwo) return;
         const activeRectContainerTwo = attachableLines.find(
-          (line) => line.attachNodeTwo.id === activeSelectNodeTwo.id
+          (line) =>
+            line.attachNodeTwo.id === activeItemInfo.activeSelectNodeTwo?.id
         );
         if (!activeRectContainerTwo) return;
         setSelectedAttachableLine({
-          id: activeSelectNodeTwo.id,
+          id: activeItemInfo.activeSelectNodeTwo.id,
           selected: 'node2',
         });
         const newRectContainerTwo: Edge = {
@@ -357,32 +326,20 @@ const CanvasDisplay = () => {
   };
 
   const handleMouseUp = (event: MouseEvent<HTMLCanvasElement>) => {
-    const activeCircle = circles.find(
-      (circle) => circle.id === selectedCircleID
-    );
-
-    const activeRect =
-      selectedAttachableLine?.selected === 'line'
-        ? attachableLines.find((rect) => rect.id === selectedAttachableLine?.id)
-        : null;
-
-    const activeRectContainerOne =
-      selectedAttachableLine?.selected === 'node1'
-        ? attachableLines.find(
-            (rect) => rect.attachNodeOne.id === selectedAttachableLine?.id
-          )
-        : null;
-    const activeRectContainerTwo =
-      selectedAttachableLine?.selected === 'node2'
-        ? attachableLines.find(
-            (rect) => rect.attachNodeTwo.id === selectedAttachableLine?.id
-          )
-        : null;
-
-    const activeAttachNodeOne = activeRectContainerOne?.attachNodeOne;
-    const activeAttachNodeTwo = activeRectContainerTwo?.attachNodeTwo;
-    const activeItem =
-      activeCircle || activeRect || activeAttachNodeOne || activeAttachNodeTwo;
+    const {
+      activeAttachNodeOne,
+      activeAttachNodeTwo,
+      activeCircle,
+      activeItem,
+      activeRect,
+      activeRectContainerOne,
+      activeRectContainerTwo,
+    } = Canvas.getMouseUpActiveItem({
+      attachableLines,
+      circles,
+      selectedAttachableLine,
+      selectedCircleID,
+    });
 
     if (!activeItem) return;
 

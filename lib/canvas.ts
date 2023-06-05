@@ -7,8 +7,9 @@ import {
   NodeConnector,
   NodeReceiver,
   Rect,
+  SelectedAttachableLine,
 } from './types';
-import { type MouseEvent } from 'react';
+import { RefObject, type MouseEvent } from 'react';
 export const replaceCanvasElement = <T extends { id: string }>({
   oldArray,
   newElement: newCircle,
@@ -269,4 +270,127 @@ export const builtUpdatedAttachedLine = ({
       },
     };
   }
+};
+
+export const getMouseDownActiveItem = ({
+  circles,
+  attachableLines,
+  canvasRef,
+  event,
+}: {
+  circles: CircleReceiver[];
+  attachableLines: Edge[];
+  canvasRef: RefObject<HTMLCanvasElement>;
+  event: MouseEvent<HTMLCanvasElement>;
+}) => {
+  const activeCircleId = getActiveCircle({
+    circles,
+    event,
+    canvasRef,
+  });
+  const activeRectID = getActiveRect({
+    canvasRef,
+    event,
+    rects: attachableLines,
+  });
+
+  const activeSelectableNodeOneId = getActiveCircle({
+    canvasRef,
+    event,
+    circles: attachableLines.map((line) => line.attachNodeOne),
+  });
+
+  const activeSelectableNodeTwoId = getActiveCircle({
+    canvasRef,
+    event,
+    circles: attachableLines.map((line) => line.attachNodeTwo),
+  });
+
+  if (
+    !activeCircleId &&
+    !activeRectID &&
+    !activeSelectableNodeOneId &&
+    !activeSelectableNodeTwoId
+  )
+    return;
+  const activeCircle = circles.find((circle) => circle.id === activeCircleId);
+  const activeRect = attachableLines.find((line) => line.id === activeRectID);
+  const activeSelectNodeOne = attachableLines.find(
+    (line) => line.attachNodeOne.id === activeSelectableNodeOneId
+  )?.attachNodeOne;
+  const activeSelectNodeTwo = attachableLines.find(
+    (line) => line.attachNodeTwo.id === activeSelectableNodeTwoId
+  )?.attachNodeTwo;
+  const isNodeOneAttached =
+    activeSelectNodeOne?.id &&
+    circles.some((circle) =>
+      circle.nodeReceiver.attachedIds.includes(activeSelectNodeOne.id)
+    );
+  const isNodeTwoAttached =
+    activeSelectNodeTwo?.id &&
+    circles.some((circle) =>
+      circle.nodeReceiver.attachedIds.includes(activeSelectNodeTwo.id)
+    );
+  // extra attached check is to not select the node selector when attached
+  // need to implement delete for this to work properly (or when you remove the connection this logic won't know)
+  const activeItem =
+    (activeSelectNodeOne && isNodeOneAttached ? null : activeSelectNodeOne) ||
+    (activeSelectNodeTwo && isNodeTwoAttached ? null : activeSelectNodeTwo) ||
+    activeCircle ||
+    activeRect;
+
+  return {
+    activeItem,
+    activeCircle,
+    activeRect,
+    activeSelectNodeOne,
+    activeSelectNodeTwo,
+  };
+};
+
+export const getMouseUpActiveItem = ({
+  attachableLines,
+  circles,
+  selectedCircleID,
+  selectedAttachableLine,
+}: {
+  circles: CircleReceiver[];
+  attachableLines: Edge[];
+  selectedCircleID: string | null;
+  selectedAttachableLine: SelectedAttachableLine | null;
+}) => {
+  const activeCircle = circles.find((circle) => circle.id === selectedCircleID);
+
+  const activeRect =
+    selectedAttachableLine?.selected === 'line'
+      ? attachableLines.find((rect) => rect.id === selectedAttachableLine?.id)
+      : null;
+
+  const activeRectContainerOne =
+    selectedAttachableLine?.selected === 'node1'
+      ? attachableLines.find(
+          (rect) => rect.attachNodeOne.id === selectedAttachableLine?.id
+        )
+      : null;
+  const activeRectContainerTwo =
+    selectedAttachableLine?.selected === 'node2'
+      ? attachableLines.find(
+          (rect) => rect.attachNodeTwo.id === selectedAttachableLine?.id
+        )
+      : null;
+
+  const activeAttachNodeOne = activeRectContainerOne?.attachNodeOne;
+  const activeAttachNodeTwo = activeRectContainerTwo?.attachNodeTwo;
+  const activeItem =
+    activeCircle || activeRect || activeAttachNodeOne || activeAttachNodeTwo;
+
+  return {
+    activeItem,
+    activeCircle,
+    activeRect,
+    activeRectContainerOne,
+    activeRectContainerTwo,
+    activeAttachNodeOne,
+    activeAttachNodeTwo,
+  };
 };

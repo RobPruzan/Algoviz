@@ -24,7 +24,15 @@ const SideBar = () => {
             className="bg-primary border w-40 mt-2 border-secondary rounded-md p-3 flex items-center justify-center"
             key={circle.id}
           >
-            {circle.id}
+            {circle.value}
+          </div>
+        ))}
+        {attachableLines.map((line) => (
+          <div
+            className="bg-primary border w-40 mt-2 border-secondary rounded-md p-3 flex items-center justify-center"
+            key={line.id}
+          >
+            {line.id}
           </div>
         ))}
       </ScrollArea>

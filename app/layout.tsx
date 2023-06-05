@@ -28,7 +28,7 @@ export default function RootLayout({
             fontSans.variable
           )}
         >
-          <nav className="w-screen p-3 flex justify-end items-center m-2">
+          <nav className="w-screen p-3 h-[15%] flex justify-end items-center m-2">
             <div className="w-1/5 flex justify-center items-center">
               <Button className="bg-secondary ">
                 <Link href="/">Home</Link>
