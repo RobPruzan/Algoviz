@@ -79,6 +79,7 @@ const CanvasControlBar = () => {
       algorithmMetadata: {
         active: false,
       },
+      value: Math.floor(Math.random() * 100),
       type: 'circle',
       center: circleCenter,
       radius: circleRadius,

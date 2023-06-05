@@ -31,6 +31,8 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const CanvasDisplay = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -528,7 +530,7 @@ const CanvasDisplay = () => {
 
       // Draw the text
       // This will draw the text in the center of the circle
-      var text = '5';
+      var text = circle.value.toString();
       ctx.fillText(
         text,
         Math.floor(circle.center[0]),
@@ -560,15 +562,9 @@ const CanvasDisplay = () => {
               <ContextMenuShortcut>⌘D</ContextMenuShortcut>
             </ContextMenuItem>
             <ContextMenuSubTrigger inset>Edit Node</ContextMenuSubTrigger>
-            <ContextMenuSubContent className="w-48">
-              <ContextMenuItem>
-                Save Page As...
-                <ContextMenuShortcut>⇧⌘S</ContextMenuShortcut>
-              </ContextMenuItem>
-              <ContextMenuItem>Create Shortcut...</ContextMenuItem>
-              <ContextMenuItem>Name Window...</ContextMenuItem>
-              <ContextMenuSeparator />
-              <ContextMenuItem>Developer Tools</ContextMenuItem>
+            <ContextMenuSubContent className="w-48 p-3 h-24 flex flex-col items-center justify-evenly">
+              <Label htmlFor="vertex-input">Update Vertex Value</Label>
+              <Input type="number" id="vertex-input" />
             </ContextMenuSubContent>
           </ContextMenuSub>
         </ContextMenuContent>
