@@ -19,7 +19,7 @@ export default function Home() {
         </div>
         <Link href="/visualizer">
           <Button
-            className="text-2xl p-7 font-bold w-fit text-gray-300 hover:scale-105 transition bg-opacity-50"
+            className="text-xl p-7 font-bold w-fit text-gray-300 hover:scale-105 transition bg-opacity-50"
             variant="secondary"
           >
             Start visualizing
