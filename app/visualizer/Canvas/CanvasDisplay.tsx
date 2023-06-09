@@ -426,155 +426,39 @@ const CanvasDisplay = () => {
   };
 
   useEffect(() => {
-    // extract this into separate hooks good googly moogly
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!ctx) return;
     if (!canvas) return;
-    const dpr = window.devicePixelRatio;
-    const rect = canvas.getBoundingClientRect();
-
-    // Set the "actual" size of the canvas
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-
-    // Scale the context to ensure correct drawing operations
-    ctx.scale(dpr, dpr);
-
-    // Set the "drawn" size of the canvas
-    canvas.style.width = `${rect.width}px`;
-    canvas.style.height = `${rect.height}px`;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    circles.forEach((circle) => {
-      ctx.beginPath();
-      ctx.arc(
-        circle.center[0],
-        circle.center[1],
-        circle.radius,
-        0,
-        2 * Math.PI,
-        false
-      );
-      ctx.fillStyle = circle.color;
-      ctx.fill();
-    });
-    attachableLines.forEach((line) => {
-      ctx.beginPath();
-      ctx.moveTo(Math.floor(line.x1), Math.floor(line.y1));
-      ctx.lineTo(Math.floor(line.x2), Math.floor(line.y2));
-      ctx.strokeStyle = line.color;
-      ctx.lineWidth = Math.floor(line.width);
-      ctx.stroke();
+    Canvas.optimizeCanvas({
+      canvas,
+      ctx,
     });
 
-    // select box
-    if (selectBox) {
-      console.log('draw me');
-      // ill want the inside highlighted and other interior selected indicator
-      ctx.beginPath();
-      //* ---
-      // |  |
-      // ---
-      ctx.moveTo(
-        Math.floor(selectBox.originCord[0]),
-        Math.floor(selectBox.originCord[1])
-      );
-      ctx.lineTo(
-        Math.floor(selectBox.adjustableCord[0]),
-        Math.floor(selectBox.originCord[1])
-      );
-      // ---*
-      // |  |
-      // ---
+    // first written, first rendered
+    // meaning items written later will layer over the previous
 
-      ctx.lineTo(
-        Math.floor(selectBox.adjustableCord[0]),
-        Math.floor(selectBox.adjustableCord[1])
-      );
-      // ---
-      // |  |
-      // ---*
+    Canvas.drawNodes({
+      ctx,
+      nodes: circles,
+    });
+    Canvas.drawEdges({
+      ctx,
+      edges: attachableLines,
+    });
+    Canvas.drawEdgeConnectors({
+      ctx,
+      edges: attachableLines,
+    });
 
-      ctx.lineTo(
-        Math.floor(selectBox.originCord[0]),
-        Math.floor(selectBox.adjustableCord[1])
-      );
-      // ---
-      // |  |
-      // *---
+    Canvas.drawNodeReceivers({
+      ctx,
+      nodes: circles,
+    });
 
-      ctx.lineTo(
-        Math.floor(selectBox.originCord[0]),
-        Math.floor(selectBox.originCord[1])
-      );
-      // *---
-      // |  |
-      // ---
-
-      ctx.strokeStyle = 'white';
-
-      ctx.stroke();
-    }
-
-    attachableLines
-      .map((line) => line.attachNodeOne)
-      .forEach((circle) => {
-        ctx.beginPath();
-        ctx.arc(
-          Math.floor(circle.center[0]),
-          Math.floor(circle.center[1]),
-          Math.floor(circle.radius),
-          0,
-          2 * Math.PI,
-          false
-        );
-        ctx.fillStyle = circle.color;
-        ctx.fill();
-      });
-    attachableLines
-      .map((line) => line.attachNodeTwo)
-      .forEach((circle) => {
-        ctx.beginPath();
-        ctx.arc(
-          Math.floor(circle.center[0]),
-          Math.floor(circle.center[1]),
-          circle.radius,
-          0,
-          2 * Math.PI,
-          false
-        );
-        ctx.fillStyle = circle.color;
-        ctx.fill();
-      });
-
-    circles.forEach((circle) => {
-      const nodeReceiver = circle.nodeReceiver;
-      ctx.beginPath();
-      ctx.arc(
-        Math.floor(nodeReceiver.center[0]),
-        Math.floor(nodeReceiver.center[1]),
-        Math.floor(nodeReceiver.radius),
-        0,
-        2 * Math.PI,
-        false
-      );
-      ctx.fillStyle = nodeReceiver.color;
-      ctx.fill();
-      // set the text style
-      ctx.font = '25px Arial'; // change to whatever font style you want
-      ctx.fillStyle = 'white'; // text color
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      // Draw the text
-      // This will draw the text in the center of the circle
-      var text = circle.value.toString();
-      ctx.fillText(
-        text,
-        Math.floor(circle.center[0]),
-        Math.floor(circle.center[1])
-      );
+    Canvas.drawSelectBox({
+      ctx,
+      selectBox,
     });
   }, [circles, attachableLines, selectBox]);
 

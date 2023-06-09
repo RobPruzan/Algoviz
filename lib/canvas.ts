@@ -404,3 +404,188 @@ export const getMouseUpActiveItem = ({
     activeAttachNodeTwo,
   };
 };
+
+export const drawNodes = ({
+  nodes,
+  ctx,
+}: {
+  nodes: CircleReceiver[];
+  ctx: CanvasRenderingContext2D;
+}) => {
+  nodes.forEach((node) => {
+    ctx.beginPath();
+    ctx.arc(node.center[0], node.center[1], node.radius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = node.color;
+    ctx.fill();
+  });
+};
+
+export const drawEdges = ({
+  ctx,
+  edges,
+}: {
+  edges: Edge[];
+  ctx: CanvasRenderingContext2D;
+}) => {
+  edges.forEach((edge) => {
+    ctx.beginPath();
+    ctx.moveTo(Math.floor(edge.x1), Math.floor(edge.y1));
+    ctx.lineTo(Math.floor(edge.x2), Math.floor(edge.y2));
+    ctx.strokeStyle = edge.color;
+    ctx.lineWidth = Math.floor(edge.width);
+    ctx.stroke();
+  });
+};
+
+export const drawEdgeConnectors = ({
+  ctx,
+  edges,
+}: {
+  edges: Edge[];
+  ctx: CanvasRenderingContext2D;
+}) => {
+  edges
+    .map((edge) => edge.attachNodeOne)
+    .forEach((circle) => {
+      ctx.beginPath();
+      ctx.arc(
+        Math.floor(circle.center[0]),
+        Math.floor(circle.center[1]),
+        Math.floor(circle.radius),
+        0,
+        2 * Math.PI,
+        false
+      );
+      ctx.fillStyle = circle.color;
+      ctx.fill();
+    });
+  edges
+    .map((edge) => edge.attachNodeTwo)
+    .forEach((circle) => {
+      ctx.beginPath();
+      ctx.arc(
+        Math.floor(circle.center[0]),
+        Math.floor(circle.center[1]),
+        circle.radius,
+        0,
+        2 * Math.PI,
+        false
+      );
+      ctx.fillStyle = circle.color;
+      ctx.fill();
+    });
+};
+
+export const drawNodeReceivers = ({
+  ctx,
+  nodes,
+}: {
+  nodes: CircleReceiver[];
+  ctx: CanvasRenderingContext2D;
+}) => {
+  nodes.forEach((node) => {
+    const nodeReceiver = node.nodeReceiver;
+    ctx.beginPath();
+    ctx.arc(
+      Math.floor(nodeReceiver.center[0]),
+      Math.floor(nodeReceiver.center[1]),
+      Math.floor(nodeReceiver.radius),
+      0,
+      2 * Math.PI,
+      false
+    );
+    ctx.fillStyle = nodeReceiver.color;
+    ctx.fill();
+    // set the text style
+    ctx.font = '25px Arial'; // change to whatever font style you want
+    ctx.fillStyle = 'white'; // text color
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Draw the text
+    // This will draw the text in the center of the node
+    var text = node.value.toString();
+    ctx.fillText(text, Math.floor(node.center[0]), Math.floor(node.center[1]));
+    ctx.canvas.style.zIndex = '100';
+  });
+};
+
+export const drawSelectBox = ({
+  ctx,
+  selectBox,
+}: {
+  selectBox: SelectBox | null;
+  ctx: CanvasRenderingContext2D;
+}) => {
+  if (selectBox) {
+    console.log('draw me');
+    // ill want the inside highlighted and other interior selected indicator
+    ctx.beginPath();
+    //* ---
+    // |  |
+    // ---
+    ctx.moveTo(
+      Math.floor(selectBox.originCord[0]),
+      Math.floor(selectBox.originCord[1])
+    );
+    ctx.lineTo(
+      Math.floor(selectBox.adjustableCord[0]),
+      Math.floor(selectBox.originCord[1])
+    );
+    // ---*
+    // |  |
+    // ---
+
+    ctx.lineTo(
+      Math.floor(selectBox.adjustableCord[0]),
+      Math.floor(selectBox.adjustableCord[1])
+    );
+    // ---
+    // |  |
+    // ---*
+
+    ctx.lineTo(
+      Math.floor(selectBox.originCord[0]),
+      Math.floor(selectBox.adjustableCord[1])
+    );
+    // ---
+    // |  |
+    // *---
+
+    ctx.lineTo(
+      Math.floor(selectBox.originCord[0]),
+      Math.floor(selectBox.originCord[1])
+    );
+    // *---
+    // |  |
+    // ---
+
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1;
+
+    ctx.stroke();
+  }
+};
+
+export const optimizeCanvas = ({
+  canvas,
+  ctx,
+}: {
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
+}) => {
+  const dpr = window.devicePixelRatio;
+  const rect = canvas.getBoundingClientRect();
+
+  // Set the "actual" size of the canvas
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+
+  // Scale the context to ensure correct drawing operations
+  ctx.scale(dpr, dpr);
+
+  // Set the "drawn" size of the canvas
+  canvas.style.width = `${rect.width}px`;
+  canvas.style.height = `${rect.height}px`;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+};
