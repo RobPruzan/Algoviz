@@ -116,3 +116,9 @@ export type SelectedAttachableLine = {
   id: string;
   selected: 'line' | 'node1' | 'node2';
 };
+
+export type SelectBox = {
+  originCord: [number, number];
+  adjustableCord: [number, number];
+  type: 'selectBox';
+};

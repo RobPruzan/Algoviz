@@ -7,6 +7,7 @@ import {
   NodeReceiver,
   Rect,
   SelectedAttachableLine,
+  SelectBox,
 } from '@/lib/types';
 import React, {
   useRef,
@@ -38,6 +39,8 @@ import { Label } from '@/components/ui/label';
 const CanvasDisplay = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
+
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
 
   const previousMousePositionRef = useRef<[number, number]>(); //this will be used for everything down the line to make
@@ -58,6 +61,7 @@ const CanvasDisplay = () => {
       canvasRef,
       circles,
       event,
+      selectBox,
     });
 
     switch (activeItemInfo?.activeItem?.type) {
@@ -131,6 +135,17 @@ const CanvasDisplay = () => {
         };
         dispatch(CanvasActions.replaceAttachableLine(newRectContainerTwo));
       default:
+        // this is just mouse down, so it begins the render of the select box
+        const initialMouseCoordinate: [number, number] = [
+          event.nativeEvent.offsetX,
+          event.nativeEvent.offsetY,
+        ];
+        console.log('woo select box', initialMouseCoordinate);
+        setSelectBox({
+          originCord: initialMouseCoordinate,
+          adjustableCord: initialMouseCoordinate,
+          type: 'selectBox',
+        });
         break;
     }
   };
@@ -321,6 +336,20 @@ const CanvasDisplay = () => {
         dispatch(CanvasActions.replaceAttachableLine(newRectContainingNodeTwo));
         break;
       default:
+        if (selectBox) {
+          const adjustableCord: [number, number] = [
+            event.nativeEvent.offsetX,
+            event.nativeEvent.offsetY,
+          ];
+
+          console.log('whats goin on heree pal');
+          // simple check to make sure we have a select box first
+          setSelectBox((prev) => {
+            console.log('da box', prev);
+            return prev?.originCord ? { ...prev, adjustableCord } : null;
+          });
+        }
+
         break;
     }
   };
@@ -339,6 +368,7 @@ const CanvasDisplay = () => {
       circles,
       selectedAttachableLine,
       selectedCircleID,
+      selectBox,
     });
 
     if (!activeItem) return;
@@ -353,7 +383,7 @@ const CanvasDisplay = () => {
           })
         );
         setSelectedCircleID(null);
-        break;
+      // break;
       case 'rect':
         if (!activeRect) return;
         dispatch(
@@ -363,7 +393,7 @@ const CanvasDisplay = () => {
           })
         );
         setSelectedAttachableLine(null);
-        break;
+      // break;
       case 'node1':
         if (!activeRectContainerOne) return;
         dispatch(
@@ -378,6 +408,8 @@ const CanvasDisplay = () => {
         );
         setSelectedAttachableLine(null);
       default:
+        setSelectBox(null);
+        console.log('select box yoo', selectBox);
         if (!activeRectContainerTwo) return;
         dispatch(
           CanvasActions.replaceAttachableLine({
@@ -394,6 +426,7 @@ const CanvasDisplay = () => {
   };
 
   useEffect(() => {
+    // extract this into separate hooks good googly moogly
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!ctx) return;
@@ -434,6 +467,55 @@ const CanvasDisplay = () => {
       ctx.lineWidth = Math.floor(line.width);
       ctx.stroke();
     });
+
+    // select box
+    if (selectBox) {
+      console.log('draw me');
+      // ill want the inside highlighted and other interior selected indicator
+      ctx.beginPath();
+      //* ---
+      // |  |
+      // ---
+      ctx.moveTo(
+        Math.floor(selectBox.originCord[0]),
+        Math.floor(selectBox.originCord[1])
+      );
+      ctx.lineTo(
+        Math.floor(selectBox.adjustableCord[0]),
+        Math.floor(selectBox.originCord[1])
+      );
+      // ---*
+      // |  |
+      // ---
+
+      ctx.lineTo(
+        Math.floor(selectBox.adjustableCord[0]),
+        Math.floor(selectBox.adjustableCord[1])
+      );
+      // ---
+      // |  |
+      // ---*
+
+      ctx.lineTo(
+        Math.floor(selectBox.originCord[0]),
+        Math.floor(selectBox.adjustableCord[1])
+      );
+      // ---
+      // |  |
+      // *---
+
+      ctx.lineTo(
+        Math.floor(selectBox.originCord[0]),
+        Math.floor(selectBox.originCord[1])
+      );
+      // *---
+      // |  |
+      // ---
+
+      ctx.strokeStyle = 'white';
+
+      ctx.stroke();
+    }
 
     attachableLines
       .map((line) => line.attachNodeOne)
@@ -494,7 +576,7 @@ const CanvasDisplay = () => {
         Math.floor(circle.center[1])
       );
     });
-  }, [circles, attachableLines]);
+  }, [circles, attachableLines, selectBox]);
 
   return (
     <>

@@ -8,6 +8,7 @@ import {
   NodeReceiver,
   Rect,
   SelectedAttachableLine,
+  SelectBox,
 } from './types';
 import { RefObject, type MouseEvent } from 'react';
 export const replaceCanvasElement = <T extends { id: string }>({
@@ -277,11 +278,13 @@ export const getMouseDownActiveItem = ({
   attachableLines,
   canvasRef,
   event,
+  selectBox,
 }: {
   circles: CircleReceiver[];
   attachableLines: Edge[];
   canvasRef: RefObject<HTMLCanvasElement>;
   event: MouseEvent<HTMLCanvasElement>;
+  selectBox: SelectBox | null;
 }) => {
   const activeCircleId = getActiveCircle({
     circles,
@@ -337,7 +340,8 @@ export const getMouseDownActiveItem = ({
     (activeSelectNodeOne && isNodeOneAttached ? null : activeSelectNodeOne) ||
     (activeSelectNodeTwo && isNodeTwoAttached ? null : activeSelectNodeTwo) ||
     activeCircle ||
-    activeRect;
+    activeRect ||
+    selectBox;
 
   return {
     activeItem,
@@ -353,11 +357,13 @@ export const getMouseUpActiveItem = ({
   circles,
   selectedCircleID,
   selectedAttachableLine,
+  selectBox,
 }: {
   circles: CircleReceiver[];
   attachableLines: Edge[];
   selectedCircleID: string | null;
   selectedAttachableLine: SelectedAttachableLine | null;
+  selectBox: SelectBox | null;
 }) => {
   const activeCircle = circles.find((circle) => circle.id === selectedCircleID);
 
@@ -382,7 +388,11 @@ export const getMouseUpActiveItem = ({
   const activeAttachNodeOne = activeRectContainerOne?.attachNodeOne;
   const activeAttachNodeTwo = activeRectContainerTwo?.attachNodeTwo;
   const activeItem =
-    activeCircle || activeRect || activeAttachNodeOne || activeAttachNodeTwo;
+    activeCircle ||
+    activeRect ||
+    activeAttachNodeOne ||
+    activeAttachNodeTwo ||
+    selectBox;
 
   return {
     activeItem,
