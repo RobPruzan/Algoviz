@@ -52,6 +52,10 @@ const CanvasDisplay = () => {
     selectedIds: Set<string>;
     maxPoints: MaxPoints;
   } | null>(null);
+  const isSelectBoxSet =
+    selectBox === null &&
+    selectedGeometryInfo &&
+    (selectedGeometryInfo?.selectedIds.size ?? -1) > 0;
 
   const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
     isMouseDownRef.current = true;
@@ -64,7 +68,7 @@ const CanvasDisplay = () => {
     });
 
     if (
-      selectedGeometryInfo &&
+      isSelectBoxSet &&
       !Canvas.isPointInRectangle(
         [event.nativeEvent.offsetX, event.nativeEvent.offsetY],
         selectedGeometryInfo.maxPoints.closestToOrigin,
@@ -72,6 +76,7 @@ const CanvasDisplay = () => {
       )
     ) {
       setSelectedGeometryInfo(null);
+      return;
     }
 
     switch (activeItemInfo?.activeItem?.type) {
@@ -189,12 +194,126 @@ const CanvasDisplay = () => {
       selectedAttachableLine,
       selectedGeometryInfo,
     });
+    const prevPos = previousMousePositionRef.current ?? [
+      mousePositionX,
+      mousePositionY,
+    ];
+
+    const shift: [number, number] = [
+      prevPos[0] - event.nativeEvent.offsetX,
+      prevPos[1] - event.nativeEvent.offsetY,
+    ];
+    // this should be a case obviously just doing this for quick measures
+    if (isSelectBoxSet && isMouseDownRef.current) {
+      console.log('is mouse down');
+      const updatedCircles: CircleReceiver[] = circles.map((circle) => {
+        if (selectedGeometryInfo.selectedIds.has(circle.id)) {
+          return {
+            ...circle,
+            center: [circle.center[0] - shift[0], circle.center[1] - shift[1]],
+            nodeReceiver: {
+              ...circle.nodeReceiver,
+              attachedIds: circle.nodeReceiver.attachedIds.filter((id) =>
+                selectedGeometryInfo.selectedIds.has(id)
+              ),
+
+              center: [
+                circle.nodeReceiver.center[0] - shift[0],
+                circle.nodeReceiver.center[1] - shift[1],
+              ],
+            },
+          };
+        }
+        // the circle isn't selected but it has stuff that is, then break the link
+        return {
+          ...circle,
+          nodeReceiver: {
+            ...circle.nodeReceiver,
+            attachedIds: circle.nodeReceiver.attachedIds.filter(
+              (id) => !selectedGeometryInfo.selectedIds.has(id)
+            ),
+          },
+        };
+      });
+      // dispatch this
+      const updatedLines: Edge[] = attachableLines.map((line) => {
+        if (
+          selectedGeometryInfo.selectedIds.has(line.id) ||
+          selectedGeometryInfo.selectedIds.has(line.attachNodeOne.id) ||
+          selectedGeometryInfo.selectedIds.has(line.attachNodeTwo.id)
+        ) {
+          // need to deduplicate this
+          const newLine: Edge = {
+            ...line,
+            x1: line.x1 - shift[0],
+            y1: line.y1 - shift[1],
+            x2: line.x2 - shift[0],
+            y2: line.y2 - shift[1],
+            attachNodeOne: {
+              ...line.attachNodeOne,
+              center: [
+                line.attachNodeOne.center[0] - shift[0],
+                line.attachNodeOne.center[1] - shift[1],
+              ],
+              connectedToId:
+                line.attachNodeOne.connectedToId &&
+                selectedGeometryInfo.selectedIds.has(
+                  line.attachNodeOne.connectedToId
+                )
+                  ? line.attachNodeOne.connectedToId
+                  : null,
+            },
+            attachNodeTwo: {
+              ...line.attachNodeTwo,
+              center: [
+                line.attachNodeTwo.center[0] - shift[0],
+                line.attachNodeTwo.center[1] - shift[1],
+              ],
+              connectedToId:
+                line.attachNodeTwo.connectedToId &&
+                selectedGeometryInfo.selectedIds.has(
+                  line.attachNodeTwo.connectedToId
+                )
+                  ? line.attachNodeTwo.connectedToId
+                  : null,
+            },
+          };
+          return newLine;
+        }
+        return line;
+      });
+      const newSelectBox: {
+        selectedIds: Set<string>;
+        maxPoints: MaxPoints;
+      } = {
+        ...selectedGeometryInfo,
+        maxPoints: {
+          closestToOrigin: [
+            selectedGeometryInfo.maxPoints.closestToOrigin[0] - shift[0],
+            selectedGeometryInfo.maxPoints.closestToOrigin[1] - shift[1],
+          ],
+          furthestFromOrigin: [
+            selectedGeometryInfo.maxPoints.furthestFromOrigin[0] - shift[0],
+            selectedGeometryInfo.maxPoints.furthestFromOrigin[1] - shift[1],
+          ],
+        },
+      };
+
+      setSelectedGeometryInfo(newSelectBox);
+      dispatch(CanvasActions.setCircles(updatedCircles));
+      dispatch(CanvasActions.setLines(updatedLines));
+      previousMousePositionRef.current = [mousePositionX, mousePositionY];
+      console.log('blocking the return');
+      return;
+    }
+
     switch (activeTask) {
       case 'circle':
         const activeCircle = circles.find(
           (circle) => circle.id === selectedCircleID
         );
         if (!activeCircle) return;
+
         const nodeOneConnectedLine = Canvas.getLineAttachedToNodeReciever({
           attachableLines,
           activeCircle,
@@ -208,10 +327,16 @@ const CanvasDisplay = () => {
 
         const newCircle: CircleReceiver = {
           ...activeCircle,
-          center: [mousePositionX, mousePositionY],
+          center: [
+            activeCircle.nodeReceiver.center[0] - shift[0],
+            activeCircle.nodeReceiver.center[1] - shift[1],
+          ],
           nodeReceiver: {
             ...activeCircle.nodeReceiver,
-            center: [mousePositionX, mousePositionY],
+            center: [
+              activeCircle.nodeReceiver.center[0] - shift[0],
+              activeCircle.nodeReceiver.center[1] - shift[1],
+            ],
           },
         };
         if (nodeOneConnectedLine) {
@@ -238,23 +363,24 @@ const CanvasDisplay = () => {
         const activeRect = attachableLines.find(
           (rect) => rect.id === selectedAttachableLine?.id
         );
+
         if (!activeRect) return;
 
         const newRect: Edge = {
           ...activeRect,
-          x1: mousePositionX,
-          y1: mousePositionY,
-          x2: mousePositionX - 10,
-          y2: mousePositionY - 100,
+          x1: activeRect.x1 - shift[0],
+          y1: activeRect.y1 - shift[1],
+          x2: activeRect.x2 - shift[0],
+          y2: activeRect.y2 - shift[1],
           attachNodeOne: {
             ...activeRect.attachNodeOne,
             connectedToId: null,
-            center: [mousePositionX, mousePositionY],
+            center: [activeRect.x1 - shift[0], activeRect.y1 - shift[1]],
           },
           attachNodeTwo: {
             ...activeRect.attachNodeTwo,
             connectedToId: null,
-            center: [mousePositionX - 10, mousePositionY - 100],
+            center: [activeRect.x2 - shift[0], activeRect.y2 - shift[1]],
           },
         };
         const filteredCircles = circles.map((circle) => {
@@ -429,7 +555,7 @@ const CanvasDisplay = () => {
       selectedCircleID,
       selectBox,
     });
-    isMouseDownRef.current = true;
+    isMouseDownRef.current = false;
     if (!activeItem) return;
 
     switch (activeItem?.type) {
@@ -500,12 +626,11 @@ const CanvasDisplay = () => {
     // first written, first rendered
     // meaning items written later will layer over the previous
 
-    // for selection, i gotta keep pointers to max vals
-    // need to find the points
-    // - y point closest to origin
-    // - y point furthest from origin
-    // x point closest to origin
-    // x point furthest from origin
+    // when the selections are set, it should be an invisible blocker over the square
+    // then you pan everything inside of it, should just be the first condition in the case for moving
+    // on mouse down there should also be a blocker
+    // not sure if it's immediately obvious in the code when its set
+    // its also possible relationships are broken, so I'll need to update those (this is)
     Canvas.drawNodes({
       ctx,
       nodes: circles,

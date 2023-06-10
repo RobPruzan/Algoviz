@@ -215,12 +215,12 @@ export const getActiveGeometry = ({
     maxPoints: MaxPoints;
   } | null;
 }) => {
-  // if (
-  //   selectedGeometryInfo != null &&
-  //   selectedGeometryInfo.selectedIds.size != 0
-  // ) {
-  //   return 'selectBox';
-  // }
+  if (
+    selectedGeometryInfo != null &&
+    selectedGeometryInfo.selectedIds.size != 0
+  ) {
+    return 'selectBox';
+  }
   if (selectedCircleID !== null) {
     return 'circle';
   }
