@@ -3,30 +3,19 @@ import {
   Edge,
   CircleConnector,
   CircleReceiver,
-  NodeConnector,
   NodeReceiver,
-  Rect,
   SelectedAttachableLine,
   SelectBox,
 } from '@/lib/types';
-import React, {
-  useRef,
-  useState,
-  useEffect,
-  MouseEvent,
-  Dispatch,
-  SetStateAction,
-} from 'react';
-import * as Canvas from '@/lib/canvas';
-import * as Graph from '@/lib/canvas';
-import { Button } from '@/components/ui/button';
+import React, { useRef, useState, useEffect, MouseEvent } from 'react';
+import * as Canvas from '@/lib/Canvas/canvas';
+import * as Graph from '@/lib/Canvas/canvas';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuSub,
   ContextMenuSubContent,
@@ -35,6 +24,7 @@ import {
 } from '@/components/ui/context-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { P } from 'ts-pattern';
 
 const CanvasDisplay = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -50,10 +40,16 @@ const CanvasDisplay = () => {
 
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
-  const adjacencyList = circles.map((c) => [
-    c.nodeReceiver.id,
-    c.nodeReceiver.attachedIds,
-  ]);
+  // const adjacencyList = circles.map((c) => [
+  //   c.nodeReceiver.id,
+  //   c.nodeReceiver.attachedIds,
+  // ]);
+
+  const selectedGeometryInfo = Canvas.getSelectedGeometry({
+    edges: attachableLines,
+    vertices: circles,
+    selectBox,
+  });
 
   const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
     const activeItemInfo = Canvas.getMouseDownActiveItem({
@@ -69,11 +65,9 @@ const CanvasDisplay = () => {
         if (!activeItemInfo.activeCircle) return;
         setSelectedCircleID(activeItemInfo.activeCircle.id);
 
-        console.log('circle is:', activeItemInfo.activeCircle.id);
-
         const newCircle: CircleReceiver = {
           ...activeItemInfo.activeCircle,
-          color: 'white',
+          // color: 'white',
         };
 
         dispatch(CanvasActions.replaceCircle(newCircle));
@@ -89,7 +83,7 @@ const CanvasDisplay = () => {
 
         const newRect: Edge = {
           ...activeItemInfo.activeRect,
-          color: 'gray',
+          // color: 'gray',
         };
         dispatch(CanvasActions.replaceAttachableLine(newRect));
         break;
@@ -142,8 +136,8 @@ const CanvasDisplay = () => {
         ];
         console.log('woo select box', initialMouseCoordinate);
         setSelectBox({
-          originCord: initialMouseCoordinate,
-          adjustableCord: initialMouseCoordinate,
+          p1: initialMouseCoordinate,
+          p2: initialMouseCoordinate,
           type: 'selectBox',
         });
         break;
@@ -346,7 +340,7 @@ const CanvasDisplay = () => {
           // simple check to make sure we have a select box first
           setSelectBox((prev) => {
             console.log('da box', prev);
-            return prev?.originCord ? { ...prev, adjustableCord } : null;
+            return prev?.p1 ? { ...prev, p2: adjustableCord } : null;
           });
         }
 
@@ -379,7 +373,7 @@ const CanvasDisplay = () => {
         dispatch(
           CanvasActions.replaceCircle({
             ...activeCircle,
-            color: '#181e2b',
+            // color: '#181e2b',
           })
         );
         setSelectedCircleID(null);
@@ -431,20 +425,30 @@ const CanvasDisplay = () => {
     if (!ctx) return;
     if (!canvas) return;
     Canvas.optimizeCanvas({
-      canvas,
       ctx,
+      canvas,
     });
 
     // first written, first rendered
     // meaning items written later will layer over the previous
 
+    // for selection, i gotta keep pointers to max vals
+    // need to find the points
+    // - y point closest to origin
+    // - y point furthest from origin
+    // x point closest to origin
+    // x point furthest from origin
     Canvas.drawNodes({
       ctx,
       nodes: circles,
+      selectedCircleID,
+      selectedIds: selectedGeometryInfo?.selectedIds,
     });
     Canvas.drawEdges({
       ctx,
       edges: attachableLines,
+      selectedIds: selectedGeometryInfo?.selectedIds,
+      selectedAttachableLine,
     });
     Canvas.drawEdgeConnectors({
       ctx,
@@ -456,11 +460,36 @@ const CanvasDisplay = () => {
       nodes: circles,
     });
 
-    Canvas.drawSelectBox({
-      ctx,
-      selectBox,
-    });
-  }, [circles, attachableLines, selectBox]);
+    // Canvas.drawSelectBox({
+    //   ctx,
+    //   selectBox,
+    // });
+    if (selectBox) {
+      Canvas.drawBox({
+        ctx,
+        box: selectBox,
+        fill: true,
+      });
+    }
+
+    if (selectedGeometryInfo?.maxPoints) {
+      Canvas.drawBox({
+        ctx,
+        box: {
+          p1: selectedGeometryInfo?.maxPoints.closestToOrigin,
+          p2: selectedGeometryInfo?.maxPoints.furthestFromOrigin,
+        },
+      });
+    }
+  }, [
+    circles,
+    attachableLines,
+    selectBox,
+    selectedCircleID,
+    selectedAttachableLine,
+    selectedGeometryInfo?.selectedIds,
+    selectedGeometryInfo?.maxPoints,
+  ]);
 
   return (
     <>

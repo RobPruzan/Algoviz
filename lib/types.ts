@@ -76,10 +76,15 @@ export type CircleConnector = {
   id: string;
   type: 'circle';
   value: number;
-  center: [number, number];
+  // center: [number, number];
   color: string;
-  radius: number;
+  // radius: number;
   nodeConnector: NodeConnector;
+} & GeoCircle;
+
+export type GeoCircle = {
+  center: [number, number];
+  radius: number;
 };
 
 export type CircleReceiver = Omit<CircleConnector, 'nodeConnector'> & {
@@ -118,7 +123,7 @@ export type SelectedAttachableLine = {
 };
 
 export type SelectBox = {
-  originCord: [number, number];
-  adjustableCord: [number, number];
+  p1: [number, number];
+  p2: [number, number];
   type: 'selectBox';
 };

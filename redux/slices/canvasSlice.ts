@@ -1,6 +1,6 @@
 import { CircleReceiver, Edge, AlgorithmMetadata } from '@/lib/types';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import * as Canvas from '@/lib/canvas';
+import * as Canvas from '@/lib/Canvas/canvas';
 import { ImmutableQueue } from '@/lib/graph';
 export type CanvasState = {
   circles: CircleReceiver[];

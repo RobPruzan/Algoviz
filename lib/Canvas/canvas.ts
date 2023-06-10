@@ -9,7 +9,8 @@ import {
   Rect,
   SelectedAttachableLine,
   SelectBox,
-} from './types';
+  GeoCircle,
+} from '../types';
 import { RefObject, type MouseEvent } from 'react';
 export const replaceCanvasElement = <T extends { id: string }>({
   oldArray,
@@ -408,30 +409,57 @@ export const getMouseUpActiveItem = ({
 export const drawNodes = ({
   nodes,
   ctx,
+  selectedCircleID,
+  selectedIds,
 }: {
   nodes: CircleReceiver[];
   ctx: CanvasRenderingContext2D;
+  selectedCircleID: string | null;
+  selectedIds: Set<string> | undefined;
 }) => {
   nodes.forEach((node) => {
     ctx.beginPath();
     ctx.arc(node.center[0], node.center[1], node.radius, 0, 2 * Math.PI, false);
     ctx.fillStyle = node.color;
+
     ctx.fill();
+    if (selectedCircleID === node.id || selectedIds?.has(node.id)) {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'white';
+      ctx.stroke();
+    }
   });
 };
 
 export const drawEdges = ({
   ctx,
   edges,
+  selectedIds,
+  selectedAttachableLine,
 }: {
   edges: Edge[];
   ctx: CanvasRenderingContext2D;
+  selectedIds: Set<string> | undefined;
+  selectedAttachableLine: SelectedAttachableLine | null;
 }) => {
   edges.forEach((edge) => {
+    if (selectedAttachableLine?.id === edge.id || selectedIds?.has(edge.id)) {
+      console.log('SELECTEd');
+      ctx.beginPath();
+
+      ctx.moveTo(Math.floor(edge.x1), Math.floor(edge.y1));
+      ctx.lineTo(Math.floor(edge.x2), Math.floor(edge.y2));
+      ctx.strokeStyle = '#8E9094';
+
+      ctx.lineWidth = Math.floor(edge.width * 1.6);
+      ctx.stroke();
+    }
     ctx.beginPath();
+
     ctx.moveTo(Math.floor(edge.x1), Math.floor(edge.y1));
     ctx.lineTo(Math.floor(edge.x2), Math.floor(edge.y2));
-    ctx.strokeStyle = edge.color;
+    ctx.strokeStyle = 'white';
+
     ctx.lineWidth = Math.floor(edge.width);
     ctx.stroke();
   });
@@ -510,61 +538,55 @@ export const drawNodeReceivers = ({
   });
 };
 
-export const drawSelectBox = ({
+export const drawBox = ({
   ctx,
-  selectBox,
+  box,
+  fill,
 }: {
-  selectBox: SelectBox | null;
+  box: Omit<SelectBox, 'type'>;
   ctx: CanvasRenderingContext2D;
+  fill?: boolean;
 }) => {
-  if (selectBox) {
-    console.log('draw me');
-    // ill want the inside highlighted and other interior selected indicator
-    ctx.beginPath();
-    //* ---
-    // |  |
-    // ---
-    ctx.moveTo(
-      Math.floor(selectBox.originCord[0]),
-      Math.floor(selectBox.originCord[1])
-    );
-    ctx.lineTo(
-      Math.floor(selectBox.adjustableCord[0]),
-      Math.floor(selectBox.originCord[1])
-    );
-    // ---*
-    // |  |
-    // ---
+  // ill want the inside highlighted and other interior selected indicator
+  ctx.beginPath();
+  //* ---
+  // |  |
+  // ---
+  ctx.moveTo(Math.floor(box.p1[0]), Math.floor(box.p1[1]));
+  ctx.lineTo(Math.floor(box.p2[0]), Math.floor(box.p1[1]));
+  // ---*
+  // |  |
+  // ---
 
-    ctx.lineTo(
-      Math.floor(selectBox.adjustableCord[0]),
-      Math.floor(selectBox.adjustableCord[1])
-    );
-    // ---
-    // |  |
-    // ---*
+  ctx.lineTo(Math.floor(box.p2[0]), Math.floor(box.p2[1]));
+  // ---
+  // |  |
+  // ---*
 
-    ctx.lineTo(
-      Math.floor(selectBox.originCord[0]),
-      Math.floor(selectBox.adjustableCord[1])
-    );
-    // ---
-    // |  |
-    // *---
+  ctx.lineTo(Math.floor(box.p1[0]), Math.floor(box.p2[1]));
+  // ---
+  // |  |
+  // *---
 
-    ctx.lineTo(
-      Math.floor(selectBox.originCord[0]),
-      Math.floor(selectBox.originCord[1])
-    );
-    // *---
-    // |  |
-    // ---
+  ctx.lineTo(Math.floor(box.p1[0]), Math.floor(box.p1[1]));
+  // *---
+  // |  |
+  // ---
 
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 1;
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = 1;
 
-    ctx.stroke();
+  ctx.closePath(); // This ensures the path is closed and can be filled
+
+  // Set the fill color
+  if (fill) {
+    ctx.fillStyle = 'rgba(173, 216, 230, 0.15)';
+
+    // Fill the square
+    ctx.fill();
   }
+
+  ctx.stroke();
 };
 
 export const optimizeCanvas = ({
@@ -588,4 +610,156 @@ export const optimizeCanvas = ({
   canvas.style.width = `${rect.width}px`;
   canvas.style.height = `${rect.height}px`;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+};
+
+type CalcRectangle = {
+  p1: [number, number];
+  p2: [number, number];
+};
+
+const doRectanglesIntersect = (
+  r1: CalcRectangle,
+  r2: CalcRectangle
+): boolean => {
+  // Determine the min and max points for each rectangle
+  const r1Min = {
+    x: Math.min(r1.p1[0], r1.p2[0]),
+    y: Math.min(r1.p1[1], r1.p2[1]),
+  };
+  const r1Max = {
+    x: Math.max(r1.p1[0], r1.p2[0]),
+    y: Math.max(r1.p1[1], r1.p2[1]),
+  };
+  const r2Min = {
+    x: Math.min(r2.p1[0], r2.p2[0]),
+    y: Math.min(r2.p1[1], r2.p2[1]),
+  };
+  const r2Max = {
+    x: Math.max(r2.p1[0], r2.p2[0]),
+    y: Math.max(r2.p1[1], r2.p2[1]),
+  };
+
+  // Now check if the rectangles intersect
+  return !(
+    r2Min.x > r1Max.x ||
+    r2Max.x < r1Min.x ||
+    r2Min.y > r1Max.y ||
+    r2Max.y < r1Min.y
+  );
+};
+
+const generateCircleSelectBox = (circle: GeoCircle): CalcRectangle => ({
+  p1: [circle.center[0] - circle.radius, circle.center[1] - circle.radius],
+  p2: [circle.center[0] + circle.radius, circle.center[1] + circle.radius],
+});
+
+export const getSelectedGeometry = ({
+  edges,
+  vertices,
+  selectBox,
+}: {
+  edges: Edge[];
+  vertices: CircleReceiver[];
+  selectBox: SelectBox | null;
+}) => {
+  console.log('at least running');
+  if (!selectBox) return null;
+  // the circles will have hit boxes for select
+  // these will be rendered when selected
+  // we will need geo math for if 2 rects intersect
+  // we can reuse those 2 pieces of logic for everything
+  // don't calculate for inner node
+  const selectBoxRect: CalcRectangle = {
+    p1: selectBox.p1,
+    p2: selectBox.p2,
+  };
+
+  type MaxPoints = {
+    closestToOrigin: [number, number];
+    furthestFromOrigin: [number, number];
+  };
+
+  // let minX, minY = [0, 0]
+  let minX = +Infinity;
+  let minY = +Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  const selectedIds = new Set<string>();
+  // if edge node is selected, so is attach node
+  edges.forEach((edge) => {
+    const doesEdgeIntersect = doRectanglesIntersect(
+      {
+        p1: [edge.x1, edge.y1],
+        p2: [edge.x2, edge.y2],
+      },
+      selectBoxRect
+    );
+    const nodeTwoBox = generateCircleSelectBox(edge.attachNodeOne);
+    const nodeOneBox = generateCircleSelectBox(edge.attachNodeTwo);
+
+    const doesNodeOneIntersect = doRectanglesIntersect(
+      nodeOneBox,
+      selectBoxRect
+    );
+    const doesNodeTwoIntersect = doRectanglesIntersect(
+      nodeTwoBox,
+      selectBoxRect
+    );
+
+    if (doesEdgeIntersect || doesNodeOneIntersect || doesNodeTwoIntersect) {
+      selectedIds.add(edge.id);
+      selectedIds.add(edge.attachNodeOne.id);
+      selectedIds.add(edge.attachNodeTwo.id);
+
+      console.log('trice boxes', nodeOneBox, nodeTwoBox, edge);
+      // this sucks but how can i do better
+      minX = Math.min(edge.x1, minX);
+      minY = Math.min(edge.y1, minY);
+      minX = Math.min(edge.x2, minX);
+      minY = Math.min(edge.y2, minY);
+
+      maxX = Math.max(edge.x1, maxX);
+      maxY = Math.max(edge.y1, maxY);
+      maxX = Math.max(edge.x2, maxX);
+      maxY = Math.max(edge.y2, maxY);
+
+      minX = Math.min(nodeOneBox.p1[0], minX);
+      minX = Math.min(nodeOneBox.p2[0], minX);
+      minY = Math.min(nodeOneBox.p1[1], minY);
+      minY = Math.min(nodeOneBox.p2[1], minY);
+
+      maxX = Math.max(nodeTwoBox.p1[0], maxX);
+      maxX = Math.max(nodeTwoBox.p2[0], maxX);
+      maxY = Math.max(nodeTwoBox.p1[1], maxY);
+      maxY = Math.max(nodeTwoBox.p2[1], maxY);
+    }
+  });
+  console.log('gah', selectBox);
+
+  vertices.forEach((vertex) => {
+    const circleBox = generateCircleSelectBox(vertex);
+    if (doRectanglesIntersect(circleBox, selectBoxRect)) {
+      selectedIds.add(vertex.id);
+      selectedIds.add(vertex.nodeReceiver.id);
+      minX = Math.min(circleBox.p1[0], minX);
+      minY = Math.min(circleBox.p1[1], minY);
+
+      minX = Math.min(circleBox.p2[0], minX);
+      minY = Math.min(circleBox.p2[1], minY);
+
+      maxX = Math.max(circleBox.p1[0], maxX);
+      maxY = Math.max(circleBox.p1[1], maxY);
+
+      maxX = Math.max(circleBox.p2[0], maxX);
+      maxY = Math.max(circleBox.p2[1], maxY);
+    }
+  });
+  console.log('selected');
+  return {
+    selectedIds,
+    maxPoints: {
+      closestToOrigin: [minX, minY],
+      furthestFromOrigin: [maxX, maxY],
+    } as MaxPoints,
+  };
 };
