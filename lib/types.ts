@@ -127,3 +127,7 @@ export type SelectBox = {
   p2: [number, number];
   type: 'selectBox';
 };
+export type MaxPoints = {
+  closestToOrigin: [number, number];
+  furthestFromOrigin: [number, number];
+};

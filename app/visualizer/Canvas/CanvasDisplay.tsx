@@ -6,6 +6,7 @@ import {
   NodeReceiver,
   SelectedAttachableLine,
   SelectBox,
+  MaxPoints,
 } from '@/lib/types';
 import React, { useRef, useState, useEffect, MouseEvent } from 'react';
 import * as Canvas from '@/lib/Canvas/canvas';
@@ -45,11 +46,10 @@ const CanvasDisplay = () => {
   //   c.nodeReceiver.attachedIds,
   // ]);
 
-  const selectedGeometryInfo = Canvas.getSelectedGeometry({
-    edges: attachableLines,
-    vertices: circles,
-    selectBox,
-  });
+  const [selectedGeometryInfo, setSelectedGeometryInfo] = useState<{
+    selectedIds: Set<string>;
+    maxPoints: MaxPoints;
+  } | null>(null);
 
   const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
     const activeItemInfo = Canvas.getMouseDownActiveItem({
@@ -59,6 +59,7 @@ const CanvasDisplay = () => {
       event,
       selectBox,
     });
+    setSelectedGeometryInfo(null);
 
     switch (activeItemInfo?.activeItem?.type) {
       case 'circle':
@@ -339,6 +340,13 @@ const CanvasDisplay = () => {
           console.log('whats goin on heree pal');
           // simple check to make sure we have a select box first
           setSelectBox((prev) => {
+            const selectedGeometryInfo = Canvas.getSelectedGeometry({
+              edges: attachableLines,
+              vertices: circles,
+              selectBox: prev?.p1 ? { ...prev, p2: adjustableCord } : null,
+            });
+
+            setSelectedGeometryInfo(selectedGeometryInfo);
             console.log('da box', prev);
             return prev?.p1 ? { ...prev, p2: adjustableCord } : null;
           });
@@ -403,6 +411,7 @@ const CanvasDisplay = () => {
         setSelectedAttachableLine(null);
       default:
         setSelectBox(null);
+
         console.log('select box yoo', selectBox);
         if (!activeRectContainerTwo) return;
         dispatch(

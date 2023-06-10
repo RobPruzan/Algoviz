@@ -10,6 +10,7 @@ import {
   SelectedAttachableLine,
   SelectBox,
   GeoCircle,
+  MaxPoints,
 } from '../types';
 import { RefObject, type MouseEvent } from 'react';
 export const replaceCanvasElement = <T extends { id: string }>({
@@ -674,11 +675,6 @@ export const getSelectedGeometry = ({
     p2: selectBox.p2,
   };
 
-  type MaxPoints = {
-    closestToOrigin: [number, number];
-    furthestFromOrigin: [number, number];
-  };
-
   // let minX, minY = [0, 0]
   let minX = +Infinity;
   let minY = +Infinity;
@@ -694,24 +690,24 @@ export const getSelectedGeometry = ({
       },
       selectBoxRect
     );
-    const nodeTwoBox = generateCircleSelectBox(edge.attachNodeOne);
-    const nodeOneBox = generateCircleSelectBox(edge.attachNodeTwo);
+    const nodeOnwBox = generateCircleSelectBox(edge.attachNodeOne);
+    const nodeTwoBox = generateCircleSelectBox(edge.attachNodeTwo);
 
-    const doesNodeOneIntersect = doRectanglesIntersect(
-      nodeOneBox,
-      selectBoxRect
-    );
     const doesNodeTwoIntersect = doRectanglesIntersect(
       nodeTwoBox,
       selectBoxRect
     );
+    const doesNodeOneIntersect = doRectanglesIntersect(
+      nodeOnwBox,
+      selectBoxRect
+    );
 
-    if (doesEdgeIntersect || doesNodeOneIntersect || doesNodeTwoIntersect) {
+    if (doesEdgeIntersect || doesNodeTwoIntersect || doesNodeOneIntersect) {
       selectedIds.add(edge.id);
       selectedIds.add(edge.attachNodeOne.id);
       selectedIds.add(edge.attachNodeTwo.id);
 
-      console.log('trice boxes', nodeOneBox, nodeTwoBox, edge);
+      console.log('trice boxes', nodeTwoBox, nodeOnwBox, edge);
       // this sucks but how can i do better
       minX = Math.min(edge.x1, minX);
       minY = Math.min(edge.y1, minY);
@@ -723,15 +719,15 @@ export const getSelectedGeometry = ({
       maxX = Math.max(edge.x2, maxX);
       maxY = Math.max(edge.y2, maxY);
 
-      minX = Math.min(nodeOneBox.p1[0], minX);
-      minX = Math.min(nodeOneBox.p2[0], minX);
-      minY = Math.min(nodeOneBox.p1[1], minY);
-      minY = Math.min(nodeOneBox.p2[1], minY);
+      minX = Math.min(nodeTwoBox.p1[0], minX);
+      minX = Math.min(nodeTwoBox.p2[0], minX);
+      minY = Math.min(nodeTwoBox.p1[1], minY);
+      minY = Math.min(nodeTwoBox.p2[1], minY);
 
-      maxX = Math.max(nodeTwoBox.p1[0], maxX);
-      maxX = Math.max(nodeTwoBox.p2[0], maxX);
-      maxY = Math.max(nodeTwoBox.p1[1], maxY);
-      maxY = Math.max(nodeTwoBox.p2[1], maxY);
+      maxX = Math.max(nodeOnwBox.p1[0], maxX);
+      maxX = Math.max(nodeOnwBox.p2[0], maxX);
+      maxY = Math.max(nodeOnwBox.p1[1], maxY);
+      maxY = Math.max(nodeOnwBox.p2[1], maxY);
     }
   });
   console.log('gah', selectBox);
@@ -760,6 +756,7 @@ export const getSelectedGeometry = ({
     maxPoints: {
       closestToOrigin: [minX, minY],
       furthestFromOrigin: [maxX, maxY],
+      // temporary is asserting nothing
     } as MaxPoints,
   };
 };
