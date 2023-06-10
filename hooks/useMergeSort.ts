@@ -68,13 +68,8 @@ export const useMergeSort = ({
       .at(0)
       ?.element.map((node) => ({ ...node }));
 
-    console.log(
-      'actual vs current',
-      arr,
-      'vs',
-      copiedFullArray
-      // JSON.parse(JSON.stringify(tempHistoryArrayList.current.at(0)) ?? [])
-    );
+    'actual vs current', arr, 'vs', copiedFullArray;
+    // JSON.parse(JSON.stringify(tempHistoryArrayList.current.at(0)) ?? [])
     const newNode: HistoryNode = {
       next: null,
       prev: null,

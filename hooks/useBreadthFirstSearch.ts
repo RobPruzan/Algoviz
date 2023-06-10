@@ -22,7 +22,7 @@ export const useBreadthFirstSearch = ({
   const dispatch = useDispatch();
   const { circles } = useAppSelector((store) => store.canvas);
   const bfs = () => {
-    // console.log('starting bfs, the adj list is', adjacencyList);
+    // ('starting bfs, the adj list is', adjacencyList);
     // the adjaceny list is broken because the string array represents node connectors on the edges, not other nodes, need to fix this later
     // TODO
     queueRef.current = queueRef.current.enqueue(startingNode);
@@ -32,16 +32,16 @@ export const useBreadthFirstSearch = ({
       if (!poppedItem) {
         continue;
       }
-      console.log('popped', poppedItem?.toString());
+      'popped', poppedItem?.toString();
       queueRef.current = newQueue;
       const neighbors = adjacencyList.get(poppedItem);
-      // console.log('the neighbors', neighbors);
+      // ('the neighbors', neighbors);
       if (!neighbors || neighbors.length <= 0) {
         continue;
       }
       for (const neighbor of neighbors) {
-        // console.log('iterating over neighbor', neighbor);
-        // console.log('visited', visitedRef.current.toString());
+        // ('iterating over neighbor', neighbor);
+        // ('visited', visitedRef.current.toString());
         if (!visitedRef.current.has(neighbor)) {
           visitedRef.current = visitedRef.current.add(poppedItem);
           queueRef.current = queueRef.current.enqueue(neighbor);
@@ -73,7 +73,7 @@ export const useBreadthFirstSearch = ({
       // dispatch(
       //   CanvasActions.updateVariableInspectorQueue(state.historyRef.current)
       // );
-      console.log('state', state);
+      ('state', state);
   };
   return { handleBfs };
 };

@@ -39,6 +39,8 @@ const CanvasDisplay = () => {
   const dispatch = useAppDispatch();
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
 
+  const isMouseDownRef = useRef(false);
+
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
   // const adjacencyList = circles.map((c) => [
@@ -52,6 +54,7 @@ const CanvasDisplay = () => {
   } | null>(null);
 
   const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
+    isMouseDownRef.current = true;
     const activeItemInfo = Canvas.getMouseDownActiveItem({
       attachableLines,
       canvasRef,
@@ -59,7 +62,17 @@ const CanvasDisplay = () => {
       event,
       selectBox,
     });
-    setSelectedGeometryInfo(null);
+
+    if (
+      selectedGeometryInfo &&
+      !Canvas.isPointInRectangle(
+        [event.nativeEvent.offsetX, event.nativeEvent.offsetY],
+        selectedGeometryInfo.maxPoints.closestToOrigin,
+        selectedGeometryInfo.maxPoints.furthestFromOrigin
+      )
+    ) {
+      setSelectedGeometryInfo(null);
+    }
 
     switch (activeItemInfo?.activeItem?.type) {
       case 'circle':
@@ -130,6 +143,27 @@ const CanvasDisplay = () => {
         };
         dispatch(CanvasActions.replaceAttachableLine(newRectContainerTwo));
       default:
+        // console.log(
+        //   'asdg',
+        //   selectedGeometryInfo,
+        //   Canvas.isPointInRectangle(
+        //     [event.nativeEvent.offsetX, event.nativeEvent.offsetY],
+        //     selectedGeometryInfo.maxPoints.closestToOrigin,
+        //     selectedGeometryInfo.maxPoints.furthestFromOrigin
+        //   )
+        // );
+        // if (
+        //   selectedGeometryInfo &&
+        //   Canvas.isPointInRectangle(
+        //     [event.nativeEvent.offsetX, event.nativeEvent.offsetY],
+        //     selectedGeometryInfo.maxPoints.closestToOrigin,
+        //     selectedGeometryInfo.maxPoints.furthestFromOrigin
+        //   )
+        // )
+        //   return;
+
+        if (selectedGeometryInfo?.selectedIds.size ?? -1 > 0) return;
+
         // this is just mouse down, so it begins the render of the select box
         const initialMouseCoordinate: [number, number] = [
           event.nativeEvent.offsetX,
@@ -141,6 +175,7 @@ const CanvasDisplay = () => {
           p2: initialMouseCoordinate,
           type: 'selectBox',
         });
+
         break;
     }
   };
@@ -152,6 +187,7 @@ const CanvasDisplay = () => {
     const activeTask = Canvas.getActiveGeometry({
       selectedCircleID,
       selectedAttachableLine,
+      selectedGeometryInfo,
     });
     switch (activeTask) {
       case 'circle':
@@ -331,6 +367,51 @@ const CanvasDisplay = () => {
         dispatch(CanvasActions.replaceAttachableLine(newRectContainingNodeTwo));
         break;
       default:
+        // if (
+        //   selectedGeometryInfo &&
+        //   Canvas.isPointInRectangle(
+        //     [event.nativeEvent.offsetX, event.nativeEvent.offsetY],
+        //     selectedGeometryInfo.maxPoints.closestToOrigin,
+        //     selectedGeometryInfo.maxPoints.furthestFromOrigin
+        //   )
+        // ) {
+        //   console.log('inside wee');
+        //   const prevPos = previousMousePositionRef.current;
+        //   if (!prevPos) return;
+
+        //   const shift: [number, number] = [
+        //     prevPos[0] - event.nativeEvent.offsetX,
+        //     prevPos[1] - event.nativeEvent.offsetY,
+        //   ];
+
+        //   const shiftedEdges = attachableLines.map((line) => {
+        //     const newLine: Edge = {
+        //       ...line,
+        //       x1: line.x1 - shift[0],
+        //       y1: line.y1 - shift[1],
+        //       x2: line.x2 - shift[0],
+        //       y2: line.y2 - shift[1],
+        //       attachNodeOne: {
+        //         ...line.attachNodeOne,
+        //         center: [
+        //           line.attachNodeOne.center[0] - shift[0],
+        //           line.attachNodeOne.center[1] - shift[1],
+        //         ],
+        //       },
+        //       attachNodeTwo: {
+        //         ...line.attachNodeTwo,
+        //         center: [
+        //           line.attachNodeTwo.center[0] - shift[0],
+        //           line.attachNodeTwo.center[1] - shift[1],
+        //         ],
+        //       },
+        //     };
+
+        //     return newLine;
+        //   });
+
+        //   dispatch(CanvasActions.setLines(shiftedEdges));
+        // }
         if (selectBox) {
           const adjustableCord: [number, number] = [
             event.nativeEvent.offsetX,
@@ -351,9 +432,12 @@ const CanvasDisplay = () => {
             return prev?.p1 ? { ...prev, p2: adjustableCord } : null;
           });
         }
-
         break;
     }
+    previousMousePositionRef.current = [
+      event.nativeEvent.offsetX,
+      event.nativeEvent.offsetY,
+    ];
   };
 
   const handleMouseUp = (event: MouseEvent<HTMLCanvasElement>) => {
@@ -372,7 +456,7 @@ const CanvasDisplay = () => {
       selectedCircleID,
       selectBox,
     });
-
+    isMouseDownRef.current = true;
     if (!activeItem) return;
 
     switch (activeItem?.type) {
@@ -423,7 +507,9 @@ const CanvasDisplay = () => {
             },
           })
         );
+
         setSelectedAttachableLine(null);
+
         break;
     }
   };
@@ -510,6 +596,54 @@ const CanvasDisplay = () => {
             onMouseMove={handleMouseMove}
             onMouseDown={handleMouseDown}
             // temporary, should have its own handler
+            onDrag={(event) => {
+              if (
+                selectedGeometryInfo &&
+                selectedGeometryInfo.selectedIds.size > 0 &&
+                Canvas.isPointInRectangle(
+                  [event.nativeEvent.offsetX, event.nativeEvent.offsetY],
+                  selectedGeometryInfo.maxPoints.closestToOrigin,
+                  selectedGeometryInfo.maxPoints.furthestFromOrigin
+                )
+              ) {
+                console.log('inside wee');
+                const prevPos = previousMousePositionRef.current;
+                if (!prevPos) return;
+
+                const shift: [number, number] = [
+                  prevPos[0] - event.nativeEvent.offsetX,
+                  prevPos[1] - event.nativeEvent.offsetY,
+                ];
+
+                const shiftedEdges = attachableLines.map((line) => {
+                  const newLine: Edge = {
+                    ...line,
+                    x1: line.x1 - shift[0],
+                    y1: line.y1 - shift[1],
+                    x2: line.x2 - shift[0],
+                    y2: line.y2 - shift[1],
+                    attachNodeOne: {
+                      ...line.attachNodeOne,
+                      center: [
+                        line.attachNodeOne.center[0] - shift[0],
+                        line.attachNodeOne.center[1] - shift[1],
+                      ],
+                    },
+                    attachNodeTwo: {
+                      ...line.attachNodeTwo,
+                      center: [
+                        line.attachNodeTwo.center[0] - shift[0],
+                        line.attachNodeTwo.center[1] - shift[1],
+                      ],
+                    },
+                  };
+
+                  return newLine;
+                });
+
+                dispatch(CanvasActions.setLines(shiftedEdges));
+              }
+            }}
             onContextMenu={handleMouseDown}
             onMouseUp={handleMouseUp}
             width={2000}

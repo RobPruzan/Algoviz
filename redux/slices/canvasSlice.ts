@@ -22,6 +22,9 @@ const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    setLines: (state, action: PayloadAction<Edge[]>) => {
+      state.attachableLines = action.payload;
+    },
     replaceCircle: (state, action: PayloadAction<CircleReceiver>) => {
       state.circles = state.circles = Canvas.replaceCanvasElement({
         oldArray: state.circles,

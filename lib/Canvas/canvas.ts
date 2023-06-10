@@ -59,7 +59,21 @@ export const isPointInCircle = (
   return distance <= radius;
 };
 
-export const isPointInRect = ({
+export const isPointInRectangle = (
+  point: [number, number],
+  corner1: [number, number],
+  corner2: [number, number]
+): boolean => {
+  const minX = Math.min(corner1[0], corner2[0]);
+  const maxX = Math.max(corner1[0], corner2[0]);
+  const minY = Math.min(corner1[1], corner2[1]);
+  const maxY = Math.max(corner1[1], corner2[1]);
+
+  return (
+    point[0] >= minX && point[0] <= maxX && point[1] >= minY && point[1] <= maxY
+  );
+};
+export const isPointInLine = ({
   px,
   py,
   x1,
@@ -119,7 +133,7 @@ export const getActiveRect = ({
 
   const activeLineIndex = rects.find((rect) =>
     // isPointInRect(x, y, rect.center, rect.width, rect.length)
-    isPointInRect({
+    isPointInLine({
       px: x,
       py: y,
       x1: rect.x1,
@@ -189,13 +203,24 @@ export const concatIdUniquely = <TItem extends string>(
 export const getActiveGeometry = ({
   selectedCircleID,
   selectedAttachableLine,
+  selectedGeometryInfo,
 }: {
   selectedCircleID: string | null;
   selectedAttachableLine: {
     id: string;
     selected: 'line' | 'node1' | 'node2';
   } | null;
+  selectedGeometryInfo: {
+    selectedIds: Set<string>;
+    maxPoints: MaxPoints;
+  } | null;
 }) => {
+  // if (
+  //   selectedGeometryInfo != null &&
+  //   selectedGeometryInfo.selectedIds.size != 0
+  // ) {
+  //   return 'selectBox';
+  // }
   if (selectedCircleID !== null) {
     return 'circle';
   }
@@ -445,7 +470,7 @@ export const drawEdges = ({
 }) => {
   edges.forEach((edge) => {
     if (selectedAttachableLine?.id === edge.id || selectedIds?.has(edge.id)) {
-      console.log('SELECTEd');
+      ('SELECTEd');
       ctx.beginPath();
 
       ctx.moveTo(Math.floor(edge.x1), Math.floor(edge.y1));
@@ -663,7 +688,7 @@ export const getSelectedGeometry = ({
   vertices: CircleReceiver[];
   selectBox: SelectBox | null;
 }) => {
-  console.log('at least running');
+  ('at least running');
   if (!selectBox) return null;
   // the circles will have hit boxes for select
   // these will be rendered when selected
@@ -707,7 +732,6 @@ export const getSelectedGeometry = ({
       selectedIds.add(edge.attachNodeOne.id);
       selectedIds.add(edge.attachNodeTwo.id);
 
-      console.log('trice boxes', nodeTwoBox, nodeOnwBox, edge);
       // this sucks but how can i do better
       minX = Math.min(edge.x1, minX);
       minY = Math.min(edge.y1, minY);
@@ -730,7 +754,6 @@ export const getSelectedGeometry = ({
       maxY = Math.max(nodeOnwBox.p2[1], maxY);
     }
   });
-  console.log('gah', selectBox);
 
   vertices.forEach((vertex) => {
     const circleBox = generateCircleSelectBox(vertex);
@@ -750,7 +773,7 @@ export const getSelectedGeometry = ({
       maxY = Math.max(circleBox.p2[1], maxY);
     }
   });
-  console.log('selected');
+  ('selected');
   return {
     selectedIds,
     maxPoints: {
