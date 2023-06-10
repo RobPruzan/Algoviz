@@ -239,6 +239,7 @@ const CanvasDisplay = () => {
           (rect) => rect.id === selectedAttachableLine?.id
         );
         if (!activeRect) return;
+
         const newRect: Edge = {
           ...activeRect,
           x1: mousePositionX,
@@ -247,13 +248,30 @@ const CanvasDisplay = () => {
           y2: mousePositionY - 100,
           attachNodeOne: {
             ...activeRect.attachNodeOne,
+            connectedToId: null,
             center: [mousePositionX, mousePositionY],
           },
           attachNodeTwo: {
             ...activeRect.attachNodeTwo,
+            connectedToId: null,
             center: [mousePositionX - 10, mousePositionY - 100],
           },
         };
+        const filteredCircles = circles.map((circle) => {
+          return {
+            ...circle,
+            nodeReceiver: {
+              ...circle.nodeReceiver,
+              attachedIds: circle.nodeReceiver.attachedIds.filter(
+                (id) =>
+                  !(id === activeRect.attachNodeOne.id) &&
+                  !(id === activeRect.attachNodeTwo.id)
+              ),
+            },
+          };
+        });
+
+        dispatch(CanvasActions.setCircles(filteredCircles));
         dispatch(CanvasActions.replaceAttachableLine(newRect));
         break;
       case 'node1':
@@ -367,51 +385,6 @@ const CanvasDisplay = () => {
         dispatch(CanvasActions.replaceAttachableLine(newRectContainingNodeTwo));
         break;
       default:
-        // if (
-        //   selectedGeometryInfo &&
-        //   Canvas.isPointInRectangle(
-        //     [event.nativeEvent.offsetX, event.nativeEvent.offsetY],
-        //     selectedGeometryInfo.maxPoints.closestToOrigin,
-        //     selectedGeometryInfo.maxPoints.furthestFromOrigin
-        //   )
-        // ) {
-        //   console.log('inside wee');
-        //   const prevPos = previousMousePositionRef.current;
-        //   if (!prevPos) return;
-
-        //   const shift: [number, number] = [
-        //     prevPos[0] - event.nativeEvent.offsetX,
-        //     prevPos[1] - event.nativeEvent.offsetY,
-        //   ];
-
-        //   const shiftedEdges = attachableLines.map((line) => {
-        //     const newLine: Edge = {
-        //       ...line,
-        //       x1: line.x1 - shift[0],
-        //       y1: line.y1 - shift[1],
-        //       x2: line.x2 - shift[0],
-        //       y2: line.y2 - shift[1],
-        //       attachNodeOne: {
-        //         ...line.attachNodeOne,
-        //         center: [
-        //           line.attachNodeOne.center[0] - shift[0],
-        //           line.attachNodeOne.center[1] - shift[1],
-        //         ],
-        //       },
-        //       attachNodeTwo: {
-        //         ...line.attachNodeTwo,
-        //         center: [
-        //           line.attachNodeTwo.center[0] - shift[0],
-        //           line.attachNodeTwo.center[1] - shift[1],
-        //         ],
-        //       },
-        //     };
-
-        //     return newLine;
-        //   });
-
-        //   dispatch(CanvasActions.setLines(shiftedEdges));
-        // }
         if (selectBox) {
           const adjustableCord: [number, number] = [
             event.nativeEvent.offsetX,
@@ -586,6 +559,35 @@ const CanvasDisplay = () => {
     selectedGeometryInfo?.maxPoints,
   ]);
 
+  console.log('circles left', circles);
+
+  useEffect(() => {
+    const handleDelete = (e: KeyboardEvent) => {
+      // console.log('delete');
+      console.log(e.key);
+      if (e.key === 'Backspace') {
+        console.log('da da da deleting');
+        if (selectedGeometryInfo) {
+          dispatch(
+            CanvasActions.deleteCircles([
+              ...selectedGeometryInfo.selectedIds.keys(),
+            ])
+          );
+          dispatch(
+            CanvasActions.deleteLines([
+              ...selectedGeometryInfo.selectedIds.keys(),
+            ])
+          );
+        }
+        setSelectedGeometryInfo(null);
+      }
+    };
+
+    document.addEventListener('keydown', handleDelete);
+
+    return () => document.removeEventListener('keydown', handleDelete);
+  }, [dispatch, selectedGeometryInfo]);
+
   return (
     <>
       <ContextMenu>
@@ -644,6 +646,7 @@ const CanvasDisplay = () => {
                 dispatch(CanvasActions.setLines(shiftedEdges));
               }
             }}
+            tabIndex={0}
             onContextMenu={handleMouseDown}
             onMouseUp={handleMouseUp}
             width={2000}

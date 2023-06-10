@@ -104,7 +104,9 @@ export const getAdjacencyList = ({
       (edge) => edge.attachNodeOne.id === id || edge.attachNodeTwo.id === id
     );
     if (!containerEdge) {
+      // the existing nodes need their relationships updated. Can handle that at the least within the delete functions
       throw new Error(`You have some id in this array that doesn't make sense`);
+      // return;
     }
     // Because we are looking for the opposite connector on the edge
     const opposingNode =
