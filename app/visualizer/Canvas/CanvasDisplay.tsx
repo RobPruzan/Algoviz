@@ -84,12 +84,12 @@ const CanvasDisplay = () => {
         if (!activeItemInfo.activeCircle) return;
         setSelectedCircleID(activeItemInfo.activeCircle.id);
 
-        const newCircle: CircleReceiver = {
-          ...activeItemInfo.activeCircle,
-          // color: 'white',
-        };
+        // const newCircle: CircleReceiver = {
+        //   ...activeItemInfo.activeCircle,
+        //   // color: 'white',
+        // };
 
-        dispatch(CanvasActions.replaceCircle(newCircle));
+        // dispatch(CanvasActions.replaceCircle(newCircle));
         break;
 
       case 'rect':
@@ -183,6 +183,22 @@ const CanvasDisplay = () => {
 
         break;
     }
+  };
+
+  const handleContextMenu = (
+    event: MouseEvent<HTMLCanvasElement, globalThis.MouseEvent>
+  ) => {
+    const activeCircleId = Canvas.getActiveCircle({
+      circles,
+      event,
+      canvasRef,
+    });
+
+    const activeCircle = circles.find((circle) => circle.id === activeCircleId);
+
+    if (!activeCircle) return;
+    setSelectedCircleID(activeCircle.id);
+    setSelectedGeometryInfo(null);
   };
 
   const handleMouseMove = (event: MouseEvent<HTMLCanvasElement>) => {
@@ -772,7 +788,7 @@ const CanvasDisplay = () => {
               }
             }}
             tabIndex={0}
-            onContextMenu={handleMouseDown}
+            onContextMenu={handleContextMenu}
             onMouseUp={handleMouseUp}
             width={2000}
             height={2000}
@@ -780,7 +796,16 @@ const CanvasDisplay = () => {
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuSub>
-            <ContextMenuItem inset>
+            <ContextMenuItem
+              onClick={(e) => {
+                if (selectedCircleID) {
+                  dispatch(CanvasActions.deleteCircle(selectedCircleID));
+
+                  setSelectedCircleID(null);
+                }
+              }}
+              inset
+            >
               Delete
               <ContextMenuShortcut>⌘D</ContextMenuShortcut>
             </ContextMenuItem>

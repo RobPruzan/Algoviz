@@ -25,6 +25,11 @@ const canvasSlice = createSlice({
     setLines: (state, action: PayloadAction<Edge[]>) => {
       state.attachableLines = action.payload;
     },
+    deleteCircle: (state, action: PayloadAction<string>) => {
+      state.circles = state.circles.filter(
+        (circle) => circle.id !== action.payload
+      );
+    },
     setCircles: (state, action: PayloadAction<CircleReceiver[]>) => {
       state.circles = action.payload;
     },
