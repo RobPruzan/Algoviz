@@ -32,7 +32,7 @@ export const useBreadthFirstSearch = ({
       if (!poppedItem) {
         continue;
       }
-      'popped', poppedItem?.toString();
+
       queueRef.current = newQueue;
       const neighbors = adjacencyList.get(poppedItem);
       // ('the neighbors', neighbors);
@@ -69,11 +69,12 @@ export const useBreadthFirstSearch = ({
   const handleBfs = () => {
     clearState();
     const state = bfs();
-    state.historyRef.current &&
-      // dispatch(
-      //   CanvasActions.updateVariableInspectorQueue(state.historyRef.current)
-      // );
-      ('state', state);
+    console.log('adjaceny list', adjacencyList);
+    console.log('state', state);
+
+    // dispatch(
+    //   CanvasActions.updateVariableInspectorQueue(state.historyRef.current)
+    // );
   };
   return { handleBfs };
 };

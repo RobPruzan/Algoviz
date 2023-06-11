@@ -1,4 +1,4 @@
-import { CircleReceiver, Edge } from './types';
+import { CircleReceiver, DirectedEdge, UndirectedEdge } from './types';
 
 export {};
 
@@ -80,7 +80,7 @@ export const getAdjacencyList = ({
   edges,
 }: {
   vertices: CircleReceiver[];
-  edges: Edge[];
+  edges: (UndirectedEdge | DirectedEdge)[];
 }) => {
   // given vertices and attach node id
   // generate the adjacency list with the helper func
@@ -114,11 +114,14 @@ export const getAdjacencyList = ({
         ? containerEdge.attachNodeTwo
         : containerEdge.attachNodeOne;
 
-    const neighbor = vertices.find((v) =>
-      v.nodeReceiver.attachedIds.includes(opposingNode.id)
-    );
+    const neighbor =
+      !containerEdge.directed || opposingNode.type === 'node2'
+        ? vertices.find((v) =>
+            v.nodeReceiver.attachedIds.includes(opposingNode.id)
+          )
+        : 'directed';
 
-    if (neighbor) {
+    if (neighbor && neighbor !== 'directed') {
       idMap.set(id, neighbor.id);
     }
   });

@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { useBreadthFirstSearch } from '@/hooks/useBreadthFirstSearch';
 import * as Graph from '@/lib/graph';
-import { CircleReceiver, Edge } from '@/lib/types';
+import { CircleReceiver, DirectedEdge, UndirectedEdge } from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import React, { Dispatch, SetStateAction } from 'react';
@@ -25,9 +25,9 @@ const CanvasControlBar = () => {
     startingNode: [...adjacencyList.keys()].at(0) ?? '',
   });
 
-  const handleAddRect = () => {
+  const handleAddUndirectedEdge = () => {
     const [x1, y1] = [Math.random() * 400, Math.random() * 400];
-    const newLine: Edge = {
+    const newLine: UndirectedEdge = {
       id: crypto.randomUUID(),
       algorithmMetadata: {
         active: false,
@@ -38,6 +38,42 @@ const CanvasControlBar = () => {
       x2: x1 - 10,
       y2: y1 - 50,
       width: 7,
+      directed: false,
+      color: 'white',
+      attachNodeOne: {
+        center: [x1, y1],
+        radius: 10,
+        color: '#42506e',
+        id: crypto.randomUUID(),
+        type: 'node1',
+        connectedToId: null,
+      },
+      attachNodeTwo: {
+        center: [x1 - 10, y1 - 50],
+        radius: 10,
+        color: '#42506e',
+        id: crypto.randomUUID(),
+        type: 'node2',
+        connectedToId: null,
+      },
+    };
+
+    dispatch(CanvasActions.addLine(newLine));
+  };
+  const handleAddDirectedEdge = () => {
+    const [x1, y1] = [Math.random() * 400, Math.random() * 400];
+    const newLine: DirectedEdge = {
+      id: crypto.randomUUID(),
+      algorithmMetadata: {
+        active: false,
+      },
+      type: 'rect',
+      x1,
+      y1,
+      x2: x1 - 10,
+      y2: y1 - 50,
+      width: 7,
+      directed: true,
       color: 'white',
       attachNodeOne: {
         center: [x1, y1],
@@ -99,9 +135,15 @@ const CanvasControlBar = () => {
       </Button>
       <Button
         className="bg-secondary hover:bg-primary border border-secondary"
-        onClick={handleAddRect}
+        onClick={handleAddUndirectedEdge}
       >
-        Add Line
+        Add Undirected Edge
+      </Button>
+      <Button
+        className="bg-secondary hover:bg-primary border border-secondary"
+        onClick={handleAddDirectedEdge}
+      >
+        Add Directed Edge
       </Button>
       <Button
         className="bg-secondary hover:bg-primary border border-secondary"

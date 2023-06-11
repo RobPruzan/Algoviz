@@ -470,7 +470,6 @@ export const drawEdges = ({
 }) => {
   edges.forEach((edge) => {
     if (selectedAttachableLine?.id === edge.id || selectedIds?.has(edge.id)) {
-      ('SELECTEd');
       ctx.beginPath();
 
       ctx.moveTo(Math.floor(edge.x1), Math.floor(edge.y1));
@@ -513,21 +512,25 @@ export const drawEdgeConnectors = ({
       ctx.fillStyle = circle.color;
       ctx.fill();
     });
-  edges
-    .map((edge) => edge.attachNodeTwo)
-    .forEach((circle) => {
-      ctx.beginPath();
-      ctx.arc(
-        Math.floor(circle.center[0]),
-        Math.floor(circle.center[1]),
-        circle.radius,
-        0,
-        2 * Math.PI,
-        false
-      );
-      ctx.fillStyle = circle.color;
-      ctx.fill();
-    });
+  edges.forEach((edge) => {
+    ctx.beginPath();
+    ctx.arc(
+      Math.floor(edge.attachNodeTwo.center[0]),
+      Math.floor(edge.attachNodeTwo.center[1]),
+      edge.attachNodeTwo.radius,
+      0,
+      2 * Math.PI,
+      false
+    );
+    // this sucks will change the directed edges logic completely
+    if (edge.directed) {
+      ctx.fillStyle = 'green';
+    } else {
+      edge.attachNodeTwo.color;
+    }
+
+    ctx.fill();
+  });
 };
 
 export const drawNodeReceivers = ({

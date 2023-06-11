@@ -18,8 +18,12 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { SetStateAction, useState } from 'react';
-import { ALGORITHMS, AlgorithmInfo, Algorithms } from '@/lib/types';
-import { SideBarContextState } from '@/Context/SideBarContext';
+import {
+  ALGORITHMS,
+  AlgorithmInfo,
+  Algorithms,
+  SideBarContextState,
+} from '@/lib/types';
 
 const algorithmsInfo: AlgorithmInfo[] = [
   {
@@ -29,6 +33,10 @@ const algorithmsInfo: AlgorithmInfo[] = [
   {
     value: 'quick sort',
     label: 'Quick Sort',
+  },
+  {
+    value: 'breadth first search',
+    label: 'Breadth First Search',
   },
 ];
 

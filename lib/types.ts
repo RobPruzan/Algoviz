@@ -1,4 +1,4 @@
-import { MutableRefObject } from 'react';
+import { Dispatch, MutableRefObject, SetStateAction } from 'react';
 
 export type NodeMetadata = {
   value: number;
@@ -39,6 +39,7 @@ export type FirstLetterUpperCase<S extends string> =
     : BaseFirstLetterUpperCase<S>;
 
 export const ALGORITHMS = [
+  'breadth first search',
   'merge sort',
   'quick sort',
   'bubble sort',
@@ -51,7 +52,15 @@ export type AlgorithmInfo = {
   value: Algorithms;
   label: FirstLetterUpperCase<Algorithms>;
 };
+export type SideBarContextState = {
+  algorithm: Algorithms;
+  display: DisplayTypes;
+};
 
+export type SideBarContextData = {
+  sideBarState: SideBarContextState;
+  setSideBarState: Dispatch<SetStateAction<SideBarContextState>>;
+};
 export const DISPLAY_TYPES = ['nodes', 'canvas', 'bar'] as const;
 
 export type DisplayTypes = (typeof DISPLAY_TYPES)[number];
@@ -103,15 +112,25 @@ export type Rect = {
   color: string;
 };
 
-export type Edge = Rect & {
+export type UndirectedEdge = Rect & {
   attachNodeOne: NodeConnector;
   attachNodeTwo: NodeConnector;
   algorithmMetadata: AlgorithmMetadata;
+  directed: false;
 };
 
+export type DirectedEdge = Rect & {
+  attachNodeOne: NodeConnector;
+  attachNodeTwo: NodeConnector;
+  algorithmMetadata: AlgorithmMetadata;
+  directed: true;
+};
+
+export type Edge = UndirectedEdge | DirectedEdge;
+
 export type LineNodeTaggedUnion =
-  | (Edge & { nodeConnectedSide: 'one' })
-  | (Edge & { nodeConnectedSide: 'two' });
+  | (UndirectedEdge & { nodeConnectedSide: 'one' })
+  | (UndirectedEdge & { nodeConnectedSide: 'two' });
 
 export type AlgorithmMetadata = {
   active: boolean;

@@ -174,7 +174,6 @@ const CanvasDisplay = () => {
           event.nativeEvent.offsetX,
           event.nativeEvent.offsetY,
         ];
-        console.log('woo select box', initialMouseCoordinate);
         setSelectBox({
           p1: initialMouseCoordinate,
           p2: initialMouseCoordinate,
@@ -221,7 +220,6 @@ const CanvasDisplay = () => {
     ];
     // this should be a case obviously just doing this for quick measures
     if (isSelectBoxSet && isMouseDownRef.current) {
-      console.log('is mouse down');
       const updatedCircles: CircleReceiver[] = circles.map((circle) => {
         if (selectedGeometryInfo.selectedIds.has(circle.id)) {
           return {
@@ -319,7 +317,6 @@ const CanvasDisplay = () => {
       dispatch(CanvasActions.setCircles(updatedCircles));
       dispatch(CanvasActions.setLines(updatedLines));
       previousMousePositionRef.current = [mousePositionX, mousePositionY];
-      console.log('blocking the return');
       return;
     }
 
@@ -533,7 +530,6 @@ const CanvasDisplay = () => {
             event.nativeEvent.offsetY,
           ];
 
-          console.log('whats goin on heree pal');
           // simple check to make sure we have a select box first
           setSelectBox((prev) => {
             const selectedGeometryInfo = Canvas.getSelectedGeometry({
@@ -543,7 +539,6 @@ const CanvasDisplay = () => {
             });
 
             setSelectedGeometryInfo(selectedGeometryInfo);
-            console.log('da box', prev);
             return prev?.p1 ? { ...prev, p2: adjustableCord } : null;
           });
         }
@@ -611,7 +606,6 @@ const CanvasDisplay = () => {
       default:
         setSelectBox(null);
 
-        console.log('select box yoo', selectBox);
         if (!activeRectContainerTwo) return;
         dispatch(
           CanvasActions.replaceAttachableLine({
@@ -669,10 +663,6 @@ const CanvasDisplay = () => {
       nodes: circles,
     });
 
-    // Canvas.drawSelectBox({
-    //   ctx,
-    //   selectBox,
-    // });
     if (selectBox) {
       Canvas.drawBox({
         ctx,
@@ -700,14 +690,9 @@ const CanvasDisplay = () => {
     selectedGeometryInfo?.maxPoints,
   ]);
 
-  console.log('circles left', circles);
-
   useEffect(() => {
     const handleDelete = (e: KeyboardEvent) => {
-      // console.log('delete');
-      console.log(e.key);
       if (e.key === 'Backspace') {
-        console.log('da da da deleting');
         if (selectedGeometryInfo) {
           dispatch(
             CanvasActions.deleteCircles([
@@ -749,7 +734,6 @@ const CanvasDisplay = () => {
                   selectedGeometryInfo.maxPoints.furthestFromOrigin
                 )
               ) {
-                console.log('inside wee');
                 const prevPos = previousMousePositionRef.current;
                 if (!prevPos) return;
 

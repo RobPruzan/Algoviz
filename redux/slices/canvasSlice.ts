@@ -1,4 +1,9 @@
-import { CircleReceiver, Edge, AlgorithmMetadata } from '@/lib/types';
+import {
+  CircleReceiver,
+  AlgorithmMetadata,
+  DirectedEdge,
+  Edge,
+} from '@/lib/types';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import * as Canvas from '@/lib/Canvas/canvas';
 import { ImmutableQueue } from '@/lib/graph';
@@ -88,7 +93,6 @@ const canvasSlice = createSlice({
           };
         }
       });
-      console.log('deleteing', filtered, 'vs', state.circles);
 
       state.circles = filtered;
     },
@@ -103,7 +107,6 @@ const canvasSlice = createSlice({
         circle.nodeReceiver.attachedIds =
           circle.nodeReceiver.attachedIds.filter((id) => !idSet.has(id));
       });
-      console.log('deleteing', filtered, 'vs', state.circles);
 
       state.attachableLines = filtered;
     },

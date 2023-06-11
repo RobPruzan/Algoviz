@@ -1,18 +1,13 @@
-import { Algorithms, DisplayTypes } from '@/lib/types';
+import {
+  Algorithms,
+  DisplayTypes,
+  SideBarContextData,
+  SideBarContextState,
+} from '@/lib/types';
 import { Dispatch, SetStateAction, createContext } from 'react';
 
-export type SideBarContextState = {
-  algorithm: Algorithms;
-  display: DisplayTypes;
-};
-
-export type SideBarContextData = {
-  sideBarState: SideBarContextState;
-  setSideBarState: Dispatch<SetStateAction<SideBarContextState>>;
-};
-
 export const INITIAL_SIDE_BAR_STATE: SideBarContextState = {
-  algorithm: 'quick sort',
+  algorithm: 'breadth first search',
   display: 'canvas',
 };
 
