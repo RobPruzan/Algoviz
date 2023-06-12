@@ -437,16 +437,27 @@ export const drawNodes = ({
   ctx,
   selectedCircleID,
   selectedIds,
+  dfsVisitedNodes,
 }: {
   nodes: CircleReceiver[];
   ctx: CanvasRenderingContext2D;
   selectedCircleID: string | null;
   selectedIds: Set<string> | undefined;
+  dfsVisitedNodes: string[];
 }) => {
+  // console.log(
+  //   'node ids',
+  //   nodes.map((n) => n.id)
+  // );
   nodes.forEach((node) => {
     ctx.beginPath();
     ctx.arc(node.center[0], node.center[1], node.radius, 0, 2 * Math.PI, false);
+
     ctx.fillStyle = node.color;
+
+    if (dfsVisitedNodes.includes(node.id)) {
+      ctx.fillStyle = 'green';
+    }
 
     ctx.fill();
     if (selectedCircleID === node.id || selectedIds?.has(node.id)) {

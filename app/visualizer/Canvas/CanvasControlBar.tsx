@@ -5,6 +5,15 @@ import * as Graph from '@/lib/graph';
 import { CircleReceiver, DirectedEdge, UndirectedEdge } from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
+import {
+  ArrowUp,
+  ArrowUpDown,
+  Circle,
+  GitBranchPlus,
+  Inspect,
+  PlayIcon,
+} from 'lucide-react';
+import { Play } from 'next/font/google';
 import React, { Dispatch, SetStateAction } from 'react';
 
 const CanvasControlBar = () => {
@@ -137,41 +146,31 @@ const CanvasControlBar = () => {
         className="bg-secondary hover:bg-primary border border-secondary"
         onClick={handleAddCircle}
       >
-        Add Circle
+        <Circle />
       </Button>
       <Button
         className="bg-secondary hover:bg-primary border border-secondary"
         onClick={handleAddUndirectedEdge}
       >
-        Add Undirected Edge
+        <ArrowUpDown />
       </Button>
       <Button
         className="bg-secondary hover:bg-primary border border-secondary"
         onClick={handleAddDirectedEdge}
       >
-        Add Directed Edge
+        <ArrowUp />
       </Button>
       <Button
         className="bg-secondary hover:bg-primary border border-secondary"
         onClick={() => dispatch(CanvasActions.updateInspectorVisibility(!show))}
       >
-        Open Variable Inspector
+        <Inspect />
       </Button>
-      {/* <Button
-        className="bg-secondary hover:bg-primary border border-secondary"
-        onClick={() => {
-          handleBfs();
-        }}
-      >
-        handleBfs
-      </Button> */}
       <Button
         className="bg-secondary hover:bg-primary border border-secondary"
-        onClick={() => {
-          handleDfs();
-        }}
+        onClick={handleDfs}
       >
-        handleDfs
+        <GitBranchPlus />
       </Button>
     </div>
   );

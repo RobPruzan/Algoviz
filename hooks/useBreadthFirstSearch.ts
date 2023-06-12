@@ -1,6 +1,7 @@
 import { ImmutableQueue, ImmutableSet } from '@/lib/graph';
 import { AdjacencyList } from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
+import { DFSActions } from '@/redux/slices/dfsSlice';
 import { useAppSelector } from '@/redux/store';
 import { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -69,6 +70,7 @@ export const useBreadthFirstSearch = ({
   const handleBfs = () => {
     clearState();
     const state = bfs();
+
     historyRef.current = [];
     console.log('adjaceny list', adjacencyList);
     console.log('state', state);

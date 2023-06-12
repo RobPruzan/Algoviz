@@ -5,10 +5,12 @@ import {
   useSelector,
   type TypedUseSelectorHook,
 } from 'react-redux';
+import { dfsReducer } from './slices/dfsSlice';
 
 export const store = configureStore({
   reducer: {
     canvas: canvasReducer,
+    dfs: dfsReducer,
   },
 });
 

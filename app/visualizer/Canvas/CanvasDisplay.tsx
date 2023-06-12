@@ -35,6 +35,7 @@ const CanvasDisplay = () => {
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
 
   const previousMousePositionRef = useRef<[number, number]>(); //this will be used for everything down the line to make
+  const { visited } = useAppSelector((store) => store.dfs);
 
   const dispatch = useAppDispatch();
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
@@ -43,10 +44,6 @@ const CanvasDisplay = () => {
 
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
-  // const adjacencyList = circles.map((c) => [
-  //   c.nodeReceiver.id,
-  //   c.nodeReceiver.attachedIds,
-  // ]);
 
   const [selectedGeometryInfo, setSelectedGeometryInfo] = useState<{
     selectedIds: Set<string>;
@@ -56,6 +53,15 @@ const CanvasDisplay = () => {
     selectBox === null &&
     selectedGeometryInfo &&
     (selectedGeometryInfo?.selectedIds.size ?? -1) > 0;
+
+  const { visited: dfsVisited, visitedPointer } = useAppSelector(
+    (store) => store.dfs
+  );
+
+  const dfsVisitedNodes = dfsVisited.slice(0, visitedPointer);
+  // console.log('dfs stuff', visited, visitedPointer);
+
+  console.log(visited, visitedPointer, visited.slice(0, visitedPointer));
 
   const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
     isMouseDownRef.current = true;
@@ -646,6 +652,7 @@ const CanvasDisplay = () => {
       nodes: circles,
       selectedCircleID,
       selectedIds: selectedGeometryInfo?.selectedIds,
+      dfsVisitedNodes,
     });
     Canvas.drawEdges({
       ctx,
@@ -688,6 +695,7 @@ const CanvasDisplay = () => {
     selectedAttachableLine,
     selectedGeometryInfo?.selectedIds,
     selectedGeometryInfo?.maxPoints,
+    dfsVisitedNodes,
   ]);
 
   useEffect(() => {

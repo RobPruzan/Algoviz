@@ -1,5 +1,6 @@
 import { ImmutableQueue, ImmutableSet, ImmutableStack } from '@/lib/graph';
 import { AdjacencyList } from '@/lib/types';
+import { DFSActions } from '@/redux/slices/dfsSlice';
 import { useAppSelector } from '@/redux/store';
 import { useRef } from 'react';
 import { useDispatch } from 'react-redux';
@@ -17,7 +18,6 @@ export const useDepthFirstSearch = ({
   const visitedRef = useRef(new ImmutableSet<string>([]));
 
   const dispatch = useDispatch();
-  const { circles } = useAppSelector((store) => store.canvas);
   const itersRef = useRef(0);
   const dfs = () => {
     // ('starting bfs, the adj list is', adjacencyList);
@@ -50,7 +50,9 @@ export const useDepthFirstSearch = ({
         }
       }
     }
-    console.log('out of this control flow');
+
+    return historyRef;
+    // console.log('out of this control flow');
   };
 
   const clearState = () => {
@@ -61,7 +63,8 @@ export const useDepthFirstSearch = ({
 
   const handleDfs = () => {
     clearState();
-    dfs();
+    const state = dfs();
+    state.current && dispatch(DFSActions.setVisited(state.current));
     console.log('dfs history', historyRef);
   };
 

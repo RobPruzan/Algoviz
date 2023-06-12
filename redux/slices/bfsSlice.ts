@@ -11,7 +11,7 @@ const initialState: GraphState = {
   history: [],
 };
 
-const canvasSlice = createSlice({
+const bfsSlice = createSlice({
   name: 'graph',
   initialState,
   reducers: {
