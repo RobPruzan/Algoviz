@@ -1,7 +1,7 @@
-import { ControlBarContextData } from '@/Context/ControlBarContext';
 import { HistoryNode, NodeMetadata } from '@/lib/types';
 import { useState } from 'react';
 import { NodeRowState } from './useQuickSort';
+import { ControlBarContextData } from '@/context/ControlBarContext';
 
 // type UseVisualizerParams = Pick<ControlBarContextData, 'setState'>;
 type UseVisualizerParams = {} & ControlBarContextData;

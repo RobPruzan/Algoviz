@@ -2,11 +2,12 @@
 import React, { useContext, useState } from 'react';
 import SortControlBar from './Sort/SortControlBar';
 import SortDisplay from './Sort/SortDisplay';
-import { SideBarContext } from '@/Context/SideBarContext';
+
 import CanvasDisplay from './Canvas/CanvasDisplay';
 import CanvasControlBar from './Canvas/CanvasControlBar';
 import { CircleReceiver, UndirectedEdge } from '@/lib/types';
 import { useAppSelector } from '@/redux/store';
+import { SideBarContext } from '@/context/SideBarContext';
 
 const Visualize = () => {
   const { sideBarState } = useContext(SideBarContext);

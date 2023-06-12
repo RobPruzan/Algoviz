@@ -1,27 +1,50 @@
 import { CircleReceiver, DirectedEdge, UndirectedEdge } from './types';
 
-export {};
-
-export class ImmutableQueue<T> {
-  #arr: Array<T>;
+export class ImmutableStack<T> {
+  arr: Array<T>;
+  size: number;
 
   constructor(arr: T[]) {
-    this.#arr = arr;
+    this.arr = arr;
+    this.size = arr.length;
+  }
+  push(item: T): ImmutableStack<T> {
+    return new ImmutableStack([...this.arr, item]);
+  }
+
+  pop() {
+    const newStack = this.arr.slice(0, -1);
+    return {
+      poppedItem: this.arr.at(-1),
+      newStack: new ImmutableStack(newStack),
+    };
+  }
+
+  peek() {
+    return this.arr.at(-1);
+  }
+}
+export class ImmutableQueue<T> {
+  arr: Array<T>;
+  size: number;
+  constructor(arr: T[]) {
+    this.arr = arr;
+    this.size = arr.length;
   }
   enqueue(item: T) {
-    return new ImmutableQueue([item].concat(this.#arr));
+    return new ImmutableQueue([item].concat(this.arr));
   }
 
   dequeue() {
     return {
-      poppedItem: this.#arr.at(-1),
-      newQueue: new ImmutableQueue(this.#arr.slice(0, -1)),
+      poppedItem: this.arr.at(-1),
+      newQueue: new ImmutableQueue(this.arr.slice(0, -1)),
     };
   }
 
   [Symbol.iterator]() {
     let index = 0;
-    let data = this.#arr;
+    let data = this.arr;
 
     return {
       next: () => {
@@ -33,35 +56,37 @@ export class ImmutableQueue<T> {
     };
   }
 
-  size() {
-    return this.#arr.length;
-  }
-
   toString() {
-    return `[${this.#arr.join(',')}]`;
+    return `[${this.arr.join(',')}]`;
+  }
+  [Symbol.toPrimitive](hint: string) {
+    if (hint === 'string') {
+      return this.toString();
+    }
+    return null;
   }
 }
 
 export class ImmutableSet<T> {
-  #mutSet: Set<T>;
+  mutSet: Set<T>;
   constructor(arr: T[]) {
-    this.#mutSet = new Set(arr);
+    this.mutSet = new Set(arr);
   }
   add(item: T) {
-    return new ImmutableSet<T>([...this.#mutSet.add(item).keys()]);
+    return new ImmutableSet<T>([...this.mutSet.add(item).keys()]);
   }
 
   delete(item: T) {
-    this.#mutSet.delete(item);
-    return new ImmutableQueue<T>([...this.#mutSet.keys()]);
+    this.mutSet.delete(item);
+    return new ImmutableQueue<T>([...this.mutSet.keys()]);
   }
 
   has(item: T) {
-    return this.#mutSet.has(item);
+    return this.mutSet.has(item);
   }
 
   toString() {
-    return `[${[...this.#mutSet.keys()].join(',')}]`;
+    return `[${[...this.mutSet.keys()].join(',')}]`;
   }
 }
 

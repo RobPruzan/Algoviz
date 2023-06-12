@@ -9,13 +9,14 @@ import React, {
   useState,
 } from 'react';
 import QuickSortRow, { SubArrayBarrier } from './QuickSortRow';
-import { HistoryNodesContext } from '../../../Context/HistoryNodesContext';
+
 import { useQuickSort } from '@/hooks/useQuickSort';
-import { ControlBarContext } from '@/Context/ControlBarContext';
+import { ControlBarContext } from '@/context/ControlBarContext';
 
 import { useMergeSort } from '@/hooks/useMergeSort';
 import { useTransition, animated, config } from 'react-spring';
 import MergeSortRow from './MergeSortRow';
+import { HistoryNodesContext } from '@/context/HistoryNodesContext';
 
 type Props = {
   algorithm: Algorithms | undefined;

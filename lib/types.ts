@@ -44,6 +44,7 @@ export const ALGORITHMS = [
   'quick sort',
   'bubble sort',
   'insertion sort',
+  'depth first search',
 ] as const;
 
 export type Algorithms = (typeof ALGORITHMS)[number];
@@ -150,3 +151,5 @@ export type MaxPoints = {
   closestToOrigin: [number, number];
   furthestFromOrigin: [number, number];
 };
+
+export type AdjacencyList<T extends string> = Map<string, string[]>;

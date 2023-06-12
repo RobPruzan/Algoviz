@@ -38,6 +38,10 @@ const algorithmsInfo: AlgorithmInfo[] = [
     value: 'breadth first search',
     label: 'Breadth First Search',
   },
+  {
+    value: 'depth first search',
+    label: 'Depth First Search',
+  },
 ];
 
 type Props = {

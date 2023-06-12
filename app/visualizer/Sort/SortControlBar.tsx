@@ -11,13 +11,14 @@ import {
   PlusIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ControlBarContext } from '../../../Context/ControlBarContext';
-import { HistoryNodesContext } from '../../../Context/HistoryNodesContext';
+
 import { useQuickSort } from '@/hooks/useQuickSort';
 import { boolean, z } from 'zod';
 
 import { useTraverseHistory } from '@/hooks/useTraverseHistory';
 import { Algorithms } from '@/lib/types';
+import { ControlBarContext } from '@/context/ControlBarContext';
+import { HistoryNodesContext } from '@/context/HistoryNodesContext';
 
 type Props = {
   algorithm: Algorithms | undefined;

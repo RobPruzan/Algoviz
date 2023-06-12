@@ -1,6 +1,5 @@
-import { SideBarContextState } from '@/Context/SideBarContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DISPLAY_TYPES, DisplayTypes } from '@/lib/types';
+import { DISPLAY_TYPES, DisplayTypes, SideBarContextState } from '@/lib/types';
 import React, { Dispatch, SetStateAction } from 'react';
 
 type Props = {

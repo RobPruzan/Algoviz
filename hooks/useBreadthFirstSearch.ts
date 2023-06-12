@@ -1,11 +1,11 @@
 import { ImmutableQueue, ImmutableSet } from '@/lib/graph';
+import { AdjacencyList } from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppSelector } from '@/redux/store';
 import { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { start } from 'repl';
 
-type AdjacencyList<T extends string> = Map<string, string[]>;
 type BFSParams<T extends string> = {
   startingNode: T;
   adjacencyList: AdjacencyList<T>;
@@ -27,7 +27,7 @@ export const useBreadthFirstSearch = ({
     // TODO
     queueRef.current = queueRef.current.enqueue(startingNode);
 
-    while (queueRef.current.size() > 0) {
+    while (queueRef.current.size > 0) {
       const { poppedItem, newQueue } = queueRef.current.dequeue();
       if (!poppedItem) {
         continue;
@@ -69,6 +69,7 @@ export const useBreadthFirstSearch = ({
   const handleBfs = () => {
     clearState();
     const state = bfs();
+    historyRef.current = [];
     console.log('adjaceny list', adjacencyList);
     console.log('state', state);
 

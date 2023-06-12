@@ -4,7 +4,7 @@ import { AlgoComboBox } from './Sort/AlgoComboBox';
 import { Algorithms, DisplayTypes } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DisplayTypeTabs from './DisplayTypeTabs';
-import { SideBarContext } from '@/Context/SideBarContext';
+import { SideBarContext } from '@/context/SideBarContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAppSelector } from '@/redux/store';
 

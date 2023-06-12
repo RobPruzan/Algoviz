@@ -4,25 +4,26 @@ import React, { useContext, useRef, useState } from 'react';
 import { Provider } from 'react-redux';
 import Visualize from './Visualize';
 import Node from '@/components/Visualizers/Node';
-import {
-  ControlBarContext,
-  ControlBarContextData,
-  ControlBarContextState,
-  defaultState,
-} from '../../Context/ControlBarContext';
+
 import {
   Algorithms,
   DisplayTypes,
   HistoryNode,
   NodeMetadata,
 } from '@/lib/types';
-import { HistoryNodesContext } from '../../Context/HistoryNodesContext';
+
 import SideBar from './SideBar';
 import {
   INITIAL_SIDE_BAR_STATE,
   SideBarContext,
-} from '@/Context/SideBarContext';
+} from '@/context/SideBarContext';
 import { store } from '@/redux/store';
+import {
+  ControlBarContextState,
+  defaultState,
+  ControlBarContext,
+} from '@/context/ControlBarContext';
+import { HistoryNodesContext } from '@/context/HistoryNodesContext';
 
 type Props = {
   children: React.ReactNode;

@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useBreadthFirstSearch } from '@/hooks/useBreadthFirstSearch';
+import { useDepthFirstSearch } from '@/hooks/useDepthFirstSearch';
 import * as Graph from '@/lib/graph';
 import { CircleReceiver, DirectedEdge, UndirectedEdge } from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
@@ -19,7 +20,12 @@ const CanvasControlBar = () => {
     vertices: circles,
   });
 
-  const { handleBfs } = useBreadthFirstSearch({
+  // const { handleBfs } = useBreadthFirstSearch({
+  //   adjacencyList,
+  //   // temporary until select is implemented
+  //   startingNode: [...adjacencyList.keys()].at(0) ?? '',
+  // });
+  const { handleDfs } = useDepthFirstSearch({
     adjacencyList,
     // temporary until select is implemented
     startingNode: [...adjacencyList.keys()].at(0) ?? '',
@@ -151,13 +157,21 @@ const CanvasControlBar = () => {
       >
         Open Variable Inspector
       </Button>
-      <Button
+      {/* <Button
         className="bg-secondary hover:bg-primary border border-secondary"
         onClick={() => {
           handleBfs();
         }}
       >
         handleBfs
+      </Button> */}
+      <Button
+        className="bg-secondary hover:bg-primary border border-secondary"
+        onClick={() => {
+          handleDfs();
+        }}
+      >
+        handleDfs
       </Button>
     </div>
   );
