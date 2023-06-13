@@ -1021,31 +1021,49 @@ const CanvasDisplay = () => {
                         crypto.randomUUID()
                       );
                   });
+
                 //  should design this without asserting non null, but for now its fine
-                const pasteCircles = circles
+                const offset = 20;
+                const pasteCircles: CircleReceiver[] = circles
                   .filter((circle) => copied.has(circle.id))
                   .map((circle) => ({
                     ...circle,
                     id: idMap.get(circle.id)!,
+                    center: [
+                      circle.center[0] - offset,
+                      circle.center[1] - offset,
+                    ],
                     nodeReceiver: {
                       ...circle.nodeReceiver,
                       id: idMap.get(circle.nodeReceiver.id)!,
                       attachedIds: circle.nodeReceiver.attachedIds.map(
                         (id) => idMap.get(id)!
                       ),
+                      center: [
+                        circle.nodeReceiver.center[0] - offset,
+                        circle.nodeReceiver.center[1] - offset,
+                      ],
                     },
                   }));
-                const pasteLines = attachableLines
+                const pasteLines: Edge[] = attachableLines
                   .filter((line) => copied.has(line.id))
                   .map((line) => ({
                     ...line,
                     id: idMap.get(line.id)!,
+                    x1: line.x1 - offset,
+                    y1: line.y1 - offset,
+                    x2: line.x2 - offset,
+                    y2: line.y2 - offset,
                     attachNodeOne: {
                       ...line.attachNodeOne,
                       id: idMap.get(line.attachNodeOne.id)!,
                       connectedToId: line.attachNodeOne.connectedToId
                         ? idMap.get(line.attachNodeOne.connectedToId)!
                         : null,
+                      center: [
+                        line.attachNodeOne.center[0] - offset,
+                        line.attachNodeOne.center[1] - offset,
+                      ],
                     },
                     attachNodeTwo: {
                       ...line.attachNodeTwo,
@@ -1053,10 +1071,38 @@ const CanvasDisplay = () => {
                       connectedToId: line.attachNodeTwo.connectedToId
                         ? idMap.get(line.attachNodeTwo.connectedToId)!
                         : null,
+                      center: [
+                        line.attachNodeTwo.center[0] - offset,
+                        line.attachNodeTwo.center[1] - offset,
+                      ],
                     },
                   }));
 
                 console.log('pasting', duplicatedCircles, duplicatedLines);
+                setSelectedGeometryInfo((geo) =>
+                  geo
+                    ? {
+                        ...geo,
+
+                        selectedIds: new Set<string>(
+                          [...geo.selectedIds.keys()].map(
+                            (id) => idMap.get(id)!
+                          )
+                        ),
+                        // still need to update selected box
+                        maxPoints: {
+                          closestToOrigin: [
+                            geo.maxPoints.closestToOrigin[0] - offset,
+                            geo.maxPoints.closestToOrigin[1] - offset,
+                          ],
+                          furthestFromOrigin: [
+                            geo.maxPoints.furthestFromOrigin[0] - offset,
+                            geo.maxPoints.furthestFromOrigin[1] - offset,
+                          ],
+                        },
+                      }
+                    : null
+                );
 
                 dispatch(
                   CanvasActions.setCircles([...circles, ...pasteCircles])
