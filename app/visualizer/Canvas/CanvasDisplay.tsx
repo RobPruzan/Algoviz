@@ -54,6 +54,8 @@ const CanvasDisplay = () => {
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
 
+  const [copied, setCopied] = useState<Set<string>>(new Set());
+
   const [selectedGeometryInfo, setSelectedGeometryInfo] = useState<{
     selectedIds: Set<string>;
     maxPoints: MaxPoints;
@@ -771,7 +773,7 @@ const CanvasDisplay = () => {
       // this is going to look awful and will 100% be refactored when everything works, no point in making something clean that might not work
       if (event.ctrlKey) {
         // This is a pinch gesture
-        const zoomAmount = event.deltaY > 0 ? 0.97 : 1.03;
+        const zoomAmount = event.deltaY > 0 ? 0.98 : 1.02;
         dispatch(CanvasActions.updateCreationZoomFactor(zoomAmount));
         const center: [number, number] = getCursorPosition(event);
 
@@ -878,8 +880,8 @@ const CanvasDisplay = () => {
             : null
         );
       } else {
-        const newOffsetX = event.deltaX;
-        const newOffsetY = event.deltaY;
+        const newOffsetX = event.deltaX * 0.5;
+        const newOffsetY = event.deltaY * 0.5;
 
         console.log(event.deltaX, event.deltaY);
         offsetX.current = newOffsetX;
@@ -976,6 +978,104 @@ const CanvasDisplay = () => {
             onContextMenu={handleContextMenu}
             onMouseUp={handleMouseUp}
             width={1000}
+            onKeyDown={(e) => {
+              console.log('e', e);
+              if (
+                (e.ctrlKey || e.metaKey) &&
+                e.key === 'c' &&
+                selectedGeometryInfo
+              ) {
+                console.log('copying', selectedGeometryInfo.selectedIds);
+                setCopied(selectedGeometryInfo.selectedIds);
+              }
+              if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+                console.log('pasting');
+                // can refactor cause this is pretty heavy
+                // should build helper functions for updating, since I'm doing this so much, but it may be an over abstraction
+                const idMap = new Map<string, string>();
+                const duplicatedCircles = circles
+                  .filter((circle) => copied.has(circle.id))
+                  .forEach((circle) => {
+                    idMap.set(circle.id, crypto.randomUUID());
+                    idMap.set(circle.nodeReceiver.id, crypto.randomUUID());
+                    circle.nodeReceiver.attachedIds.forEach((id) =>
+                      idMap.set(id, crypto.randomUUID())
+                    );
+                    // idMap.set(, crypto.randomUUID())
+                  });
+
+                const duplicatedLines = attachableLines
+                  .filter((line) => copied.has(line.id))
+                  .forEach((line) => {
+                    idMap.set(line.id, crypto.randomUUID());
+                    idMap.set(line.attachNodeOne.id, crypto.randomUUID());
+                    idMap.set(line.attachNodeTwo.id, crypto.randomUUID());
+                    line.attachNodeOne.connectedToId &&
+                      idMap.set(
+                        line.attachNodeOne.connectedToId,
+                        crypto.randomUUID()
+                      );
+                    line.attachNodeTwo.connectedToId &&
+                      idMap.set(
+                        line.attachNodeTwo.connectedToId,
+                        crypto.randomUUID()
+                      );
+                  });
+                //  should design this without asserting non null, but for now its fine
+                const pasteCircles = circles
+                  .filter((circle) => copied.has(circle.id))
+                  .map((circle) => ({
+                    ...circle,
+                    id: idMap.get(circle.id)!,
+                    nodeReceiver: {
+                      ...circle.nodeReceiver,
+                      id: idMap.get(circle.nodeReceiver.id)!,
+                      attachedIds: circle.nodeReceiver.attachedIds.map(
+                        (id) => idMap.get(id)!
+                      ),
+                    },
+                  }));
+                const pasteLines = attachableLines
+                  .filter((line) => copied.has(line.id))
+                  .map((line) => ({
+                    ...line,
+                    id: idMap.get(line.id)!,
+                    attachNodeOne: {
+                      ...line.attachNodeOne,
+                      id: idMap.get(line.attachNodeOne.id)!,
+                      connectedToId: line.attachNodeOne.connectedToId
+                        ? idMap.get(line.attachNodeOne.connectedToId)!
+                        : null,
+                    },
+                    attachNodeTwo: {
+                      ...line.attachNodeTwo,
+                      id: idMap.get(line.attachNodeTwo.id)!,
+                      connectedToId: line.attachNodeTwo.connectedToId
+                        ? idMap.get(line.attachNodeTwo.connectedToId)!
+                        : null,
+                    },
+                  }));
+
+                console.log('pasting', duplicatedCircles, duplicatedLines);
+
+                dispatch(
+                  CanvasActions.setCircles([...circles, ...pasteCircles])
+                );
+                dispatch(
+                  CanvasActions.setLines([...attachableLines, ...pasteLines])
+                );
+              }
+            }}
+            onCopy={() => {
+              console.log('copy');
+            }}
+            onPaste={() => {}}
+            // onKeyDown={e => {
+            //   if (e.ctrlKey && e.key === 'c') {
+            //     selectedGeometryInfo && setCopied([...selectedGeometryInfo.selectedIds.keys()])
+            //   }
+            //   if ((e.ctrlKey || e.co) && e.key === 'z')
+            // }}
             height={700}
           />
         </ContextMenuTrigger>
