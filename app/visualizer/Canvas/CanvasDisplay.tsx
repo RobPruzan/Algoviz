@@ -8,7 +8,13 @@ import {
   SelectBox,
   MaxPoints,
 } from '@/lib/types';
-import React, { useRef, useState, useEffect, MouseEvent } from 'react';
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  MouseEvent,
+  useCallback,
+} from 'react';
 import * as Canvas from '@/lib/Canvas/canvas';
 import * as Graph from '@/lib/Canvas/canvas';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
@@ -26,6 +32,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { P } from 'ts-pattern';
+import { Button } from '@/components/ui/button';
+import { Minus, Plus } from 'lucide-react';
 
 const CanvasDisplay = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -41,7 +49,12 @@ const CanvasDisplay = () => {
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
 
   const isMouseDownRef = useRef(false);
-
+  const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  // const [offsetX, setOffsetX] = useState(0);
+  const offsetX = useRef(0);
+  const offsetY = useRef(0);
+  // const [offsetY, setOffsetY] = useState(0);
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
 
@@ -634,6 +647,16 @@ const CanvasDisplay = () => {
     const ctx = canvas?.getContext('2d');
     if (!ctx) return;
     if (!canvas) return;
+    // Get the center of the screen
+    const cx = ctx.canvas.width / 2;
+    const cy = ctx.canvas.height / 2;
+
+    // Change the transform origin to the center of the screen
+    ctx.translate(cx, cy);
+    ctx.scale(zoom, zoom);
+    ctx.translate(-cx, -cy);
+    // ctx.save();
+    // ctx.scale(zoom, zoom);
     Canvas.optimizeCanvas({
       ctx,
       canvas,
@@ -642,11 +665,6 @@ const CanvasDisplay = () => {
     // first written, first rendered
     // meaning items written later will layer over the previous
 
-    // when the selections are set, it should be an invisible blocker over the square
-    // then you pan everything inside of it, should just be the first condition in the case for moving
-    // on mouse down there should also be a blocker
-    // not sure if it's immediately obvious in the code when its set
-    // its also possible relationships are broken, so I'll need to update those (this is)
     Canvas.drawNodes({
       ctx,
       nodes: circles,
@@ -696,6 +714,8 @@ const CanvasDisplay = () => {
     selectedGeometryInfo?.selectedIds,
     selectedGeometryInfo?.maxPoints,
     dfsVisitedNodes,
+    zoom,
+    lastPos,
   ]);
 
   useEffect(() => {
@@ -722,68 +742,200 @@ const CanvasDisplay = () => {
     return () => document.removeEventListener('keydown', handleDelete);
   }, [dispatch, selectedGeometryInfo]);
 
+  const handleWheel = useCallback(
+    (event: WheelEvent) => {
+      // console.log(offsetX, offsetY);
+      event.preventDefault();
+      // this is going to look awful and will 100% be refactored when everything works, no point in making something clean that might not work
+      if (event.ctrlKey) {
+        // This is a pinch gesture
+        const zoomAmount = event.deltaY > 0 ? 0.98 : 1.02;
+
+        // should make a helper function for translations totallllyyy
+        dispatch(
+          CanvasActions.setCircles(
+            circles.map((circle) => ({
+              ...circle,
+              center: [
+                circle.center[0] * zoomAmount,
+                circle.center[1] * zoomAmount,
+              ],
+              nodeReceiver: {
+                ...circle.nodeReceiver,
+                center: [
+                  circle.nodeReceiver.center[0] * zoomAmount,
+                  circle.nodeReceiver.center[1] * zoomAmount,
+                ],
+                radius: circle.nodeReceiver.radius * zoomAmount,
+              },
+              radius: circle.radius * zoomAmount,
+            }))
+          )
+        );
+        dispatch(
+          CanvasActions.setLines(
+            attachableLines.map((line) => ({
+              ...line,
+              x1: line.x1 * zoomAmount,
+              x2: line.x2 * zoomAmount,
+              y1: line.y1 * zoomAmount,
+              y2: line.y2 * zoomAmount,
+              attachNodeOne: {
+                ...line.attachNodeOne,
+                center: [
+                  line.attachNodeOne.center[0] * zoomAmount,
+                  line.attachNodeOne.center[1] * zoomAmount,
+                ],
+                radius: line.attachNodeOne.radius * zoomAmount,
+              },
+              attachNodeTwo: {
+                ...line.attachNodeTwo,
+                center: [
+                  line.attachNodeTwo.center[0] * zoomAmount,
+                  line.attachNodeTwo.center[1] * zoomAmount,
+                ],
+                radius: line.attachNodeTwo.radius * zoomAmount,
+              },
+            }))
+          )
+        );
+
+        setSelectedGeometryInfo((geoInfo) =>
+          geoInfo
+            ? {
+                ...geoInfo,
+                maxPoints: {
+                  closestToOrigin: [
+                    geoInfo.maxPoints.closestToOrigin[0] * zoomAmount,
+                    geoInfo.maxPoints.closestToOrigin[1] * zoomAmount,
+                  ],
+                  furthestFromOrigin: [
+                    geoInfo.maxPoints.furthestFromOrigin[0] * zoomAmount,
+                    geoInfo.maxPoints.furthestFromOrigin[1] * zoomAmount,
+                  ],
+                },
+              }
+            : null
+        );
+      } else {
+        const newOffsetX = event.deltaX;
+        const newOffsetY = event.deltaY;
+
+        console.log(event.deltaX, event.deltaY);
+        offsetX.current = newOffsetX;
+        offsetY.current = newOffsetY;
+        // should make a helper function for translations totallllyyy
+        dispatch(
+          CanvasActions.setCircles(
+            circles.map((circle) => ({
+              ...circle,
+              center: [
+                circle.center[0] - newOffsetX,
+                circle.center[1] - newOffsetY,
+              ],
+              nodeReceiver: {
+                ...circle.nodeReceiver,
+                center: [
+                  circle.nodeReceiver.center[0] - newOffsetX,
+                  circle.nodeReceiver.center[1] - newOffsetY,
+                ],
+              },
+            }))
+          )
+        );
+        dispatch(
+          CanvasActions.setLines(
+            attachableLines.map((line) => ({
+              ...line,
+              x1: line.x1 - newOffsetX,
+              x2: line.x2 - newOffsetX,
+              y1: line.y1 - newOffsetY,
+              y2: line.y2 - newOffsetY,
+              attachNodeOne: {
+                ...line.attachNodeOne,
+                center: [
+                  line.attachNodeOne.center[0] - newOffsetX,
+                  line.attachNodeOne.center[1] - newOffsetY,
+                ],
+              },
+              attachNodeTwo: {
+                ...line.attachNodeTwo,
+                center: [
+                  line.attachNodeTwo.center[0] - newOffsetX,
+                  line.attachNodeTwo.center[1] - newOffsetY,
+                ],
+              },
+            }))
+          )
+        );
+
+        setSelectedGeometryInfo((geoInfo) =>
+          geoInfo
+            ? {
+                ...geoInfo,
+                maxPoints: {
+                  closestToOrigin: [
+                    geoInfo.maxPoints.closestToOrigin[0] - newOffsetX,
+                    geoInfo.maxPoints.closestToOrigin[1] - newOffsetY,
+                  ],
+                  furthestFromOrigin: [
+                    geoInfo.maxPoints.furthestFromOrigin[0] - newOffsetX,
+                    geoInfo.maxPoints.furthestFromOrigin[1] - newOffsetY,
+                  ],
+                },
+              }
+            : null
+        );
+      }
+    },
+    [attachableLines, circles, dispatch, zoom]
+  );
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      // Clean up the event listener on unmount
+      canvas.removeEventListener('wheel', handleWheel);
+    };
+  }, [handleWheel]);
+
   return (
     <>
       <ContextMenu>
         <ContextMenuTrigger>
+          {offsetX.current},{offsetY.current}
+          {/* {zoom}
+          <Button
+            className="border border-foreground"
+            onClick={() => {
+              setZoom((prev) => +(prev * 1.1).toFixed(2));
+            }}
+          >
+            <Plus />
+          </Button>
+          <Button
+            className="border border-foreground"
+            onClick={() => {
+              setZoom((prev) => +(prev * 0.9).toFixed(2));
+            }}
+          >
+            <Minus />
+          </Button> */}
           <canvas
             className="bg-fancy"
             ref={canvasRef}
             onMouseMove={handleMouseMove}
             onMouseDown={handleMouseDown}
+            onWheel={(e) => e}
             // temporary, should have its own handler
-            onDrag={(event) => {
-              if (
-                selectedGeometryInfo &&
-                selectedGeometryInfo.selectedIds.size > 0 &&
-                Canvas.isPointInRectangle(
-                  [event.nativeEvent.offsetX, event.nativeEvent.offsetY],
-                  selectedGeometryInfo.maxPoints.closestToOrigin,
-                  selectedGeometryInfo.maxPoints.furthestFromOrigin
-                )
-              ) {
-                const prevPos = previousMousePositionRef.current;
-                if (!prevPos) return;
-
-                const shift: [number, number] = [
-                  prevPos[0] - event.nativeEvent.offsetX,
-                  prevPos[1] - event.nativeEvent.offsetY,
-                ];
-
-                const shiftedEdges = attachableLines.map((line) => {
-                  const newLine: Edge = {
-                    ...line,
-                    x1: line.x1 - shift[0],
-                    y1: line.y1 - shift[1],
-                    x2: line.x2 - shift[0],
-                    y2: line.y2 - shift[1],
-                    attachNodeOne: {
-                      ...line.attachNodeOne,
-                      center: [
-                        line.attachNodeOne.center[0] - shift[0],
-                        line.attachNodeOne.center[1] - shift[1],
-                      ],
-                    },
-                    attachNodeTwo: {
-                      ...line.attachNodeTwo,
-                      center: [
-                        line.attachNodeTwo.center[0] - shift[0],
-                        line.attachNodeTwo.center[1] - shift[1],
-                      ],
-                    },
-                  };
-
-                  return newLine;
-                });
-
-                dispatch(CanvasActions.setLines(shiftedEdges));
-              }
-            }}
             tabIndex={0}
             onContextMenu={handleContextMenu}
             onMouseUp={handleMouseUp}
-            width={2000}
-            height={2000}
+            width={1000}
+            height={1000}
           />
         </ContextMenuTrigger>
         <ContextMenuContent>

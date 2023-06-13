@@ -458,7 +458,6 @@ export const drawNodes = ({
     if (dfsVisitedNodes.includes(node.id)) {
       ctx.fillStyle = 'green';
     }
-
     ctx.fill();
     if (selectedCircleID === node.id || selectedIds?.has(node.id)) {
       ctx.lineWidth = 1;
@@ -565,7 +564,7 @@ export const drawNodeReceivers = ({
     ctx.fillStyle = nodeReceiver.color;
     ctx.fill();
     // set the text style
-    ctx.font = '25px Arial'; // change to whatever font style you want
+    ctx.font = `${node.radius / 2}px Arial`; // change to whatever font style you want
     ctx.fillStyle = 'white'; // text color
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -702,7 +701,6 @@ export const getSelectedGeometry = ({
   vertices: CircleReceiver[];
   selectBox: SelectBox | null;
 }) => {
-  ('at least running');
   if (!selectBox) return null;
   // the circles will have hit boxes for select
   // these will be rendered when selected
