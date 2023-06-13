@@ -15,20 +15,27 @@ export type CanvasState = {
     stack: unknown[];
     queues: ImmutableQueue<unknown>[];
   };
+  //
+  creationZoomFactor: number;
 };
 
 const initialState: CanvasState = {
   attachableLines: [],
   circles: [],
   variableInspector: { show: false, queues: [], stack: [] },
+  creationZoomFactor: 1,
 };
 
 const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    // i should break this up this is no good
     setLines: (state, action: PayloadAction<Edge[]>) => {
       state.attachableLines = action.payload;
+    },
+    updateCreationZoomFactor: (state, action: PayloadAction<number>) => {
+      state.creationZoomFactor *= action.payload;
     },
     deleteCircle: (state, action: PayloadAction<string>) => {
       state.circles = state.circles.filter(

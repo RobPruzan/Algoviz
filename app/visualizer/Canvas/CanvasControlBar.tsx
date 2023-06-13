@@ -20,6 +20,7 @@ const CanvasControlBar = () => {
   const dispatch = useAppDispatch();
   const {
     circles,
+    creationZoomFactor,
     attachableLines,
     variableInspector: { show },
   } = useAppSelector((store) => store.canvas);
@@ -39,7 +40,9 @@ const CanvasControlBar = () => {
     // temporary until select is implemented
     startingNode: [...adjacencyList.keys()].at(0) ?? '',
   });
-
+  // fix all these hard coded numbers and random spawn points
+  // move random spawn points to slight distribution around middle of canvas
+  // or when I have time do so you select then click on the screen
   const handleAddUndirectedEdge = () => {
     const [x1, y1] = [Math.random() * 400, Math.random() * 400];
     const newLine: UndirectedEdge = {
@@ -52,12 +55,12 @@ const CanvasControlBar = () => {
       y1,
       x2: x1 - 10,
       y2: y1 - 50,
-      width: 7,
+      width: 7 * creationZoomFactor,
       directed: false,
       color: 'white',
       attachNodeOne: {
         center: [x1, y1],
-        radius: 10,
+        radius: 10 * creationZoomFactor,
         color: '#42506e',
         id: crypto.randomUUID(),
         type: 'node1',
@@ -65,7 +68,7 @@ const CanvasControlBar = () => {
       },
       attachNodeTwo: {
         center: [x1 - 10, y1 - 50],
-        radius: 10,
+        radius: 10 * creationZoomFactor,
         color: '#42506e',
         id: crypto.randomUUID(),
         type: 'node2',
@@ -75,8 +78,10 @@ const CanvasControlBar = () => {
 
     dispatch(CanvasActions.addLine(newLine));
   };
+
+  console.log('creation zoom factor is', creationZoomFactor);
   const handleAddDirectedEdge = () => {
-    const [x1, y1] = [Math.random() * 400, Math.random() * 400];
+    const [x1, y1] = [Math.random() * 600, Math.random() * 600];
     const newLine: DirectedEdge = {
       id: crypto.randomUUID(),
       algorithmMetadata: {
@@ -87,12 +92,12 @@ const CanvasControlBar = () => {
       y1,
       x2: x1 - 10,
       y2: y1 - 50,
-      width: 7,
+      width: 7 * creationZoomFactor,
       directed: true,
       color: 'white',
       attachNodeOne: {
         center: [x1, y1],
-        radius: 10,
+        radius: 10 * creationZoomFactor,
         color: '#42506e',
         id: crypto.randomUUID(),
         type: 'node1',
@@ -100,7 +105,7 @@ const CanvasControlBar = () => {
       },
       attachNodeTwo: {
         center: [x1 - 10, y1 - 50],
-        radius: 10,
+        radius: 10 * creationZoomFactor,
         color: '#42506e',
         id: crypto.randomUUID(),
         type: 'node2',
@@ -120,7 +125,7 @@ const CanvasControlBar = () => {
     const newNodeConnector: CircleReceiver['nodeReceiver'] = {
       id: crypto.randomUUID(),
       center: circleCenter,
-      radius: circleRadius * 0.4,
+      radius: circleRadius * 0.4 * creationZoomFactor,
       color: '#42506e',
       type: 'circle',
       attachedIds: [],
@@ -133,7 +138,7 @@ const CanvasControlBar = () => {
       value: Math.floor(Math.random() * 100),
       type: 'circle',
       center: circleCenter,
-      radius: circleRadius,
+      radius: circleRadius * creationZoomFactor,
       color: '#181e2b',
       nodeReceiver: newNodeConnector,
     };

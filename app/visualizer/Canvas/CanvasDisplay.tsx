@@ -771,7 +771,7 @@ const CanvasDisplay = () => {
       if (event.ctrlKey) {
         // This is a pinch gesture
         const zoomAmount = event.deltaY > 0 ? 0.97 : 1.03;
-
+        dispatch(CanvasActions.updateCreationZoomFactor(zoomAmount));
         const center: [number, number] = getCursorPosition(event);
 
         // should make a helper function for translations totallllyyy
