@@ -49,12 +49,8 @@ const CanvasDisplay = () => {
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
 
   const isMouseDownRef = useRef(false);
-  const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  // const [offsetX, setOffsetX] = useState(0);
   const offsetX = useRef(0);
   const offsetY = useRef(0);
-  // const [offsetY, setOffsetY] = useState(0);
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
 
@@ -72,7 +68,6 @@ const CanvasDisplay = () => {
   );
 
   const dfsVisitedNodes = dfsVisited.slice(0, visitedPointer);
-  // console.log('dfs stuff', visited, visitedPointer);
 
   console.log(visited, visitedPointer, visited.slice(0, visitedPointer));
 
@@ -103,12 +98,6 @@ const CanvasDisplay = () => {
         if (!activeItemInfo.activeCircle) return;
         setSelectedCircleID(activeItemInfo.activeCircle.id);
 
-        // const newCircle: CircleReceiver = {
-        //   ...activeItemInfo.activeCircle,
-        //   // color: 'white',
-        // };
-
-        // dispatch(CanvasActions.replaceCircle(newCircle));
         break;
 
       case 'rect':
@@ -167,25 +156,6 @@ const CanvasDisplay = () => {
         };
         dispatch(CanvasActions.replaceAttachableLine(newRectContainerTwo));
       default:
-        // console.log(
-        //   'asdg',
-        //   selectedGeometryInfo,
-        //   Canvas.isPointInRectangle(
-        //     [event.nativeEvent.offsetX, event.nativeEvent.offsetY],
-        //     selectedGeometryInfo.maxPoints.closestToOrigin,
-        //     selectedGeometryInfo.maxPoints.furthestFromOrigin
-        //   )
-        // );
-        // if (
-        //   selectedGeometryInfo &&
-        //   Canvas.isPointInRectangle(
-        //     [event.nativeEvent.offsetX, event.nativeEvent.offsetY],
-        //     selectedGeometryInfo.maxPoints.closestToOrigin,
-        //     selectedGeometryInfo.maxPoints.furthestFromOrigin
-        //   )
-        // )
-        //   return;
-
         if (selectedGeometryInfo?.selectedIds.size ?? -1 > 0) return;
 
         // this is just mouse down, so it begins the render of the select box
@@ -647,16 +617,7 @@ const CanvasDisplay = () => {
     const ctx = canvas?.getContext('2d');
     if (!ctx) return;
     if (!canvas) return;
-    // Get the center of the screen
-    const cx = ctx.canvas.width / 2;
-    const cy = ctx.canvas.height / 2;
 
-    // Change the transform origin to the center of the screen
-    ctx.translate(cx, cy);
-    ctx.scale(zoom, zoom);
-    ctx.translate(-cx, -cy);
-    // ctx.save();
-    // ctx.scale(zoom, zoom);
     Canvas.optimizeCanvas({
       ctx,
       canvas,
@@ -714,8 +675,6 @@ const CanvasDisplay = () => {
     selectedGeometryInfo?.selectedIds,
     selectedGeometryInfo?.maxPoints,
     dfsVisitedNodes,
-    zoom,
-    lastPos,
   ]);
 
   useEffect(() => {
@@ -741,18 +700,7 @@ const CanvasDisplay = () => {
 
     return () => document.removeEventListener('keydown', handleDelete);
   }, [dispatch, selectedGeometryInfo]);
-  // function zoomToPoint(
-  //   current: [number, number],
-  //   target: [number, number],
-  //   zoomFactor: number
-  // ): [number, number] {
-  //   const factor = 1 - Math.pow(zoomFactor, 2);
-
-  //   let newX = (1 - factor) * current[0] + factor * target[0];
-  //   let newY = (1 - factor) * current[1] + factor * target[1];
-
-  //   return [newX, newY];
-  // }
+  // pls clean up future me
   function zoomCircle(
     center: [number, number],
     radius: number,
@@ -818,7 +766,6 @@ const CanvasDisplay = () => {
 
   const handleWheel = useCallback(
     (event: WheelEvent) => {
-      // console.log(offsetX, offsetY);
       event.preventDefault();
       // this is going to look awful and will 100% be refactored when everything works, no point in making something clean that might not work
       if (event.ctrlKey) {
@@ -832,10 +779,6 @@ const CanvasDisplay = () => {
           CanvasActions.setCircles(
             circles.map((circle) => ({
               ...circle,
-              // center: [
-              //   circle.center[0] * zoomAmount,
-              //   circle.center[1] * zoomAmount,
-              // ],
               center: zoomCircle(
                 circle.center,
                 circle.radius,
@@ -844,22 +787,12 @@ const CanvasDisplay = () => {
               )[0],
               nodeReceiver: {
                 ...circle.nodeReceiver,
-                // center: [
-                //   circle.nodeReceiver.center[0] * zoomAmount,
-                //   circle.nodeReceiver.center[1] * zoomAmount,
-                // ],
-                // center: zoomToPoint(
-                //   circle.nodeReceiver.center,
-                //   center,
-                //   zoomAmount
-                // ),
                 center: zoomCircle(
                   circle.nodeReceiver.center,
                   circle.nodeReceiver.radius,
                   center,
                   zoomAmount
                 )[0],
-                // radius: circle.nodeReceiver.radius * zoomAmount,
                 radius: zoomCircle(
                   circle.nodeReceiver.center,
                   circle.nodeReceiver.radius,
@@ -880,21 +813,18 @@ const CanvasDisplay = () => {
           CanvasActions.setLines(
             attachableLines.map((line) => ({
               ...line,
-              // x1: line.x1 * zoomAmount,
-              // x2: line.x2 * zoomAmount,
-              // y1: line.y1 * zoomAmount,
-              // y2: line.y2 * zoomAmount,
               x1: zoomLine([line.x1, line.y1], center, zoomAmount)[0],
               x2: zoomLine([line.x2, line.y2], center, zoomAmount)[0],
               y1: zoomLine([line.x1, line.y1], center, zoomAmount)[1],
               y2: zoomLine([line.x2, line.y2], center, zoomAmount)[1],
+              width: line.width * zoomAmount,
+              // x1: line.x1 * zoomAmount,
+              // y1: line.y1 * zoomAmount,
+              // x2: line.x2 * zoomAmount,
+              // y2: line.y2 * zoomAmount,
 
               attachNodeOne: {
                 ...line.attachNodeOne,
-                // center: [
-                //   line.attachNodeOne.center[0] * zoomAmount,
-                //   line.attachNodeOne.center[1] * zoomAmount,
-                // ],
                 center: zoomCircle(
                   line.attachNodeOne.center,
                   line.attachNodeOne.radius,
@@ -910,10 +840,6 @@ const CanvasDisplay = () => {
               },
               attachNodeTwo: {
                 ...line.attachNodeTwo,
-                // center: [
-                //   line.attachNodeTwo.center[0] * zoomAmount,
-                //   line.attachNodeTwo.center[1] * zoomAmount,
-                // ],
                 center: zoomCircle(
                   line.attachNodeTwo.center,
                   line.attachNodeTwo.radius,
@@ -936,10 +862,6 @@ const CanvasDisplay = () => {
             ? {
                 ...geoInfo,
                 maxPoints: {
-                  // closestToOrigin: [
-                  //   geoInfo.maxPoints.closestToOrigin[0] * zoomAmount,
-                  //   geoInfo.maxPoints.closestToOrigin[1] * zoomAmount,
-                  // ],
                   closestToOrigin: zoomLine(
                     geoInfo.maxPoints.closestToOrigin,
                     center,
@@ -1043,31 +965,12 @@ const CanvasDisplay = () => {
     <>
       <ContextMenu>
         <ContextMenuTrigger>
-          {offsetX.current},{offsetY.current}
-          {/* {zoom}
-          <Button
-            className="border border-foreground"
-            onClick={() => {
-              setZoom((prev) => +(prev * 1.1).toFixed(2));
-            }}
-          >
-            <Plus />
-          </Button>
-          <Button
-            className="border border-foreground"
-            onClick={() => {
-              setZoom((prev) => +(prev * 0.9).toFixed(2));
-            }}
-          >
-            <Minus />
-          </Button> */}
           <canvas
             className="bg-fancy"
             ref={canvasRef}
             onMouseMove={handleMouseMove}
             onMouseDown={handleMouseDown}
             onWheel={(e) => e}
-            // temporary, should have its own handler
             tabIndex={0}
             onContextMenu={handleContextMenu}
             onMouseUp={handleMouseUp}
