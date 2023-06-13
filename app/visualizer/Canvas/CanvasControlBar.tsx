@@ -81,7 +81,10 @@ const CanvasControlBar = () => {
 
   console.log('creation zoom factor is', creationZoomFactor);
   const handleAddDirectedEdge = () => {
-    const [x1, y1] = [Math.random() * 600, Math.random() * 600];
+    const [x1, y1] = [
+      Math.random() * 400 * creationZoomFactor,
+      Math.random() * 600 * creationZoomFactor,
+    ];
     const newLine: DirectedEdge = {
       id: crypto.randomUUID(),
       algorithmMetadata: {

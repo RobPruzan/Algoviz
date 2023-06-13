@@ -155,6 +155,7 @@ const CanvasDisplay = () => {
           },
         };
         dispatch(CanvasActions.replaceAttachableLine(newRectContainerTwo));
+        break;
       default:
         if (selectedGeometryInfo?.selectedIds.size ?? -1 > 0) return;
 

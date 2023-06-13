@@ -533,11 +533,13 @@ export const drawEdgeConnectors = ({
       false
     );
     // this sucks will change the directed edges logic completely
-    if (edge.directed) {
-      ctx.fillStyle = 'green';
-    } else {
-      edge.attachNodeTwo.color;
-    }
+    // if (edge.directed) {
+    //   ctx.fillStyle = 'green';
+    // } else {
+    //   edge.attachNodeTwo.color;
+    // }
+    // just going to remove this entirely and control the nodes color and other stuff based on state/ the decisions made here
+    edge.attachNodeTwo.color;
 
     ctx.fill();
   });
