@@ -741,6 +741,80 @@ const CanvasDisplay = () => {
 
     return () => document.removeEventListener('keydown', handleDelete);
   }, [dispatch, selectedGeometryInfo]);
+  // function zoomToPoint(
+  //   current: [number, number],
+  //   target: [number, number],
+  //   zoomFactor: number
+  // ): [number, number] {
+  //   const factor = 1 - Math.pow(zoomFactor, 2);
+
+  //   let newX = (1 - factor) * current[0] + factor * target[0];
+  //   let newY = (1 - factor) * current[1] + factor * target[1];
+
+  //   return [newX, newY];
+  // }
+  function zoomCircle(
+    center: [number, number],
+    radius: number,
+    target: [number, number],
+    zoomFactor: number
+  ): [[number, number], number] {
+    // Translate to origin
+    let translatedCenter: [number, number] = [
+      center[0] - target[0],
+      center[1] - target[1],
+    ];
+
+    // Scale
+    let scaledCenter: [number, number] = [
+      translatedCenter[0] * zoomFactor,
+      translatedCenter[1] * zoomFactor,
+    ];
+    let scaledRadius: number = radius * zoomFactor;
+
+    // Translate back
+    let newCenter: [number, number] = [
+      scaledCenter[0] + target[0],
+      scaledCenter[1] + target[1],
+    ];
+
+    return [newCenter, scaledRadius];
+  }
+
+  function zoomLine(
+    center: [number, number],
+    target: [number, number],
+    zoomFactor: number
+  ): [number, number] {
+    // Translate to origin
+    let translatedCenter: [number, number] = [
+      center[0] - target[0],
+      center[1] - target[1],
+    ];
+
+    // Scale
+    let scaledCenter: [number, number] = [
+      translatedCenter[0] * zoomFactor,
+      translatedCenter[1] * zoomFactor,
+    ];
+
+    // Translate back
+    let newCenter: [number, number] = [
+      scaledCenter[0] + target[0],
+      scaledCenter[1] + target[1],
+    ];
+
+    return newCenter;
+  }
+
+  function getCursorPosition(event: WheelEvent): [number, number] {
+    const canvas = canvasRef.current;
+    if (!canvas) return [0, 0];
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    return [x, y];
+  }
 
   const handleWheel = useCallback(
     (event: WheelEvent) => {
@@ -749,26 +823,56 @@ const CanvasDisplay = () => {
       // this is going to look awful and will 100% be refactored when everything works, no point in making something clean that might not work
       if (event.ctrlKey) {
         // This is a pinch gesture
-        const zoomAmount = event.deltaY > 0 ? 0.98 : 1.02;
+        const zoomAmount = event.deltaY > 0 ? 0.97 : 1.03;
+
+        const center: [number, number] = getCursorPosition(event);
 
         // should make a helper function for translations totallllyyy
         dispatch(
           CanvasActions.setCircles(
             circles.map((circle) => ({
               ...circle,
-              center: [
-                circle.center[0] * zoomAmount,
-                circle.center[1] * zoomAmount,
-              ],
+              // center: [
+              //   circle.center[0] * zoomAmount,
+              //   circle.center[1] * zoomAmount,
+              // ],
+              center: zoomCircle(
+                circle.center,
+                circle.radius,
+                center,
+                zoomAmount
+              )[0],
               nodeReceiver: {
                 ...circle.nodeReceiver,
-                center: [
-                  circle.nodeReceiver.center[0] * zoomAmount,
-                  circle.nodeReceiver.center[1] * zoomAmount,
-                ],
-                radius: circle.nodeReceiver.radius * zoomAmount,
+                // center: [
+                //   circle.nodeReceiver.center[0] * zoomAmount,
+                //   circle.nodeReceiver.center[1] * zoomAmount,
+                // ],
+                // center: zoomToPoint(
+                //   circle.nodeReceiver.center,
+                //   center,
+                //   zoomAmount
+                // ),
+                center: zoomCircle(
+                  circle.nodeReceiver.center,
+                  circle.nodeReceiver.radius,
+                  center,
+                  zoomAmount
+                )[0],
+                // radius: circle.nodeReceiver.radius * zoomAmount,
+                radius: zoomCircle(
+                  circle.nodeReceiver.center,
+                  circle.nodeReceiver.radius,
+                  center,
+                  zoomAmount
+                )[1],
               },
-              radius: circle.radius * zoomAmount,
+              radius: zoomCircle(
+                circle.center,
+                circle.radius,
+                center,
+                zoomAmount
+              )[1],
             }))
           )
         );
@@ -776,25 +880,52 @@ const CanvasDisplay = () => {
           CanvasActions.setLines(
             attachableLines.map((line) => ({
               ...line,
-              x1: line.x1 * zoomAmount,
-              x2: line.x2 * zoomAmount,
-              y1: line.y1 * zoomAmount,
-              y2: line.y2 * zoomAmount,
+              // x1: line.x1 * zoomAmount,
+              // x2: line.x2 * zoomAmount,
+              // y1: line.y1 * zoomAmount,
+              // y2: line.y2 * zoomAmount,
+              x1: zoomLine([line.x1, line.y1], center, zoomAmount)[0],
+              x2: zoomLine([line.x2, line.y2], center, zoomAmount)[0],
+              y1: zoomLine([line.x1, line.y1], center, zoomAmount)[1],
+              y2: zoomLine([line.x2, line.y2], center, zoomAmount)[1],
+
               attachNodeOne: {
                 ...line.attachNodeOne,
-                center: [
-                  line.attachNodeOne.center[0] * zoomAmount,
-                  line.attachNodeOne.center[1] * zoomAmount,
-                ],
-                radius: line.attachNodeOne.radius * zoomAmount,
+                // center: [
+                //   line.attachNodeOne.center[0] * zoomAmount,
+                //   line.attachNodeOne.center[1] * zoomAmount,
+                // ],
+                center: zoomCircle(
+                  line.attachNodeOne.center,
+                  line.attachNodeOne.radius,
+                  center,
+                  zoomAmount
+                )[0],
+                radius: zoomCircle(
+                  line.attachNodeOne.center,
+                  line.attachNodeOne.radius,
+                  center,
+                  zoomAmount
+                )[1],
               },
               attachNodeTwo: {
                 ...line.attachNodeTwo,
-                center: [
-                  line.attachNodeTwo.center[0] * zoomAmount,
-                  line.attachNodeTwo.center[1] * zoomAmount,
-                ],
-                radius: line.attachNodeTwo.radius * zoomAmount,
+                // center: [
+                //   line.attachNodeTwo.center[0] * zoomAmount,
+                //   line.attachNodeTwo.center[1] * zoomAmount,
+                // ],
+                center: zoomCircle(
+                  line.attachNodeTwo.center,
+                  line.attachNodeTwo.radius,
+                  center,
+                  zoomAmount
+                )[0],
+                radius: zoomCircle(
+                  line.attachNodeTwo.center,
+                  line.attachNodeTwo.radius,
+                  center,
+                  zoomAmount
+                )[1],
               },
             }))
           )
@@ -805,14 +936,20 @@ const CanvasDisplay = () => {
             ? {
                 ...geoInfo,
                 maxPoints: {
-                  closestToOrigin: [
-                    geoInfo.maxPoints.closestToOrigin[0] * zoomAmount,
-                    geoInfo.maxPoints.closestToOrigin[1] * zoomAmount,
-                  ],
-                  furthestFromOrigin: [
-                    geoInfo.maxPoints.furthestFromOrigin[0] * zoomAmount,
-                    geoInfo.maxPoints.furthestFromOrigin[1] * zoomAmount,
-                  ],
+                  // closestToOrigin: [
+                  //   geoInfo.maxPoints.closestToOrigin[0] * zoomAmount,
+                  //   geoInfo.maxPoints.closestToOrigin[1] * zoomAmount,
+                  // ],
+                  closestToOrigin: zoomLine(
+                    geoInfo.maxPoints.closestToOrigin,
+                    center,
+                    zoomAmount
+                  ),
+                  furthestFromOrigin: zoomLine(
+                    geoInfo.maxPoints.furthestFromOrigin,
+                    center,
+                    zoomAmount
+                  ),
                 },
               }
             : null
@@ -888,7 +1025,7 @@ const CanvasDisplay = () => {
         );
       }
     },
-    [attachableLines, circles, dispatch, zoom]
+    [attachableLines, circles, dispatch]
   );
 
   useEffect(() => {
@@ -935,7 +1072,7 @@ const CanvasDisplay = () => {
             onContextMenu={handleContextMenu}
             onMouseUp={handleMouseUp}
             width={1000}
-            height={1000}
+            height={700}
           />
         </ContextMenuTrigger>
         <ContextMenuContent>
