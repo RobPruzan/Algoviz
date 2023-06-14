@@ -16,7 +16,11 @@ import {
 import { Play } from 'next/font/google';
 import React, { Dispatch, SetStateAction } from 'react';
 
-const CanvasControlBar = () => {
+type Props = {
+  handleDfs: () => void;
+};
+
+const CanvasControlBar = ({ handleDfs }: Props) => {
   const dispatch = useAppDispatch();
   const {
     circles,
@@ -35,11 +39,11 @@ const CanvasControlBar = () => {
   //   // temporary until select is implemented
   //   startingNode: [...adjacencyList.keys()].at(0) ?? '',
   // });
-  const { handleDfs } = useDepthFirstSearch({
-    adjacencyList,
-    // temporary until select is implemented
-    startingNode: [...adjacencyList.keys()].at(0) ?? '',
-  });
+  // const { handleDfs } = useDepthFirstSearch({
+  //   adjacencyList,
+  //   // temporary until select is implemented
+  //   startingNode: [...adjacencyList.keys()].at(0) ?? '',
+  // });
   // fix all these hard coded numbers and random spawn points
   // move random spawn points to slight distribution around middle of canvas
   // or when I have time do so you select then click on the screen
@@ -79,7 +83,6 @@ const CanvasControlBar = () => {
     dispatch(CanvasActions.addLine(newLine));
   };
 
-  console.log('creation zoom factor is', creationZoomFactor);
   const handleAddDirectedEdge = () => {
     const [x1, y1] = [
       Math.random() * 400 * creationZoomFactor,

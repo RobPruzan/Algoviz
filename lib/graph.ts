@@ -130,7 +130,10 @@ export const getAdjacencyList = ({
     );
     if (!containerEdge) {
       // the existing nodes need their relationships updated. Can handle that at the least within the delete functions
-      throw new Error(`You have some id in this array that doesn't make sense`);
+      // throw new Error(`You have some id in this array that doesn't make sense`);
+      // no longer throwing error because this is possible now with selected behavior
+      return;
+
       // return;
     }
     // Because we are looking for the opposite connector on the edge

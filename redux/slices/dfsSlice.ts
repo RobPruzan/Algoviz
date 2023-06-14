@@ -10,17 +10,21 @@ const dfsSlice = createSlice({
   initialState,
   reducers: {
     setVisited: (state, action: PayloadAction<string[]>) => {
-      console.log('ACTION IS', action);
       state.visited = action.payload;
     },
     incrementVisitedPointer: (state) => {
-      console.log('action run inc');
-
-      state.visitedPointer++;
+      if (state.visitedPointer < state.visited.length - 1) {
+        state.visitedPointer++;
+      }
     },
     decrementVisitedPointer: (state) => {
-      console.log('action run dec');
-      state.visitedPointer--;
+      if (state.visitedPointer > 0) {
+        state.visitedPointer--;
+      }
+    },
+
+    resetVisitedPointer: (state) => {
+      state.visitedPointer = 0;
     },
   },
 });

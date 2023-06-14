@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Check, ChevronsUpDown } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { algorithmsInfo, cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -24,25 +24,6 @@ import {
   Algorithms,
   SideBarContextState,
 } from '@/lib/types';
-
-const algorithmsInfo: AlgorithmInfo[] = [
-  {
-    value: 'merge sort',
-    label: 'Merge Sort',
-  },
-  {
-    value: 'quick sort',
-    label: 'Quick Sort',
-  },
-  {
-    value: 'breadth first search',
-    label: 'Breadth First Search',
-  },
-  {
-    value: 'depth first search',
-    label: 'Depth First Search',
-  },
-];
 
 type Props = {
   value: Algorithms | undefined;

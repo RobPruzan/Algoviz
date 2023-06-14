@@ -18,7 +18,7 @@ export const useDepthFirstSearch = ({
   const visitedRef = useRef(new ImmutableSet<string>([]));
 
   const dispatch = useDispatch();
-  const itersRef = useRef(0);
+
   const dfs = () => {
     // ('starting bfs, the adj list is', adjacencyList);
     // the adjaceny list is broken because the string array represents node connectors on the edges, not other nodes, need to fix this later
@@ -26,8 +26,6 @@ export const useDepthFirstSearch = ({
     stackRef.current = stackRef.current.push(startingNode);
 
     while (stackRef.current.size > 0) {
-      itersRef.current++;
-
       const { newStack, poppedItem } = stackRef.current.pop();
 
       stackRef.current = newStack;
@@ -65,7 +63,6 @@ export const useDepthFirstSearch = ({
     clearState();
     const state = dfs();
     state.current && dispatch(DFSActions.setVisited(state.current));
-    console.log('dfs history', historyRef);
   };
 
   return { handleDfs };

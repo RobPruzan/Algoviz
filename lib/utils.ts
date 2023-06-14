@@ -1,6 +1,6 @@
 import { ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { HistoryNode, NodeMetadata } from './types';
+import { AlgorithmInfo, HistoryNode, NodeMetadata } from './types';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -21,3 +21,22 @@ export const getNodeArray = (nodeRow: NodeMetadata[]) => {
   });
   return arrays;
 };
+
+export const algorithmsInfo: AlgorithmInfo[] = [
+  {
+    value: 'merge sort',
+    label: 'Merge Sort',
+  },
+  {
+    value: 'quick sort',
+    label: 'Quick Sort',
+  },
+  {
+    value: 'breadth first search',
+    label: 'Breadth First Search',
+  },
+  {
+    value: 'depth first search',
+    label: 'Depth First Search',
+  },
+];

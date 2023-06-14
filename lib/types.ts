@@ -70,7 +70,7 @@ export type NodeConnector = Omit<
   CircleConnector,
   'nodeConnector' | 'type' | 'value'
 > & {
-  type: 'node1' | 'node2' | 'circle';
+  type: 'node1' | 'node2';
   connectedToId: string | null;
 };
 
@@ -78,7 +78,7 @@ export type NodeReceiver = Omit<
   CircleConnector,
   'nodeConnector' | 'type' | 'value'
 > & {
-  type: 'node1' | 'node2' | 'circle';
+  type: 'circle';
   attachedIds: string[];
 };
 
@@ -153,3 +153,8 @@ export type MaxPoints = {
 };
 
 export type AdjacencyList<T extends string> = Map<string, string[]>;
+
+export type SelectedGeometryInfo = {
+  selectedIds: Set<string>;
+  maxPoints: MaxPoints;
+};

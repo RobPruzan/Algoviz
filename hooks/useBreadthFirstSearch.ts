@@ -72,8 +72,6 @@ export const useBreadthFirstSearch = ({
     const state = bfs();
 
     historyRef.current = [];
-    console.log('adjaceny list', adjacencyList);
-    console.log('state', state);
 
     // dispatch(
     //   CanvasActions.updateVariableInspectorQueue(state.historyRef.current)
