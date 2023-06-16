@@ -1,4 +1,5 @@
 import { Dispatch, MutableRefObject, SetStateAction } from 'react';
+import { string } from 'zod';
 
 export type NodeMetadata = {
   value: number;
@@ -152,9 +153,17 @@ export type MaxPoints = {
   furthestFromOrigin: [number, number];
 };
 
-export type AdjacencyList<T extends string> = Map<string, string[]>;
+export type AdjacencyList<T> = Map<T, T[]>;
 
 export type SelectedGeometryInfo = {
   selectedIds: Set<string>;
   maxPoints: MaxPoints;
+};
+
+export const DRAW_TYPES = ['pencil'] as const;
+export type DrawTypes = (typeof DRAW_TYPES)[number];
+
+export type PencilCoordinates = {
+  drawnCoordinates: [number, number][][];
+  drawingCoordinates: [number, number][];
 };

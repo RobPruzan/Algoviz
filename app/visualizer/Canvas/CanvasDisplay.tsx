@@ -9,6 +9,8 @@ import {
   MaxPoints,
   ALGORITHMS,
   SelectedGeometryInfo,
+  DrawTypes,
+  PencilCoordinates,
 } from '@/lib/types';
 import { AlgoComboBox, isStringAlgorithm } from '../Sort/AlgoComboBox';
 import React, {
@@ -58,19 +60,28 @@ export type Props = {
     SetStateAction<SelectedGeometryInfo | null>
   >;
   handleDfs: () => void;
+  selectedControlBarAction: DrawTypes | null;
+  setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
 };
 
 const CanvasDisplay = ({
   selectedGeometryInfo,
   setSelectedGeometryInfo,
   handleDfs,
+  selectedControlBarAction,
+  setSelectedControlBarAction,
 }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
 
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
-
+  const [pencilCoordinates, setPencilCoordinates] = useState<PencilCoordinates>(
+    {
+      drawingCoordinates: [],
+      drawnCoordinates: [],
+    }
+  );
   const previousMousePositionRef = useRef<[number, number]>(); //this will be used for everything down the line to make
   // const { visited } = useAppSelector((store) => store.dfs);
   const { sideBarState, setSideBarState } = useContext(SideBarContext);
@@ -107,6 +118,7 @@ const CanvasDisplay = ({
       circles,
       event,
       selectBox,
+      selectedControlBarAction,
     });
 
     if (
@@ -174,6 +186,7 @@ const CanvasDisplay = ({
         };
         dispatch(CanvasActions.replaceAttachableLine(newRectContainerTwo));
       })
+      .with({ type: 'pencil' }, () => {})
 
       .otherwise(() => {
         if (selectedGeometryInfo?.selectedIds.size ?? -1 > 0) return;
@@ -211,350 +224,370 @@ const CanvasDisplay = ({
     const mousePositionX = event.nativeEvent.offsetX;
     const mousePositionY = event.nativeEvent.offsetY;
 
-    const activeTask = Canvas.getActiveGeometry({
-      selectedCircleID,
-      selectedAttachableLine,
-      selectedGeometryInfo,
-    });
-    const prevPos = previousMousePositionRef.current ?? [
-      mousePositionX,
-      mousePositionY,
-    ];
-
-    const shift: [number, number] = [
-      prevPos[0] - event.nativeEvent.offsetX,
-      prevPos[1] - event.nativeEvent.offsetY,
-    ];
-    // this should be a case obviously just doing this for quick measures
-    if (isSelectBoxSet && isMouseDownRef.current) {
-      const updatedCircles: CircleReceiver[] = circles.map((circle) => {
-        if (selectedGeometryInfo.selectedIds.has(circle.id)) {
-          return {
-            ...circle,
-            center: [circle.center[0] - shift[0], circle.center[1] - shift[1]],
-            nodeReceiver: {
-              ...circle.nodeReceiver,
-              attachedIds: circle.nodeReceiver.attachedIds.filter((id) =>
-                selectedGeometryInfo.selectedIds.has(id)
-              ),
-
-              center: [
-                circle.nodeReceiver.center[0] - shift[0],
-                circle.nodeReceiver.center[1] - shift[1],
-              ],
-            },
-          };
-        }
-        // the circle isn't selected but it has stuff that is, then break the link
-        return {
-          ...circle,
-          nodeReceiver: {
-            ...circle.nodeReceiver,
-            attachedIds: circle.nodeReceiver.attachedIds.filter(
-              (id) => !selectedGeometryInfo.selectedIds.has(id)
-            ),
-          },
-        };
-      });
-      // dispatch this
-      const updatedLines: Edge[] = attachableLines.map((line) => {
-        if (
-          selectedGeometryInfo.selectedIds.has(line.id) ||
-          selectedGeometryInfo.selectedIds.has(line.attachNodeOne.id) ||
-          selectedGeometryInfo.selectedIds.has(line.attachNodeTwo.id)
-        ) {
-          // need to deduplicate this
-          const newLine: Edge = {
-            ...line,
-            x1: line.x1 - shift[0],
-            y1: line.y1 - shift[1],
-            x2: line.x2 - shift[0],
-            y2: line.y2 - shift[1],
-            attachNodeOne: {
-              ...line.attachNodeOne,
-              center: [
-                line.attachNodeOne.center[0] - shift[0],
-                line.attachNodeOne.center[1] - shift[1],
-              ],
-              connectedToId:
-                line.attachNodeOne.connectedToId &&
-                selectedGeometryInfo.selectedIds.has(
-                  line.attachNodeOne.connectedToId
-                )
-                  ? line.attachNodeOne.connectedToId
-                  : null,
-            },
-            attachNodeTwo: {
-              ...line.attachNodeTwo,
-              center: [
-                line.attachNodeTwo.center[0] - shift[0],
-                line.attachNodeTwo.center[1] - shift[1],
-              ],
-              connectedToId:
-                line.attachNodeTwo.connectedToId &&
-                selectedGeometryInfo.selectedIds.has(
-                  line.attachNodeTwo.connectedToId
-                )
-                  ? line.attachNodeTwo.connectedToId
-                  : null,
-            },
-          };
-          return newLine;
-        }
-        return line;
-      });
-      const newSelectBox: {
-        selectedIds: Set<string>;
-        maxPoints: MaxPoints;
-      } = {
-        ...selectedGeometryInfo,
-        maxPoints: {
-          closestToOrigin: [
-            selectedGeometryInfo.maxPoints.closestToOrigin[0] - shift[0],
-            selectedGeometryInfo.maxPoints.closestToOrigin[1] - shift[1],
-          ],
-          furthestFromOrigin: [
-            selectedGeometryInfo.maxPoints.furthestFromOrigin[0] - shift[0],
-            selectedGeometryInfo.maxPoints.furthestFromOrigin[1] - shift[1],
-          ],
-        },
-      };
-
-      setSelectedGeometryInfo(newSelectBox);
-      dispatch(CanvasActions.setCircles(updatedCircles));
-      dispatch(CanvasActions.setLines(updatedLines));
-      previousMousePositionRef.current = [mousePositionX, mousePositionY];
-      return;
-    }
-
-    switch (activeTask) {
-      case 'circle':
-        const activeCircle = circles.find(
-          (circle) => circle.id === selectedCircleID
-        );
-        if (!activeCircle) return;
-
-        const nodeOneConnectedLine = Canvas.getLineAttachedToNodeReciever({
-          attachableLines,
-          activeCircle,
-          nodeConnectedSide: 'one',
-        });
-        const nodeTwoConnectedLine = Canvas.getLineAttachedToNodeReciever({
-          attachableLines,
-          activeCircle,
-          nodeConnectedSide: 'two',
-        });
-
-        const newCircle: CircleReceiver = {
-          ...activeCircle,
-          center: [
-            activeCircle.nodeReceiver.center[0] - shift[0],
-            activeCircle.nodeReceiver.center[1] - shift[1],
-          ],
-          nodeReceiver: {
-            ...activeCircle.nodeReceiver,
-            center: [
-              activeCircle.nodeReceiver.center[0] - shift[0],
-              activeCircle.nodeReceiver.center[1] - shift[1],
+    // if (selectedControlBarAction === 'pencil')
+    match(selectedControlBarAction)
+      .with('pencil', () => {
+        if (isMouseDownRef.current) {
+          setPencilCoordinates((prev) => ({
+            ...prev,
+            drawingCoordinates: [
+              ...prev.drawingCoordinates,
+              [mousePositionX, mousePositionY],
             ],
-          },
-        };
-        if (nodeOneConnectedLine) {
-          const newAttachedLine = Canvas.builtUpdatedAttachedLine({
-            circleReciever: newCircle,
-            currentLine: nodeOneConnectedLine,
-            nodeRecieverType: 'one',
-          });
-
-          dispatch(CanvasActions.replaceAttachableLine(newAttachedLine));
+          }));
         }
-        if (nodeTwoConnectedLine) {
-          const newAttachedLine = Canvas.builtUpdatedAttachedLine({
-            circleReciever: newCircle,
-            currentLine: nodeTwoConnectedLine,
-            nodeRecieverType: 'two',
+      })
+      .otherwise(() => {
+        const activeTask = Canvas.getActiveGeometry({
+          selectedCircleID,
+          selectedAttachableLine,
+          selectedGeometryInfo,
+        });
+        const prevPos = previousMousePositionRef.current ?? [
+          mousePositionX,
+          mousePositionY,
+        ];
+
+        const shift: [number, number] = [
+          prevPos[0] - event.nativeEvent.offsetX,
+          prevPos[1] - event.nativeEvent.offsetY,
+        ];
+        // this should be a case obviously just doing this for quick measures
+        if (isSelectBoxSet && isMouseDownRef.current) {
+          const updatedCircles: CircleReceiver[] = circles.map((circle) => {
+            if (selectedGeometryInfo.selectedIds.has(circle.id)) {
+              return {
+                ...circle,
+                center: [
+                  circle.center[0] - shift[0],
+                  circle.center[1] - shift[1],
+                ],
+                nodeReceiver: {
+                  ...circle.nodeReceiver,
+                  attachedIds: circle.nodeReceiver.attachedIds.filter((id) =>
+                    selectedGeometryInfo.selectedIds.has(id)
+                  ),
+
+                  center: [
+                    circle.nodeReceiver.center[0] - shift[0],
+                    circle.nodeReceiver.center[1] - shift[1],
+                  ],
+                },
+              };
+            }
+            // the circle isn't selected but it has stuff that is, then break the link
+            return {
+              ...circle,
+              nodeReceiver: {
+                ...circle.nodeReceiver,
+                attachedIds: circle.nodeReceiver.attachedIds.filter(
+                  (id) => !selectedGeometryInfo.selectedIds.has(id)
+                ),
+              },
+            };
           });
-          dispatch(CanvasActions.replaceAttachableLine(newAttachedLine));
-        }
-
-        dispatch(CanvasActions.replaceCircle(newCircle));
-        break;
-      case 'line':
-        const activeRect = attachableLines.find(
-          (rect) => rect.id === selectedAttachableLine?.id
-        );
-
-        if (!activeRect) return;
-
-        const newRect: Edge = {
-          ...activeRect,
-          x1: activeRect.x1 - shift[0],
-          y1: activeRect.y1 - shift[1],
-          x2: activeRect.x2 - shift[0],
-          y2: activeRect.y2 - shift[1],
-          attachNodeOne: {
-            ...activeRect.attachNodeOne,
-            connectedToId: null,
-            center: [activeRect.x1 - shift[0], activeRect.y1 - shift[1]],
-          },
-          attachNodeTwo: {
-            ...activeRect.attachNodeTwo,
-            connectedToId: null,
-            center: [activeRect.x2 - shift[0], activeRect.y2 - shift[1]],
-          },
-        };
-        const filteredCircles = circles.map((circle) => {
-          return {
-            ...circle,
-            nodeReceiver: {
-              ...circle.nodeReceiver,
-              attachedIds: circle.nodeReceiver.attachedIds.filter(
-                (id) =>
-                  !(id === activeRect.attachNodeOne.id) &&
-                  !(id === activeRect.attachNodeTwo.id)
-              ),
+          // dispatch this
+          const updatedLines: Edge[] = attachableLines.map((line) => {
+            if (
+              selectedGeometryInfo.selectedIds.has(line.id) ||
+              selectedGeometryInfo.selectedIds.has(line.attachNodeOne.id) ||
+              selectedGeometryInfo.selectedIds.has(line.attachNodeTwo.id)
+            ) {
+              // need to deduplicate this
+              const newLine: Edge = {
+                ...line,
+                x1: line.x1 - shift[0],
+                y1: line.y1 - shift[1],
+                x2: line.x2 - shift[0],
+                y2: line.y2 - shift[1],
+                attachNodeOne: {
+                  ...line.attachNodeOne,
+                  center: [
+                    line.attachNodeOne.center[0] - shift[0],
+                    line.attachNodeOne.center[1] - shift[1],
+                  ],
+                  connectedToId:
+                    line.attachNodeOne.connectedToId &&
+                    selectedGeometryInfo.selectedIds.has(
+                      line.attachNodeOne.connectedToId
+                    )
+                      ? line.attachNodeOne.connectedToId
+                      : null,
+                },
+                attachNodeTwo: {
+                  ...line.attachNodeTwo,
+                  center: [
+                    line.attachNodeTwo.center[0] - shift[0],
+                    line.attachNodeTwo.center[1] - shift[1],
+                  ],
+                  connectedToId:
+                    line.attachNodeTwo.connectedToId &&
+                    selectedGeometryInfo.selectedIds.has(
+                      line.attachNodeTwo.connectedToId
+                    )
+                      ? line.attachNodeTwo.connectedToId
+                      : null,
+                },
+              };
+              return newLine;
+            }
+            return line;
+          });
+          const newSelectBox: {
+            selectedIds: Set<string>;
+            maxPoints: MaxPoints;
+          } = {
+            ...selectedGeometryInfo,
+            maxPoints: {
+              closestToOrigin: [
+                selectedGeometryInfo.maxPoints.closestToOrigin[0] - shift[0],
+                selectedGeometryInfo.maxPoints.closestToOrigin[1] - shift[1],
+              ],
+              furthestFromOrigin: [
+                selectedGeometryInfo.maxPoints.furthestFromOrigin[0] - shift[0],
+                selectedGeometryInfo.maxPoints.furthestFromOrigin[1] - shift[1],
+              ],
             },
           };
-        });
 
-        dispatch(CanvasActions.setCircles(filteredCircles));
-        dispatch(CanvasActions.replaceAttachableLine(newRect));
-        break;
-      case 'node1':
-        const activeRectContainingNodeOne = attachableLines.find(
-          (rect) => rect.attachNodeOne.id === selectedAttachableLine?.id
-        );
-        if (!activeRectContainingNodeOne) return;
-
-        const newRectContainingNodeOne: Edge = {
-          ...activeRectContainingNodeOne,
-          x1: mousePositionX,
-          y1: mousePositionY,
-          attachNodeOne: {
-            ...activeRectContainingNodeOne.attachNodeOne,
-            center: [mousePositionX, mousePositionY],
-          },
-        };
-
-        const intersectingCircleOne = Canvas.findConnectorIntersectingConnector(
-          {
-            circle: activeRectContainingNodeOne.attachNodeOne,
-            circles: circles.map((c) => c.nodeReceiver),
-          }
-        );
-
-        if (intersectingCircleOne) {
-          newRectContainingNodeOne.x1 = intersectingCircleOne.center[0];
-          newRectContainingNodeOne.y1 = intersectingCircleOne.center[1];
-          newRectContainingNodeOne.attachNodeOne.center = [
-            newRectContainingNodeOne.x1,
-            newRectContainingNodeOne.y1,
-          ];
-
-          newRectContainingNodeOne.attachNodeOne.connectedToId =
-            intersectingCircleOne.id;
-
-          const newIntersectingCircleOne: NodeReceiver = {
-            ...intersectingCircleOne,
-            attachedIds: Canvas.concatIdUniquely(
-              activeRectContainingNodeOne.attachNodeOne.id,
-              intersectingCircleOne.attachedIds
-            ),
-          };
-          const nodeRecieverContainerOne = circles.find(
-            (c) => c.nodeReceiver.id === newIntersectingCircleOne.id
-          );
-
-          nodeRecieverContainerOne &&
-            dispatch(
-              CanvasActions.replaceCircle({
-                ...nodeRecieverContainerOne,
-                nodeReceiver: newIntersectingCircleOne,
-              })
-            );
+          setSelectedGeometryInfo(newSelectBox);
+          dispatch(CanvasActions.setCircles(updatedCircles));
+          dispatch(CanvasActions.setLines(updatedLines));
+          previousMousePositionRef.current = [mousePositionX, mousePositionY];
+          return;
         }
 
-        dispatch(CanvasActions.replaceAttachableLine(newRectContainingNodeOne));
-        break;
-      case 'node2':
-        const activeRectContainingNodeTwo = attachableLines.find(
-          (rect) => rect.attachNodeTwo.id === selectedAttachableLine?.id
-        );
-        if (!activeRectContainingNodeTwo) return;
-        const newRectContainingNodeTwo: Edge = {
-          ...activeRectContainingNodeTwo,
-          x2: mousePositionX,
-          y2: mousePositionY,
-          attachNodeTwo: {
-            ...activeRectContainingNodeTwo.attachNodeTwo,
-            center: [mousePositionX, mousePositionY],
-          },
-        };
-
-        const intersectingCircleTwo = Canvas.findConnectorIntersectingConnector(
-          {
-            circle: activeRectContainingNodeTwo.attachNodeTwo,
-            circles: circles.map((c) => c.nodeReceiver),
-          }
-        );
-
-        if (intersectingCircleTwo) {
-          newRectContainingNodeTwo.x2 = intersectingCircleTwo.center[0];
-          newRectContainingNodeTwo.y2 = intersectingCircleTwo.center[1];
-          newRectContainingNodeTwo.attachNodeTwo.center = [
-            newRectContainingNodeTwo.x2,
-            newRectContainingNodeTwo.y2,
-          ];
-
-          newRectContainingNodeTwo.attachNodeTwo.connectedToId =
-            intersectingCircleTwo.id;
-
-          const newIntersectingCircleTwo: NodeReceiver = {
-            ...intersectingCircleTwo,
-            attachedIds: Canvas.concatIdUniquely(
-              activeRectContainingNodeTwo.attachNodeTwo.id,
-              intersectingCircleTwo.attachedIds
-            ),
-          };
-          const nodeConnectorContainerTwo = circles.find(
-            (c) => c.nodeReceiver.id === newIntersectingCircleTwo.id
-          );
-
-          nodeConnectorContainerTwo &&
-            dispatch(
-              CanvasActions.replaceCircle({
-                ...nodeConnectorContainerTwo,
-                nodeReceiver: newIntersectingCircleTwo,
-              })
+        switch (activeTask) {
+          case 'circle':
+            const activeCircle = circles.find(
+              (circle) => circle.id === selectedCircleID
             );
-        }
-        dispatch(CanvasActions.replaceAttachableLine(newRectContainingNodeTwo));
-        break;
-      default:
-        if (selectBox) {
-          const adjustableCord: [number, number] = [
-            event.nativeEvent.offsetX,
-            event.nativeEvent.offsetY,
-          ];
+            if (!activeCircle) return;
 
-          // simple check to make sure we have a select box first
-          setSelectBox((prev) => {
-            const selectedGeometryInfo = Canvas.getSelectedGeometry({
-              edges: attachableLines,
-              vertices: circles,
-              selectBox: prev?.p1 ? { ...prev, p2: adjustableCord } : null,
+            const nodeOneConnectedLine = Canvas.getLineAttachedToNodeReciever({
+              attachableLines,
+              activeCircle,
+              nodeConnectedSide: 'one',
+            });
+            const nodeTwoConnectedLine = Canvas.getLineAttachedToNodeReciever({
+              attachableLines,
+              activeCircle,
+              nodeConnectedSide: 'two',
             });
 
-            setSelectedGeometryInfo(selectedGeometryInfo);
-            return prev?.p1 ? { ...prev, p2: adjustableCord } : null;
-          });
+            const newCircle: CircleReceiver = {
+              ...activeCircle,
+              center: [
+                activeCircle.nodeReceiver.center[0] - shift[0],
+                activeCircle.nodeReceiver.center[1] - shift[1],
+              ],
+              nodeReceiver: {
+                ...activeCircle.nodeReceiver,
+                center: [
+                  activeCircle.nodeReceiver.center[0] - shift[0],
+                  activeCircle.nodeReceiver.center[1] - shift[1],
+                ],
+              },
+            };
+            if (nodeOneConnectedLine) {
+              const newAttachedLine = Canvas.builtUpdatedAttachedLine({
+                circleReciever: newCircle,
+                currentLine: nodeOneConnectedLine,
+                nodeRecieverType: 'one',
+              });
+
+              dispatch(CanvasActions.replaceAttachableLine(newAttachedLine));
+            }
+            if (nodeTwoConnectedLine) {
+              const newAttachedLine = Canvas.builtUpdatedAttachedLine({
+                circleReciever: newCircle,
+                currentLine: nodeTwoConnectedLine,
+                nodeRecieverType: 'two',
+              });
+              dispatch(CanvasActions.replaceAttachableLine(newAttachedLine));
+            }
+
+            dispatch(CanvasActions.replaceCircle(newCircle));
+            break;
+          case 'line':
+            const activeRect = attachableLines.find(
+              (rect) => rect.id === selectedAttachableLine?.id
+            );
+
+            if (!activeRect) return;
+
+            const newRect: Edge = {
+              ...activeRect,
+              x1: activeRect.x1 - shift[0],
+              y1: activeRect.y1 - shift[1],
+              x2: activeRect.x2 - shift[0],
+              y2: activeRect.y2 - shift[1],
+              attachNodeOne: {
+                ...activeRect.attachNodeOne,
+                connectedToId: null,
+                center: [activeRect.x1 - shift[0], activeRect.y1 - shift[1]],
+              },
+              attachNodeTwo: {
+                ...activeRect.attachNodeTwo,
+                connectedToId: null,
+                center: [activeRect.x2 - shift[0], activeRect.y2 - shift[1]],
+              },
+            };
+            const filteredCircles = circles.map((circle) => {
+              return {
+                ...circle,
+                nodeReceiver: {
+                  ...circle.nodeReceiver,
+                  attachedIds: circle.nodeReceiver.attachedIds.filter(
+                    (id) =>
+                      !(id === activeRect.attachNodeOne.id) &&
+                      !(id === activeRect.attachNodeTwo.id)
+                  ),
+                },
+              };
+            });
+
+            dispatch(CanvasActions.setCircles(filteredCircles));
+            dispatch(CanvasActions.replaceAttachableLine(newRect));
+            break;
+          case 'node1':
+            const activeRectContainingNodeOne = attachableLines.find(
+              (rect) => rect.attachNodeOne.id === selectedAttachableLine?.id
+            );
+            if (!activeRectContainingNodeOne) return;
+
+            const newRectContainingNodeOne: Edge = {
+              ...activeRectContainingNodeOne,
+              x1: mousePositionX,
+              y1: mousePositionY,
+              attachNodeOne: {
+                ...activeRectContainingNodeOne.attachNodeOne,
+                center: [mousePositionX, mousePositionY],
+              },
+            };
+
+            const intersectingCircleOne =
+              Canvas.findConnectorIntersectingConnector({
+                circle: activeRectContainingNodeOne.attachNodeOne,
+                circles: circles.map((c) => c.nodeReceiver),
+              });
+
+            if (intersectingCircleOne) {
+              newRectContainingNodeOne.x1 = intersectingCircleOne.center[0];
+              newRectContainingNodeOne.y1 = intersectingCircleOne.center[1];
+              newRectContainingNodeOne.attachNodeOne.center = [
+                newRectContainingNodeOne.x1,
+                newRectContainingNodeOne.y1,
+              ];
+
+              newRectContainingNodeOne.attachNodeOne.connectedToId =
+                intersectingCircleOne.id;
+
+              const newIntersectingCircleOne: NodeReceiver = {
+                ...intersectingCircleOne,
+                attachedIds: Canvas.concatIdUniquely(
+                  activeRectContainingNodeOne.attachNodeOne.id,
+                  intersectingCircleOne.attachedIds
+                ),
+              };
+              const nodeRecieverContainerOne = circles.find(
+                (c) => c.nodeReceiver.id === newIntersectingCircleOne.id
+              );
+
+              nodeRecieverContainerOne &&
+                dispatch(
+                  CanvasActions.replaceCircle({
+                    ...nodeRecieverContainerOne,
+                    nodeReceiver: newIntersectingCircleOne,
+                  })
+                );
+            }
+
+            dispatch(
+              CanvasActions.replaceAttachableLine(newRectContainingNodeOne)
+            );
+            break;
+          case 'node2':
+            const activeRectContainingNodeTwo = attachableLines.find(
+              (rect) => rect.attachNodeTwo.id === selectedAttachableLine?.id
+            );
+            if (!activeRectContainingNodeTwo) return;
+            const newRectContainingNodeTwo: Edge = {
+              ...activeRectContainingNodeTwo,
+              x2: mousePositionX,
+              y2: mousePositionY,
+              attachNodeTwo: {
+                ...activeRectContainingNodeTwo.attachNodeTwo,
+                center: [mousePositionX, mousePositionY],
+              },
+            };
+
+            const intersectingCircleTwo =
+              Canvas.findConnectorIntersectingConnector({
+                circle: activeRectContainingNodeTwo.attachNodeTwo,
+                circles: circles.map((c) => c.nodeReceiver),
+              });
+
+            if (intersectingCircleTwo) {
+              newRectContainingNodeTwo.x2 = intersectingCircleTwo.center[0];
+              newRectContainingNodeTwo.y2 = intersectingCircleTwo.center[1];
+              newRectContainingNodeTwo.attachNodeTwo.center = [
+                newRectContainingNodeTwo.x2,
+                newRectContainingNodeTwo.y2,
+              ];
+
+              newRectContainingNodeTwo.attachNodeTwo.connectedToId =
+                intersectingCircleTwo.id;
+
+              const newIntersectingCircleTwo: NodeReceiver = {
+                ...intersectingCircleTwo,
+                attachedIds: Canvas.concatIdUniquely(
+                  activeRectContainingNodeTwo.attachNodeTwo.id,
+                  intersectingCircleTwo.attachedIds
+                ),
+              };
+              const nodeConnectorContainerTwo = circles.find(
+                (c) => c.nodeReceiver.id === newIntersectingCircleTwo.id
+              );
+
+              nodeConnectorContainerTwo &&
+                dispatch(
+                  CanvasActions.replaceCircle({
+                    ...nodeConnectorContainerTwo,
+                    nodeReceiver: newIntersectingCircleTwo,
+                  })
+                );
+            }
+            dispatch(
+              CanvasActions.replaceAttachableLine(newRectContainingNodeTwo)
+            );
+            break;
+          default:
+            if (selectBox) {
+              const adjustableCord: [number, number] = [
+                event.nativeEvent.offsetX,
+                event.nativeEvent.offsetY,
+              ];
+
+              // simple check to make sure we have a select box first
+              setSelectBox((prev) => {
+                const selectedGeometryInfo = Canvas.getSelectedGeometry({
+                  edges: attachableLines,
+                  vertices: circles,
+                  selectBox: prev?.p1 ? { ...prev, p2: adjustableCord } : null,
+                });
+
+                setSelectedGeometryInfo(selectedGeometryInfo);
+                return prev?.p1 ? { ...prev, p2: adjustableCord } : null;
+              });
+            }
+            break;
         }
-        break;
-    }
-    previousMousePositionRef.current = [
-      event.nativeEvent.offsetX,
-      event.nativeEvent.offsetY,
-    ];
+        previousMousePositionRef.current = [
+          event.nativeEvent.offsetX,
+          event.nativeEvent.offsetY,
+        ];
+      });
   };
 
   const handleMouseUp = (event: MouseEvent<HTMLCanvasElement>) => {
@@ -564,6 +597,7 @@ const CanvasDisplay = ({
       selectedAttachableLine,
       selectedCircleID,
       selectBox,
+      selectedControlBarAction,
     });
     isMouseDownRef.current = false;
 
@@ -577,73 +611,22 @@ const CanvasDisplay = ({
       .with({ type: 'node1' }, () => {
         setSelectedAttachableLine(null);
       })
+      .with({ type: 'pencil' }, () => {
+        if (selectedControlBarAction === 'pencil') {
+          setPencilCoordinates((prev) => ({
+            drawnCoordinates: [
+              ...prev.drawnCoordinates,
+              prev.drawingCoordinates,
+            ],
+            drawingCoordinates: [],
+          }));
+        }
+      })
       .otherwise(() => {
         setSelectBox(null);
         setSelectedAttachableLine(null);
       });
   };
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!ctx) return;
-    if (!canvas) return;
-
-    Canvas.optimizeCanvas({
-      ctx,
-      canvas,
-    });
-    if (selectedGeometryInfo?.maxPoints) {
-      Canvas.drawBox({
-        ctx,
-        box: {
-          p1: selectedGeometryInfo?.maxPoints.closestToOrigin,
-          p2: selectedGeometryInfo?.maxPoints.furthestFromOrigin,
-        },
-      });
-    }
-    // first written, first rendered
-    // meaning items written later will layer over the previous
-
-    Canvas.drawNodes({
-      ctx,
-      nodes: circles,
-      selectedCircleID,
-      selectedIds: selectedGeometryInfo?.selectedIds,
-      dfsVisitedNodes,
-    });
-    if (selectBox) {
-      Canvas.drawBox({
-        ctx,
-        box: selectBox,
-        fill: true,
-      });
-    }
-    Canvas.drawEdges({
-      ctx,
-      edges: attachableLines,
-      selectedIds: selectedGeometryInfo?.selectedIds,
-      selectedAttachableLine,
-    });
-    Canvas.drawEdgeConnectors({
-      ctx,
-      edges: attachableLines,
-    });
-
-    Canvas.drawNodeReceivers({
-      ctx,
-      nodes: circles,
-    });
-  }, [
-    circles,
-    attachableLines,
-    selectBox,
-    selectedCircleID,
-    selectedAttachableLine,
-    selectedGeometryInfo?.selectedIds,
-    selectedGeometryInfo?.maxPoints,
-    dfsVisitedNodes,
-  ]);
 
   useEffect(() => {
     const handleDelete = (e: KeyboardEvent) => {
@@ -844,6 +827,15 @@ const CanvasDisplay = ({
               }
             : null
         );
+
+        setPencilCoordinates((prev) => ({
+          drawingCoordinates: prev.drawingCoordinates.map((cords) =>
+            zoomLine(cords, center, zoomAmount)
+          ),
+          drawnCoordinates: prev.drawnCoordinates.map((continuousCords) =>
+            continuousCords.map((cords) => zoomLine(cords, center, zoomAmount))
+          ),
+        }));
       } else {
         const newOffsetX = event.deltaX * 0.5;
         const newOffsetY = event.deltaY * 0.5;
@@ -912,6 +904,19 @@ const CanvasDisplay = ({
               }
             : null
         );
+        setPencilCoordinates((prev) => ({
+          ...prev,
+          drawingCoordinates: prev.drawingCoordinates.map((cord) => [
+            cord[0] - newOffsetX,
+            cord[1] - newOffsetY,
+          ]),
+          drawnCoordinates: prev.drawnCoordinates.map((continuousCords) =>
+            continuousCords.map((cord) => [
+              cord[0] - newOffsetX,
+              cord[1] - newOffsetY,
+            ])
+          ),
+        }));
       }
     },
     [attachableLines, circles, dispatch, setSelectedGeometryInfo]
@@ -950,156 +955,210 @@ const CanvasDisplay = ({
   //     }
   //   };
   // }, [playingAlgorithm]);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
+    if (e.key === 'Escape') {
+      setSelectedGeometryInfo(null);
+    }
+    e;
+    if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedGeometryInfo) {
+      setCopied(selectedGeometryInfo.selectedIds);
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+      // can refactor cause this is pretty heavy
+      // should build helper functions for updating, since I'm doing this so much, but it may be an over abstraction
+      const idMap = new Map<string, string>();
+      circles
+        .filter((circle) => copied.has(circle.id))
+        .forEach((circle) => {
+          idMap.set(circle.id, crypto.randomUUID());
+          idMap.set(circle.nodeReceiver.id, crypto.randomUUID());
+          circle.nodeReceiver.attachedIds.forEach((id) =>
+            idMap.set(id, crypto.randomUUID())
+          );
+          // idMap.set(, crypto.randomUUID())
+        });
+
+      attachableLines
+        .filter((line) => copied.has(line.id))
+        .forEach((line) => {
+          idMap.set(line.id, crypto.randomUUID());
+          idMap.set(line.attachNodeOne.id, crypto.randomUUID());
+          idMap.set(line.attachNodeTwo.id, crypto.randomUUID());
+          line.attachNodeOne.connectedToId &&
+            idMap.set(line.attachNodeOne.connectedToId, crypto.randomUUID());
+          line.attachNodeTwo.connectedToId &&
+            idMap.set(line.attachNodeTwo.connectedToId, crypto.randomUUID());
+        });
+
+      //  should design this without asserting non null, but for now its fine
+      const offset = 20;
+      const pasteCircles: CircleReceiver[] = circles
+        .filter((circle) => copied.has(circle.id))
+        .map((circle) => ({
+          ...circle,
+          id: idMap.get(circle.id)!,
+          center: [circle.center[0] - offset, circle.center[1] - offset],
+          nodeReceiver: {
+            ...circle.nodeReceiver,
+            id: idMap.get(circle.nodeReceiver.id)!,
+            attachedIds: circle.nodeReceiver.attachedIds.map(
+              (id) => idMap.get(id)!
+            ),
+            center: [
+              circle.nodeReceiver.center[0] - offset,
+              circle.nodeReceiver.center[1] - offset,
+            ],
+          },
+        }));
+      const pasteLines: Edge[] = attachableLines
+        .filter((line) => copied.has(line.id))
+        .map((line) => ({
+          ...line,
+          id: idMap.get(line.id)!,
+          x1: line.x1 - offset,
+          y1: line.y1 - offset,
+          x2: line.x2 - offset,
+          y2: line.y2 - offset,
+          attachNodeOne: {
+            ...line.attachNodeOne,
+            id: idMap.get(line.attachNodeOne.id)!,
+            connectedToId: line.attachNodeOne.connectedToId
+              ? idMap.get(line.attachNodeOne.connectedToId)!
+              : null,
+            center: [
+              line.attachNodeOne.center[0] - offset,
+              line.attachNodeOne.center[1] - offset,
+            ],
+          },
+          attachNodeTwo: {
+            ...line.attachNodeTwo,
+            id: idMap.get(line.attachNodeTwo.id)!,
+            connectedToId: line.attachNodeTwo.connectedToId
+              ? idMap.get(line.attachNodeTwo.connectedToId)!
+              : null,
+            center: [
+              line.attachNodeTwo.center[0] - offset,
+              line.attachNodeTwo.center[1] - offset,
+            ],
+          },
+        }));
+
+      setSelectedGeometryInfo((geo) =>
+        geo
+          ? {
+              ...geo,
+
+              selectedIds: new Set<string>(
+                [...geo.selectedIds.keys()].map((id) => idMap.get(id)!)
+              ),
+              // still need to update selected box
+              maxPoints: {
+                closestToOrigin: [
+                  geo.maxPoints.closestToOrigin[0] - offset,
+                  geo.maxPoints.closestToOrigin[1] - offset,
+                ],
+                furthestFromOrigin: [
+                  geo.maxPoints.furthestFromOrigin[0] - offset,
+                  geo.maxPoints.furthestFromOrigin[1] - offset,
+                ],
+              },
+            }
+          : null
+      );
+
+      dispatch(CanvasActions.setCircles([...circles, ...pasteCircles]));
+      dispatch(CanvasActions.setLines([...attachableLines, ...pasteLines]));
+    }
+  };
   const intervalId = useRef<null | NodeJS.Timer>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!ctx) return;
+    if (!canvas) return;
+
+    Canvas.optimizeCanvas({
+      ctx,
+      canvas,
+    });
+    if (selectedGeometryInfo?.maxPoints) {
+      Canvas.drawBox({
+        ctx,
+        box: {
+          p1: selectedGeometryInfo?.maxPoints.closestToOrigin,
+          p2: selectedGeometryInfo?.maxPoints.furthestFromOrigin,
+        },
+      });
+    }
+    // first written, first rendered
+    // meaning items written later will layer over the previous
+
+    Canvas.drawNodes({
+      ctx,
+      nodes: circles,
+      selectedCircleID,
+      selectedIds: selectedGeometryInfo?.selectedIds,
+      dfsVisitedNodes,
+    });
+    if (selectBox) {
+      Canvas.drawBox({
+        ctx,
+        box: selectBox,
+        fill: true,
+      });
+    }
+    Canvas.drawEdges({
+      ctx,
+      edges: attachableLines,
+      selectedIds: selectedGeometryInfo?.selectedIds,
+      selectedAttachableLine,
+    });
+    Canvas.drawEdgeConnectors({
+      ctx,
+      edges: attachableLines,
+    });
+
+    Canvas.drawNodeReceivers({
+      ctx,
+      nodes: circles,
+    });
+
+    if (pencilCoordinates) {
+      Canvas.drawPencil({
+        ctx,
+        pencilCoordinates,
+      });
+    }
+  }, [
+    circles,
+    attachableLines,
+    selectBox,
+    selectedCircleID,
+    selectedAttachableLine,
+    selectedGeometryInfo?.selectedIds,
+    selectedGeometryInfo?.maxPoints,
+    dfsVisitedNodes,
+    pencilCoordinates,
+  ]);
   return (
     <>
       <ContextMenu>
         <ContextMenu>
           <ContextMenuTrigger>
             <canvas
-              className="bg-fancy"
+              className={`
+              ${selectedControlBarAction === 'pencil' ? 'cursor-crosshair' : ''}
+               bg-fancy`}
               ref={canvasRef}
-              onMouseMove={handleMouseMove}
               onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
               onWheel={(e) => e}
               tabIndex={0}
               onContextMenu={handleContextMenu}
               onMouseUp={handleMouseUp}
               width={1000}
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') {
-                  setSelectedGeometryInfo(null);
-                }
-                e;
-                if (
-                  (e.ctrlKey || e.metaKey) &&
-                  e.key === 'c' &&
-                  selectedGeometryInfo
-                ) {
-                  setCopied(selectedGeometryInfo.selectedIds);
-                }
-                if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-                  // can refactor cause this is pretty heavy
-                  // should build helper functions for updating, since I'm doing this so much, but it may be an over abstraction
-                  const idMap = new Map<string, string>();
-                  circles
-                    .filter((circle) => copied.has(circle.id))
-                    .forEach((circle) => {
-                      idMap.set(circle.id, crypto.randomUUID());
-                      idMap.set(circle.nodeReceiver.id, crypto.randomUUID());
-                      circle.nodeReceiver.attachedIds.forEach((id) =>
-                        idMap.set(id, crypto.randomUUID())
-                      );
-                      // idMap.set(, crypto.randomUUID())
-                    });
-
-                  attachableLines
-                    .filter((line) => copied.has(line.id))
-                    .forEach((line) => {
-                      idMap.set(line.id, crypto.randomUUID());
-                      idMap.set(line.attachNodeOne.id, crypto.randomUUID());
-                      idMap.set(line.attachNodeTwo.id, crypto.randomUUID());
-                      line.attachNodeOne.connectedToId &&
-                        idMap.set(
-                          line.attachNodeOne.connectedToId,
-                          crypto.randomUUID()
-                        );
-                      line.attachNodeTwo.connectedToId &&
-                        idMap.set(
-                          line.attachNodeTwo.connectedToId,
-                          crypto.randomUUID()
-                        );
-                    });
-
-                  //  should design this without asserting non null, but for now its fine
-                  const offset = 20;
-                  const pasteCircles: CircleReceiver[] = circles
-                    .filter((circle) => copied.has(circle.id))
-                    .map((circle) => ({
-                      ...circle,
-                      id: idMap.get(circle.id)!,
-                      center: [
-                        circle.center[0] - offset,
-                        circle.center[1] - offset,
-                      ],
-                      nodeReceiver: {
-                        ...circle.nodeReceiver,
-                        id: idMap.get(circle.nodeReceiver.id)!,
-                        attachedIds: circle.nodeReceiver.attachedIds.map(
-                          (id) => idMap.get(id)!
-                        ),
-                        center: [
-                          circle.nodeReceiver.center[0] - offset,
-                          circle.nodeReceiver.center[1] - offset,
-                        ],
-                      },
-                    }));
-                  const pasteLines: Edge[] = attachableLines
-                    .filter((line) => copied.has(line.id))
-                    .map((line) => ({
-                      ...line,
-                      id: idMap.get(line.id)!,
-                      x1: line.x1 - offset,
-                      y1: line.y1 - offset,
-                      x2: line.x2 - offset,
-                      y2: line.y2 - offset,
-                      attachNodeOne: {
-                        ...line.attachNodeOne,
-                        id: idMap.get(line.attachNodeOne.id)!,
-                        connectedToId: line.attachNodeOne.connectedToId
-                          ? idMap.get(line.attachNodeOne.connectedToId)!
-                          : null,
-                        center: [
-                          line.attachNodeOne.center[0] - offset,
-                          line.attachNodeOne.center[1] - offset,
-                        ],
-                      },
-                      attachNodeTwo: {
-                        ...line.attachNodeTwo,
-                        id: idMap.get(line.attachNodeTwo.id)!,
-                        connectedToId: line.attachNodeTwo.connectedToId
-                          ? idMap.get(line.attachNodeTwo.connectedToId)!
-                          : null,
-                        center: [
-                          line.attachNodeTwo.center[0] - offset,
-                          line.attachNodeTwo.center[1] - offset,
-                        ],
-                      },
-                    }));
-
-                  setSelectedGeometryInfo((geo) =>
-                    geo
-                      ? {
-                          ...geo,
-
-                          selectedIds: new Set<string>(
-                            [...geo.selectedIds.keys()].map(
-                              (id) => idMap.get(id)!
-                            )
-                          ),
-                          // still need to update selected box
-                          maxPoints: {
-                            closestToOrigin: [
-                              geo.maxPoints.closestToOrigin[0] - offset,
-                              geo.maxPoints.closestToOrigin[1] - offset,
-                            ],
-                            furthestFromOrigin: [
-                              geo.maxPoints.furthestFromOrigin[0] - offset,
-                              geo.maxPoints.furthestFromOrigin[1] - offset,
-                            ],
-                          },
-                        }
-                      : null
-                  );
-
-                  dispatch(
-                    CanvasActions.setCircles([...circles, ...pasteCircles])
-                  );
-                  dispatch(
-                    CanvasActions.setLines([...attachableLines, ...pasteLines])
-                  );
-                }
-              }}
+              onKeyDown={handleKeyDown}
               height={700}
             />
           </ContextMenuTrigger>
@@ -1151,23 +1210,6 @@ const CanvasDisplay = ({
                   </CommandGroup>
                 </Command>
                 <Button
-                  // onClick={() => {
-                  //   console.log('applying');
-                  //   let intervalId: NodeJS.Timeout | null = null;
-                  //   setInterval(() => {
-                  //     console.log('calling', dfsVisited.length, visitedPointer);
-                  //     if (visitedPointer < dfsVisited.length) {
-                  //       dispatch(DFSActions.incrementVisitedPointer());
-                  //       console.log('balling', visitedPointer);
-                  //     }
-                  //   }, 1000);
-                  //   return () => {
-                  //     if (intervalId) {
-                  //       clearInterval(intervalId);
-                  //     }
-                  //   };
-                  // }}
-
                   onClick={() => {
                     handleDfs();
                     dispatch(DFSActions.resetVisitedPointer());

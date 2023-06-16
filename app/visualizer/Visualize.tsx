@@ -7,6 +7,7 @@ import CanvasDisplay from './Canvas/CanvasDisplay';
 import CanvasControlBar from './Canvas/CanvasControlBar';
 import {
   CircleReceiver,
+  DrawTypes,
   SelectedGeometryInfo,
   UndirectedEdge,
 } from '@/lib/types';
@@ -18,7 +19,8 @@ const Visualize = () => {
   const { sideBarState } = useContext(SideBarContext);
   const { show } = useAppSelector((store) => store.canvas.variableInspector);
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
-
+  const [selectedControlBarAction, setSelectedControlBarAction] =
+    useState<DrawTypes | null>(null);
   const [selectedGeometryInfo, setSelectedGeometryInfo] =
     useState<SelectedGeometryInfo | null>(null);
   const selectedAttachableLines = attachableLines.filter((line) =>
@@ -48,7 +50,11 @@ const Visualize = () => {
         {sideBarState.display === 'nodes' ? (
           <SortControlBar algorithm={sideBarState.algorithm} />
         ) : (
-          <CanvasControlBar handleDfs={handleDfs} />
+          <CanvasControlBar
+            selectedControlBarAction={selectedControlBarAction}
+            setSelectedControlBarAction={setSelectedControlBarAction}
+            handleDfs={handleDfs}
+          />
         )}
       </div>
       <div className="w-full overflow-y-scroll rounded-t-none h-full border-2 border-foreground rounded-md">
@@ -56,6 +62,8 @@ const Visualize = () => {
           <SortDisplay algorithm={sideBarState.algorithm} />
         ) : (
           <CanvasDisplay
+            selectedControlBarAction={selectedControlBarAction}
+            setSelectedControlBarAction={setSelectedControlBarAction}
             handleDfs={handleDfs}
             selectedGeometryInfo={selectedGeometryInfo}
             setSelectedGeometryInfo={setSelectedGeometryInfo}

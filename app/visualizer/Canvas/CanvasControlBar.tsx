@@ -5,7 +5,12 @@ import { Button } from '@/components/ui/button';
 import { useBreadthFirstSearch } from '@/hooks/useBreadthFirstSearch';
 import { useDepthFirstSearch } from '@/hooks/useDepthFirstSearch';
 import * as Graph from '@/lib/graph';
-import { CircleReceiver, DirectedEdge, UndirectedEdge } from '@/lib/types';
+import {
+  CircleReceiver,
+  DirectedEdge,
+  DrawTypes,
+  UndirectedEdge,
+} from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import {
@@ -27,9 +32,15 @@ import { LinkedListIcon } from '@/components/icons/LinkedList';
 
 type Props = {
   handleDfs: () => void;
+  selectedControlBarAction: DrawTypes | null;
+  setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
 };
 
-const CanvasControlBar = ({ handleDfs }: Props) => {
+const CanvasControlBar = ({
+  handleDfs,
+  selectedControlBarAction,
+  setSelectedControlBarAction,
+}: Props) => {
   const dispatch = useAppDispatch();
   const {
     circles,
@@ -174,7 +185,16 @@ const CanvasControlBar = ({ handleDfs }: Props) => {
           >
             <DirectedEdgeIcon />
           </Button>
-          <Button className="bg-secondary hover:bg-primary  w-16 border border-foreground rounded-none h-full">
+          <Button
+            onClick={() =>
+              setSelectedControlBarAction((prev) => (prev ? null : 'pencil'))
+            }
+            className={`${
+              selectedControlBarAction === 'pencil'
+                ? 'bg-muted-foreground'
+                : 'bg-secondary'
+            } hover:bg-primary  w-16 border border-foreground rounded-none h-full`}
+          >
             <Pencil />
           </Button>
         </div>

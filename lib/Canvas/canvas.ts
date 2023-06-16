@@ -11,6 +11,8 @@ import {
   SelectBox,
   GeoCircle,
   MaxPoints,
+  DrawTypes,
+  PencilCoordinates,
 } from '../types';
 import { RefObject, type MouseEvent } from 'react';
 export const replaceCanvasElement = <T extends { id: string }>({
@@ -306,12 +308,14 @@ export const getMouseDownActiveItem = ({
   canvasRef,
   event,
   selectBox,
+  selectedControlBarAction,
 }: {
   circles: CircleReceiver[];
   attachableLines: Edge[];
   canvasRef: RefObject<HTMLCanvasElement>;
   event: MouseEvent<HTMLCanvasElement>;
   selectBox: SelectBox | null;
+  selectedControlBarAction: 'pencil' | null;
 }) => {
   const activeCircleId = getActiveCircle({
     circles,
@@ -362,13 +366,20 @@ export const getMouseDownActiveItem = ({
       circle.nodeReceiver.attachedIds.includes(activeSelectNodeTwo.id)
     );
   // extra attached check is to not select the node selector when attached
-  // need to implement delete for this to work properly (or when you remove the connection this logic won't know)
+  // need to implement delete for this to work properly (or when you remove the connection this logic won';';;'t know)
   const activeItem =
-    (activeSelectNodeOne && isNodeOneAttached ? null : activeSelectNodeOne) ||
-    (activeSelectNodeTwo && isNodeTwoAttached ? null : activeSelectNodeTwo) ||
-    activeCircle ||
-    activeRect ||
-    selectBox;
+    selectedControlBarAction != null
+      ? { type: selectedControlBarAction }
+      : null ||
+        (activeSelectNodeOne && isNodeOneAttached
+          ? null
+          : activeSelectNodeOne) ||
+        (activeSelectNodeTwo && isNodeTwoAttached
+          ? null
+          : activeSelectNodeTwo) ||
+        activeCircle ||
+        activeRect ||
+        selectBox;
 
   return {
     activeItem,
@@ -385,12 +396,14 @@ export const getMouseUpActiveItem = ({
   selectedCircleID,
   selectedAttachableLine,
   selectBox,
+  selectedControlBarAction,
 }: {
   circles: CircleReceiver[];
   attachableLines: Edge[];
   selectedCircleID: string | null;
   selectedAttachableLine: SelectedAttachableLine | null;
   selectBox: SelectBox | null;
+  selectedControlBarAction: DrawTypes | null;
 }) => {
   const activeCircle = circles.find((circle) => circle.id === selectedCircleID);
 
@@ -414,7 +427,9 @@ export const getMouseUpActiveItem = ({
 
   const activeAttachNodeOne = activeRectContainerOne?.attachNodeOne;
   const activeAttachNodeTwo = activeRectContainerTwo?.attachNodeTwo;
+
   const activeItem =
+    (selectedControlBarAction && { type: selectedControlBarAction }) ||
     activeCircle ||
     activeRect ||
     activeAttachNodeOne ||
@@ -797,4 +812,66 @@ export const getSelectedGeometry = ({
     selectedIds,
     maxPoints: maxPoints,
   };
+};
+
+export const drawPencil = ({
+  ctx,
+  pencilCoordinates,
+}: {
+  ctx: CanvasRenderingContext2D;
+  pencilCoordinates: PencilCoordinates;
+}) => {
+  console.log('pencil cords', pencilCoordinates);
+  // pencilCoordinates.drawingCoordinates.forEach(cord => {
+
+  // })
+
+  // const radius = 2;
+  // ctx.beginPath();
+  // ctx.arc(cord[0], cord[1], radius, 0, 2 * Math.PI, false);
+  // ctx.fillStyle = 'white';
+  // ctx.fill();
+  // ctx.moveTo(continuous_cords)
+  // continuous_cords.forEach(cord => {
+  //   ctx.moveTo(cord[0], cord[1])
+  //   ctx.lineTo(cord[0])
+  // })
+  pencilCoordinates.drawingCoordinates.reduce<[number, number] | null>(
+    (prev, curr) => {
+      if (prev !== null) {
+        ctx.moveTo(prev[0], prev[1]);
+        ctx.lineTo(curr[0], curr[1]);
+      }
+      return curr;
+    },
+    null
+  );
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'white';
+
+  ctx.stroke();
+
+  pencilCoordinates.drawnCoordinates.forEach((continuousCords) => {
+    // const radius = 2;
+    // ctx.beginPath();
+    // ctx.arc(cord[0], cord[1], radius, 0, 2 * Math.PI, false);
+    // ctx.fillStyle = 'white';
+    // ctx.fill();
+    // ctx.moveTo(continuous_cords)
+    // continuous_cords.forEach(cord => {
+    //   ctx.moveTo(cord[0], cord[1])
+    //   ctx.lineTo(cord[0])
+    // })
+    continuousCords.reduce<[number, number] | null>((prev, curr) => {
+      if (prev !== null) {
+        ctx.moveTo(prev[0], prev[1]);
+        ctx.lineTo(curr[0], curr[1]);
+      }
+      return curr;
+    }, null);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'white';
+
+    ctx.stroke();
+  });
 };
