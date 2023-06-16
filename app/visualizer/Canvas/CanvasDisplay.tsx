@@ -612,6 +612,13 @@ const CanvasDisplay = ({
       selectedIds: selectedGeometryInfo?.selectedIds,
       dfsVisitedNodes,
     });
+    if (selectBox) {
+      Canvas.drawBox({
+        ctx,
+        box: selectBox,
+        fill: true,
+      });
+    }
     Canvas.drawEdges({
       ctx,
       edges: attachableLines,
@@ -627,14 +634,6 @@ const CanvasDisplay = ({
       ctx,
       nodes: circles,
     });
-
-    if (selectBox) {
-      Canvas.drawBox({
-        ctx,
-        box: selectBox,
-        fill: true,
-      });
-    }
   }, [
     circles,
     attachableLines,
@@ -668,7 +667,7 @@ const CanvasDisplay = ({
     document.addEventListener('keydown', handleDelete);
 
     return () => document.removeEventListener('keydown', handleDelete);
-  }, [dispatch, selectedGeometryInfo]);
+  }, [dispatch, selectedGeometryInfo, setSelectedGeometryInfo]);
   // pls clean up future me
   function zoomCircle(
     center: [number, number],

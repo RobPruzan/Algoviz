@@ -787,13 +787,14 @@ export const getSelectedGeometry = ({
       maxY = Math.max(circleBox.p2[1], maxY);
     }
   });
-  ('selected');
+
+  const maxPoints: MaxPoints = {
+    closestToOrigin: [minX, minY],
+    furthestFromOrigin: [maxX, maxY],
+  };
+
   return {
     selectedIds,
-    maxPoints: {
-      closestToOrigin: [minX, minY],
-      furthestFromOrigin: [maxX, maxY],
-      // temporary is asserting nothing
-    } as MaxPoints,
+    maxPoints: maxPoints,
   };
 };

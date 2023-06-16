@@ -151,7 +151,7 @@ const SortControlBar = ({ algorithm }: Props) => {
     controlBarState.historyPointer + 1
   );
   return (
-    <div className="w-full h-20 flex items-center justify-evenly">
+    <div className="w-full h-[5rem] flex items-center justify-evenly">
       <Button>
         {controlBarState.playing ? (
           <Pause

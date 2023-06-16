@@ -1,3 +1,6 @@
+import { Vertex } from '@/components/icons/Vertex';
+import { UndirectedEdgeIcon } from '@/components/icons/UndirectedEdge';
+
 import { Button } from '@/components/ui/button';
 import { useBreadthFirstSearch } from '@/hooks/useBreadthFirstSearch';
 import { useDepthFirstSearch } from '@/hooks/useDepthFirstSearch';
@@ -11,10 +14,16 @@ import {
   Circle,
   GitBranchPlus,
   Inspect,
+  Pencil,
   PlayIcon,
 } from 'lucide-react';
 import { Play } from 'next/font/google';
 import React, { Dispatch, SetStateAction } from 'react';
+import { DirectedEdgeIcon } from '@/components/icons/DirectedEdge';
+import { BinarySearchTreeIcon } from '@/components/icons/BinarySearchTree';
+import { GraphIcon } from '@/components/icons/Graph';
+import { RedBlackTreeIcon } from '@/components/icons/RedBlackTree';
+import { LinkedListIcon } from '@/components/icons/LinkedList';
 
 type Props = {
   handleDfs: () => void;
@@ -34,16 +43,6 @@ const CanvasControlBar = ({ handleDfs }: Props) => {
     vertices: circles,
   });
 
-  // const { handleBfs } = useBreadthFirstSearch({
-  //   adjacencyList,
-  //   // temporary until select is implemented
-  //   startingNode: [...adjacencyList.keys()].at(0) ?? '',
-  // });
-  // const { handleDfs } = useDepthFirstSearch({
-  //   adjacencyList,
-  //   // temporary until select is implemented
-  //   startingNode: [...adjacencyList.keys()].at(0) ?? '',
-  // });
   // fix all these hard coded numbers and random spawn points
   // move random spawn points to slight distribution around middle of canvas
   // or when I have time do so you select then click on the screen
@@ -152,13 +151,54 @@ const CanvasControlBar = ({ handleDfs }: Props) => {
     dispatch(CanvasActions.addCircle(newCircle));
   };
   return (
-    <div className="w-full  h-20 flex items-center justify-evenly">
-      <Button
+    <div className="w-full  h-[5rem] flex items-start ">
+      <div className="flex flex-col h-full ">
+        <div className="h-1/2 flex">
+          <Button
+            onClick={handleAddUndirectedEdge}
+            className="bg-secondary  hover:bg-primary w-24 rounded-sm rounded-b-none rounded-r-none h-full border border-foreground"
+          >
+            <UndirectedEdgeIcon />
+          </Button>
+          <Button
+            onClick={handleAddCircle}
+            className="bg-secondary hover:bg-primary w-16 border border-foreground rounded-none h-full"
+          >
+            <Vertex />
+          </Button>
+        </div>
+        <div className="h-1/2 flex">
+          <Button
+            onClick={handleAddDirectedEdge}
+            className="bg-secondary hover:bg-primary w-24  border border-foreground rounded-none h-full"
+          >
+            <DirectedEdgeIcon />
+          </Button>
+          <Button className="bg-secondary hover:bg-primary  w-16 border border-foreground rounded-none h-full">
+            <Pencil />
+          </Button>
+        </div>
+      </div>
+      <Button className="bg-secondary hover:bg-primary  w-24  border border-foreground rounded-none h-full">
+        <BinarySearchTreeIcon />
+      </Button>
+      <Button className="bg-secondary hover:bg-primary w-24  border border-foreground rounded-none h-full">
+        <GraphIcon />
+      </Button>
+      <Button className="bg-secondary hover:bg-primary w-24  border border-foreground rounded-none h-full">
+        <RedBlackTreeIcon />
+      </Button>
+      <Button className="bg-secondary hover:bg-primary w-24  border border-foreground rounded-none h-full">
+        <LinkedListIcon />
+      </Button>
+      {/* <Button
         className="bg-secondary hover:bg-primary border border-secondary"
         onClick={handleAddCircle}
       >
         <Circle />
-      </Button>
+      </Button> */}
+      {/* 
+      
       <Button
         className="bg-secondary hover:bg-primary border border-secondary"
         onClick={handleAddUndirectedEdge}
@@ -182,7 +222,7 @@ const CanvasControlBar = ({ handleDfs }: Props) => {
         onClick={handleDfs}
       >
         <GitBranchPlus />
-      </Button>
+      </Button> */}
     </div>
   );
 };
