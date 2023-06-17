@@ -21,6 +21,7 @@ const Visualize = () => {
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
   const [selectedControlBarAction, setSelectedControlBarAction] =
     useState<DrawTypes | null>(null);
+  // if i were to redo this, i would just set the selected ids in state
   const [selectedGeometryInfo, setSelectedGeometryInfo] =
     useState<SelectedGeometryInfo | null>(null);
   const selectedAttachableLines = attachableLines.filter((line) =>

@@ -1,4 +1,5 @@
 'use client';
+
 import {
   Edge,
   CircleConnector,
@@ -8,9 +9,9 @@ import {
   SelectBox,
   MaxPoints,
   ALGORITHMS,
-  SelectedGeometryInfo,
   DrawTypes,
   PencilCoordinates,
+  SelectedGeometryInfo,
 } from '@/lib/types';
 import { AlgoComboBox, isStringAlgorithm } from '../Sort/AlgoComboBox';
 import React, {
@@ -24,6 +25,8 @@ import React, {
   SetStateAction,
 } from 'react';
 import * as Canvas from '@/lib/Canvas/canvas';
+import * as Draw from '@/lib/Canvas/drawUtils';
+
 import * as Graph from '@/lib/Canvas/canvas';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
@@ -82,6 +85,7 @@ const CanvasDisplay = ({
       drawnCoordinates: [],
     }
   );
+
   const previousMousePositionRef = useRef<[number, number]>(); //this will be used for everything down the line to make
   // const { visited } = useAppSelector((store) => store.dfs);
   const { sideBarState, setSideBarState } = useContext(SideBarContext);
@@ -142,13 +146,6 @@ const CanvasDisplay = ({
           id: rect.id,
           selected: 'line',
         });
-        // temporary obviously does nothing not sure how i want to deal with color state yet
-        // probably best to just calculate it and draw it based on that vs essentially duplicating state
-        const newRect: Edge = {
-          ...rect,
-          // color: 'gray',
-        };
-        dispatch(CanvasActions.replaceAttachableLine(newRect));
       })
       .with({ type: 'node1' }, (nodeOne) => {
         const activeRectContainerOne = attachableLines.find(
@@ -159,14 +156,6 @@ const CanvasDisplay = ({
           id: nodeOne.id,
           selected: 'node1',
         });
-        const newRectContainerOne: Edge = {
-          ...activeRectContainerOne,
-          attachNodeOne: {
-            ...activeRectContainerOne.attachNodeOne,
-            color: '#1c356b',
-          },
-        };
-        dispatch(CanvasActions.replaceAttachableLine(newRectContainerOne));
       })
       .with({ type: 'node2' }, (nodeTwo) => {
         const activeRectContainerTwo = attachableLines.find(
@@ -177,14 +166,6 @@ const CanvasDisplay = ({
           id: nodeTwo.id,
           selected: 'node2',
         });
-        const newRectContainerTwo: Edge = {
-          ...activeRectContainerTwo,
-          attachNodeTwo: {
-            ...activeRectContainerTwo.attachNodeTwo,
-            color: '#1c356b',
-          },
-        };
-        dispatch(CanvasActions.replaceAttachableLine(newRectContainerTwo));
       })
       .with({ type: 'pencil' }, () => {})
 
@@ -255,36 +236,28 @@ const CanvasDisplay = ({
         // this should be a case obviously just doing this for quick measures
         if (isSelectBoxSet && isMouseDownRef.current) {
           const updatedCircles: CircleReceiver[] = circles.map((circle) => {
+            const shiftedCircle = Canvas.shiftCircle({ circle, shift });
             if (selectedGeometryInfo.selectedIds.has(circle.id)) {
               return {
+                ...shiftedCircle,
+                nodeReceiver: {
+                  ...shiftedCircle.nodeReceiver,
+                  attachedIds: circle.nodeReceiver.attachedIds.filter((id) =>
+                    selectedGeometryInfo.selectedIds.has(id)
+                  ),
+                },
+              };
+            } else {
+              return {
                 ...circle,
-                center: [
-                  circle.center[0] - shift[0],
-                  circle.center[1] - shift[1],
-                ],
                 nodeReceiver: {
                   ...circle.nodeReceiver,
                   attachedIds: circle.nodeReceiver.attachedIds.filter((id) =>
                     selectedGeometryInfo.selectedIds.has(id)
                   ),
-
-                  center: [
-                    circle.nodeReceiver.center[0] - shift[0],
-                    circle.nodeReceiver.center[1] - shift[1],
-                  ],
                 },
               };
             }
-            // the circle isn't selected but it has stuff that is, then break the link
-            return {
-              ...circle,
-              nodeReceiver: {
-                ...circle.nodeReceiver,
-                attachedIds: circle.nodeReceiver.attachedIds.filter(
-                  (id) => !selectedGeometryInfo.selectedIds.has(id)
-                ),
-              },
-            };
           });
           // dispatch this
           const updatedLines: Edge[] = attachableLines.map((line) => {
@@ -293,64 +266,43 @@ const CanvasDisplay = ({
               selectedGeometryInfo.selectedIds.has(line.attachNodeOne.id) ||
               selectedGeometryInfo.selectedIds.has(line.attachNodeTwo.id)
             ) {
+              const nodeOneConnectedToId =
+                line.attachNodeOne.connectedToId &&
+                selectedGeometryInfo.selectedIds.has(
+                  line.attachNodeOne.connectedToId
+                )
+                  ? line.attachNodeOne.connectedToId
+                  : null;
+
+              const nodeTwoConnectedToId =
+                line.attachNodeTwo.connectedToId &&
+                selectedGeometryInfo.selectedIds.has(
+                  line.attachNodeTwo.connectedToId
+                )
+                  ? line.attachNodeTwo.connectedToId
+                  : null;
               // need to deduplicate this
+              const shiftedLine = Canvas.shiftLine({ line, shift });
               const newLine: Edge = {
-                ...line,
-                x1: line.x1 - shift[0],
-                y1: line.y1 - shift[1],
-                x2: line.x2 - shift[0],
-                y2: line.y2 - shift[1],
+                ...shiftedLine,
                 attachNodeOne: {
-                  ...line.attachNodeOne,
-                  center: [
-                    line.attachNodeOne.center[0] - shift[0],
-                    line.attachNodeOne.center[1] - shift[1],
-                  ],
-                  connectedToId:
-                    line.attachNodeOne.connectedToId &&
-                    selectedGeometryInfo.selectedIds.has(
-                      line.attachNodeOne.connectedToId
-                    )
-                      ? line.attachNodeOne.connectedToId
-                      : null,
+                  ...shiftedLine.attachNodeOne,
+                  connectedToId: nodeOneConnectedToId,
                 },
                 attachNodeTwo: {
-                  ...line.attachNodeTwo,
-                  center: [
-                    line.attachNodeTwo.center[0] - shift[0],
-                    line.attachNodeTwo.center[1] - shift[1],
-                  ],
-                  connectedToId:
-                    line.attachNodeTwo.connectedToId &&
-                    selectedGeometryInfo.selectedIds.has(
-                      line.attachNodeTwo.connectedToId
-                    )
-                      ? line.attachNodeTwo.connectedToId
-                      : null,
+                  ...shiftedLine.attachNodeTwo,
+                  connectedToId: nodeTwoConnectedToId,
                 },
               };
+
               return newLine;
             }
             return line;
           });
-          const newSelectBox: {
-            selectedIds: Set<string>;
-            maxPoints: MaxPoints;
-          } = {
-            ...selectedGeometryInfo,
-            maxPoints: {
-              closestToOrigin: [
-                selectedGeometryInfo.maxPoints.closestToOrigin[0] - shift[0],
-                selectedGeometryInfo.maxPoints.closestToOrigin[1] - shift[1],
-              ],
-              furthestFromOrigin: [
-                selectedGeometryInfo.maxPoints.furthestFromOrigin[0] - shift[0],
-                selectedGeometryInfo.maxPoints.furthestFromOrigin[1] - shift[1],
-              ],
-            },
-          };
-
-          setSelectedGeometryInfo(newSelectBox);
+          // weird behavior when moving quick because of circles, need to investigate latter
+          setSelectedGeometryInfo(
+            Canvas.shiftSelectBox({ selectedGeometryInfo, shift })
+          );
           dispatch(CanvasActions.setCircles(updatedCircles));
           dispatch(CanvasActions.setLines(updatedLines));
           previousMousePositionRef.current = [mousePositionX, mousePositionY];
@@ -590,7 +542,7 @@ const CanvasDisplay = ({
       });
   };
 
-  const handleMouseUp = (event: MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseUp = () => {
     const { activeItem } = Canvas.getMouseUpActiveItem({
       attachableLines,
       circles,
@@ -1078,12 +1030,13 @@ const CanvasDisplay = ({
     if (!ctx) return;
     if (!canvas) return;
 
-    Canvas.optimizeCanvas({
+    Draw.optimizeCanvas({
       ctx,
       canvas,
     });
+
     if (selectedGeometryInfo?.maxPoints) {
-      Canvas.drawBox({
+      Draw.drawBox({
         ctx,
         box: {
           p1: selectedGeometryInfo?.maxPoints.closestToOrigin,
@@ -1094,38 +1047,43 @@ const CanvasDisplay = ({
     // first written, first rendered
     // meaning items written later will layer over the previous
 
-    Canvas.drawNodes({
+    Draw.drawNodes({
       ctx,
       nodes: circles,
       selectedCircleID,
       selectedIds: selectedGeometryInfo?.selectedIds,
       dfsVisitedNodes,
     });
+
     if (selectBox) {
-      Canvas.drawBox({
+      Draw.drawBox({
         ctx,
         box: selectBox,
         fill: true,
       });
     }
-    Canvas.drawEdges({
+
+    Draw.drawEdges({
       ctx,
       edges: attachableLines,
       selectedIds: selectedGeometryInfo?.selectedIds,
       selectedAttachableLine,
     });
-    Canvas.drawEdgeConnectors({
+
+    Draw.drawEdgeConnectors({
       ctx,
       edges: attachableLines,
     });
 
-    Canvas.drawNodeReceivers({
+    Draw.drawNodeReceivers({
       ctx,
       nodes: circles,
     });
 
+    // for whatever reason this is wrapping the node reciever in a ring, need to determine why :/
+    // i guess canvas could be a ref inside the ref
     if (pencilCoordinates) {
-      Canvas.drawPencil({
+      Draw.drawPencil({
         ctx,
         pencilCoordinates,
       });
@@ -1175,6 +1133,7 @@ const CanvasDisplay = ({
             >
               Delete
             </ContextMenuItem>
+            <ContextMenuItem inset>Fully Connect Nodes</ContextMenuItem>
 
             <ContextMenuSub>
               <ContextMenuSubTrigger inset>Algorithms</ContextMenuSubTrigger>
@@ -1232,29 +1191,6 @@ const CanvasDisplay = ({
         </ContextMenu>
 
         <ContextMenuTrigger></ContextMenuTrigger>
-
-        <ContextMenuContent>
-          <ContextMenuSub>
-            <ContextMenuItem
-              onClick={(e) => {
-                if (selectedCircleID) {
-                  dispatch(CanvasActions.deleteCircle(selectedCircleID));
-
-                  setSelectedCircleID(null);
-                }
-              }}
-              inset
-            >
-              Delete
-              <ContextMenuShortcut>⌘D</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuSubTrigger inset>Edit Node</ContextMenuSubTrigger>
-            <ContextMenuSubContent className="w-48 p-3 h-24 flex flex-col items-center justify-evenly">
-              <Label htmlFor="vertex-input">Update Vertex Value</Label>
-              <Input type="number" id="vertex-input" />
-            </ContextMenuSubContent>
-          </ContextMenuSub>
-        </ContextMenuContent>
       </ContextMenu>
     </>
   );
