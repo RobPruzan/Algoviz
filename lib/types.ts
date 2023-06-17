@@ -117,14 +117,12 @@ export type Rect = {
 export type UndirectedEdge = Rect & {
   attachNodeOne: NodeConnector;
   attachNodeTwo: NodeConnector;
-  algorithmMetadata: AlgorithmMetadata;
   directed: false;
 };
 
 export type DirectedEdge = Rect & {
   attachNodeOne: NodeConnector;
   attachNodeTwo: NodeConnector;
-  algorithmMetadata: AlgorithmMetadata;
   directed: true;
 };
 

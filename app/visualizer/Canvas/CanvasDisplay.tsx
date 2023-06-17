@@ -90,7 +90,9 @@ const CanvasDisplay = ({
   // const { visited } = useAppSelector((store) => store.dfs);
   const { sideBarState, setSideBarState } = useContext(SideBarContext);
   const dispatch = useAppDispatch();
-  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
+  const { attachableLines, circles, creationZoomFactor } = useAppSelector(
+    (store) => store.canvas
+  );
 
   const isMouseDownRef = useRef(false);
   const offsetX = useRef(0);
@@ -880,33 +882,32 @@ const CanvasDisplay = ({
     canvas.addEventListener('wheel', handleWheel, { passive: false });
 
     return () => {
-      // Clean up the event listener on unmount
       canvas.removeEventListener('wheel', handleWheel);
     };
   }, [handleWheel]);
 
-  // useEffect(() => {
-  //   console.log('applying');
-  //   let intervalId: NodeJS.Timeout | null = null;
-  //   setInterval(() => {
-  //     if (playingAlgorithm) {
-  //       console.log('calling', dfsVisited.length, dfsStore);
+  useEffect(() => {
+    console.log('applying');
+    let intervalId: NodeJS.Timeout | null = null;
+    setInterval(() => {
+      if (playingAlgorithm) {
+        console.log('calling', dfsVisited.length, dfsStore);
 
-  //       if (dfsStore.visitedPointer < dfsStore.visited.length) {
-  //         dispatch(DFSActions.incrementVisitedPointer());
-  //         console.log('balling', dfsStore);
-  //       } else {
-  //         intervalId && clearInterval(intervalId);
-  //         setPlayingAlgorithm(false);
-  //       }
-  //     }
-  //   }, 1000);
-  //   return () => {
-  //     if (intervalId) {
-  //       clearInterval(intervalId);
-  //     }
-  //   };
-  // }, [playingAlgorithm]);
+        if (dfsStore.visitedPointer < dfsStore.visited.length) {
+          dispatch(DFSActions.incrementVisitedPointer());
+          console.log('balling', dfsStore);
+        } else {
+          intervalId && clearInterval(intervalId);
+          setPlayingAlgorithm(false);
+        }
+      }
+    }, 1000);
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [dfsStore, dfsVisited.length, dispatch, playingAlgorithm]);
   const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
     if (e.key === 'Escape') {
       setSelectedGeometryInfo(null);
@@ -1133,7 +1134,100 @@ const CanvasDisplay = ({
             >
               Delete
             </ContextMenuItem>
-            <ContextMenuItem inset>Fully Connect Nodes</ContextMenuItem>
+            <ContextMenuItem
+              onClick={(e) => {
+                // need to create new lines
+                // need to attach them to every circle
+                // double loup'e it
+                const visited = new Set<string>();
+                const selectedCircles = circles.filter((circle) =>
+                  selectedGeometryInfo?.selectedIds.has(circle.id)
+                );
+                for (const circleA of selectedCircles) {
+                  for (const circleB of selectedCircles) {
+                    const storeCircleA = circles.find(
+                      (circle) => circle.id == circleA.id
+                    );
+                    const storeCircleB = circles.find(
+                      (circle) => circle.id == circleB.id
+                    );
+                    if (!storeCircleA || !storeCircleB) {
+                      throw new Error('Something is wrong with the store');
+                    }
+                    if (
+                      visited.has(storeCircleA.id + storeCircleB.id) ||
+                      visited.has(storeCircleB.id + storeCircleA.id) ||
+                      storeCircleB.id == storeCircleA.id
+                    ) {
+                      continue;
+                    }
+                    // create new line to connect circles
+                    // reciever only ends up with one new connector node attached
+                    const [x1, y1] = storeCircleA.center;
+                    const [x2, y2] = storeCircleB.center;
+                    const newLine: Edge = {
+                      x1,
+                      y1,
+                      x2,
+                      y2,
+                      id: crypto.randomUUID(),
+                      type: 'rect',
+                      width: 7 * creationZoomFactor,
+                      directed: false,
+                      color: 'white',
+                      attachNodeOne: {
+                        center: [x1, y1],
+                        radius: 10 * creationZoomFactor,
+                        color: '#42506e',
+                        id: crypto.randomUUID(),
+                        type: 'node1',
+                        connectedToId: storeCircleA.nodeReceiver.id,
+                      },
+                      attachNodeTwo: {
+                        center: [x2, y2],
+                        radius: 10 * creationZoomFactor,
+                        color: '#42506e',
+                        id: crypto.randomUUID(),
+                        type: 'node2',
+                        connectedToId: storeCircleB.nodeReceiver.id,
+                      },
+                    };
+                    dispatch(
+                      CanvasActions.attachNodeToReciever({
+                        circleId: storeCircleA.id,
+                        attachId: newLine.attachNodeOne.id,
+                      })
+                    );
+                    dispatch(
+                      CanvasActions.attachNodeToReciever({
+                        circleId: storeCircleB.id,
+                        attachId: newLine.attachNodeTwo.id,
+                      })
+                    );
+                    dispatch(CanvasActions.addLine(newLine));
+                    visited.add(storeCircleA.id + storeCircleB.id);
+                    visited.add(storeCircleB.id + storeCircleA.id);
+                    setSelectedGeometryInfo((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            selectedIds: new Set([
+                              ...prev.selectedIds,
+                              newLine.id,
+                              newLine.attachNodeOne.id,
+                              newLine.attachNodeTwo.id,
+                            ]),
+                          }
+                        : null
+                    );
+                  }
+                }
+                setSelectedGeometryInfo(null);
+              }}
+              inset
+            >
+              Fully Connect Nodes
+            </ContextMenuItem>
 
             <ContextMenuSub>
               <ContextMenuSubTrigger inset>Algorithms</ContextMenuSubTrigger>
@@ -1169,18 +1263,18 @@ const CanvasDisplay = ({
                   </CommandGroup>
                 </Command>
                 <Button
-                  onClick={() => {
-                    handleDfs();
-                    dispatch(DFSActions.resetVisitedPointer());
-                    intervalId.current = setInterval(() => {
-                      console.log('calling', dfsVisited.length, visitedPointer);
-                      if (visitedPointer < dfsVisited.length) {
-                        dispatch(DFSActions.incrementVisitedPointer());
-                      } else {
-                        intervalId.current && clearInterval(intervalId.current);
-                      }
-                    }, 1000);
-                  }}
+                  // onClick={() => {
+                  // handleDfs();
+                  // dispatch(DFSActions.resetVisitedPointer());
+                  //   intervalId.current = setInterval(() => {
+                  //     console.log('calling', dfsVisited.length, visitedPointer);
+                  //     if (visitedPointer < dfsVisited.length) {
+                  //       dispatch(DFSActions.incrementVisitedPointer());
+                  //     } else {
+                  //       intervalId.current && clearInterval(intervalId.current);
+                  //     }
+                  //   }, 1000);
+                  // }}
                   className="bg-secondary mt-3 ring-0 hover:bg-primary hover:border hover:border-secondary w-full"
                 >
                   Apply algorithm

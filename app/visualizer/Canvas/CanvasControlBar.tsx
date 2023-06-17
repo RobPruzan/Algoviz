@@ -61,9 +61,7 @@ const CanvasControlBar = ({
     const [x1, y1] = [Math.random() * 400, Math.random() * 400];
     const newLine: UndirectedEdge = {
       id: crypto.randomUUID(),
-      algorithmMetadata: {
-        active: false,
-      },
+
       type: 'rect',
       x1,
       y1,
@@ -100,9 +98,7 @@ const CanvasControlBar = ({
     ];
     const newLine: DirectedEdge = {
       id: crypto.randomUUID(),
-      algorithmMetadata: {
-        active: false,
-      },
+
       type: 'rect',
       x1,
       y1,
@@ -211,38 +207,6 @@ const CanvasControlBar = ({
       <Button className="bg-secondary hover:bg-primary w-24  border border-foreground rounded-none h-full">
         <LinkedListIcon />
       </Button>
-      {/* <Button
-        className="bg-secondary hover:bg-primary border border-secondary"
-        onClick={handleAddCircle}
-      >
-        <Circle />
-      </Button> */}
-      {/* 
-      
-      <Button
-        className="bg-secondary hover:bg-primary border border-secondary"
-        onClick={handleAddUndirectedEdge}
-      >
-        <ArrowUpDown />
-      </Button>
-      <Button
-        className="bg-secondary hover:bg-primary border border-secondary"
-        onClick={handleAddDirectedEdge}
-      >
-        <ArrowUp />
-      </Button>
-      <Button
-        className="bg-secondary hover:bg-primary border border-secondary"
-        onClick={() => dispatch(CanvasActions.updateInspectorVisibility(!show))}
-      >
-        <Inspect />
-      </Button>
-      <Button
-        className="bg-secondary hover:bg-primary border border-secondary"
-        onClick={handleDfs}
-      >
-        <GitBranchPlus />
-      </Button> */}
     </div>
   );
 };

@@ -51,6 +51,14 @@ const canvasSlice = createSlice({
         newElement: action.payload,
       });
     },
+    attachNodeToReciever: (
+      state,
+      action: PayloadAction<{ circleId: string; attachId: string }>
+    ) => {
+      state.circles
+        .find((circle) => circle.id === action.payload.circleId)
+        ?.nodeReceiver.attachedIds.push(action.payload.attachId);
+    },
     replaceAttachableLine: (state, action: PayloadAction<Edge>) => {
       state.attachableLines = Canvas.replaceCanvasElement({
         oldArray: state.attachableLines,

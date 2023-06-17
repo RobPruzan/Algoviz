@@ -246,7 +246,6 @@ export const drawPencil = ({
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'white';
   // ctx.save();
-  console.log('pencil cords', pencilCoordinates);
   pencilCoordinates.drawingCoordinates.reduce<[number, number] | null>(
     (prev, curr) => {
       if (prev !== null) {
