@@ -7,11 +7,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.post('/exec', (req, res) => {
-  const code = req.body.code;
+  const { code, globalVar } = req.body;
+
   const jsCode = ts.transpileModule(code, {
     compilerOptions: { module: ts.ModuleKind.CommonJS },
   }).outputText;
-  const vm = new VM();
+  const vm = new VM({
+    sandbox: {
+      globalVar,
+    },
+  });
   let result;
   try {
     result = vm.run(jsCode);

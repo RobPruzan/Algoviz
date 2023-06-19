@@ -3,6 +3,7 @@ import {
   AlgorithmMetadata,
   DirectedEdge,
   Edge,
+  SelectedGeometryInfo,
 } from '@/lib/types';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import * as Canvas from '@/lib/Canvas/canvas';

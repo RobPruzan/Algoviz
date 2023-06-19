@@ -175,7 +175,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/algo-viz-code-exec/dev/1687137402403-2023-06-19T01:16:42.403Z/algo-viz-code-exec.zip"
+                "S3Key": "serverless/algo-viz-code-exec/dev/1687191817818-2023-06-19T16:23:37.818Z/algo-viz-code-exec.zip"
               },
               "Handler": "app/app.handler",
               "Runtime": "nodejs18.x",
@@ -193,14 +193,14 @@
               "AppLogGroup"
             ]
           },
-          "AppLambdaVersionHbmPtnntwure8LKRSs6iPreyuaa7um62JbSppd7FVqQ": {
+          "AppLambdaVersionmsYc6J28H5XvBk7352AW0j4YN4NjVxBqsj8AzaZlno": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "AppLambdaFunction"
               },
-              "CodeSha256": "Lla/EkBZyPOOSqJIdce6CrpldKCWlnamd38xBuBeQ2M="
+              "CodeSha256": "fgLB8fQjfLLpiGI3/S1+Y61p66IFOuEgCuYUl0koTGw="
             }
           },
           "ApiGatewayRestApi": {
@@ -418,7 +418,7 @@
               "AppLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1687137401196": {
+          "ApiGatewayDeployment1687191816634": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -483,7 +483,7 @@
           "AppLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "AppLambdaVersionHbmPtnntwure8LKRSs6iPreyuaa7um62JbSppd7FVqQ"
+              "Ref": "AppLambdaVersionmsYc6J28H5XvBk7352AW0j4YN4NjVxBqsj8AzaZlno"
             },
             "Export": {
               "Name": "sls-algo-viz-code-exec-dev-AppLambdaFunctionQualifiedArn"
@@ -661,7 +661,7 @@
         "timeout": 6,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "AppLambdaVersionHbmPtnntwure8LKRSs6iPreyuaa7um62JbSppd7FVqQ"
+        "versionLogicalId": "AppLambdaVersionmsYc6J28H5XvBk7352AW0j4YN4NjVxBqsj8AzaZlno"
       }
     },
     "configValidationMode": "warn",
@@ -680,7 +680,7 @@
     "artifact": "/Users/robby/AlgoViz/Algoviz/server/.serverless/algo-viz-code-exec.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/algo-viz-code-exec/dev/1687137402403-2023-06-19T01:16:42.403Z",
+    "artifactDirectoryName": "serverless/algo-viz-code-exec/dev/1687191817818-2023-06-19T16:23:37.818Z",
     "artifact": "algo-viz-code-exec.zip"
   }
 }

@@ -1,5 +1,5 @@
 'use client';
-import React, { useContext, useState } from 'react';
+import React, { Dispatch, SetStateAction, useContext, useState } from 'react';
 import SortControlBar from './Sort/SortControlBar';
 import SortDisplay from './Sort/SortDisplay';
 import * as Graph from '@/lib/graph';
@@ -14,16 +14,24 @@ import {
 import { useAppSelector } from '@/redux/store';
 import { SideBarContext } from '@/context/SideBarContext';
 import { useDepthFirstSearch } from '@/hooks/useDepthFirstSearch';
-
-const Visualize = () => {
+type Props = {
+  selectedGeometryInfo: SelectedGeometryInfo | null;
+  setSelectedGeometryInfo: Dispatch<
+    SetStateAction<SelectedGeometryInfo | null>
+  >;
+};
+const Visualize = ({
+  selectedGeometryInfo,
+  setSelectedGeometryInfo,
+}: Props) => {
   const { sideBarState } = useContext(SideBarContext);
   const { show } = useAppSelector((store) => store.canvas.variableInspector);
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
   const [selectedControlBarAction, setSelectedControlBarAction] =
     useState<DrawTypes | null>(null);
   // if i were to redo this, i would just set the selected ids in state
-  const [selectedGeometryInfo, setSelectedGeometryInfo] =
-    useState<SelectedGeometryInfo | null>(null);
+  // const [selectedGeometryInfo, setSelectedGeometryInfo] =
+  //   useState<SelectedGeometryInfo | null>(null);
   const selectedAttachableLines = attachableLines.filter((line) =>
     selectedGeometryInfo?.selectedIds.has(line.id)
   );

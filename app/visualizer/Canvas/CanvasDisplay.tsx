@@ -116,7 +116,7 @@ const CanvasDisplay = ({
   const [playingAlgorithm, setPlayingAlgorithm] = useState(false);
 
   const dfsVisitedNodes = dfsVisited.slice(0, visitedPointer);
-
+  // should make all the handlers hooks
   const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
     isMouseDownRef.current = true;
     const activeItemInfo = Canvas.getMouseDownActiveItem({
@@ -1114,12 +1114,12 @@ const CanvasDisplay = ({
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onWheel={(e) => e}
-              tabIndex={0}
+              tabIndex={-1}
               onContextMenu={handleContextMenu}
               onMouseUp={handleMouseUp}
               width={1500}
               onKeyDown={handleKeyDown}
-              height={700}
+              height={800}
             />
           </ContextMenuTrigger>
           <ContextMenuContent className="w-64">

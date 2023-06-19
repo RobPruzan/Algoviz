@@ -4,18 +4,30 @@ import { Card } from '@/components/ui/card';
 import { useAppSelector } from '@/redux/store';
 // import { Editor, useMonaco } from '@monaco-editor/react';
 import Editor, { useMonaco } from '@monaco-editor/react';
+import * as Graph from '@/lib/graph';
 
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { P } from 'ts-pattern';
 import { z } from 'zod';
 import { nightOwlTheme, outputTheme } from './theme';
 import { Circle, Loader, Play } from 'lucide-react';
 import Node from '@/components/Visualizers/Node';
-
-const CodeExecution = () => {
+import { SelectedGeometryInfo } from '@/lib/types';
+type Props = {
+  selectedGeometryInfo: SelectedGeometryInfo | null;
+  setSelectedGeometryInfo: Dispatch<
+    SetStateAction<SelectedGeometryInfo | null>
+  >;
+};
+const CodeExecution = ({
+  selectedGeometryInfo,
+  setSelectedGeometryInfo,
+}: Props) => {
   const variables = useAppSelector((store) => store.canvas.variableInspector);
+  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
+
   const [code, setCode] = useState(
     `
 type NodeID = string // uuid representing a node
@@ -28,6 +40,21 @@ function algorithm(adjList: AdjacencyList): Visualization{
 }
   `
   );
+  const selectedAttachableLines = attachableLines.filter((line) =>
+    selectedGeometryInfo?.selectedIds.has(line.id)
+  );
+  const selectedCircles = circles.filter((circle) =>
+    selectedGeometryInfo?.selectedIds.has(circle.id)
+  );
+
+  const adjacencyList: Record<string, string[]> = [
+    ...Graph.getAdjacencyList({
+      edges: selectedAttachableLines,
+      vertices: selectedCircles,
+    }).entries(),
+  ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
+    return { ...prev, [id]: neighbors };
+  }, {});
 
   const codeMutation = useMutation({
     mutationFn: async (code: string) => {
@@ -35,6 +62,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
       if (!url) return;
       const res = await axios.post(url, {
         code,
+        adjacencyList,
       });
       const dataSchema = z.object({ data: z.object({ result: z.unknown() }) });
       const parsed = dataSchema.parse(res.data);
@@ -59,6 +87,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
           <Play />
         </Button>
       </div>
+
       <Editor
         beforeMount={(m) => {
           // vercel thing, basename type gets widened when building prod
