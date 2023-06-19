@@ -62,6 +62,7 @@ export type Props = {
   setSelectedGeometryInfo: Dispatch<
     SetStateAction<SelectedGeometryInfo | null>
   >;
+  canvasWidth: number | '60%';
   handleDfs: () => void;
   selectedControlBarAction: DrawTypes | null;
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
@@ -73,6 +74,7 @@ const CanvasDisplay = ({
   handleDfs,
   selectedControlBarAction,
   setSelectedControlBarAction,
+  canvasWidth,
 }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   console.log('viewport width', window.innerWidth);
@@ -1101,6 +1103,7 @@ const CanvasDisplay = ({
     dfsVisitedNodes,
     pencilCoordinates,
   ]);
+
   return (
     <>
       <ContextMenu>
@@ -1109,17 +1112,16 @@ const CanvasDisplay = ({
             <canvas
               className={`
               ${selectedControlBarAction === 'pencil' ? 'cursor-crosshair' : ''}
-               bg-fancy`}
+               bg-fancy `}
               ref={canvasRef}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
-              onWheel={(e) => e}
               tabIndex={-1}
               onContextMenu={handleContextMenu}
               onMouseUp={handleMouseUp}
-              width={1500}
+              width={window.innerWidth}
               onKeyDown={handleKeyDown}
-              height={800}
+              height={window.innerHeight}
             />
           </ContextMenuTrigger>
           <ContextMenuContent className="w-64">

@@ -37,7 +37,7 @@ type Visualization = VisitedIDs[]
 
 function algorithm(adjList: AdjacencyList): Visualization{
     // your code here
-}
+};
   `
   );
   const selectedAttachableLines = attachableLines.filter((line) =>
@@ -56,13 +56,15 @@ function algorithm(adjList: AdjacencyList): Visualization{
     return { ...prev, [id]: neighbors };
   }, {});
 
+  console.log('the adjaceny list', adjacencyList);
+
   const codeMutation = useMutation({
     mutationFn: async (code: string) => {
       const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
       if (!url) return;
       const res = await axios.post(url, {
         code,
-        adjacencyList,
+        globalVar: adjacencyList,
       });
       const dataSchema = z.object({ data: z.object({ result: z.unknown() }) });
       const parsed = dataSchema.parse(res.data);
@@ -77,7 +79,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
   console.log('codemutation data', codeMutation.data);
   console.log('the code', code);
   return variables.show ? (
-    <div className="md:w-[350px]  lg:w-[450px] rounded-md flex flex-col h-[90%] border border-foreground transition">
+    <div className="h-full w-full border border-foreground flex flex-col items-center">
       <div className="h-[5%] flex w-full justify-center items-center border-b border-foreground">
         <Button
           onClick={() => {
@@ -87,38 +89,37 @@ function algorithm(adjList: AdjacencyList): Visualization{
           <Play />
         </Button>
       </div>
-
-      <Editor
-        beforeMount={(m) => {
-          // vercel thing, basename type gets widened when building prod
-          m.editor.defineTheme('night-owl', nightOwlTheme as any);
-        }}
-        theme="night-owl"
-        value={code}
-        onChange={(e) => {
-          if (e) {
-            setCode(e);
-          }
-        }}
-        // className="bg-primary h-3/5"
-        height="55%"
-        defaultLanguage="typescript"
-        options={{
-          minimap: { enabled: false }, // This turns off the minimap
-          folding: false, // This turns off the sidebar (folding region)
-          scrollbar: {
-            vertical: 'hidden', // This hides the vertical scrollbar
-            horizontal: 'hidden', // This hides the horizontal scrollbar
-          },
-        }}
-      />
+      <div className="max-w-[98%] w-full h-full">
+        <Editor
+          beforeMount={(m) => {
+            // vercel thing, basename type gets widened when building prod
+            m.editor.defineTheme('night-owl', nightOwlTheme as any);
+          }}
+          theme="night-owl"
+          value={code}
+          onChange={(e) => {
+            if (e) {
+              setCode(e);
+            }
+          }}
+          // height="55%"
+          defaultLanguage="typescript"
+          options={{
+            minimap: { enabled: false }, // This turns off the minimap
+            folding: false, // This turns off the sidebar (folding region)
+            scrollbar: {
+              vertical: 'hidden', // This hides the vertical scrollbar
+              horizontal: 'hidden', // This hides the horizontal scrollbar
+            },
+          }}
+        />
+      </div>
 
       <div className="bg-black border-t border-foreground flex flex-col items-start justify-start text-white  h-2/5">
         {codeMutation.isSuccess && JSON.stringify(codeMutation.data)}
         {codeMutation.isLoading && <Loader />}
       </div>
 
-      {/* 
       <div className="flex w-full">
         <Button
           onClick={() => {
@@ -133,7 +134,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
           {codeMutation.isSuccess &&
             (JSON.stringify(codeMutation.data) as string | number)}
         </div>
-      </div> */}
+      </div>
 
       <Card></Card>
     </div>

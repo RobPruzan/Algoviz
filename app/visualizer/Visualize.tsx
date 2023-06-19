@@ -15,6 +15,7 @@ import { useAppSelector } from '@/redux/store';
 import { SideBarContext } from '@/context/SideBarContext';
 import { useDepthFirstSearch } from '@/hooks/useDepthFirstSearch';
 type Props = {
+  canvasWidth: number | '60%';
   selectedGeometryInfo: SelectedGeometryInfo | null;
   setSelectedGeometryInfo: Dispatch<
     SetStateAction<SelectedGeometryInfo | null>
@@ -23,6 +24,7 @@ type Props = {
 const Visualize = ({
   selectedGeometryInfo,
   setSelectedGeometryInfo,
+  canvasWidth,
 }: Props) => {
   const { sideBarState } = useContext(SideBarContext);
   const { show } = useAppSelector((store) => store.canvas.variableInspector);
@@ -51,12 +53,8 @@ const Visualize = ({
   });
 
   return (
-    <div
-      className={`flex  ${
-        show ? 'canvas-cond-w ' : 'w-[80%]'
-      } flex-col h-[90%] items-center justify-start `}
-    >
-      <div className="w-full  border border-b-0 rounded-b-none border-foreground rounded-md">
+    <div className={`flex w-full flex-col h-full items-center justify-start `}>
+      <div className="w-full  border border-b-0 rounded-b-none border-foreground ">
         {sideBarState.display === 'nodes' ? (
           <SortControlBar algorithm={sideBarState.algorithm} />
         ) : (
@@ -67,11 +65,12 @@ const Visualize = ({
           />
         )}
       </div>
-      <div className=" w-full overflow-y-scroll rounded-t-none h-full border border-foreground rounded-md">
+      <div className=" w-full overflow-y-scroll rounded-t-none h-full border border-foreground ">
         {sideBarState.display === 'nodes' ? (
           <SortDisplay algorithm={sideBarState.algorithm} />
         ) : (
           <CanvasDisplay
+            canvasWidth={canvasWidth}
             selectedControlBarAction={selectedControlBarAction}
             setSelectedControlBarAction={setSelectedControlBarAction}
             handleDfs={handleDfs}
