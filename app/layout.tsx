@@ -24,12 +24,12 @@ export default function RootLayout({
       <html lang="en">
         <body
           className={cn(
-            'min-h-screen bg-background dark font-sans antialiased',
+            'min-h-screen bg-background dark font-sans antialiased ',
             fontSans.variable
           )}
         >
-          <nav className="w-screen p-3 h-[15%] flex justify-end items-center m-2">
-            <div className="w-1/5 flex justify-center items-center">
+          <nav className="w-screen p-2 h-[15%] flex justify-end items-center mb-3 ">
+            <div className="w-1/5 flex justify-center items-center ">
               <Button className="bg-secondary ">
                 <Link href="/">Home</Link>
               </Button>

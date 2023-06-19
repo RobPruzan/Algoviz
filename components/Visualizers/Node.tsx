@@ -7,8 +7,9 @@ import React, {
 } from 'react';
 type Props = {
   value: number;
+  size?: number;
 } & ComponentProps<'circle'>;
-const Node = ({ value, ...props }: Props) => {
+const Node = ({ value, size = 42, ...props }: Props) => {
   const ref = useRef<SVGSVGElement>(null);
 
   return (
@@ -20,9 +21,9 @@ const Node = ({ value, ...props }: Props) => {
     >
       <circle
         className="transition duration-300 ease-in"
-        cx="42"
-        cy="50"
-        r="30"
+        cx={size}
+        cy={size}
+        r={size / 1.75}
         stroke="black"
         strokeWidth="3"
         fill="white"

@@ -170,7 +170,6 @@ const SideBar = () => {
           </div>
         </div>
       </div>
-      <div className="h-[85%] w-2 cursor-ew-resize bg-white" />
     </div>
   );
 };

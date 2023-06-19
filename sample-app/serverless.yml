@@ -1,4 +1,4 @@
-service: sample-app
+service: algo-viz-code-exec
 provider:
   name: aws
   runtime: nodejs18.x
@@ -12,8 +12,26 @@ functions:
       - http:
           path: /
           method: ANY
-          cors: true
+          cors:
+            origin: '*' # or specify the exact origin
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
       - http:
           path: /{proxy+}
           method: ANY
-          cors: true
+          cors:
+            origin: '*' # or specify the exact origin
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false

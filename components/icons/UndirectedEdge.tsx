@@ -21,7 +21,7 @@ export const UndirectedEdgeIcon = () => {
         transform="rotate(-90.3324 54.2862 6.28616)"
         fill="white"
       />
-      <line x1="9" y1="6.5" x2="52" y2="6.5" stroke="white" stroke-width="5" />
+      <line x1="9" y1="6.5" x2="52" y2="6.5" stroke="white" />
     </svg>
   );
 };

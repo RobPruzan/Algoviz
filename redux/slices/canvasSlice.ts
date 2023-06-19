@@ -22,7 +22,7 @@ export type CanvasState = {
 const initialState: CanvasState = {
   attachableLines: [],
   circles: [],
-  variableInspector: { show: false, queues: [], stack: [] },
+  variableInspector: { show: true, queues: [], stack: [] },
   creationZoomFactor: 1,
 };
 

@@ -24,7 +24,7 @@ import {
   ControlBarContext,
 } from '@/context/ControlBarContext';
 import { HistoryNodesContext } from '@/context/HistoryNodesContext';
-
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 type Props = {
   children: React.ReactNode;
 };
@@ -36,7 +36,7 @@ const Content = ({ children }: Props) => {
 
   const [controlBarState, setControlBarState] =
     useState<ControlBarContextState>(defaultState);
-
+  const [queryClient] = React.useState(() => new QueryClient());
   return (
     <Provider store={store}>
       <SideBarContext.Provider
@@ -59,7 +59,9 @@ const Content = ({ children }: Props) => {
               setControlBarState,
             }}
           >
-            {children}
+            <QueryClientProvider client={queryClient}>
+              {children}
+            </QueryClientProvider>
           </ControlBarContext.Provider>
         </HistoryNodesContext.Provider>
       </SideBarContext.Provider>

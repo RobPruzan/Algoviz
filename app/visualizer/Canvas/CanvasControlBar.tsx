@@ -207,6 +207,11 @@ const CanvasControlBar = ({
       <Button className="bg-secondary hover:bg-primary w-24  border border-foreground rounded-none h-full">
         <LinkedListIcon />
       </Button>
+      <Button
+        onClick={() => dispatch(CanvasActions.updateInspectorVisibility(!show))}
+      >
+        {/* Code */}
+      </Button>
     </div>
   );
 };

@@ -1116,7 +1116,7 @@ const CanvasDisplay = ({
               tabIndex={0}
               onContextMenu={handleContextMenu}
               onMouseUp={handleMouseUp}
-              width={1000}
+              width={1500}
               onKeyDown={handleKeyDown}
               height={700}
             />

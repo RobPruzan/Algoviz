@@ -44,8 +44,8 @@ const Visualize = () => {
   return (
     <div
       className={`flex  ${
-        show ? ' w-3/6' : 'w-4/6'
-      } flex-col h-[85%] items-center justify-start `}
+        show ? ' w-[65%]' : 'w-[95%]'
+      } flex-col h-[90%] items-center justify-start `}
     >
       <div className="w-full border-2 border-b-0 rounded-b-none border-foreground rounded-md">
         {sideBarState.display === 'nodes' ? (

@@ -13,7 +13,7 @@ export const DirectedEdgeIcon = () => (
       transform="rotate(-90.3324 6.28614 8.28616)"
       fill="white"
     />
-    <line x1="9" y1="8.5" x2="52" y2="8.5" stroke="white" stroke-width="5" />
+    <line x1="9" y1="8.5" x2="52" y2="8.5" stroke="white" />
     <path d="M65 8L51.5 15.7942V0.205771L65 8Z" fill="white" />
   </svg>
 );
