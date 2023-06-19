@@ -158,7 +158,7 @@ const CanvasControlBar = ({
     dispatch(CanvasActions.addCircle(newCircle));
   };
   return (
-    <div className="w-full  h-[5rem] flex items-start ">
+    <div className="w-full overflow-x-scroll  h-[5rem] flex items-start ">
       <div className="flex flex-col h-full ">
         <div className="h-1/2 flex">
           <Button

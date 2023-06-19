@@ -91,3 +91,101 @@
 
   background-size: 1.1rem 1.1rem;
 }
+
+.canvas-cond-w {
+  width: 40%;
+}
+
+.items-display {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-evenly;
+}
+
+/* Level 1: Extra small devices (portrait phones, less than 576px) */
+@media (max-width: 575.98px) {
+  /* styles for level 1 */
+  /* .items-display{
+    display: flex;
+    flex-direction: col;
+    align-items: center;
+    justify-content: center;
+  } */
+}
+
+/* Level 2: Small devices (landscape phones, 576px - 767px) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  /* styles for level 2 */
+  /* .items-display{
+    display: flex;
+    flex-direction: col;
+    align-items: center;
+    justify-content: center;
+  } */
+}
+
+/* Level 3: Medium devices (tablets, 768px - 839px) */
+@media (min-width: 768px) and (max-width: 839.98px) {
+  /* styles for level 3 */
+  /* .items-display{
+    display: flex;
+    flex-direction: col;
+    align-items: center;
+    justify-content: center;
+  } */
+}
+
+/* Level 4: Medium devices (tablets, 840px - 919px) */
+@media (min-width: 840px) and (max-width: 919.98px) {
+  /* styles for level 4 */
+  /* .items-display{
+    display: flex;
+    flex-direction: col;
+    align-items: center;
+    justify-content: center;
+  } */
+}
+
+/* Level 5: Medium devices (tablets, 920px - 991px) */
+@media (min-width: 920px) and (max-width: 991.98px) {
+  /* styles for level 5 */
+  /* .items-display{
+    display: flex;
+    flex-direction: col;
+    align-items: center;
+    justify-content: center;
+  } */
+}
+
+/* Level 6: Large devices (desktops, 992px - 1063px) */
+@media (min-width: 992px) and (max-width: 1063.98px) {
+  /* styles for level 6 */
+}
+
+/* Level 7: Large devices (desktops, 1064px - 1199px) */
+@media (min-width: 1064px) and (max-width: 1199.98px) {
+  /* styles for level 7 */
+  .canvas-cond-w  {
+    width: 50%;
+  }
+}
+
+/* Level 8: Extra large devices (large desktops, 1200px - 1399px) */
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+  /* styles for level 8 */
+  /* here set width lower */
+  .canvas-cond-w  {
+    width: 60%;
+  }
+}
+/* here */
+/* Level 9: Extra large devices (large desktops, 1400px - 1599px) */
+@media (min-width: 1400px) and (max-width: 1599.98px) {
+  /* styles for level 9 */
+}
+
+/* Level 10: Extra extra large devices (large desktops, 1600px and up) */
+@media (min-width: 1600px) {
+  /* styles for level 10 */
+}

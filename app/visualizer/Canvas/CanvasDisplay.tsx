@@ -75,6 +75,7 @@ const CanvasDisplay = ({
   setSelectedControlBarAction,
 }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  console.log('viewport width', window.innerWidth);
 
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
 

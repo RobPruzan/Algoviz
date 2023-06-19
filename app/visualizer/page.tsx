@@ -12,7 +12,7 @@ export const metadata = {
 };
 const page = () => {
   return (
-    <div className="h-screen w-screen flex justify-evenly items-start">
+    <div className="h-screen w-screen flex items-display ">
       <Content>
         {/* <SideBar /> */}
         <Visualize />

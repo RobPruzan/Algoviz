@@ -2,7 +2,8 @@
 const nextConfig = {
   experimental: {
     appDir: true,
-    serverActions: true,
+    // serverActions: true,
+    // turbo: {}
     // esmExternals: 'loose', // required to make Konva & react-konva work
   },
   // webpack: (config) => {
