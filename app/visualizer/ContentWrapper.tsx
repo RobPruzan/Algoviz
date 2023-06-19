@@ -22,6 +22,7 @@ const ContentWrapper = () => {
     setCanvasWidth(parentWidth * 0.6); // 60% width
     setCodeExecWidth(parentWidth * 0.4); // 40% width
   }, []);
+  const padding = 30;
 
   useEffect(() => {
     const mouseMoveHandler = (e: any) => {
@@ -29,7 +30,6 @@ const ContentWrapper = () => {
 
       const parentDiv = parentDivRef.current;
       if (!parentDiv) return;
-      const padding = 40;
       const resizeBarWidth = 12;
 
       // let newDiv1Width = e.clientX - parentDiv.offsetLeft;
@@ -64,7 +64,8 @@ const ContentWrapper = () => {
         display: 'flex',
         width: '100%',
         height: '95%',
-        padding: '40px',
+        padding: `${padding}px`,
+        paddingTop: '10px',
       }}
       ref={parentDivRef}
     >
