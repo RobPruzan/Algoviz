@@ -37,7 +37,7 @@ const SideBar = () => {
   const dispatch = useAppDispatch();
   return (
     <div className=" h-full flex">
-      <div className=" h-[85%] w-64 rounded-md border-2 border-foreground flex flex-col justify-start items-center">
+      <div className=" h-[85%] w-64 rounded-md border border-foreground flex flex-col justify-start items-center">
         <div className="flex flex-col w-full h-4/5 items-center justify-start p-5">
           <DisplayTypeTabs
             setValue={setSideBarState}

@@ -48,7 +48,7 @@ const Visualize = () => {
         show ? 'canvas-cond-w ' : 'w-[80%]'
       } flex-col h-[90%] items-center justify-start `}
     >
-      <div className="w-full  border-2 border-b-0 rounded-b-none border-foreground rounded-md">
+      <div className="w-full  border border-b-0 rounded-b-none border-foreground rounded-md">
         {sideBarState.display === 'nodes' ? (
           <SortControlBar algorithm={sideBarState.algorithm} />
         ) : (
@@ -59,7 +59,7 @@ const Visualize = () => {
           />
         )}
       </div>
-      <div className=" w-full overflow-y-scroll rounded-t-none h-full border-2 border-foreground rounded-md">
+      <div className=" w-full overflow-y-scroll rounded-t-none h-full border border-foreground rounded-md">
         {sideBarState.display === 'nodes' ? (
           <SortDisplay algorithm={sideBarState.algorithm} />
         ) : (

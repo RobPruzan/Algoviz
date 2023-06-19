@@ -49,8 +49,8 @@ function algorithm(adjList: AdjacencyList): Visualization{
   console.log('codemutation data', codeMutation.data);
   console.log('the code', code);
   return variables.show ? (
-    <div className="md:w-[350px]  lg:w-[450px] rounded-md flex flex-col h-[90%] border-2 border-foreground transition">
-      <div className="h-[5%] flex w-full justify-center items-center border-b-2 border-foreground">
+    <div className="md:w-[350px]  lg:w-[450px] rounded-md flex flex-col h-[90%] border border-foreground transition">
+      <div className="h-[5%] flex w-full justify-center items-center border-b border-foreground">
         <Button
           onClick={() => {
             codeMutation.mutate(code);
@@ -84,7 +84,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
         }}
       />
 
-      <div className="bg-black border-t-2 border-foreground flex flex-col items-start justify-start text-white  h-2/5">
+      <div className="bg-black border-t border-foreground flex flex-col items-start justify-start text-white  h-2/5">
         {codeMutation.isSuccess && JSON.stringify(codeMutation.data)}
         {codeMutation.isLoading && <Loader />}
       </div>

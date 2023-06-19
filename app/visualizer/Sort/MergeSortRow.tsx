@@ -18,7 +18,7 @@ const MergeSortRow = ({ historyNode }: Props) => {
           </>
         ))}
       </div>
-      <div className="flex flex-col p-4 justify-center items-center w-1/4 text-foreground font-bold border-l-2 border-l-foreground border-b-foreground border-b-2 ">
+      <div className="flex flex-col p-4 justify-center items-center w-1/4 text-foreground font-bold border-l-2 border-l-foreground border-b-foreground border-b ">
         {historyNode.stateContext}
       </div>
     </div>
