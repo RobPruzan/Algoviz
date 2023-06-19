@@ -183,6 +183,9 @@
 /* Level 9: Extra large devices (large desktops, 1400px - 1599px) */
 @media (min-width: 1400px) and (max-width: 1599.98px) {
   /* styles for level 9 */
+  .canvas-cond-w  {
+    width: 65%;
+  }
 }
 
 /* Level 10: Extra extra large devices (large desktops, 1600px and up) */
