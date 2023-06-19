@@ -29,8 +29,12 @@ const ContentWrapper = () => {
 
       const parentDiv = parentDivRef.current;
       if (!parentDiv) return;
+      const padding = 40;
+      const resizeBarWidth = 12;
 
-      let newDiv1Width = e.clientX - parentDiv.offsetLeft;
+      // let newDiv1Width = e.clientX - parentDiv.offsetLeft;
+      let newDiv1Width =
+        e.clientX - parentDiv.offsetLeft - (padding + resizeBarWidth / 2); // subtract left padding
 
       newDiv1Width = Math.max(0, newDiv1Width);
       newDiv1Width = Math.min(parentDiv.offsetWidth, newDiv1Width);
