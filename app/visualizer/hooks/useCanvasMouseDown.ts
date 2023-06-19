@@ -6,7 +6,7 @@ import {
 import { useAppSelector } from '@/redux/store';
 import * as Canvas from '@/lib/Canvas/canvas';
 
-import React, {
+import {
   Dispatch,
   MouseEvent,
   MutableRefObject,

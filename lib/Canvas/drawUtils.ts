@@ -1,3 +1,4 @@
+import { RefObject } from 'react';
 import {
   CircleReceiver,
   Edge,
@@ -279,3 +280,69 @@ export const drawPencil = ({
     // ctx.restore();
   });
 };
+
+export function zoomCircle(
+  center: [number, number],
+  radius: number,
+  target: [number, number],
+  zoomFactor: number
+): [[number, number], number] {
+  // Translate to origin
+  let translatedCenter: [number, number] = [
+    center[0] - target[0],
+    center[1] - target[1],
+  ];
+
+  // Scale
+  let scaledCenter: [number, number] = [
+    translatedCenter[0] * zoomFactor,
+    translatedCenter[1] * zoomFactor,
+  ];
+  let scaledRadius: number = radius * zoomFactor;
+
+  // Translate back
+  let newCenter: [number, number] = [
+    scaledCenter[0] + target[0],
+    scaledCenter[1] + target[1],
+  ];
+
+  return [newCenter, scaledRadius];
+}
+
+export function zoomLine(
+  center: [number, number],
+  target: [number, number],
+  zoomFactor: number
+): [number, number] {
+  // Translate to origin
+  let translatedCenter: [number, number] = [
+    center[0] - target[0],
+    center[1] - target[1],
+  ];
+
+  // Scale
+  let scaledCenter: [number, number] = [
+    translatedCenter[0] * zoomFactor,
+    translatedCenter[1] * zoomFactor,
+  ];
+
+  // Translate back
+  let newCenter: [number, number] = [
+    scaledCenter[0] + target[0],
+    scaledCenter[1] + target[1],
+  ];
+
+  return newCenter;
+}
+
+export function getCursorPosition(
+  event: WheelEvent,
+  canvasRef: RefObject<HTMLCanvasElement>
+): [number, number] {
+  const canvas = canvasRef.current;
+  if (!canvas) return [0, 0];
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  return [x, y];
+}
