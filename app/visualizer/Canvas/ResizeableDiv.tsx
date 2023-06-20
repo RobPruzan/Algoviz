@@ -48,7 +48,7 @@ const ResizableDiv: React.FC = () => {
       style={{
         width: `${width}px`,
         height: '100%',
-        border: '1px solid black',
+        border-2: '1px solid black',
 
         cursor: 'col-resize',
       }}

@@ -80,8 +80,8 @@ function algorithm(adjList: AdjacencyList): Visualization{
   const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
 
   return variables.show ? (
-    <div className="h-full w-full border border-foreground flex flex-col items-center">
-      <div className="h-[7%] overflow-x-scroll p-5 flex w-full justify-evenly items-center border-b border-foreground">
+    <div className="h-full w-full border-2 border-2-secondary flex flex-col items-center">
+      <div className="h-12 prevent-select overflow-x-scroll p-5 flex w-full justify-evenly items-center border-b-2 border-2-secondary">
         {/* <Button
           onClick={() => {
             codeMutation.mutate(code);
@@ -103,19 +103,19 @@ function algorithm(adjList: AdjacencyList): Visualization{
             codeMutation.mutate(code);
           }}
           variant="outline"
-          className="w-[90px] flex items-center justify-center h-[30px] border-foreground bg-primary  font-bold"
+          className="w-[90px]  flex items-center justify-center h-[30px] border-2-secondary bg-primary  font-bold"
         >
           Run
         </Button>
         <Button
           variant="outline"
-          className="w-[90px] flex items-center justify-center h-[30px] border-foreground bg-primary  font-bold"
+          className="w-[90px] flex items-center justify-center h-[30px] border-2-secondary bg-primary  font-bold"
         >
           Apply
         </Button>
         <Button
           variant="outline"
-          className="w-[90px] flex items-center justify-center h-[30px] border-foreground bg-primary  font-bold"
+          className="w-[90px] flex items-center justify-center h-[30px] border-2-secondary bg-primary  font-bold"
         >
           Save
         </Button>
@@ -152,13 +152,13 @@ function algorithm(adjList: AdjacencyList): Visualization{
           setTabValue((prev) => (prev === 'output' ? 'input' : 'output'))
         }
         defaultValue="input"
-        className=" flex p-1 justify-evenly items-center mb-5 w-full border-t-2 border-b border-foreground"
+        className=" flex p-1 sjustify-evenly items-center  w-full border-y-2 "
       >
         <TabsList className="w-full  bg-primary p-3 flex justify-evenly items-center">
           <TabsTrigger
             className={`w-1/5 ${
               tabValue === 'input'
-                ? 'border-2 rounded-md border-foreground'
+                ? 'border-2 rounded-md border-secondary bg-secondary'
                 : 'border-2 rounded-md border-secondary'
             }`}
             value="input"
@@ -168,7 +168,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
           <TabsTrigger
             className={`w-1/5 ${
               tabValue === 'output'
-                ? 'border-2 rounded-md border-foreground'
+                ? 'border-2 rounded-md border-secondary bg-secondary'
                 : 'border-2 rounded-md border-secondary'
             }`}
             value="output"
@@ -178,9 +178,9 @@ function algorithm(adjList: AdjacencyList): Visualization{
         </TabsList>
       </Tabs>
 
-      <div className=" bg-black w-full border-t border-foreground flex flex-col items-start justify-start text-white  h-[500px] overflow-y-scroll">
+      <div className=" bg-primary pl-5 pt-3 w-full border-t-2 border-secondary flex flex-col items-start justify-start text-white  h-[600px] min-h-[20%]: overflow-y-scroll">
         {Object.entries(adjacencyList).length === 0 && (
-          <div className="w-full h-full flex items-center font-bold text-3xl justify-center text-gray-500">
+          <div className="w-full h-full flex items-center font-bold text-xl justify-center text-gray-500">
             No graph selected in playground
           </div>
         )}

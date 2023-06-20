@@ -54,7 +54,7 @@ const Visualize = ({
 
   return (
     <div className={`flex w-full flex-col h-full items-center justify-start `}>
-      <div className="w-full  border border-b-0 rounded-b-none border-foreground ">
+      <div className="w-full  border-2 border-2-b-0 rounded-b-none border-2-secondary ">
         {sideBarState.display === 'nodes' ? (
           <SortControlBar algorithm={sideBarState.algorithm} />
         ) : (
@@ -65,7 +65,10 @@ const Visualize = ({
           />
         )}
       </div>
-      <div className=" w-full overflow-y-scroll rounded-t-none h-full border border-foreground ">
+      <div
+        tabIndex={-1}
+        className=" w-full overflow-y-scroll rounded-t-none h-full border-2 border-2-secondary border-t-0"
+      >
         {sideBarState.display === 'nodes' ? (
           <SortDisplay algorithm={sideBarState.algorithm} />
         ) : (

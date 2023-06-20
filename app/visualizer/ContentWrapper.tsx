@@ -70,9 +70,11 @@ const ContentWrapper = () => {
       ref={parentDivRef}
     >
       <div
+        className="unselectable"
         style={{
           width: canvasWidth ?? undefined,
           height: '100%',
+
           // background: 'lightblue',
         }}
       >
@@ -86,7 +88,7 @@ const ContentWrapper = () => {
         style={{
           minWidth: resizeBarWidth,
         }}
-        className={'cursor-col-resize  bg-primary border-y border-foreground'}
+        className={'cursor-col-resize   border-y-2 border-secondary'}
         onMouseDown={() => setResizing(true)}
       />
       <div

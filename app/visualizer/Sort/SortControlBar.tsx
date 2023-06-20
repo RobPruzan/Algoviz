@@ -215,7 +215,7 @@ const SortControlBar = ({ algorithm }: Props) => {
       <div className="flex justify-evenly items-center w-1/4 ">
         <label className="font-bold">Items: {numItems}</label>
 
-        <div className="bg-secondary flex border border-primary rounded-md">
+        <div className="bg-secondary flex border-2 border-2-primary rounded-md">
           <Button
             disabled={truncatedHistoryArray.length > 1}
             onClick={() => {
@@ -225,7 +225,7 @@ const SortControlBar = ({ algorithm }: Props) => {
               //   onFinish: (sortedArr) => console.warn('not implemented'),
               // });
             }}
-            className="bg-primary border-r rounded-r-none  border-primary w-1/2 p-3 hover:bg-slate-800  "
+            className="bg-primary border-2-r rounded-r-none  border-2-primary w-1/2 p-3 hover:bg-slate-800  "
           >
             <PlusIcon className="" />
           </Button>

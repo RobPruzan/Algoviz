@@ -233,7 +233,7 @@ const CanvasDisplay = ({
             <canvas
               className={`
               ${selectedControlBarAction === 'pencil' ? 'cursor-crosshair' : ''}
-               bg-fancy `}
+               `}
               ref={canvasRef}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
@@ -293,7 +293,7 @@ const CanvasDisplay = ({
                     ))}
                   </CommandGroup>
                 </Command>
-                <Button className="bg-secondary mt-3 ring-0 hover:bg-primary hover:border hover:border-secondary w-full">
+                <Button className="bg-secondary mt-3 ring-0 hover:bg-primary hover:border-2 hover:border-2-secondary w-full">
                   Apply algorithm
                 </Button>
               </ContextMenuSubContent>
