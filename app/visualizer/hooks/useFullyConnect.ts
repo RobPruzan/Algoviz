@@ -1,7 +1,8 @@
-import { Edge, SelectedGeometryInfo } from '@/lib/types';
+import { CircleReceiver, Edge, SelectedGeometryInfo } from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { Dispatch, SetStateAction } from 'react';
+import * as Graph from '@/lib/graph';
 type UseFullyConnectProps = {
   selectedGeometryInfo: SelectedGeometryInfo | null;
   setSelectedGeometryInfo: Dispatch<
@@ -12,15 +13,37 @@ export const useFullyConnect = ({
   selectedGeometryInfo,
   setSelectedGeometryInfo,
 }: UseFullyConnectProps) => {
-  const { circles, creationZoomFactor } = useAppSelector(
+  const { circles, creationZoomFactor, attachableLines } = useAppSelector(
     (store) => store.canvas
   );
+  const selectedAttachableLines = attachableLines.filter((line) =>
+    selectedGeometryInfo?.selectedIds.has(line.id)
+  );
+  const selectedCircles = circles.filter((circle) =>
+    selectedGeometryInfo?.selectedIds.has(circle.id)
+  );
+
   const dispatch = useAppDispatch();
   const handleFullyConnect = () => {
     const visited = new Set<string>();
-    const selectedCircles = circles.filter((circle) =>
-      selectedGeometryInfo?.selectedIds.has(circle.id)
-    );
+    // circles.forEach((c) => {
+    //   c.nodeReceiver.attachedIds.forEach((id) => {
+    //     const circleId = circles.find((circ) => circ.nodeReceiver.id === id);
+    //     visited.add(c.id + circleId);
+    //     visited.add(circleId + c.id);
+    //   });
+    // });
+
+    const adjList = Graph.getAdjacencyList({
+      edges: selectedAttachableLines,
+      vertices: selectedCircles,
+    });
+    console.log('pre visit', visited);
+    // const selectedCircles = circles.filter((circle) =>
+    //   selectedGeometryInfo?.selectedIds.has(circle.id)
+    // );
+    const are2NodesConnected = (a: CircleReceiver, b: CircleReceiver) =>
+      adjList.get(a.id)?.includes(b.id) || adjList.get(b.id)?.includes(a.id);
     for (const circleA of selectedCircles) {
       for (const circleB of selectedCircles) {
         const storeCircleA = circles.find((circle) => circle.id == circleA.id);
@@ -31,7 +54,8 @@ export const useFullyConnect = ({
         if (
           visited.has(storeCircleA.id + storeCircleB.id) ||
           visited.has(storeCircleB.id + storeCircleA.id) ||
-          storeCircleB.id == storeCircleA.id
+          storeCircleB.id == storeCircleA.id ||
+          are2NodesConnected(storeCircleA, storeCircleB)
         ) {
           continue;
         }

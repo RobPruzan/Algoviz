@@ -44,7 +44,7 @@ export function AlgoComboBox({ setValue, value, defaultPlaceholder }: Props) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[125px] border-foreground bg-secondary h-[30px] justify-between font-bold"
+          className="w-[125px] border-foreground bg-primary h-[30px] justify-between font-bold"
         >
           {value
             ? algorithmsInfo.find((framework) => framework.value === value)

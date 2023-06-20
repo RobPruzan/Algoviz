@@ -77,7 +77,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
     },
   });
 
-  const [tabValue, setTabValue] = useState<'output' | 'input'>();
+  const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
 
   return variables.show ? (
     <div className="h-full w-full border border-foreground flex flex-col items-center">
@@ -103,19 +103,19 @@ function algorithm(adjList: AdjacencyList): Visualization{
             codeMutation.mutate(code);
           }}
           variant="outline"
-          className="w-[90px] flex items-center justify-center h-[30px] border-foreground bg-secondary  font-bold"
+          className="w-[90px] flex items-center justify-center h-[30px] border-foreground bg-primary  font-bold"
         >
           Run
         </Button>
         <Button
           variant="outline"
-          className="w-[90px] flex items-center justify-center h-[30px] border-foreground bg-secondary  font-bold"
+          className="w-[90px] flex items-center justify-center h-[30px] border-foreground bg-primary  font-bold"
         >
           Apply
         </Button>
         <Button
           variant="outline"
-          className="w-[90px] flex items-center justify-center h-[30px] border-foreground bg-secondary  font-bold"
+          className="w-[90px] flex items-center justify-center h-[30px] border-foreground bg-primary  font-bold"
         >
           Save
         </Button>
@@ -178,24 +178,25 @@ function algorithm(adjList: AdjacencyList): Visualization{
         </TabsList>
       </Tabs>
 
-      <div className="bg-black border-t border-foreground flex flex-col items-start justify-start text-white  h-[300px] overflow-y-scroll">
+      <div className=" bg-black w-full border-t border-foreground flex flex-col items-start justify-start text-white  h-[500px] overflow-y-scroll">
+        {Object.entries(adjacencyList).length === 0 && (
+          <div className="w-full h-full flex items-center font-bold text-3xl justify-center text-gray-500">
+            No graph selected in playground
+          </div>
+        )}
         {Object.entries(adjacencyList).map(([k, v]) => (
-          <div key={k}>
-            <div className="bg-blue-500">{k}</div>:{' '}
-            <div className="bg-green-500">{JSON.stringify(v)}</div>
+          <div className="flex text-2xl" key={k}>
+            <div className="">{circles.find((c) => c.id === k)?.value}</div>:
+            <div className="">
+              {JSON.stringify(
+                v.map((v) => circles.find((c) => c.id === v)?.value)
+              )}
+            </div>
           </div>
         ))}
       </div>
       {codeMutation.isSuccess && JSON.stringify(codeMutation.data, null, 4)}
       {codeMutation.isLoading && <Loader />}
-
-      <div className="flex w-full">
-        <div className="w-1/2 h-full">
-          {/* {codeMutation.isLoading && 'loading'}
-          {codeMutation.isSuccess &&
-            (JSON.stringify(codeMutation.data) as string | number)} */}
-        </div>
-      </div>
 
       <Card></Card>
     </div>
