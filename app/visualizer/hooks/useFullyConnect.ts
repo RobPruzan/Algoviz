@@ -17,9 +17,6 @@ export const useFullyConnect = ({
   );
   const dispatch = useAppDispatch();
   const handleFullyConnect = () => {
-    // need to create new lines
-    // need to attach them to every circle
-    // double loup'e it
     const visited = new Set<string>();
     const selectedCircles = circles.filter((circle) =>
       selectedGeometryInfo?.selectedIds.has(circle.id)

@@ -23,6 +23,7 @@ const ContentWrapper = () => {
     setCodeExecWidth(parentWidth * 0.4); // 40% width
   }, []);
   const padding = 30;
+  const resizeBarWidth = 12;
 
   useEffect(() => {
     const mouseMoveHandler = (e: any) => {
@@ -30,7 +31,6 @@ const ContentWrapper = () => {
 
       const parentDiv = parentDivRef.current;
       if (!parentDiv) return;
-      const resizeBarWidth = 12;
 
       // let newDiv1Width = e.clientX - parentDiv.offsetLeft;
       let newDiv1Width =
@@ -83,8 +83,10 @@ const ContentWrapper = () => {
         />
       </div>
       <div
-        // style={{ width: 7, background: 'white', cursor: 'col-resize' }}
-        className="cursor-col-resize w-3 bg-primary border-y border-foreground"
+        style={{
+          minWidth: resizeBarWidth,
+        }}
+        className={'cursor-col-resize  bg-primary border-y border-foreground'}
         onMouseDown={() => setResizing(true)}
       />
       <div

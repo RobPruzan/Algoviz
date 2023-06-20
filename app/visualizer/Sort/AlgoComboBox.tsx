@@ -28,13 +28,14 @@ import {
 type Props = {
   value: Algorithms | undefined;
   setValue: React.Dispatch<SetStateAction<SideBarContextState>>;
+  defaultPlaceholder: string;
 };
 
 export const isStringAlgorithm = (s: string): s is Algorithms => {
   return ALGORITHMS.includes(s as Algorithms);
 };
 
-export function AlgoComboBox({ setValue, value }: Props) {
+export function AlgoComboBox({ setValue, value, defaultPlaceholder }: Props) {
   const [open, setOpen] = useState(false);
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -43,12 +44,12 @@ export function AlgoComboBox({ setValue, value }: Props) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between font-bold"
+          className="w-[125px] border-foreground bg-secondary h-[30px] justify-between font-bold"
         >
           {value
             ? algorithmsInfo.find((framework) => framework.value === value)
                 ?.label
-            : 'Sorting Algorithm...'}
+            : 'Algorithm'}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAppSelector } from '@/redux/store';
-// import { Editor, useMonaco } from '@monaco-editor/react';
 import Editor, { useMonaco } from '@monaco-editor/react';
 import * as Graph from '@/lib/graph';
 
@@ -12,9 +11,13 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { P } from 'ts-pattern';
 import { z } from 'zod';
 import { nightOwlTheme, outputTheme } from './theme';
-import { Circle, Loader, Play } from 'lucide-react';
+import { ChevronsUpDown, Circle, Loader, Play } from 'lucide-react';
 import Node from '@/components/Visualizers/Node';
-import { SelectedGeometryInfo } from '@/lib/types';
+import { SelectedGeometryInfo, SideBarContextState } from '@/lib/types';
+import { AlgoComboBox } from '../Sort/AlgoComboBox';
+import { algorithmsInfo } from '@/lib/utils';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 type Props = {
   selectedGeometryInfo: SelectedGeometryInfo | null;
   setSelectedGeometryInfo: Dispatch<
@@ -56,8 +59,6 @@ function algorithm(adjList: AdjacencyList): Visualization{
     return { ...prev, [id]: neighbors };
   }, {});
 
-  console.log('the adjaceny list', adjacencyList);
-
   const codeMutation = useMutation({
     mutationFn: async (code: string) => {
       const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
@@ -76,17 +77,47 @@ function algorithm(adjList: AdjacencyList): Visualization{
     },
   });
 
-  console.log('codemutation data', codeMutation.data);
-  console.log('the code', code);
+  const [tabValue, setTabValue] = useState<'output' | 'input'>();
+
   return variables.show ? (
     <div className="h-full w-full border border-foreground flex flex-col items-center">
-      <div className="h-[5%] flex w-full justify-center items-center border-b border-foreground">
-        <Button
+      <div className="h-[7%] overflow-x-scroll p-5 flex w-full justify-evenly items-center border-b border-foreground">
+        {/* <Button
           onClick={() => {
             codeMutation.mutate(code);
           }}
         >
           <Play />
+        </Button> */}
+        <AlgoComboBox
+          defaultPlaceholder="algorithm"
+          value={undefined}
+          setValue={function (
+            value: React.SetStateAction<SideBarContextState>
+          ): void {
+            throw new Error('Function not implemented.');
+          }}
+        />
+        <Button
+          onClick={() => {
+            codeMutation.mutate(code);
+          }}
+          variant="outline"
+          className="w-[90px] flex items-center justify-center h-[30px] border-foreground bg-secondary  font-bold"
+        >
+          Run
+        </Button>
+        <Button
+          variant="outline"
+          className="w-[90px] flex items-center justify-center h-[30px] border-foreground bg-secondary  font-bold"
+        >
+          Apply
+        </Button>
+        <Button
+          variant="outline"
+          className="w-[90px] flex items-center justify-center h-[30px] border-foreground bg-secondary  font-bold"
+        >
+          Save
         </Button>
       </div>
       <div className="max-w-[98%] w-full h-full">
@@ -95,14 +126,14 @@ function algorithm(adjList: AdjacencyList): Visualization{
             // vercel thing, basename type gets widened when building prod
             m.editor.defineTheme('night-owl', nightOwlTheme as any);
           }}
-          theme="night-owl"
+          // theme="night-owl"
+          theme="vs-dark"
           value={code}
           onChange={(e) => {
             if (e) {
               setCode(e);
             }
           }}
-          // height="55%"
           defaultLanguage="typescript"
           options={{
             minimap: { enabled: false }, // This turns off the minimap
@@ -114,25 +145,55 @@ function algorithm(adjList: AdjacencyList): Visualization{
           }}
         />
       </div>
+      <Tabs
+        value={tabValue}
+        onValueChange={(v) =>
+          // valueIsDisplayType(v) && setValue((prev) => ({ ...prev, display: v }))
+          setTabValue((prev) => (prev === 'output' ? 'input' : 'output'))
+        }
+        defaultValue="input"
+        className=" flex p-1 justify-evenly items-center mb-5 w-full border-t-2 border-b border-foreground"
+      >
+        <TabsList className="w-full  bg-primary p-3 flex justify-evenly items-center">
+          <TabsTrigger
+            className={`w-1/5 ${
+              tabValue === 'input'
+                ? 'border-2 rounded-md border-foreground'
+                : 'border-2 rounded-md border-secondary'
+            }`}
+            value="input"
+          >
+            Input
+          </TabsTrigger>
+          <TabsTrigger
+            className={`w-1/5 ${
+              tabValue === 'output'
+                ? 'border-2 rounded-md border-foreground'
+                : 'border-2 rounded-md border-secondary'
+            }`}
+            value="output"
+          >
+            Output
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
-      <div className="bg-black border-t border-foreground flex flex-col items-start justify-start text-white  h-2/5">
-        {codeMutation.isSuccess && JSON.stringify(codeMutation.data)}
-        {codeMutation.isLoading && <Loader />}
+      <div className="bg-black border-t border-foreground flex flex-col items-start justify-start text-white  h-[300px] overflow-y-scroll">
+        {Object.entries(adjacencyList).map(([k, v]) => (
+          <div key={k}>
+            <div className="bg-blue-500">{k}</div>:{' '}
+            <div className="bg-green-500">{JSON.stringify(v)}</div>
+          </div>
+        ))}
       </div>
+      {codeMutation.isSuccess && JSON.stringify(codeMutation.data, null, 4)}
+      {codeMutation.isLoading && <Loader />}
 
       <div className="flex w-full">
-        <Button
-          onClick={() => {
-            codeMutation.mutate(code);
-          }}
-          className="w-1/2 border-secondary"
-        >
-          Execute Code
-        </Button>
         <div className="w-1/2 h-full">
-          {codeMutation.isLoading && 'loading'}
+          {/* {codeMutation.isLoading && 'loading'}
           {codeMutation.isSuccess &&
-            (JSON.stringify(codeMutation.data) as string | number)}
+            (JSON.stringify(codeMutation.data) as string | number)} */}
         </div>
       </div>
 

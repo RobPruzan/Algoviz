@@ -1,51 +1,36 @@
 'use client';
 
 import {
-  Edge,
-  CircleConnector,
-  CircleReceiver,
-  NodeReceiver,
   SelectedAttachableLine,
   SelectBox,
-  MaxPoints,
-  ALGORITHMS,
   DrawTypes,
   PencilCoordinates,
   SelectedGeometryInfo,
 } from '@/lib/types';
-import { AlgoComboBox, isStringAlgorithm } from '../Sort/AlgoComboBox';
+import { isStringAlgorithm } from '../Sort/AlgoComboBox';
 import React, {
   useRef,
   useState,
   useEffect,
-  MouseEvent,
-  useCallback,
   useContext,
   Dispatch,
   SetStateAction,
 } from 'react';
-import * as Canvas from '@/lib/Canvas/canvas';
 import * as Draw from '@/lib/Canvas/drawUtils';
 
-import * as Graph from '@/lib/Canvas/canvas';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import {
   ContextMenu,
-  ContextMenuCheckboxItem,
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuShortcut,
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { P, match } from 'ts-pattern';
 import { Button } from '@/components/ui/button';
-import { Check, Minus, Plus } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { SideBarContext } from '@/context/SideBarContext';
 import {
   Command,
@@ -55,7 +40,6 @@ import {
   CommandItem,
 } from '@/components/ui/command';
 import { algorithmsInfo, cn } from '@/lib/utils';
-import { DFSActions } from '@/redux/slices/dfsSlice';
 import { useCanvasMouseDown } from '../hooks/useCanvasMouseDown';
 import { useCanvasContextMenu } from '../hooks/useCanvasContextMenu';
 import { useCanvasMouseMove } from '../hooks/useCanvasMouseMove';
@@ -263,7 +247,7 @@ const CanvasDisplay = ({
           </ContextMenuTrigger>
           <ContextMenuContent className="w-64">
             <ContextMenuItem
-              onClick={(e) => {
+              onClick={() => {
                 if (selectedCircleID) {
                   dispatch(CanvasActions.deleteCircle(selectedCircleID));
 
