@@ -51,11 +51,12 @@ export function AlgoComboBox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[125px] border-2-secondary bg-primary h-[30px] justify-between font-bold"
+          className="w-[125px] border-secondary bg-primary h-[30px] justify-between font-bold"
         >
-          {value
+          {(value
             ? algorithms.find((a) => a.id === value)?.name
-            : defaultPlaceholder}
+            : defaultPlaceholder
+          )?.slice(0, 8)}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -63,12 +64,12 @@ export function AlgoComboBox({
         <Command>
           <CommandInput placeholder="Search Sorting Algorithm..." />
           <CommandEmpty>No algorithm found.</CommandEmpty>
-          <CommandGroup>
+          <CommandGroup className="max-h-[500px] overflow-y-scroll">
             {algorithms.map((algo) => (
               <CommandItem
                 key={algo.id}
                 onSelect={(currentValue) => {
-                  if (!isStringAlgorithm(currentValue)) return;
+                  // if (!isStringAlgorithm(currentValue)) return;
                   // setValue(currentValue === value ? '' : currentValue);
                   setValue(algo.id);
                   setOpen(false);
@@ -80,7 +81,7 @@ export function AlgoComboBox({
                     value === algo.id ? 'opacity-100' : 'opacity-0'
                   )}
                 />
-                {algo.name}
+                {algo.name.slice(0, 8)}
               </CommandItem>
             ))}
           </CommandGroup>

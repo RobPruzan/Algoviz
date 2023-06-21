@@ -8,6 +8,7 @@ import CanvasControlBar from './Canvas/CanvasControlBar';
 import {
   CircleReceiver,
   DrawTypes,
+  Percentage,
   SelectedGeometryInfo,
   UndirectedEdge,
 } from '@/lib/types';
@@ -15,7 +16,7 @@ import { useAppSelector } from '@/redux/store';
 import { SideBarContext } from '@/context/SideBarContext';
 import { useDepthFirstSearch } from '@/hooks/useDepthFirstSearch';
 type Props = {
-  canvasWidth: number | '60%';
+  canvasWidth: number | Percentage;
   selectedGeometryInfo: SelectedGeometryInfo | null;
   setSelectedGeometryInfo: Dispatch<
     SetStateAction<SelectedGeometryInfo | null>
@@ -54,7 +55,7 @@ const Visualize = ({
 
   return (
     <div className={`flex w-full flex-col h-full items-center justify-start `}>
-      <div className="w-full  border-2 border-2-b-0 rounded-b-none border-2-secondary ">
+      <div className="w-full  border-2 border-2-b-0 rounded-b-none border-secondary ">
         {sideBarState.display === 'nodes' ? (
           <SortControlBar algorithm={sideBarState.algorithm} />
         ) : (
@@ -67,7 +68,7 @@ const Visualize = ({
       </div>
       <div
         tabIndex={-1}
-        className=" w-full overflow-y-scroll rounded-t-none h-full border-2 border-2-secondary border-t-0"
+        className=" w-full overflow-y-scroll rounded-t-none h-full border-2 border-secondary border-t-0"
       >
         {sideBarState.display === 'nodes' ? (
           <SortDisplay algorithm={sideBarState.algorithm} />

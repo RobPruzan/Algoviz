@@ -18,7 +18,7 @@ type Props = {
 const QuickSortRow = ({ historyNode }: Props) => {
   return (
     <div className="flex w-full">
-      <div className="p-4  w-3/4  border-2-secondary border-2-y flex items-center justify-evenly">
+      <div className="p-4  w-3/4  border-secondary border-2-y flex items-center justify-evenly">
         {historyNode.element.map((node, idx) =>
           historyNode.fakeArrayBounds?.[0] === idx ? (
             <NodeWithLeftBound

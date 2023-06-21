@@ -1,136 +1,42 @@
 'use client';
-import { SelectedGeometryInfo } from '@/lib/types';
-import React, { useEffect, useRef, useState } from 'react';
+import { Percentage, SelectedGeometryInfo } from '@/lib/types';
+import React, { useState } from 'react';
 import CodeExecution from './Canvas/CodeExecution';
+import Resizable from './Resizeable';
 import Visualize from './Visualize';
-import { Algorithm } from '@prisma/client';
+
+type Props = {};
 
 const ContentWrapper = () => {
-  const [canvasWidth, setCanvasWidth] = useState<number | '60%'>('60%');
-  const [codeExecWidth, setCodeExecWidth] = useState<number | '40%'>('40%');
-  const [resizing, setResizing] = useState(false);
   const [selectedGeometryInfo, setSelectedGeometryInfo] =
     useState<SelectedGeometryInfo | null>(null);
 
-  const parentDivRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!parentDivRef || !parentDivRef.current) return;
-    const parentWidth = parentDivRef.current.offsetWidth;
-
-    setCanvasWidth(parentWidth * 0.6); // 60% width
-    setCodeExecWidth(parentWidth * 0.4); // 40% width
-  }, []);
-  const padding = 30;
-  const resizeBarWidth = 12;
-
-  useEffect(() => {
-    const mouseMoveHandler = (e: any) => {
-      if (!resizing) return;
-
-      const parentDiv = parentDivRef.current;
-      if (!parentDiv) return;
-
-      // let newDiv1Width = e.clientX - parentDiv.offsetLeft;
-      let newDiv1Width =
-        e.clientX - parentDiv.offsetLeft - (padding + resizeBarWidth / 2); // subtract left padding
-
-      newDiv1Width = Math.max(0, newDiv1Width);
-      newDiv1Width = Math.min(parentDiv.offsetWidth, newDiv1Width);
-
-      const newDiv2Width = parentDiv.offsetWidth - newDiv1Width;
-
-      setCanvasWidth(newDiv1Width);
-      setCodeExecWidth(newDiv2Width);
-    };
-
-    const mouseUpHandler = () => {
-      setResizing(false);
-    };
-
-    document.addEventListener('mousemove', mouseMoveHandler);
-    document.addEventListener('mouseup', mouseUpHandler);
-
-    return () => {
-      document.removeEventListener('mousemove', mouseMoveHandler);
-      document.removeEventListener('mouseup', mouseUpHandler);
-    };
-  }, [resizing]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (
-        typeof canvasWidth === 'number' &&
-        typeof codeExecWidth === 'number'
-      ) {
-        const totalWidth = window.innerWidth;
-        const canvasRatio = canvasWidth / (canvasWidth + codeExecWidth);
-        const codeExecRatio = codeExecWidth / (canvasWidth + codeExecWidth);
-
-        const newCanvasWidth = canvasRatio * totalWidth;
-        const newCodeExecWidth = codeExecRatio * totalWidth;
-        setCanvasWidth(newCanvasWidth);
-        setCodeExecWidth(newCanvasWidth);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  const [canvasWidth, setCanvasWidth] = useState<number | Percentage>('60%');
+  const [codeExecWidth, setCodeExecWidth] = useState<number | Percentage>(
+    '40%'
+  );
   return (
-    <div
-      style={{
-        display: 'flex',
-        width: '100%',
-        height: '95%',
-        padding: `${padding}px`,
-        paddingTop: '10px',
-      }}
-      ref={parentDivRef}
-    >
-      <div
-        className="unselectable"
-        style={{
-          width: canvasWidth ?? undefined,
-          height: '100%',
-
-          // background: 'lightblue',
-        }}
-      >
+    <Resizable
+      canvasSize={canvasWidth}
+      codeExecSize={codeExecWidth}
+      setCanvasSize={setCanvasWidth}
+      setCodeExecSize={setCodeExecWidth}
+      type="horizontal"
+      leftDiv={
         <Visualize
           canvasWidth={canvasWidth}
           selectedGeometryInfo={selectedGeometryInfo}
           setSelectedGeometryInfo={setSelectedGeometryInfo}
         />
-      </div>
-      <div
-        style={{
-          minWidth: resizeBarWidth,
-        }}
-        className={'cursor-col-resize   border-y-2 border-secondary'}
-        onMouseDown={() => setResizing(true)}
-      />
-      <div
-        className="flex items-center justify-center"
-        style={{
-          width: codeExecWidth ?? undefined,
-          // height: '100%',
-          // background: 'lightgreen',
-        }}
-      >
+      }
+      rightDiv={
         <CodeExecution
           selectedGeometryInfo={selectedGeometryInfo}
           setSelectedGeometryInfo={setSelectedGeometryInfo}
         />
-      </div>
-    </div>
+      }
+    />
   );
 };
-
-// export default ResizableDivs;
-
-// export default ResizableDivs;
 
 export default ContentWrapper;

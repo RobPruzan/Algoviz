@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
 export async function GET() {
@@ -11,9 +10,12 @@ export async function GET() {
     where: {
       userId: session?.user.id,
     },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 
-  console.log('prisma data', data);
+  // console.log('prisma data', data);
 
   const res = NextResponse.json(data);
   // console.log('the res', res);

@@ -28,7 +28,8 @@ export default function RootLayout({
             fontSans.variable
           )}
         >
-          <nav className="w-screen p-2 h-[15%] flex justify-end items-center  ">
+          {/* temporary padding */}
+          <nav className="w-screen pt-[10px] h-[15%] flex justify-end items-center  ">
             <div className="w-1/5 flex justify-center items-center ">
               <Button className="bg-secondary ">
                 <Link href="/">Home</Link>

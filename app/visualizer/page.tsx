@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Content from './Content';
 import SideBar from './SideBar';
 import CodeExecution from './Canvas/CodeExecution';
+import Resizable from './Resizeable';
 import ContentWrapper from './ContentWrapper';
 export const metadata = {
   content:

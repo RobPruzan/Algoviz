@@ -6,6 +6,7 @@ import {
   DrawTypes,
   PencilCoordinates,
   SelectedGeometryInfo,
+  Percentage,
 } from '@/lib/types';
 import { isStringAlgorithm } from '../Sort/AlgoComboBox';
 import React, {
@@ -54,7 +55,7 @@ export type Props = {
   setSelectedGeometryInfo: Dispatch<
     SetStateAction<SelectedGeometryInfo | null>
   >;
-  canvasWidth: number | '60%';
+  canvasWidth: number | Percentage;
   handleDfs: () => void;
   selectedControlBarAction: DrawTypes | null;
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
@@ -294,7 +295,7 @@ const CanvasDisplay = ({
                     ))}
                   </CommandGroup>
                 </Command>
-                <Button className="bg-secondary mt-3 ring-0 hover:bg-primary hover:border-2 hover:border-2-secondary w-full">
+                <Button className="bg-secondary mt-3 ring-0 hover:bg-primary hover:border-2 hover:border-secondary w-full">
                   Apply algorithm
                 </Button>
               </ContextMenuSubContent>

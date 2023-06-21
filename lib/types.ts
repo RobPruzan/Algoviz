@@ -165,3 +165,5 @@ export type PencilCoordinates = {
   drawnCoordinates: [number, number][][];
   drawingCoordinates: [number, number][];
 };
+
+export type Percentage = `${string}%`;

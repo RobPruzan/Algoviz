@@ -160,7 +160,7 @@ const CanvasControlBar = ({
     dispatch(CanvasActions.addCircle(newCircle));
   };
   return (
-    <div className="w-full items-center  h-14 flex justify-evenly ">
+    <div className="w-full items-center prevent-select  h-14 flex justify-evenly ">
       <Button
         onClick={handleAddUndirectedEdge}
         variant={'outline'}
@@ -183,6 +183,15 @@ const CanvasControlBar = ({
         {/* <RectangleHorizontal /> */}
         <CircleDot />
       </Button>
+      <Button
+        onClick={() =>
+          setSelectedControlBarAction((prev) => (prev ? null : 'pencil'))
+        }
+        variant={'outline'}
+        className="px-2"
+      >
+        <Pencil />
+      </Button>
       <Button variant={'outline'} className="px-2">
         {/* <RectangleHorizontal /> */}
         Red-Black-Tree
@@ -200,13 +209,13 @@ const CanvasControlBar = ({
         <div className="h-1/2 flex">
           <Button
             onClick={handleAddUndirectedEdge}
-            className="bg-secondary  hover:bg-primary w-24 rounded-sm rounded-b-none rounded-r-none h-full border-2 border-2-secondary"
+            className="bg-secondary  hover:bg-primary w-24 rounded-sm rounded-b-none rounded-r-none h-full border-2 border-secondary"
           >
             <UndirectedEdgeIcon />
           </Button>
           <Button
             onClick={handleAddCircle}
-            className="bg-secondary hover:bg-primary w-16 border-2 border-2-secondary rounded-none h-full"
+            className="bg-secondary hover:bg-primary w-16 border-2 border-secondary rounded-none h-full"
           >
             <Vertex />
           </Button>
@@ -214,7 +223,7 @@ const CanvasControlBar = ({
         <div className="h-1/2 flex">
           <Button
             onClick={handleAddDirectedEdge}
-            className="bg-secondary hover:bg-primary w-24  border-2 border-2-secondary rounded-none h-full"
+            className="bg-secondary hover:bg-primary w-24  border-2 border-secondary rounded-none h-full"
           >
             <DirectedEdgeIcon />
           </Button>
@@ -226,22 +235,22 @@ const CanvasControlBar = ({
               selectedControlBarAction === 'pencil'
                 ? 'bg-muted-foreground'
                 : 'bg-secondary'
-            } hover:bg-primary  w-16 border-2 border-2-secondary rounded-none h-full`}
+            } hover:bg-primary  w-16 border-2 border-secondary rounded-none h-full`}
           >
             <Pencil />
           </Button>
         </div>
       </div>
-      <Button className="bg-secondary hover:bg-primary  w-24  border-2 border-2-secondary rounded-none h-full">
+      <Button className="bg-secondary hover:bg-primary  w-24  border-2 border-secondary rounded-none h-full">
         <BinarySearchTreeIcon />
       </Button>
-      <Button className="bg-secondary hover:bg-primary w-24  border-2 border-2-secondary rounded-none h-full">
+      <Button className="bg-secondary hover:bg-primary w-24  border-2 border-secondary rounded-none h-full">
         <GraphIcon />
       </Button>
-      <Button className="bg-secondary hover:bg-primary w-24  border-2 border-2-secondary rounded-none h-full">
+      <Button className="bg-secondary hover:bg-primary w-24  border-2 border-secondary rounded-none h-full">
         <RedBlackTreeIcon />
       </Button>
-      <Button className="bg-secondary hover:bg-primary w-24  border-2 border-2-secondary rounded-none h-full">
+      <Button className="bg-secondary hover:bg-primary w-24  border-2 border-secondary rounded-none h-full">
         <LinkedListIcon />
       </Button>
       <Button

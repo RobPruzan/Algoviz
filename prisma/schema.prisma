@@ -62,9 +62,10 @@ model VerificationToken {
 }
 
 model Algorithm {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-  name   String
-  code   String
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  code      String
 }

@@ -13,12 +13,17 @@ import { z } from 'zod';
 import { nightOwlTheme, outputTheme } from './theme';
 import { ChevronsUpDown, Circle, Loader, Play } from 'lucide-react';
 import Node from '@/components/Visualizers/Node';
-import { SelectedGeometryInfo, SideBarContextState } from '@/lib/types';
+import {
+  Percentage,
+  SelectedGeometryInfo,
+  SideBarContextState,
+} from '@/lib/types';
 import { AlgoComboBox } from '../Sort/AlgoComboBox';
 import { algorithmsInfo } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSession } from 'next-auth/react';
 import { Algorithm } from '@prisma/client';
+import Resizable from '../Resizeable';
 
 type Props = {
   selectedGeometryInfo: SelectedGeometryInfo | null;
@@ -30,6 +35,10 @@ const CodeExecution = ({
   selectedGeometryInfo,
   setSelectedGeometryInfo,
 }: Props) => {
+  const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
+  const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
+    '40%'
+  );
   const variables = useAppSelector((store) => store.canvas.variableInspector);
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
   const getAlgorithmsQuery = useQuery({
@@ -39,9 +48,10 @@ const CodeExecution = ({
         userId: z.string(),
         name: z.string(),
         code: z.string(),
+        createdAt: z.date(),
       });
       const res = (
-        await axios.get(`${process.env.NEXT_PUBLIC_API_ROUTE}/algos/getall`)
+        await axios.get(`${process.env.NEXT_PUBLIC_API_ROUTE}/algo/getall`)
       ).data;
       return z.array(algorithmSchema).parse(res);
     },
@@ -49,8 +59,7 @@ const CodeExecution = ({
   const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>();
   const [code, setCode] = useState(
-    `
-type NodeID = string // uuid representing a node
+    `type NodeID = string // uuid representing a node
 type AdjacencyList = Record<NodeID, NodeID[]>
 type VisitedIDs = NodeID[]
 type Visualization = VisitedIDs[]
@@ -58,7 +67,7 @@ type Visualization = VisitedIDs[]
 function algorithm(adjList: AdjacencyList): Visualization{
     // your code here
 };
-  `
+`
   );
   const selectedAttachableLines = attachableLines.filter((line) =>
     selectedGeometryInfo?.selectedIds.has(line.id)
@@ -78,7 +87,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
 
   const codeMutation = useMutation({
     mutationFn: async (code: string) => {
-      const url = process.env.NEXT_PUBLIC_API_ROUTE;
+      const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
       if (!url) return;
       const res = await axios.post(url, {
         code,
@@ -96,23 +105,16 @@ function algorithm(adjList: AdjacencyList): Visualization{
 
   const saveAlgorithmMutation = useMutation({
     mutationFn: async ({ code, name }: { code: string; name: string }) => {
-      await axios.post(process.env.NEXT_PUBLIC_API_ROUTE, { code, name });
+      await axios.post(`${process.env.NEXT_PUBLIC_API_ROUTE}/algo/create`, {
+        code,
+        name,
+      });
     },
   });
-  const { data } = useSession();
-
-  console.log('hmm', getAlgorithmsQuery);
 
   return variables.show ? (
-    <div className="h-full w-full border-2 border-2-secondary flex flex-col items-center">
-      <div className="h-12 prevent-select overflow-x-scroll p-5 flex w-full justify-evenly items-center border-b-2 border-2-secondary">
-        {/* <Button
-          onClick={() => {
-            codeMutation.mutate(code);
-          }}
-        >
-          <Play />
-        </Button> */}
+    <div className="w-full h-full border-2 border-secondary">
+      <div className=" min-h-[5%] prevent-select overflow-x-scroll p-3 flex w-full justify-evenly items-center border-b-2 border-secondary">
         {getAlgorithmsQuery.isLoading ? (
           <AlgoComboBox
             algorithms={[]}
@@ -123,9 +125,17 @@ function algorithm(adjList: AdjacencyList): Visualization{
         ) : (
           <AlgoComboBox
             algorithms={getAlgorithmsQuery.data ?? []}
-            defaultPlaceholder="algorithm"
+            defaultPlaceholder="Algorithm"
             value={selectedAlgorithm}
-            setValue={setSelectedAlgorithm}
+            setValue={(d) => {
+              setSelectedAlgorithm(d);
+              setCode(
+                (prev) =>
+                  getAlgorithmsQuery.data?.find(
+                    (algo) => algo.id === selectedAlgorithm
+                  )?.code ?? prev
+              );
+            }}
           />
         )}
 
@@ -134,102 +144,131 @@ function algorithm(adjList: AdjacencyList): Visualization{
             codeMutation.mutate(code);
           }}
           variant="outline"
-          className="w-[90px]  flex items-center justify-center h-[30px] border-2-secondary bg-primary  font-bold"
+          className="w-[90px]  flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
         >
           Run
         </Button>
         <Button
           variant="outline"
-          className="w-[90px] flex items-center justify-center h-[30px] border-2-secondary bg-primary  font-bold"
+          className="w-[90px] flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
         >
           Apply
         </Button>
         <Button
+          onClick={() => {
+            saveAlgorithmMutation.mutate({
+              code,
+              name: crypto.randomUUID(),
+            });
+            getAlgorithmsQuery.refetch();
+          }}
           variant="outline"
-          className="w-[90px] flex items-center justify-center h-[30px] border-2-secondary bg-primary  font-bold"
+          className="w-[90px] flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
         >
           Save
         </Button>
       </div>
-      <div className="max-w-[98%] w-full h-full">
-        <Editor
-          beforeMount={(m) => {
-            // vercel thing, basename type gets widened when building prod
-            m.editor.defineTheme('night-owl', nightOwlTheme as any);
-          }}
-          // theme="night-owl"
-          theme="vs-dark"
-          value={code}
-          onChange={(e) => {
-            if (e) {
-              setCode(e);
-            }
-          }}
-          defaultLanguage="typescript"
-          options={{
-            minimap: { enabled: false }, // This turns off the minimap
-            folding: false, // This turns off the sidebar (folding region)
-            scrollbar: {
-              vertical: 'hidden', // This hides the vertical scrollbar
-              horizontal: 'hidden', // This hides the horizontal scrollbar
-            },
-          }}
-        />
-      </div>
-      <Tabs
-        value={tabValue}
-        onValueChange={(v) =>
-          // valueIsDisplayType(v) && setValue((prev) => ({ ...prev, display: v }))
-          setTabValue((prev) => (prev === 'output' ? 'input' : 'output'))
-        }
-        defaultValue="input"
-        className=" flex p-1 sjustify-evenly items-center  w-full border-y-2 "
-      >
-        <TabsList className="w-full  bg-primary p-3 flex justify-evenly items-center">
-          <TabsTrigger
-            className={`w-1/5 ${
-              tabValue === 'input'
-                ? 'border-2 rounded-md border-secondary bg-secondary'
-                : 'border-2 rounded-md border-secondary'
-            }`}
-            value="input"
-          >
-            Input
-          </TabsTrigger>
-          <TabsTrigger
-            className={`w-1/5 ${
-              tabValue === 'output'
-                ? 'border-2 rounded-md border-secondary bg-secondary'
-                : 'border-2 rounded-md border-secondary'
-            }`}
-            value="output"
-          >
-            Output
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      <div className=" bg-primary pl-5 pt-3 w-full border-t-2 border-secondary flex flex-col items-start justify-start text-white  h-[600px] min-h-[20%]: overflow-y-scroll">
-        {Object.entries(adjacencyList).length === 0 && (
-          <div className="w-full h-full flex items-center font-bold text-xl justify-center text-gray-500">
-            No graph selected in playground
-          </div>
-        )}
-        {Object.entries(adjacencyList).map(([k, v]) => (
-          <div className="flex text-2xl" key={k}>
-            <div className="">{circles.find((c) => c.id === k)?.value}</div>:
-            <div className="">
-              {JSON.stringify(
-                v.map((v) => circles.find((c) => c.id === v)?.value)
-              )}
+      <Resizable
+        canvasSize={editorHeight}
+        codeExecSize={outputHeight}
+        setCanvasSize={setEditorHeight}
+        setCodeExecSize={setCodeExecHeight}
+        type="vertical"
+        topDiv={
+          <div className="w-full h-full bg-[#1E1E1E]">
+            <div
+              style={{
+                margin: '0px !important ',
+              }}
+              className="max-w-[95%]  w-full  h-full"
+            >
+              <Editor
+                className="flex items-center justify-center"
+                beforeMount={(m) => {
+                  // vercel thing, basename type gets widened when building prod
+                  m.editor.defineTheme('night-owl', nightOwlTheme as any);
+                }}
+                // theme="night-owl"
+                theme="vs-dark"
+                value={code}
+                onChange={(e) => {
+                  if (e) {
+                    setCode(e);
+                  }
+                }}
+                defaultLanguage="typescript"
+                options={{
+                  minimap: { enabled: false },
+                  folding: false,
+                  scrollbar: {
+                    vertical: 'hidden',
+                    horizontal: 'hidden', // This hides the horizontal scrollbar
+                  },
+                }}
+              />
             </div>
           </div>
-        ))}
-      </div>
-      {codeMutation.isSuccess && JSON.stringify(codeMutation.data, null, 4)}
-      {codeMutation.isLoading && <Loader />}
+        }
+        bottomDiv={
+          <div className="h-full w-full  prevent-select flex flex-col justify-center items-center">
+            <Tabs
+              value={tabValue}
+              onValueChange={(v) =>
+                setTabValue((prev) => (prev === 'output' ? 'input' : 'output'))
+              }
+              defaultValue="input"
+              className=" flex p-1 justify-evenly items-center  w-full  "
+            >
+              <TabsList className="w-full  bg-primary p-3 flex justify-evenly items-center">
+                <TabsTrigger
+                  className={`w-1/5 ${
+                    tabValue === 'input'
+                      ? 'border-2 rounded-md border-secondary bg-secondary'
+                      : 'border-2 rounded-md border-secondary'
+                  }`}
+                  value="input"
+                >
+                  Input
+                </TabsTrigger>
+                <TabsTrigger
+                  className={`w-1/5 ${
+                    tabValue === 'output'
+                      ? 'border-2 rounded-md border-secondary bg-secondary'
+                      : 'border-2 rounded-md border-secondary'
+                  }`}
+                  value="output"
+                >
+                  Output
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
 
-      <Card></Card>
+            <div className=" bg-primary pl-5 pt-3 w-full border-t-2 border-secondary flex flex-col items-start justify-start text-white  h-[600px] min-h-[20%]: overflow-y-scroll">
+              {Object.entries(adjacencyList).length === 0 && (
+                <div className="w-full h-full flex items-start font-bold text-xl justify-center text-gray-500">
+                  No graph selected in playground
+                </div>
+              )}
+              {Object.entries(adjacencyList).map(([k, v]) => (
+                <div className="flex text-2xl" key={k}>
+                  <div className="">
+                    {circles.find((c) => c.id === k)?.value}
+                  </div>
+                  :
+                  <div className="">
+                    {JSON.stringify(
+                      v.map((v) => circles.find((c) => c.id === v)?.value)
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {codeMutation.isSuccess &&
+              JSON.stringify(codeMutation.data, null, 4)}
+            {codeMutation.isLoading && <Loader />}
+          </div>
+        }
+      />
     </div>
   ) : null;
 };
