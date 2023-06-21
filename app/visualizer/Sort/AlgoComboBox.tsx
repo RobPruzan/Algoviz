@@ -24,18 +24,25 @@ import {
   Algorithms,
   SideBarContextState,
 } from '@/lib/types';
+import { Algorithm } from '@prisma/client';
 
 type Props = {
-  value: Algorithms | undefined;
-  setValue: React.Dispatch<SetStateAction<SideBarContextState>>;
+  value: string | undefined;
+  setValue: React.Dispatch<SetStateAction<string | undefined>>;
   defaultPlaceholder: string;
+  algorithms: Algorithm[];
 };
 
 export const isStringAlgorithm = (s: string): s is Algorithms => {
   return ALGORITHMS.includes(s as Algorithms);
 };
 
-export function AlgoComboBox({ setValue, value, defaultPlaceholder }: Props) {
+export function AlgoComboBox({
+  setValue,
+  value,
+  defaultPlaceholder,
+  algorithms,
+}: Props) {
   const [open, setOpen] = useState(false);
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -47,9 +54,8 @@ export function AlgoComboBox({ setValue, value, defaultPlaceholder }: Props) {
           className="w-[125px] border-2-secondary bg-primary h-[30px] justify-between font-bold"
         >
           {value
-            ? algorithmsInfo.find((framework) => framework.value === value)
-                ?.label
-            : 'Algorithm'}
+            ? algorithms.find((a) => a.id === value)?.name
+            : defaultPlaceholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -58,23 +64,23 @@ export function AlgoComboBox({ setValue, value, defaultPlaceholder }: Props) {
           <CommandInput placeholder="Search Sorting Algorithm..." />
           <CommandEmpty>No algorithm found.</CommandEmpty>
           <CommandGroup>
-            {algorithmsInfo.map((framework) => (
+            {algorithms.map((algo) => (
               <CommandItem
-                key={framework.value}
+                key={algo.id}
                 onSelect={(currentValue) => {
                   if (!isStringAlgorithm(currentValue)) return;
                   // setValue(currentValue === value ? '' : currentValue);
-                  setValue((prev) => ({ ...prev, algorithm: currentValue }));
+                  setValue(algo.id);
                   setOpen(false);
                 }}
               >
                 <Check
                   className={cn(
                     'mr-2 h-4 w-4',
-                    value === framework.value ? 'opacity-100' : 'opacity-0'
+                    value === algo.id ? 'opacity-100' : 'opacity-0'
                   )}
                 />
-                {framework.label}
+                {algo.name}
               </CommandItem>
             ))}
           </CommandGroup>

@@ -232,17 +232,18 @@ const CanvasDisplay = ({
           <ContextMenuTrigger>
             <canvas
               className={`
-              ${selectedControlBarAction === 'pencil' ? 'cursor-crosshair' : ''}
-               `}
+              ${
+                selectedControlBarAction === 'pencil' ? 'cursor-crosshair' : ''
+              }`}
               ref={canvasRef}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               tabIndex={-1}
               onContextMenu={handleContextMenu}
               onMouseUp={handleMouseUp}
-              width={window.innerWidth}
+              width={typeof window !== 'undefined' ? window.innerWidth : 1500}
               onKeyDown={handleKeyDown}
-              height={window.innerHeight}
+              height={typeof window !== 'undefined' ? window.innerHeight : 1500}
             />
           </ContextMenuTrigger>
           <ContextMenuContent className="w-64">

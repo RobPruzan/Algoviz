@@ -3,8 +3,7 @@ import { SelectedGeometryInfo } from '@/lib/types';
 import React, { useEffect, useRef, useState } from 'react';
 import CodeExecution from './Canvas/CodeExecution';
 import Visualize from './Visualize';
-
-type Props = {};
+import { Algorithm } from '@prisma/client';
 
 const ContentWrapper = () => {
   const [canvasWidth, setCanvasWidth] = useState<number | '60%'>('60%');
@@ -57,6 +56,28 @@ const ContentWrapper = () => {
       document.removeEventListener('mouseup', mouseUpHandler);
     };
   }, [resizing]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (
+        typeof canvasWidth === 'number' &&
+        typeof codeExecWidth === 'number'
+      ) {
+        const totalWidth = window.innerWidth;
+        const canvasRatio = canvasWidth / (canvasWidth + codeExecWidth);
+        const codeExecRatio = codeExecWidth / (canvasWidth + codeExecWidth);
+
+        const newCanvasWidth = canvasRatio * totalWidth;
+        const newCodeExecWidth = codeExecRatio * totalWidth;
+        setCanvasWidth(newCanvasWidth);
+        setCodeExecWidth(newCanvasWidth);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div

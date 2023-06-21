@@ -7,8 +7,31 @@ import { NavigationMenu } from '@radix-ui/react-navigation-menu';
 import { Navbar } from '@/components/Navbar';
 import AuthProvider from './AuthProvider';
 import { SignInButton } from '@/components/Auth/AuthButtons';
+import { z } from 'zod';
+
+const envSchema = z.object({
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
+  NEXTAUTH_URL: z.string(),
+  NEXTAUTH_SECRET: z.string(),
+  POSTGRES_URL: z.string(),
+  POSTGRES_PRISMA_URL: z.string(),
+  POSTGRES_URL_NON_POOLING: z.string(),
+  POSTGRES_USER: z.string(),
+  POSTGRES_HOST: z.string(),
+  POSTGRES_PASSWORD: z.string(),
+  POSTGRES_DATABASE: z.string(),
+  NEXT_PUBLIC_CODE_EXEC_URL: z.string(),
+  NEXT_PUBLIC_API_ROUTE: z.string(),
+});
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv extends z.infer<typeof envSchema> {}
+  }
+}
 
 export default function Home() {
+  envSchema.parse(process.env);
   return (
     <>
       <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">

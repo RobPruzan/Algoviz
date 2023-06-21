@@ -5,7 +5,7 @@ import { useAppSelector } from '@/redux/store';
 import Editor, { useMonaco } from '@monaco-editor/react';
 import * as Graph from '@/lib/graph';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { P } from 'ts-pattern';
@@ -17,6 +17,8 @@ import { SelectedGeometryInfo, SideBarContextState } from '@/lib/types';
 import { AlgoComboBox } from '../Sort/AlgoComboBox';
 import { algorithmsInfo } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useSession } from 'next-auth/react';
+import { Algorithm } from '@prisma/client';
 
 type Props = {
   selectedGeometryInfo: SelectedGeometryInfo | null;
@@ -30,7 +32,22 @@ const CodeExecution = ({
 }: Props) => {
   const variables = useAppSelector((store) => store.canvas.variableInspector);
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
-
+  const getAlgorithmsQuery = useQuery({
+    queryFn: async () => {
+      const algorithmSchema = z.object({
+        id: z.string(),
+        userId: z.string(),
+        name: z.string(),
+        code: z.string(),
+      });
+      const res = (
+        await axios.get(`${process.env.NEXT_PUBLIC_API_ROUTE}/algos/getall`)
+      ).data;
+      return z.array(algorithmSchema).parse(res);
+    },
+  });
+  const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>();
   const [code, setCode] = useState(
     `
 type NodeID = string // uuid representing a node
@@ -61,7 +78,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
 
   const codeMutation = useMutation({
     mutationFn: async (code: string) => {
-      const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
+      const url = process.env.NEXT_PUBLIC_API_ROUTE;
       if (!url) return;
       const res = await axios.post(url, {
         code,
@@ -77,7 +94,14 @@ function algorithm(adjList: AdjacencyList): Visualization{
     },
   });
 
-  const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
+  const saveAlgorithmMutation = useMutation({
+    mutationFn: async ({ code, name }: { code: string; name: string }) => {
+      await axios.post(process.env.NEXT_PUBLIC_API_ROUTE, { code, name });
+    },
+  });
+  const { data } = useSession();
+
+  console.log('hmm', getAlgorithmsQuery);
 
   return variables.show ? (
     <div className="h-full w-full border-2 border-2-secondary flex flex-col items-center">
@@ -89,15 +113,22 @@ function algorithm(adjList: AdjacencyList): Visualization{
         >
           <Play />
         </Button> */}
-        <AlgoComboBox
-          defaultPlaceholder="algorithm"
-          value={undefined}
-          setValue={function (
-            value: React.SetStateAction<SideBarContextState>
-          ): void {
-            throw new Error('Function not implemented.');
-          }}
-        />
+        {getAlgorithmsQuery.isLoading ? (
+          <AlgoComboBox
+            algorithms={[]}
+            defaultPlaceholder="Loading"
+            setValue={() => undefined}
+            value={undefined}
+          />
+        ) : (
+          <AlgoComboBox
+            algorithms={getAlgorithmsQuery.data ?? []}
+            defaultPlaceholder="algorithm"
+            value={selectedAlgorithm}
+            setValue={setSelectedAlgorithm}
+          />
+        )}
+
         <Button
           onClick={() => {
             codeMutation.mutate(code);
