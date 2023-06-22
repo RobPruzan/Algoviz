@@ -120,162 +120,168 @@ function algorithm(adjList: AdjacencyList): Visualization{
 
   return variables.show ? (
     <div className="w-full h-full border-2 border-secondary">
-      <div className=" min-h-[5%] prevent-select overflow-x-scroll p-3 flex w-full justify-evenly items-center border-b-2 border-secondary">
-        {getAlgorithmsQuery.isLoading ? (
-          <AlgoComboBox
-            algorithms={[]}
-            defaultPlaceholder="Loading"
-            setValue={() => undefined}
-            value={undefined}
-          />
-        ) : (
-          <AlgoComboBox
-            algorithms={getAlgorithmsQuery.data ?? []}
-            defaultPlaceholder="Algorithm"
-            value={selectedAlgorithm}
-            setValue={(d) => {
-              setSelectedAlgorithm(d);
-              setCode(
-                (prev) =>
-                  getAlgorithmsQuery.data?.find(
-                    (algo) => algo.id === selectedAlgorithm
-                  )?.code ?? prev
-              );
-            }}
-          />
-        )}
-
-        <Button
-          onClick={() => {
-            codeMutation.mutate(code);
-          }}
-          variant="outline"
-          className="w-[90px]  flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
-        >
-          Run
-        </Button>
-        <Button
-          onClick={(e) => {
-            dispatch(codeExecActions.toggleIsApplyingAlgorithm());
-            // dispatch(codeExecActions.setIsApplyingAlgorithm(true));
-          }}
-          variant="outline"
-          className="w-[90px] flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
-        >
-          {isApplyingAlgorithm ? 'Pause' : 'Apply'}
-        </Button>
-        <Button
-          onClick={() => {
-            saveAlgorithmMutation.mutate({
-              code,
-              name: crypto.randomUUID(),
-            });
-            getAlgorithmsQuery.refetch();
-          }}
-          variant="outline"
-          className="w-[90px] flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
-        >
-          Save
-        </Button>
-      </div>
-      <Resizable
-        canvasSize={editorHeight}
-        codeExecSize={outputHeight}
-        setCanvasSize={setEditorHeight}
-        setCodeExecSize={setCodeExecHeight}
-        type="vertical"
-        topDiv={
-          <div className="w-full h-full bg-[#1E1E1E]">
-            <div
-              style={{
-                margin: '0px !important ',
+      <div className="w-full max-h-[7%] w-16">
+        <div className="  prevent-select overflow-x-scroll p-3 flex w-full justify-evenly items-center border-b-2 border-secondary">
+          {getAlgorithmsQuery.isLoading ? (
+            <AlgoComboBox
+              algorithms={[]}
+              defaultPlaceholder="Loading"
+              setValue={() => undefined}
+              value={undefined}
+            />
+          ) : (
+            <AlgoComboBox
+              algorithms={getAlgorithmsQuery.data ?? []}
+              defaultPlaceholder="Algorithm"
+              value={selectedAlgorithm}
+              setValue={(d) => {
+                setSelectedAlgorithm(d);
+                setCode(
+                  (prev) =>
+                    getAlgorithmsQuery.data?.find(
+                      (algo) => algo.id === selectedAlgorithm
+                    )?.code ?? prev
+                );
               }}
-              className="max-w-[95%]  w-full  h-full"
-            >
-              <Editor
-                className="flex items-center justify-center"
-                beforeMount={(m) => {
-                  // vercel thing, basename type gets widened when building prod
-                  m.editor.defineTheme('night-owl', nightOwlTheme as any);
-                }}
-                // theme="night-owl"
-                theme="vs-dark"
-                value={code}
-                onChange={(e) => {
-                  if (e) {
-                    setCode(e);
-                  }
-                }}
-                defaultLanguage="typescript"
-                options={{
-                  minimap: { enabled: false },
-                  folding: false,
-                  scrollbar: {
-                    vertical: 'hidden',
-                    horizontal: 'hidden', // This hides the horizontal scrollbar
-                  },
-                }}
-              />
-            </div>
-          </div>
-        }
-        bottomDiv={
-          <div className="h-full w-full  prevent-select flex flex-col justify-center items-center">
-            <Tabs
-              value={tabValue}
-              onValueChange={(v) =>
-                setTabValue((prev) => (prev === 'output' ? 'input' : 'output'))
-              }
-              defaultValue="input"
-              className=" flex p-1 justify-evenly items-center  w-full  "
-            >
-              <TabsList className="w-full  bg-primary p-3 flex justify-evenly items-center">
-                <TabsTrigger
-                  className={`w-1/5 ${
-                    tabValue === 'input'
-                      ? 'border-2 rounded-md border-secondary bg-secondary'
-                      : 'border-2 rounded-md border-secondary'
-                  }`}
-                  value="input"
-                >
-                  Input
-                </TabsTrigger>
-                <TabsTrigger
-                  className={`w-1/5 ${
-                    tabValue === 'output'
-                      ? 'border-2 rounded-md border-secondary bg-secondary'
-                      : 'border-2 rounded-md border-secondary'
-                  }`}
-                  value="output"
-                >
-                  Output
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            />
+          )}
 
-            <div className=" bg-primary pl-5 pt-3 w-full border-t-2 border-secondary flex flex-col items-start justify-start text-white  h-[600px] min-h-[20%]: overflow-y-scroll">
-              {Object.entries(adjacencyList).length === 0 && (
-                <div className="w-full h-full flex items-start font-bold text-xl justify-center text-gray-500">
-                  No graph selected in playground
-                </div>
-              )}
-              {Object.entries(adjacencyList).map(([k, v]) => (
-                <div className="flex text-2xl" key={k}>
-                  <div className="">
-                    {circles.find((c) => c.id === k)?.value}
-                  </div>
-                  :
-                  <div className="">
-                    {JSON.stringify(
-                      v.map((v) => circles.find((c) => c.id === v)?.value)
-                    )}
-                  </div>
-                </div>
-              ))}
+          <Button
+            onClick={() => {
+              codeMutation.mutate(code);
+            }}
+            variant="outline"
+            className="w-[90px]  flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
+          >
+            Run
+          </Button>
+          <Button
+            onClick={(e) => {
+              dispatch(codeExecActions.toggleIsApplyingAlgorithm());
+              // dispatch(codeExecActions.setIsApplyingAlgorithm(true));
+            }}
+            variant="outline"
+            className="w-[90px] flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
+          >
+            {isApplyingAlgorithm ? 'Pause' : 'Apply'}
+          </Button>
+          <Button
+            onClick={() => {
+              saveAlgorithmMutation.mutate({
+                code,
+                name: crypto.randomUUID(),
+              });
+              getAlgorithmsQuery.refetch();
+            }}
+            variant="outline"
+            className="w-[90px] flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
+          >
+            Save
+          </Button>
+        </div>
+      </div>
+      <div className="w-full h-[93%]">
+        <Resizable
+          canvasSize={editorHeight}
+          codeExecSize={outputHeight}
+          setCanvasSize={setEditorHeight}
+          setCodeExecSize={setCodeExecHeight}
+          type="vertical"
+          topDiv={
+            <div className="w-full h-full bg-[#1E1E1E]">
+              <div
+                style={{
+                  margin: '0px !important ',
+                }}
+                className="max-w-[95%]  w-full  h-full"
+              >
+                <Editor
+                  className="flex items-center justify-center"
+                  beforeMount={(m) => {
+                    // vercel thing, basename type gets widened when building prod
+                    m.editor.defineTheme('night-owl', nightOwlTheme as any);
+                  }}
+                  // theme="night-owl"
+                  theme="vs-dark"
+                  value={code}
+                  onChange={(e) => {
+                    if (e) {
+                      setCode(e);
+                    }
+                  }}
+                  defaultLanguage="typescript"
+                  options={{
+                    minimap: { enabled: false },
+                    folding: false,
+                    scrollbar: {
+                      vertical: 'hidden',
+                      horizontal: 'hidden', // This hides the horizontal scrollbar
+                    },
+                  }}
+                />
+              </div>
             </div>
-          </div>
-        }
-      />
+          }
+          bottomDiv={
+            <div className="h-full w-full  prevent-select flex flex-col justify-start overflow-x-scroll overflow-y-hidden items-center">
+              <Tabs
+                value={tabValue}
+                onValueChange={(v) =>
+                  setTabValue((prev) =>
+                    prev === 'output' ? 'input' : 'output'
+                  )
+                }
+                defaultValue="input"
+                className=" flex p-1 justify-evenly items-center  w-full  "
+              >
+                <TabsList className="w-full  bg-primary p-3 flex justify-evenly items-center">
+                  <TabsTrigger
+                    className={`w-1/5 ${
+                      tabValue === 'input'
+                        ? 'border-2 rounded-md border-secondary bg-secondary'
+                        : 'border-2 rounded-md border-secondary'
+                    }`}
+                    value="input"
+                  >
+                    Input
+                  </TabsTrigger>
+                  <TabsTrigger
+                    className={`w-1/5 ${
+                      tabValue === 'output'
+                        ? 'border-2 rounded-md border-secondary bg-secondary'
+                        : 'border-2 rounded-md border-secondary'
+                    }`}
+                    value="output"
+                  >
+                    Output
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              <div className=" bg-primary pl-5 pt-3 w-full border-t-2 border-secondary flex flex-col items-start justify-start text-white  h-full: overflow-y-scroll">
+                {Object.entries(adjacencyList).length === 0 && (
+                  <div className="w-full h-full flex items-start font-bold text-xl justify-center text-gray-500">
+                    No graph selected in playground
+                  </div>
+                )}
+                {Object.entries(adjacencyList).map(([k, v]) => (
+                  <div className="flex text-2xl" key={k}>
+                    <div className="">
+                      {circles.find((c) => c.id === k)?.value}
+                    </div>
+                    :
+                    <div className="">
+                      {JSON.stringify(
+                        v.map((v) => circles.find((c) => c.id === v)?.value)
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          }
+        />
+      </div>
     </div>
   ) : null;
 };

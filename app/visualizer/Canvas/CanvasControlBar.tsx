@@ -160,7 +160,7 @@ const CanvasControlBar = ({
     dispatch(CanvasActions.addCircle(newCircle));
   };
   return (
-    <div className="w-full items-center prevent-select  h-14 flex justify-evenly ">
+    <div className="w-full items-center prevent-select overflow-x-scroll overflow-y-hidden  h-14 flex justify-evenly ">
       <Button
         onClick={handleAddUndirectedEdge}
         variant={'outline'}
@@ -192,15 +192,15 @@ const CanvasControlBar = ({
       >
         <Pencil />
       </Button>
-      <Button variant={'outline'} className="px-2">
+      <Button variant={'outline'} className="px-2 min-w-fit">
         {/* <RectangleHorizontal /> */}
         Red-Black-Tree
       </Button>
-      <Button variant={'outline'} className="px-2">
+      <Button variant={'outline'} className="px-2 min-w-fit">
         {/* <RectangleHorizontal /> */}
         Binary Search Tree
       </Button>
-      <Button variant={'outline'} className="px-2">
+      <Button variant={'outline'} className="px-2 min-w-fit">
         {/* <RectangleHorizontal /> */}
         Linked List
       </Button>

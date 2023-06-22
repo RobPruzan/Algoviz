@@ -226,9 +226,11 @@ const CanvasDisplay = ({ selectedControlBarAction, canvasWidth }: Props) => {
               tabIndex={-1}
               onContextMenu={handleContextMenu}
               onMouseUp={handleMouseUp}
-              width={typeof window !== 'undefined' ? window.innerWidth : 1500}
+              width={
+                typeof window !== 'undefined' ? window.innerWidth * 0.6 : 1000
+              }
               onKeyDown={handleKeyDown}
-              height={typeof window !== 'undefined' ? window.innerHeight : 1500}
+              height={typeof window !== 'undefined' ? window.innerHeight : 1000}
             />
           </ContextMenuTrigger>
           <ContextMenuContent className="w-64">

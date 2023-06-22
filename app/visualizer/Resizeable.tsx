@@ -49,7 +49,8 @@ const Resizable = (props: Props) => {
           props.setCodeExecSize(newDiv2Width);
         })
         .with({ type: 'vertical' }, (props) => {
-          let newDiv1Height = e.clientY - parentDiv.offsetTop; // subtract left padding
+          let newDiv1Height =
+            e.clientY - parentDiv.offsetTop - (padding + resizeBarSize / 2);
           newDiv1Height = Math.max(0, newDiv1Height);
           newDiv1Height = Math.min(parentDiv.offsetHeight, newDiv1Height);
           const newDiv2Width = parentDiv.offsetHeight - newDiv1Height;
@@ -77,6 +78,7 @@ const Resizable = (props: Props) => {
       console.log('resize');
       match(props)
         .with({ type: 'horizontal' }, (props) => {
+          console.log(' no way right');
           if (
             typeof props.canvasSize === 'number' &&
             typeof props.codeExecSize === 'number'
@@ -99,6 +101,7 @@ const Resizable = (props: Props) => {
             typeof props.canvasSize === 'number' &&
             typeof props.codeExecSize === 'number'
           ) {
+            console.log('switch it up');
             const totalHeight = window.innerHeight;
             const canvasRatio =
               props.canvasSize / (props.canvasSize + props.codeExecSize);
