@@ -3,19 +3,10 @@ import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { Dispatch, SetStateAction } from 'react';
 import * as Graph from '@/lib/graph';
-type UseFullyConnectProps = {
-  selectedGeometryInfo: SelectedGeometryInfo | null;
-  setSelectedGeometryInfo: Dispatch<
-    SetStateAction<SelectedGeometryInfo | null>
-  >;
-};
-export const useFullyConnect = ({
-  selectedGeometryInfo,
-  setSelectedGeometryInfo,
-}: UseFullyConnectProps) => {
-  const { circles, creationZoomFactor, attachableLines } = useAppSelector(
-    (store) => store.canvas
-  );
+
+export const useFullyConnect = () => {
+  const { circles, creationZoomFactor, attachableLines, selectedGeometryInfo } =
+    useAppSelector((store) => store.canvas);
   const selectedAttachableLines = attachableLines.filter((line) =>
     selectedGeometryInfo?.selectedIds.has(line.id)
   );
@@ -26,22 +17,10 @@ export const useFullyConnect = ({
   const dispatch = useAppDispatch();
   const handleFullyConnect = () => {
     const visited = new Set<string>();
-    // circles.forEach((c) => {
-    //   c.nodeReceiver.attachedIds.forEach((id) => {
-    //     const circleId = circles.find((circ) => circ.nodeReceiver.id === id);
-    //     visited.add(c.id + circleId);
-    //     visited.add(circleId + c.id);
-    //   });
-    // });
-
     const adjList = Graph.getAdjacencyList({
       edges: selectedAttachableLines,
       vertices: selectedCircles,
     });
-    console.log('pre visit', visited);
-    // const selectedCircles = circles.filter((circle) =>
-    //   selectedGeometryInfo?.selectedIds.has(circle.id)
-    // );
     const are2NodesConnected = (a: CircleReceiver, b: CircleReceiver) =>
       adjList.get(a.id)?.includes(b.id) || adjList.get(b.id)?.includes(a.id);
     for (const circleA of selectedCircles) {
@@ -105,22 +84,16 @@ export const useFullyConnect = ({
         dispatch(CanvasActions.addLine(newLine));
         visited.add(storeCircleA.id + storeCircleB.id);
         visited.add(storeCircleB.id + storeCircleA.id);
-        setSelectedGeometryInfo((prev) =>
-          prev
-            ? {
-                ...prev,
-                selectedIds: new Set([
-                  ...prev.selectedIds,
-                  newLine.id,
-                  newLine.attachNodeOne.id,
-                  newLine.attachNodeTwo.id,
-                ]),
-              }
-            : null
+        dispatch(
+          CanvasActions.addSelectedIds([
+            newLine.id,
+            newLine.attachNodeOne.id,
+            newLine.attachNodeTwo.id,
+          ])
         );
       }
     }
-    setSelectedGeometryInfo(null);
+    dispatch(CanvasActions.nullifySelectedGeometryInfo());
   };
 
   return handleFullyConnect;

@@ -5,11 +5,11 @@ import CodeExecution from './Canvas/CodeExecution';
 import Resizable from './Resizeable';
 import Visualize from './Visualize';
 
-type Props = {};
+// type Props = {};
 
 const ContentWrapper = () => {
-  const [selectedGeometryInfo, setSelectedGeometryInfo] =
-    useState<SelectedGeometryInfo | null>(null);
+  // const [selectedGeometryInfo, setSelectedGeometryInfo] =
+  //   useState<SelectedGeometryInfo | null>(null);
 
   const [canvasWidth, setCanvasWidth] = useState<number | Percentage>('60%');
   const [codeExecWidth, setCodeExecWidth] = useState<number | Percentage>(
@@ -22,19 +22,8 @@ const ContentWrapper = () => {
       setCanvasSize={setCanvasWidth}
       setCodeExecSize={setCodeExecWidth}
       type="horizontal"
-      leftDiv={
-        <Visualize
-          canvasWidth={canvasWidth}
-          selectedGeometryInfo={selectedGeometryInfo}
-          setSelectedGeometryInfo={setSelectedGeometryInfo}
-        />
-      }
-      rightDiv={
-        <CodeExecution
-          selectedGeometryInfo={selectedGeometryInfo}
-          setSelectedGeometryInfo={setSelectedGeometryInfo}
-        />
-      }
+      leftDiv={<Visualize canvasWidth={canvasWidth} />}
+      rightDiv={<CodeExecution />}
     />
   );
 };

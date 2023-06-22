@@ -3,7 +3,7 @@ import {
   SelectedAttachableLine,
   SelectedGeometryInfo,
 } from '@/lib/types';
-import { useAppSelector } from '@/redux/store';
+import { useAppDispatch, useAppSelector } from '@/redux/store';
 import * as Canvas from '@/lib/Canvas/canvas';
 
 import {
@@ -14,6 +14,7 @@ import {
   SetStateAction,
 } from 'react';
 import { match } from 'ts-pattern';
+import { CanvasActions } from '@/redux/slices/canvasSlice';
 
 type UseCanvasMouseDownParams = {
   isMouseDownRef: MutableRefObject<boolean>;
@@ -21,10 +22,7 @@ type UseCanvasMouseDownParams = {
   selectBox: SelectBox | null;
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
   selectedControlBarAction: 'pencil' | null;
-  selectedGeometryInfo: SelectedGeometryInfo | null;
-  setSelectedGeometryInfo: Dispatch<
-    SetStateAction<SelectedGeometryInfo | null>
-  >;
+
   setSelectedCircleID: Dispatch<SetStateAction<string | null>>;
   setSelectedAttachableLine: Dispatch<
     SetStateAction<SelectedAttachableLine | null>
@@ -34,15 +32,17 @@ type UseCanvasMouseDownParams = {
 export const useCanvasMouseDown = ({
   setSelectedCircleID,
   setSelectedAttachableLine,
-  setSelectedGeometryInfo,
+
   isMouseDownRef,
   canvasRef,
   selectBox,
   setSelectBox,
   selectedControlBarAction,
-  selectedGeometryInfo,
 }: UseCanvasMouseDownParams) => {
-  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
+  const { attachableLines, circles, selectedGeometryInfo } = useAppSelector(
+    (store) => store.canvas
+  );
+  const dispatch = useAppDispatch();
   const isSelectBoxSet =
     selectBox === null &&
     selectedGeometryInfo &&
@@ -66,7 +66,8 @@ export const useCanvasMouseDown = ({
         selectedGeometryInfo.maxPoints.furthestFromOrigin
       )
     ) {
-      setSelectedGeometryInfo(null);
+      // setSelectedGeometryInfo(null);
+      dispatch(CanvasActions.nullifySelectedGeometryInfo());
       return;
     }
 

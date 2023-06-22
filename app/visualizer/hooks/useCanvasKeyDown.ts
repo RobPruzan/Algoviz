@@ -19,24 +19,14 @@ import {
 import { match } from 'ts-pattern';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 
-type UseCanvasKeyDownParams = {
-  selectedGeometryInfo: SelectedGeometryInfo | null;
-  setSelectedGeometryInfo: Dispatch<
-    SetStateAction<SelectedGeometryInfo | null>
-  >;
-};
-
-export const useCanvasKeyDown = ({
-  selectedGeometryInfo,
-
-  setSelectedGeometryInfo,
-}: UseCanvasKeyDownParams) => {
+export const useCanvasKeyDown = () => {
   const dispatch = useAppDispatch();
   const [copied, setCopied] = useState<Set<string>>(new Set());
-  const { attachableLines, circles, creationZoomFactor } = useAppSelector(
-    (store) => store.canvas
-  );
+  const { attachableLines, circles, creationZoomFactor, selectedGeometryInfo } =
+    useAppSelector((store) => store.canvas);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
+    // e.preventDefault();
     if (e.key === 'Backspace') {
       if (selectedGeometryInfo) {
         dispatch(
@@ -50,10 +40,12 @@ export const useCanvasKeyDown = ({
           ])
         );
       }
-      setSelectedGeometryInfo(null);
+      // setSelectedGeometryInfo(null);
+      dispatch(CanvasActions.nullifySelectedGeometryInfo());
     }
     if (e.key === 'Escape') {
-      setSelectedGeometryInfo(null);
+      dispatch(CanvasActions.nullifySelectedGeometryInfo());
+      // setSelectedGeometryInfo(null);
     }
     e;
     if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedGeometryInfo) {
@@ -139,28 +131,35 @@ export const useCanvasKeyDown = ({
           },
         }));
 
-      setSelectedGeometryInfo((geo) =>
-        geo
-          ? {
-              ...geo,
+      // setSelectedGeometryInfo((geo) =>
+      //   geo
+      //     ? {
+      //         ...geo,
 
-              selectedIds: new Set<string>(
-                [...geo.selectedIds.keys()].map((id) => idMap.get(id)!)
-              ),
-              // still need to update selected box
-              maxPoints: {
-                closestToOrigin: [
-                  geo.maxPoints.closestToOrigin[0] - offset,
-                  geo.maxPoints.closestToOrigin[1] - offset,
-                ],
-                furthestFromOrigin: [
-                  geo.maxPoints.furthestFromOrigin[0] - offset,
-                  geo.maxPoints.furthestFromOrigin[1] - offset,
-                ],
-              },
-            }
-          : null
+      // selectedIds: new Set<string>(
+      //   [...geo.selectedIds.keys()].map((id) => idMap.get(id)!)
+      // ),
+      //         // still need to update selected box
+      //         maxPoints: {
+      //           closestToOrigin: [
+      //             geo.maxPoints.closestToOrigin[0] - offset,
+      //             geo.maxPoints.closestToOrigin[1] - offset,
+      //           ],
+      //           furthestFromOrigin: [
+      //             geo.maxPoints.furthestFromOrigin[0] - offset,
+      //             geo.maxPoints.furthestFromOrigin[1] - offset,
+      //           ],
+      //         },
+      //       }
+      //     : null
+      // );
+      dispatch(
+        CanvasActions.panMaxPoints({
+          pan: [offset, offset],
+        })
       );
+      dispatch(CanvasActions.mapSelectedIds((id) => idMap.get(id)!));
+      // dispatch(CanvasActions.setSelectedIds([...geo.selectedIds.keys()].map((id) => idMap.get(id)!)))
 
       dispatch(CanvasActions.setCircles([...circles, ...pasteCircles]));
       dispatch(CanvasActions.setLines([...attachableLines, ...pasteLines]));

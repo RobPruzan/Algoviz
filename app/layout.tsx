@@ -31,9 +31,9 @@ export default function RootLayout({
           {/* temporary padding */}
           <nav className="w-screen pt-[10px] h-[15%] flex justify-end items-center  ">
             <div className="w-1/5 flex justify-center items-center ">
-              <Button className="bg-secondary ">
-                <Link href="/">Home</Link>
-              </Button>
+              <Link href="/">
+                <Button className="bg-secondary ">Home</Button>
+              </Link>
             </div>
 
             <div className="w-3/5 flex items-center " />

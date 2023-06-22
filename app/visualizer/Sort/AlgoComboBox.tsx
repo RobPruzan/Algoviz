@@ -30,7 +30,7 @@ type Props = {
   value: string | undefined;
   setValue: React.Dispatch<SetStateAction<string | undefined>>;
   defaultPlaceholder: string;
-  algorithms: Algorithm[];
+  algorithms: (Omit<Algorithm, 'createdAt'> & { createdAt: string })[];
 };
 
 export const isStringAlgorithm = (s: string): s is Algorithms => {

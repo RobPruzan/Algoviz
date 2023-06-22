@@ -16,21 +16,20 @@ import {
 } from 'react';
 import * as Draw from '@/lib/Canvas/drawUtils';
 type UseCanvasWheel = {
-  setSelectedGeometryInfo: Dispatch<
-    SetStateAction<SelectedGeometryInfo | null>
-  >;
   setPencilCoordinates: React.Dispatch<React.SetStateAction<PencilCoordinates>>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
 };
 export const useCanvasWheel = ({
   setPencilCoordinates,
-  setSelectedGeometryInfo,
+
   canvasRef,
 }: UseCanvasWheel) => {
   const offsetX = useRef(0);
   const offsetY = useRef(0);
   const dispatch = useAppDispatch();
-  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
+  const { attachableLines, circles, selectedGeometryInfo } = useAppSelector(
+    (store) => store.canvas
+  );
   const handleWheel = useCallback(
     (event: WheelEvent) => {
       event.preventDefault();
@@ -125,25 +124,11 @@ export const useCanvasWheel = ({
             }))
           )
         );
-
-        setSelectedGeometryInfo((geoInfo) =>
-          geoInfo
-            ? {
-                ...geoInfo,
-                maxPoints: {
-                  closestToOrigin: Draw.zoomLine(
-                    geoInfo.maxPoints.closestToOrigin,
-                    center,
-                    zoomAmount
-                  ),
-                  furthestFromOrigin: Draw.zoomLine(
-                    geoInfo.maxPoints.furthestFromOrigin,
-                    center,
-                    zoomAmount
-                  ),
-                },
-              }
-            : null
+        dispatch(
+          CanvasActions.zoomMaxPoints({
+            center,
+            zoomAmount,
+          })
         );
 
         setPencilCoordinates((prev) => ({
@@ -207,22 +192,27 @@ export const useCanvasWheel = ({
           )
         );
 
-        setSelectedGeometryInfo((geoInfo) =>
-          geoInfo
-            ? {
-                ...geoInfo,
-                maxPoints: {
-                  closestToOrigin: [
-                    geoInfo.maxPoints.closestToOrigin[0] - newOffsetX,
-                    geoInfo.maxPoints.closestToOrigin[1] - newOffsetY,
-                  ],
-                  furthestFromOrigin: [
-                    geoInfo.maxPoints.furthestFromOrigin[0] - newOffsetX,
-                    geoInfo.maxPoints.furthestFromOrigin[1] - newOffsetY,
-                  ],
-                },
-              }
-            : null
+        // setSelectedGeometryInfo((geoInfo) =>
+        //   geoInfo
+        //     ? {
+        //         ...geoInfo,
+        //         maxPoints: {
+        // closestToOrigin: [
+        //   geoInfo.maxPoints.closestToOrigin[0] - newOffsetX,
+        //   geoInfo.maxPoints.closestToOrigin[1] - newOffsetY,
+        // ],
+        // furthestFromOrigin: [
+        //   geoInfo.maxPoints.furthestFromOrigin[0] - newOffsetX,
+        //   geoInfo.maxPoints.furthestFromOrigin[1] - newOffsetY,
+        // ],
+        //         },
+        //       }
+        //     : null
+        // );
+        dispatch(
+          CanvasActions.panMaxPoints({
+            pan: [newOffsetX, newOffsetY],
+          })
         );
         setPencilCoordinates((prev) => ({
           ...prev,
@@ -239,14 +229,7 @@ export const useCanvasWheel = ({
         }));
       }
     },
-    [
-      attachableLines,
-      canvasRef,
-      circles,
-      dispatch,
-      setPencilCoordinates,
-      setSelectedGeometryInfo,
-    ]
+    [attachableLines, canvasRef, circles, dispatch, setPencilCoordinates]
   );
   useEffect(() => {
     const canvas = canvasRef.current;

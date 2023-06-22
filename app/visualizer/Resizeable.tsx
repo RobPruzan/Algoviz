@@ -56,7 +56,7 @@ const Resizable = (props: Props) => {
           props.setCanvasSize(newDiv1Height);
           props.setCodeExecSize(newDiv2Width);
         })
-        .run();
+        .exhaustive();
     };
 
     const mouseUpHandler = () => {
@@ -74,12 +74,14 @@ const Resizable = (props: Props) => {
 
   useEffect(() => {
     const handleResize = () => {
+      console.log('resize');
       match(props)
         .with({ type: 'horizontal' }, (props) => {
           if (
             typeof props.canvasSize === 'number' &&
             typeof props.codeExecSize === 'number'
           ) {
+            console.log('resize');
             const totalWidth = window.innerWidth;
             const canvasRatio =
               props.canvasSize / (props.canvasSize + props.codeExecSize);
@@ -109,7 +111,7 @@ const Resizable = (props: Props) => {
             props.setCodeExecSize(newCodeExecHeight);
           }
         })
-        .run();
+        .exhaustive();
     };
     window.addEventListener('resize', handleResize);
 

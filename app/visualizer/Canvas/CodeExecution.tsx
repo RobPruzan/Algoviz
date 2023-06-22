@@ -1,7 +1,7 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useAppSelector } from '@/redux/store';
+import { useAppDispatch, useAppSelector } from '@/redux/store';
 import Editor, { useMonaco } from '@monaco-editor/react';
 import * as Graph from '@/lib/graph';
 
@@ -24,38 +24,18 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSession } from 'next-auth/react';
 import { Algorithm } from '@prisma/client';
 import Resizable from '../Resizeable';
+import { codeExecActions } from '@/redux/slices/codeExecSlice';
 
-type Props = {
-  selectedGeometryInfo: SelectedGeometryInfo | null;
-  setSelectedGeometryInfo: Dispatch<
-    SetStateAction<SelectedGeometryInfo | null>
-  >;
-};
-const CodeExecution = ({
-  selectedGeometryInfo,
-  setSelectedGeometryInfo,
-}: Props) => {
+const CodeExecution = () => {
   const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
     '40%'
   );
   const variables = useAppSelector((store) => store.canvas.variableInspector);
-  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
-  const getAlgorithmsQuery = useQuery({
-    queryFn: async () => {
-      const algorithmSchema = z.object({
-        id: z.string(),
-        userId: z.string(),
-        name: z.string(),
-        code: z.string(),
-        createdAt: z.date(),
-      });
-      const res = (
-        await axios.get(`${process.env.NEXT_PUBLIC_API_ROUTE}/algo/getall`)
-      ).data;
-      return z.array(algorithmSchema).parse(res);
-    },
-  });
+  const { attachableLines, circles, selectedGeometryInfo } = useAppSelector(
+    (store) => store.canvas
+  );
+
   const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>();
   const [code, setCode] = useState(
@@ -68,6 +48,10 @@ function algorithm(adjList: AdjacencyList): Visualization{
     // your code here
 };
 `
+  );
+  const dispatch = useAppDispatch();
+  const isApplyingAlgorithm = useAppSelector(
+    (store) => store.codeExec.isApplyingAlgorithm
   );
   const selectedAttachableLines = attachableLines.filter((line) =>
     selectedGeometryInfo?.selectedIds.has(line.id)
@@ -84,22 +68,44 @@ function algorithm(adjList: AdjacencyList): Visualization{
   ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
     return { ...prev, [id]: neighbors };
   }, {});
-
+  const getAlgorithmsQuery = useQuery({
+    queryKey: ['getallAlgorithms'],
+    queryFn: async () => {
+      const algorithmSchema = z.object({
+        id: z.string(),
+        userId: z.string(),
+        name: z.string(),
+        code: z.string(),
+        createdAt: z.string(),
+      });
+      const res = (
+        await axios.get(`${process.env.NEXT_PUBLIC_API_ROUTE}/algo/getall`)
+      ).data;
+      return z.array(algorithmSchema).parse(res);
+    },
+  });
   const codeMutation = useMutation({
     mutationFn: async (code: string) => {
+      console.log('running');
       const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
-      if (!url) return;
+      if (!url) Promise.reject();
       const res = await axios.post(url, {
         code,
         globalVar: adjacencyList,
       });
-      const dataSchema = z.object({ data: z.object({ result: z.unknown() }) });
+      const dataSchema = z.object({
+        data: z.object({ result: z.array(z.array(z.string())) }),
+      });
       const parsed = dataSchema.parse(res.data);
 
       return parsed.data.result;
     },
     onError: (err) => {
       console.log('the error is!!', err);
+    },
+    onSuccess: (data) => {
+      console.log('data from endpoint', data);
+      dispatch(codeExecActions.setVisited(data));
     },
   });
 
@@ -149,10 +155,14 @@ function algorithm(adjList: AdjacencyList): Visualization{
           Run
         </Button>
         <Button
+          onClick={(e) => {
+            dispatch(codeExecActions.toggleIsApplyingAlgorithm());
+            // dispatch(codeExecActions.setIsApplyingAlgorithm(true));
+          }}
           variant="outline"
           className="w-[90px] flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
         >
-          Apply
+          {isApplyingAlgorithm ? 'Pause' : 'Apply'}
         </Button>
         <Button
           onClick={() => {
@@ -263,9 +273,6 @@ function algorithm(adjList: AdjacencyList): Visualization{
                 </div>
               ))}
             </div>
-            {codeMutation.isSuccess &&
-              JSON.stringify(codeMutation.data, null, 4)}
-            {codeMutation.isLoading && <Loader />}
           </div>
         }
       />

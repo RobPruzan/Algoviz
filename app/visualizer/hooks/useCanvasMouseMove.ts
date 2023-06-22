@@ -25,10 +25,7 @@ type UseCanvasMouseMoveProps = {
   selectBox: SelectBox | null;
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
   selectedControlBarAction: 'pencil' | null;
-  selectedGeometryInfo: SelectedGeometryInfo | null;
-  setSelectedGeometryInfo: Dispatch<
-    SetStateAction<SelectedGeometryInfo | null>
-  >;
+
   setPencilCoordinates: React.Dispatch<React.SetStateAction<PencilCoordinates>>;
   selectedCircleID: string | null;
   selectedAttachableLine: SelectedAttachableLine | null;
@@ -36,16 +33,17 @@ type UseCanvasMouseMoveProps = {
 
 export const useCanvasMouseMove = ({
   setPencilCoordinates,
-  setSelectedGeometryInfo,
   isMouseDownRef,
   selectBox,
   selectedControlBarAction,
-  selectedGeometryInfo,
   setSelectBox,
   selectedCircleID,
   selectedAttachableLine,
 }: UseCanvasMouseMoveProps) => {
-  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
+  const { attachableLines, circles, selectedGeometryInfo } = useAppSelector(
+    (store) => store.canvas
+  );
+
   const previousMousePositionRef = useRef<[number, number]>();
   const isSelectBoxSet =
     selectBox === null &&
@@ -87,76 +85,84 @@ export const useCanvasMouseMove = ({
         ];
         // this should be a case obviously just doing this for quick measures
         if (isSelectBoxSet && isMouseDownRef.current) {
-          const updatedCircles: CircleReceiver[] = circles.map((circle) => {
-            const shiftedCircle = Canvas.shiftCircle({ circle, shift });
-            if (selectedGeometryInfo.selectedIds.has(circle.id)) {
-              return {
-                ...shiftedCircle,
-                nodeReceiver: {
-                  ...shiftedCircle.nodeReceiver,
-                  attachedIds: circle.nodeReceiver.attachedIds.filter((id) =>
-                    selectedGeometryInfo.selectedIds.has(id)
-                  ),
-                },
-              };
-            } else {
-              return {
-                ...circle,
-                nodeReceiver: {
-                  ...circle.nodeReceiver,
-                  attachedIds: circle.nodeReceiver.attachedIds.filter((id) =>
-                    selectedGeometryInfo.selectedIds.has(id)
-                  ),
-                },
-              };
-            }
-          });
-          // dispatch this
-          const updatedLines: Edge[] = attachableLines.map((line) => {
-            if (
-              selectedGeometryInfo.selectedIds.has(line.id) ||
-              selectedGeometryInfo.selectedIds.has(line.attachNodeOne.id) ||
-              selectedGeometryInfo.selectedIds.has(line.attachNodeTwo.id)
-            ) {
-              const nodeOneConnectedToId =
-                line.attachNodeOne.connectedToId &&
-                selectedGeometryInfo.selectedIds.has(
-                  line.attachNodeOne.connectedToId
-                )
-                  ? line.attachNodeOne.connectedToId
-                  : null;
-
-              const nodeTwoConnectedToId =
-                line.attachNodeTwo.connectedToId &&
-                selectedGeometryInfo.selectedIds.has(
-                  line.attachNodeTwo.connectedToId
-                )
-                  ? line.attachNodeTwo.connectedToId
-                  : null;
-              // need to deduplicate this
-              const shiftedLine = Canvas.shiftLine({ line, shift });
-              const newLine: Edge = {
-                ...shiftedLine,
-                attachNodeOne: {
-                  ...shiftedLine.attachNodeOne,
-                  connectedToId: nodeOneConnectedToId,
-                },
-                attachNodeTwo: {
-                  ...shiftedLine.attachNodeTwo,
-                  connectedToId: nodeTwoConnectedToId,
-                },
-              };
-
-              return newLine;
-            }
-            return line;
-          });
-          // weird behavior when moving quick because of circles, need to investigate latter
-          setSelectedGeometryInfo(
-            Canvas.shiftSelectBox({ selectedGeometryInfo, shift })
+          // const updatedCircles: CircleReceiver[] = circles.map((circle) => {
+          //   const shiftedCircle = Canvas.shiftCircle({ circle, shift });
+          //   if (selectedGeometryInfo.selectedIds.has(circle.id)) {
+          //     return {
+          //       ...shiftedCircle,
+          //       nodeReceiver: {
+          //         ...shiftedCircle.nodeReceiver,
+          //         attachedIds: circle.nodeReceiver.attachedIds.filter((id) =>
+          //           selectedGeometryInfo.selectedIds.has(id)
+          //         ),
+          //       },
+          //     };
+          //   } else {
+          //     return {
+          //       ...circle,
+          //       nodeReceiver: {
+          //         ...circle.nodeReceiver,
+          //         attachedIds: circle.nodeReceiver.attachedIds.filter((id) =>
+          //           selectedGeometryInfo.selectedIds.has(id)
+          //         ),
+          //       },
+          //     };
+          //   }
+          // });
+          dispatch(
+            CanvasActions.shiftCircles({
+              selectedGeometryInfo,
+              shift,
+            })
           );
-          dispatch(CanvasActions.setCircles(updatedCircles));
-          dispatch(CanvasActions.setLines(updatedLines));
+          dispatch(CanvasActions.shiftLines({ shift }));
+          // dispatch this
+          // const updatedLines: Edge[] = attachableLines.map((line) => {
+          //   if (
+          //     selectedGeometryInfo.selectedIds.has(line.id) ||
+          //     selectedGeometryInfo.selectedIds.has(line.attachNodeOne.id) ||
+          //     selectedGeometryInfo.selectedIds.has(line.attachNodeTwo.id)
+          //   ) {
+          //     const nodeOneConnectedToId =
+          //       line.attachNodeOne.connectedToId &&
+          //       selectedGeometryInfo.selectedIds.has(
+          //         line.attachNodeOne.connectedToId
+          //       )
+          //         ? line.attachNodeOne.connectedToId
+          //         : null;
+
+          //     const nodeTwoConnectedToId =
+          //       line.attachNodeTwo.connectedToId &&
+          //       selectedGeometryInfo.selectedIds.has(
+          //         line.attachNodeTwo.connectedToId
+          //       )
+          //         ? line.attachNodeTwo.connectedToId
+          //         : null;
+          //     // need to deduplicate this
+          //     const shiftedLine = Canvas.shiftLine({ line, shift });
+          //     const newLine: Edge = {
+          //       ...shiftedLine,
+          //       attachNodeOne: {
+          //         ...shiftedLine.attachNodeOne,
+          //         connectedToId: nodeOneConnectedToId,
+          //       },
+          //       attachNodeTwo: {
+          //         ...shiftedLine.attachNodeTwo,
+          //         connectedToId: nodeTwoConnectedToId,
+          //       },
+          //     };
+
+          //     return newLine;
+          //   }
+          //   return line;
+          // });
+          // weird behavior when moving quick because of circles, need to investigate latter
+          // setSelectedGeometryInfo(
+          //   Canvas.shiftSelectBox({ selectedGeometryInfo, shift })
+          // );
+          // dispatch(CanvasActions.setCircles(updatedCircles));
+          dispatch(CanvasActions.shiftSelectBox({ shift }));
+          // dispatch(CanvasActions.setLines(updatedLines));
           previousMousePositionRef.current = [mousePositionX, mousePositionY];
           return;
         }
@@ -381,7 +387,10 @@ export const useCanvasMouseMove = ({
                   selectBox: prev?.p1 ? { ...prev, p2: adjustableCord } : null,
                 });
 
-                setSelectedGeometryInfo(selectedGeometryInfo);
+                // setSelectedGeometryInfo(selectedGeometryInfo);
+                dispatch(
+                  CanvasActions.setSelectedGeometryInfo(selectedGeometryInfo)
+                );
                 return prev?.p1 ? { ...prev, p2: adjustableCord } : null;
               });
             }

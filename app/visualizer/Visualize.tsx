@@ -17,16 +17,8 @@ import { SideBarContext } from '@/context/SideBarContext';
 import { useDepthFirstSearch } from '@/hooks/useDepthFirstSearch';
 type Props = {
   canvasWidth: number | Percentage;
-  selectedGeometryInfo: SelectedGeometryInfo | null;
-  setSelectedGeometryInfo: Dispatch<
-    SetStateAction<SelectedGeometryInfo | null>
-  >;
 };
-const Visualize = ({
-  selectedGeometryInfo,
-  setSelectedGeometryInfo,
-  canvasWidth,
-}: Props) => {
+const Visualize = ({ canvasWidth }: Props) => {
   const { sideBarState } = useContext(SideBarContext);
   const { show } = useAppSelector((store) => store.canvas.variableInspector);
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
@@ -35,6 +27,9 @@ const Visualize = ({
   // if i were to redo this, i would just set the selected ids in state
   // const [selectedGeometryInfo, setSelectedGeometryInfo] =
   //   useState<SelectedGeometryInfo | null>(null);
+  const selectedGeometryInfo = useAppSelector(
+    (store) => store.canvas.selectedGeometryInfo
+  );
   const selectedAttachableLines = attachableLines.filter((line) =>
     selectedGeometryInfo?.selectedIds.has(line.id)
   );
@@ -78,8 +73,6 @@ const Visualize = ({
             selectedControlBarAction={selectedControlBarAction}
             setSelectedControlBarAction={setSelectedControlBarAction}
             handleDfs={handleDfs}
-            selectedGeometryInfo={selectedGeometryInfo}
-            setSelectedGeometryInfo={setSelectedGeometryInfo}
           />
         )}
       </div>

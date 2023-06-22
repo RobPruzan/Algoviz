@@ -13,13 +13,15 @@ export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   // console.log('incoming sesion', session);
   if (!session?.user) return;
-  await prisma.algorithm.create({
+  const res = await prisma.algorithm.create({
     data: {
       code,
       name,
       userId: session.user.id,
     },
   });
+
+  console.log('created alog', res);
 
   // console.log('after');
 }

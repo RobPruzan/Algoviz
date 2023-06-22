@@ -46,29 +46,18 @@ import { useCanvasContextMenu } from '../hooks/useCanvasContextMenu';
 import { useCanvasMouseMove } from '../hooks/useCanvasMouseMove';
 import { useHandleMouseUp } from '../hooks/useCanvasHandleMouseUp';
 import { useCanvasWheel } from '../hooks/useCanvasWheel';
-import { usePlayAlgorithm } from '../hooks/usePlayAAlgorithm';
+import { useApplyAlgorithm } from '../hooks/useApplyAlgorithm';
 import { useCanvasKeyDown } from '../hooks/useCanvasKeyDown';
 import { useFullyConnect } from '../hooks/useFullyConnect';
 
 export type Props = {
-  selectedGeometryInfo: SelectedGeometryInfo | null;
-  setSelectedGeometryInfo: Dispatch<
-    SetStateAction<SelectedGeometryInfo | null>
-  >;
   canvasWidth: number | Percentage;
   handleDfs: () => void;
   selectedControlBarAction: DrawTypes | null;
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
 };
 
-const CanvasDisplay = ({
-  selectedGeometryInfo,
-  setSelectedGeometryInfo,
-  // handleDfs,
-  selectedControlBarAction,
-  // setSelectedControlBarAction,
-  canvasWidth,
-}: Props) => {
+const CanvasDisplay = ({ selectedControlBarAction, canvasWidth }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
@@ -78,16 +67,20 @@ const CanvasDisplay = ({
       drawnCoordinates: [],
     }
   );
+  const selectedGeometryInfo = useAppSelector(
+    (store) => store.canvas.selectedGeometryInfo
+  );
   const { sideBarState, setSideBarState } = useContext(SideBarContext);
   const dispatch = useAppDispatch();
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
   const isMouseDownRef = useRef(false);
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
-  const { visited: dfsVisited, visitedPointer } = useAppSelector(
-    (store) => store.dfs
+  const { visualization, visualizationPointer } = useAppSelector(
+    (store) => store.codeExec
   );
-  const dfsVisitedNodes = dfsVisited.slice(0, visitedPointer);
+
+  const visualizationNodes = visualization.at(visualizationPointer);
   const isContextMenuActiveRef = useRef(false);
 
   const handleMouseDown = useCanvasMouseDown({
@@ -95,17 +88,14 @@ const CanvasDisplay = ({
     isMouseDownRef,
     selectBox,
     selectedControlBarAction,
-    selectedGeometryInfo,
     setSelectBox,
     setSelectedAttachableLine,
     setSelectedCircleID,
-    setSelectedGeometryInfo,
   });
 
   const handleContextMenu = useCanvasContextMenu({
     canvasRef,
     setSelectedCircleID,
-    setSelectedGeometryInfo,
     isContextMenuActiveRef,
   });
 
@@ -115,10 +105,8 @@ const CanvasDisplay = ({
     selectedAttachableLine,
     selectedCircleID,
     selectedControlBarAction,
-    selectedGeometryInfo,
     setPencilCoordinates,
     setSelectBox,
-    setSelectedGeometryInfo,
   });
 
   const handleMouseUp = useHandleMouseUp({
@@ -136,21 +124,13 @@ const CanvasDisplay = ({
   useCanvasWheel({
     canvasRef,
     setPencilCoordinates,
-    setSelectedGeometryInfo,
   });
 
-  usePlayAlgorithm();
+  useApplyAlgorithm();
 
-  const handleKeyDown = useCanvasKeyDown({
-    selectedGeometryInfo,
-    setSelectedGeometryInfo,
-  });
+  const handleKeyDown = useCanvasKeyDown();
 
-  const handleFullyConnect = useFullyConnect({
-    selectedGeometryInfo,
-    setSelectedGeometryInfo,
-  });
-  // const intervalId = useRef<null | NodeJS.Timer>(null);
+  const handleFullyConnect = useFullyConnect();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -180,7 +160,7 @@ const CanvasDisplay = ({
       nodes: circles,
       selectedCircleID,
       selectedIds: selectedGeometryInfo?.selectedIds,
-      dfsVisitedNodes,
+      dfsVisitedNodes: visualizationNodes ?? [],
     });
 
     if (selectBox) {
@@ -222,8 +202,8 @@ const CanvasDisplay = ({
     selectedAttachableLine,
     selectedGeometryInfo?.selectedIds,
     selectedGeometryInfo?.maxPoints,
-    dfsVisitedNodes,
     pencilCoordinates,
+    visualizationNodes,
   ]);
 
   return (
@@ -232,7 +212,11 @@ const CanvasDisplay = ({
         <ContextMenu>
           <ContextMenuTrigger>
             <canvas
+              onMouseLeave={() => {
+                isMouseDownRef.current = false;
+              }}
               className={`
+              outline-none 
               ${
                 selectedControlBarAction === 'pencil' ? 'cursor-crosshair' : ''
               }`}
