@@ -40,3 +40,13 @@ export const algorithmsInfo: AlgorithmInfo[] = [
     label: 'Depth First Search',
   },
 ];
+
+export const DEFAULT_CODE = `type NodeID = string // uuid representing a node
+type AdjacencyList = Record<NodeID, NodeID[]>
+type VisitedIDs = NodeID[]
+type Visualization = VisitedIDs[]
+
+function algorithm(adjList: AdjacencyList): Visualization{
+    // your code here
+};
+`;

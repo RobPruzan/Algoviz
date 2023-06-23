@@ -40,6 +40,7 @@
     "cmdk": "^0.2.0",
     "eslint": "8.40.0",
     "eslint-config-next": "13.4.1",
+    "ky": "^0.33.3",
     "lucide-react": "^0.220.0",
     "mnemonist": "^0.39.5",
     "monaco-themes": "^0.4.4",
