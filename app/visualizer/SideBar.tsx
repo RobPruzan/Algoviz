@@ -43,10 +43,10 @@ const SideBar = () => {
             setValue={setSideBarState}
             value={sideBarState.display}
           />
-          <AlgoComboBox
+          {/* <AlgoComboBox
             setValue={setSideBarState}
             value={sideBarState.algorithm}
-          />
+          /> */}
           <ScrollArea className="h-[400px] w-full mt-4 rounded-md border-2 p-4">
             {circles.map((circle) => (
               <div

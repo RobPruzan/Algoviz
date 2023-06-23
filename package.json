@@ -3,11 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "npx prisma generate && npx prisma db push"
+    "postinstall": "npx prisma generate && npx prisma db push",
+    "dev": "next dev --turbo",
+    "dev:ts": "concurrently \"npm run dev\" \"npm run ts:watch\"",
+    "ts": "tsc --noEmit --incremental",
+    "ts:watch": "npm run ts --watch"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.5.1",
@@ -53,5 +56,8 @@
     "ts-pattern": "^4.3.0",
     "typescript": "5.0.4",
     "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
   }
 }

@@ -295,7 +295,7 @@ const CodeExecution = () => {
                   }}
                   // theme="night-owl"
                   theme="vs-dark"
-                  value={currentAlgorithm?.code}
+                  value={currentAlgorithm?.code ?? DEFAULT_CODE}
                   // this doesn't make sense without edit functionality will do that next
                   onChange={(value) => {
                     if (value) {

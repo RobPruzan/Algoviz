@@ -180,7 +180,6 @@ const CanvasControlBar = ({
         </svg>
       </Button>
       <Button onClick={handleAddCircle} variant={'outline'} className="px-2">
-        {/* <RectangleHorizontal /> */}
         <CircleDot />
       </Button>
       <Button
@@ -193,71 +192,14 @@ const CanvasControlBar = ({
         <Pencil />
       </Button>
       <Button variant={'outline'} className="px-2 min-w-fit">
-        {/* <RectangleHorizontal /> */}
-        Red-Black-Tree
+        Red-Black Tree
       </Button>
       <Button variant={'outline'} className="px-2 min-w-fit">
-        {/* <RectangleHorizontal /> */}
         Binary Search Tree
       </Button>
       <Button variant={'outline'} className="px-2 min-w-fit">
-        {/* <RectangleHorizontal /> */}
         Linked List
       </Button>
-
-      {/* <div className="flex flex-col h-full ">
-        <div className="h-1/2 flex">
-          <Button
-            onClick={handleAddUndirectedEdge}
-            className="bg-secondary  hover:bg-primary w-24 rounded-sm rounded-b-none rounded-r-none h-full border-2 border-secondary"
-          >
-            <UndirectedEdgeIcon />
-          </Button>
-          <Button
-            onClick={handleAddCircle}
-            className="bg-secondary hover:bg-primary w-16 border-2 border-secondary rounded-none h-full"
-          >
-            <Vertex />
-          </Button>
-        </div>
-        <div className="h-1/2 flex">
-          <Button
-            onClick={handleAddDirectedEdge}
-            className="bg-secondary hover:bg-primary w-24  border-2 border-secondary rounded-none h-full"
-          >
-            <DirectedEdgeIcon />
-          </Button>
-          <Button
-            onClick={() =>
-              setSelectedControlBarAction((prev) => (prev ? null : 'pencil'))
-            }
-            className={`${
-              selectedControlBarAction === 'pencil'
-                ? 'bg-muted-foreground'
-                : 'bg-secondary'
-            } hover:bg-primary  w-16 border-2 border-secondary rounded-none h-full`}
-          >
-            <Pencil />
-          </Button>
-        </div>
-      </div>
-      <Button className="bg-secondary hover:bg-primary  w-24  border-2 border-secondary rounded-none h-full">
-        <BinarySearchTreeIcon />
-      </Button>
-      <Button className="bg-secondary hover:bg-primary w-24  border-2 border-secondary rounded-none h-full">
-        <GraphIcon />
-      </Button>
-      <Button className="bg-secondary hover:bg-primary w-24  border-2 border-secondary rounded-none h-full">
-        <RedBlackTreeIcon />
-      </Button>
-      <Button className="bg-secondary hover:bg-primary w-24  border-2 border-secondary rounded-none h-full">
-        <LinkedListIcon />
-      </Button>
-      <Button
-        onClick={() => dispatch(CanvasActions.updateInspectorVisibility(!show))}
-      >
-
-      </Button> */}
     </div>
   );
 };
