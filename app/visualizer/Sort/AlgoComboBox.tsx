@@ -51,7 +51,7 @@ export function AlgoComboBox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[125px] border-secondary bg-primary h-[30px] justify-between font-bold"
+          className="w-[125px]  bg-primary h-[30px] justify-between font-bold"
         >
           {(value
             ? algorithms.find((a) => a.id === value)?.title

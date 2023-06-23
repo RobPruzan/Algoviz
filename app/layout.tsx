@@ -7,6 +7,8 @@ import { SignInButton } from '@/components/Auth/AuthButtons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
+import { ThemeProvider } from '@/components/ThemeProvider';
+import { ModeToggle } from '@/components/ui/mode-toggle';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -24,7 +26,7 @@ export default function RootLayout({
       <html lang="en">
         <body
           className={cn(
-            'min-h-screen bg-background dark font-sans antialiased ',
+            'min-h-screen bg-background  font-sans antialiased ',
             fontSans.variable
           )}
         >
@@ -39,11 +41,18 @@ export default function RootLayout({
             <div className="w-3/5 flex items-center " />
 
             <div className="w-1/5 flex justify-center items-center">
-              <SignInButton />
+              <div className="mx-2">
+                <ModeToggle />
+              </div>
+              <div className="mx-2">
+                <SignInButton />
+              </div>
             </div>
           </nav>
           {/* <Navbar /> */}
-          {children}
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
         </body>
       </html>
     </AuthProvider>

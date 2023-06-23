@@ -37,7 +37,7 @@ const SideBar = () => {
   const dispatch = useAppDispatch();
   return (
     <div className=" h-full flex">
-      <div className=" h-[85%] w-64 rounded-md border-2 border-secondary flex flex-col justify-start items-center">
+      <div className=" h-[85%] w-64 rounded-md border-2  flex flex-col justify-start items-center">
         <div className="flex flex-col w-full h-4/5 items-center justify-start p-5">
           <DisplayTypeTabs
             setValue={setSideBarState}
@@ -50,7 +50,7 @@ const SideBar = () => {
           <ScrollArea className="h-[400px] w-full mt-4 rounded-md border-2 p-4">
             {circles.map((circle) => (
               <div
-                className="bg-primary border-2 w-40 mt-2 border-secondary rounded-md p-3 flex items-center justify-center"
+                className="bg-primary border-2 w-40 mt-2  rounded-md p-3 flex items-center justify-center"
                 key={circle.id}
               >
                 <div className="w-1/2 flex items-center justify-end h-full">
@@ -119,7 +119,7 @@ const SideBar = () => {
             ))}
             {attachableLines.map((line) => (
               <div
-                className="bg-primary border-2 w-40 mt-2 border-secondary rounded-md p-3 flex items-center justify-center"
+                className="bg-primary border-2 w-40 mt-2  rounded-md p-3 flex items-center justify-center"
                 key={line.id}
               >
                 {line.id}
@@ -153,7 +153,7 @@ const SideBar = () => {
               onClick={(e) => {
                 dispatch(DFSActions.decrementVisitedPointer());
               }}
-              className="bg-secondary hover:bg-primary border-2 border-secondary w-2/5"
+              className="bg-secondary hover:bg-primary border-2  w-2/5"
             >
               {/* temporary bad ui to move through history */}
 
@@ -163,7 +163,7 @@ const SideBar = () => {
               onClick={(e) => {
                 dispatch(DFSActions.incrementVisitedPointer());
               }}
-              className="bg-secondary hover:bg-primary border-2 border-secondary w-2/5"
+              className="bg-secondary hover:bg-primary border-2  w-2/5"
             >
               <ArrowRight />
             </Button>

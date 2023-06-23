@@ -192,7 +192,12 @@ const CanvasControlBar = ({
         <Pencil />
       </Button>
       <Button variant={'outline'} className="px-2 min-w-fit">
-        Red-Black Tree
+        {/* here goes options for specific r/b tree data structure stuff
+        // can we do it so the user can bundle code with this to make it its own data structure
+        // you define the color, and the logic behind what changes it
+        // yes i like that very much
+        */}
+        {'Red-Black Tree | > more'}
       </Button>
       <Button variant={'outline'} className="px-2 min-w-fit">
         Binary Search Tree

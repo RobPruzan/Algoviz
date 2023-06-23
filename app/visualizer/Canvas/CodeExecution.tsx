@@ -152,7 +152,7 @@ const CodeExecution = () => {
   return variables.show ? (
     <div className="w-full h-full border-2 border-secondary">
       <div className="w-full max-h-[7%] min-h-[50px]">
-        <div className="  prevent-select overflow-x-scroll p-3 flex w-full justify-evenly items-center border-b-2 border-secondary">
+        <div className="  prevent-select overflow-x-scroll p-3 flex w-full border-secondary justify-evenly items-center border-b-2 ">
           {getAlgorithmsQuery.isLoading ? (
             <AlgoComboBox
               algorithms={[]}
@@ -185,7 +185,7 @@ const CodeExecution = () => {
               }
             }}
             variant="outline"
-            className="w-[90px]  flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
+            className="w-[90px]  flex items-center justify-center h-[30px]  bg-primary  font-bold"
           >
             Run
           </Button>
@@ -195,14 +195,14 @@ const CodeExecution = () => {
               // dispatch(codeExecActions.setIsApplyingAlgorithm(true));
             }}
             variant="outline"
-            className="w-[90px] flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
+            className="w-[90px] flex items-center justify-center h-[30px]  bg-primary  font-bold"
           >
             {isApplyingAlgorithm ? 'Pause' : 'Apply'}
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button
-                className="w-[90px] flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
+                className="w-[90px] flex items-center justify-center h-[30px]  bg-primary  font-bold"
                 variant="outline"
               >
                 Save
@@ -332,7 +332,7 @@ const CodeExecution = () => {
                   <TabsTrigger
                     className={`w-1/5 ${
                       tabValue === 'input'
-                        ? 'border-2 rounded-md border-secondary bg-secondary'
+                        ? 'border-2 rounded-md  bg-secondary '
                         : 'border-2 rounded-md border-secondary'
                     }`}
                     value="input"
@@ -342,7 +342,7 @@ const CodeExecution = () => {
                   <TabsTrigger
                     className={`w-1/5 ${
                       tabValue === 'output'
-                        ? 'border-2 rounded-md border-secondary bg-secondary'
+                        ? 'border-2 rounded-md  bg-secondary '
                         : 'border-2 rounded-md border-secondary'
                     }`}
                     value="output"
@@ -352,7 +352,7 @@ const CodeExecution = () => {
                 </TabsList>
               </Tabs>
 
-              <div className=" bg-primary pl-5 pt-3 w-full border-t-2 border-secondary flex flex-col items-start justify-start text-white  h-full: overflow-y-scroll">
+              <div className=" bg-primary pl-5 pt-3 w-full border-t-2  border-secondary flex flex-col items-start justify-start text-white  h-full: overflow-y-scroll">
                 {Object.entries(adjacencyList).length === 0 && (
                   <div className="w-full h-full flex items-start font-bold text-xl justify-center text-gray-500">
                     No graph selected in playground
