@@ -50,7 +50,6 @@ export const useDepthFirstSearch = ({
     }
 
     return historyRef;
-    // console.log('out of this control flow');
   };
 
   const clearState = () => {

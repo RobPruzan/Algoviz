@@ -7,21 +7,32 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 export async function POST(request: Request) {
   const algoSchema = z.object({
     code: z.string(),
-    name: z.string(),
+    title: z.string(),
+    description: z.string(),
   });
-  const { code, name } = algoSchema.parse(await request.json());
+  const json = await request.json();
+  const { code, title, description } = algoSchema.parse(json);
   const session = await getServerSession(authOptions);
-  // console.log('incoming sesion', session);
-  if (!session?.user) return;
-  const res = await prisma.algorithm.create({
-    data: {
-      code,
-      name,
-      userId: session.user.id,
-    },
-  });
+  if (!session?.user)
+    return NextResponse.json({
+      msg: 'Must be signed in',
+      status: 401,
+    });
+  try {
+    const algo = await prisma.algorithm.create({
+      data: {
+        code,
+        title,
+        description,
+        userId: session.user.id,
+      },
+    });
 
-  console.log('created alog', res);
-
-  // console.log('after');
+    return NextResponse.json({
+      msg: 'Successfully created new algo: ' + algo,
+      status: 200,
+    });
+  } catch (e) {
+    console.error('error is', e);
+  }
 }

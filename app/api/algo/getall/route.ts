@@ -15,9 +15,6 @@ export async function GET() {
     },
   });
 
-  // console.log('prisma data', data);
-
   const res = NextResponse.json(data);
-  // console.log('the res', res);
   return res;
 }

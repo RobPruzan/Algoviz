@@ -8,22 +8,11 @@ app.use(express.json());
 
 app.post('/exec', (req, res) => {
   const { code, globalVar } = req.body;
-  console.log('the global var is', globalVar);
-  // console.log('request data', req.body);
+  // console.log('recieved the following code', code);
   const jsCode = ts.transpileModule(code, {
     compilerOptions: { module: ts.ModuleKind.CommonJS },
   }).outputText;
-  // console.log('the js code', jsCode);
-  //   var jsCode = `
-  //   var visited = new Set();
-  //   var visualization = [];
-  //   visited.add(1);
-  //   visited.add(2);
-  //   console.log(visited, [...visited.keys()]);
-  //   visited
-  //   //... your other code ...
-  // `;
-
+  console.log('transpiled js code:', jsCode, '\n\n\n\n');
   const vm = new VM({
     timeout: 10000,
     sandbox: {
@@ -37,9 +26,11 @@ app.post('/exec', (req, res) => {
   });
   let result;
   try {
+    console.log('attemtping to run code');
     result = vm.run(jsCode);
     console.log('the result is', result);
   } catch (error) {
+    console.error('failed:', error);
     return res.status(400).send({ error: error.toString() });
   }
 

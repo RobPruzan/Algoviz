@@ -7,12 +7,11 @@ export async function POST(request: Request) {
   if (!url) return;
   const globalVarSchema = z.record(z.array(z.string()));
   const codeSchema = z.object({ code: z.string(), globalVar: globalVarSchema });
-  // console.log('the reqest', request);
   const json = await request.json();
-  // console.log('request json', json);
   const parsedJson = codeSchema.parse(json);
   const { code, globalVar } = parsedJson;
-  // console.log('the global var', globalVar);
+
+  console.log('code got from client', code);
 
   const res = await fetch(url, {
     method: 'POST',
@@ -21,10 +20,7 @@ export async function POST(request: Request) {
     },
     body: JSON.stringify({ code: code + `algorithm(globalVar);`, globalVar }),
   });
-  console.log('the res', res);
   const data = await res.json();
-  console.log('the res data json', data);
-
-  console.log('the data', data);
+  console.log('Successfully execed code, result', data);
   return NextResponse.json({ data });
 }

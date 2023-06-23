@@ -38,7 +38,15 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+const DEFAULT_CODE = `type NodeID = string // uuid representing a node
+type AdjacencyList = Record<NodeID, NodeID[]>
+type VisitedIDs = NodeID[]
+type Visualization = VisitedIDs[]
 
+function algorithm(adjList: AdjacencyList): Visualization{
+    // your code here
+};
+`;
 const CodeExecution = () => {
   const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
@@ -51,17 +59,14 @@ const CodeExecution = () => {
   const [open, setOpen] = useState(false);
   const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>();
-  const [code, setCode] = useState(
-    `type NodeID = string // uuid representing a node
-type AdjacencyList = Record<NodeID, NodeID[]>
-type VisitedIDs = NodeID[]
-type Visualization = VisitedIDs[]
 
-function algorithm(adjList: AdjacencyList): Visualization{
-    // your code here
-};
-`
-  );
+  const [userAlgorithm, setUserAlgorithm] = useState<
+    Pick<Algorithm, 'code' | 'description' | 'title'>
+  >({
+    code: DEFAULT_CODE,
+    description: '',
+    title: '',
+  });
   const dispatch = useAppDispatch();
   const isApplyingAlgorithm = useAppSelector(
     (store) => store.codeExec.isApplyingAlgorithm
@@ -82,14 +87,16 @@ function algorithm(adjList: AdjacencyList): Visualization{
   ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
     return { ...prev, [id]: neighbors };
   }, {});
+
   const getAlgorithmsQuery = useQuery({
     queryKey: ['getallAlgorithms'],
     queryFn: async () => {
       const algorithmSchema = z.object({
         id: z.string(),
         userId: z.string(),
-        name: z.string(),
+        title: z.string(),
         code: z.string(),
+        description: z.string(),
         createdAt: z.string(),
       });
       const res = (
@@ -98,9 +105,9 @@ function algorithm(adjList: AdjacencyList): Visualization{
       return z.array(algorithmSchema).parse(res);
     },
   });
+
   const codeMutation = useMutation({
     mutationFn: async (code: string) => {
-      console.log('running');
       const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
       if (!url) Promise.reject();
       const res = await axios.post(url, {
@@ -114,23 +121,33 @@ function algorithm(adjList: AdjacencyList): Visualization{
 
       return parsed.data.result;
     },
-    onError: (err) => {
-      console.log('the error is!!', err);
-    },
+    onError: (err) => {},
     onSuccess: (data) => {
-      console.log('data from endpoint', data);
       dispatch(codeExecActions.setVisited(data));
     },
   });
 
   const saveAlgorithmMutation = useMutation({
-    mutationFn: async ({ code, name }: { code: string; name: string }) => {
+    mutationFn: async ({
+      code,
+      description,
+      title,
+    }: {
+      code: string;
+      description: string;
+      title: string;
+    }) => {
       await axios.post(`${process.env.NEXT_PUBLIC_API_ROUTE}/algo/create`, {
         code,
-        name,
+        title,
+        description,
       });
     },
   });
+
+  const currentAlgorithm = getAlgorithmsQuery.data?.find(
+    (d) => d.id === selectedAlgorithm
+  );
 
   return variables.show ? (
     <div className="w-full h-full border-2 border-secondary">
@@ -150,19 +167,22 @@ function algorithm(adjList: AdjacencyList): Visualization{
               value={selectedAlgorithm}
               setValue={(d) => {
                 setSelectedAlgorithm(d);
-                setCode(
-                  (prev) =>
-                    getAlgorithmsQuery.data?.find(
-                      (algo) => algo.id === selectedAlgorithm
-                    )?.code ?? prev
-                );
+                // setCode(
+                //   (prev) =>
+                //     getAlgorithmsQuery.data?.find(
+                //       (algo) => algo.id === selectedAlgorithm
+                //     )?.code ?? prev
+                // );
+                // setUser;
               }}
             />
           )}
 
           <Button
             onClick={() => {
-              codeMutation.mutate(code);
+              if (currentAlgorithm?.code) {
+                codeMutation.mutate(currentAlgorithm.code);
+              }
             }}
             variant="outline"
             className="w-[90px]  flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
@@ -179,19 +199,6 @@ function algorithm(adjList: AdjacencyList): Visualization{
           >
             {isApplyingAlgorithm ? 'Pause' : 'Apply'}
           </Button>
-          {/* <Button
-            onClick={() => {
-              saveAlgorithmMutation.mutate({
-                code,
-                name: crypto.randomUUID(),
-              });
-              getAlgorithmsQuery.refetch();
-            }}
-            variant="outline"
-            className="w-[90px] flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
-          >
-            Save
-          </Button> */}
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button
@@ -202,13 +209,6 @@ function algorithm(adjList: AdjacencyList): Visualization{
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
-              {/* <form
-                onSubmit={(e) => {
-                  console.log('submitting');
-                  e.preventDefault();
-                }}
-                className="grid gap-4 py-4 bg-"
-              > */}
               <DialogHeader>
                 <DialogTitle>Save Algorithm</DialogTitle>
                 <DialogDescription>
@@ -222,26 +222,48 @@ function algorithm(adjList: AdjacencyList): Visualization{
                 <Label htmlFor="name" className="text-right">
                   Title
                 </Label>
-                <Input id="name" className="col-span-3" />
+                <Input
+                  value={userAlgorithm.title}
+                  onChange={(e) =>
+                    setUserAlgorithm((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
+                  id="name"
+                  className="col-span-3"
+                />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="description" className="text-right">
                   Description
                 </Label>
-                {/* <Input id="description" className="col-span-3" /> */}
-                <Textarea className="col-span-3" />
+                <Textarea
+                  value={userAlgorithm.description}
+                  onChange={(e) =>
+                    setUserAlgorithm((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  className="col-span-3"
+                />
               </div>
               {/* </form> */}
               <DialogFooter>
                 {/* <DialogPrimitiveClose  aria-label="Close"> */}
                 <Button
-                  onClick={() => {
+                  onClick={async () => {
+                    await saveAlgorithmMutation.mutateAsync(userAlgorithm);
                     setOpen(false);
+                    getAlgorithmsQuery.refetch();
                   }}
                   variant="outline"
                   type="submit"
                 >
-                  Confirm Save
+                  {/* Confirm Save
+                   */}
+                  {saveAlgorithmMutation.isLoading ? 'Loading' : 'Confirm Save'}
                 </Button>
                 {/* </DialogPrimitiveClose> */}
                 {/* </DialogPrimitive.Close> */}
@@ -273,10 +295,12 @@ function algorithm(adjList: AdjacencyList): Visualization{
                   }}
                   // theme="night-owl"
                   theme="vs-dark"
-                  value={code}
-                  onChange={(e) => {
-                    if (e) {
-                      setCode(e);
+                  value={currentAlgorithm?.code}
+                  // this doesn't make sense without edit functionality will do that next
+                  onChange={(value) => {
+                    if (value) {
+                      // setCode(e);
+                      setUserAlgorithm((prev) => ({ ...prev, code: value }));
                     }
                   }}
                   defaultLanguage="typescript"

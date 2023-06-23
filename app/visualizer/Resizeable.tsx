@@ -75,15 +75,12 @@ const Resizable = (props: Props) => {
 
   useEffect(() => {
     const handleResize = () => {
-      console.log('resize');
       match(props)
         .with({ type: 'horizontal' }, (props) => {
-          console.log(' no way right');
           if (
             typeof props.canvasSize === 'number' &&
             typeof props.codeExecSize === 'number'
           ) {
-            console.log('resize');
             const totalWidth = window.innerWidth;
             const canvasRatio =
               props.canvasSize / (props.canvasSize + props.codeExecSize);
@@ -101,7 +98,6 @@ const Resizable = (props: Props) => {
             typeof props.canvasSize === 'number' &&
             typeof props.codeExecSize === 'number'
           ) {
-            console.log('switch it up');
             const totalHeight = window.innerHeight;
             const canvasRatio =
               props.canvasSize / (props.canvasSize + props.codeExecSize);

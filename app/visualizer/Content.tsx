@@ -11,7 +11,7 @@ import {
   HistoryNode,
   NodeMetadata,
 } from '@/lib/types';
-
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import SideBar from './SideBar';
 import {
   INITIAL_SIDE_BAR_STATE,
@@ -61,6 +61,7 @@ const Content = ({ children }: Props) => {
           >
             <QueryClientProvider client={queryClient}>
               {children}
+              <ReactQueryDevtools initialIsOpen={false} />
             </QueryClientProvider>
           </ControlBarContext.Provider>
         </HistoryNodesContext.Provider>

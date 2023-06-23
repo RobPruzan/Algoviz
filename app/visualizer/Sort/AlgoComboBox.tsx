@@ -54,7 +54,7 @@ export function AlgoComboBox({
           className="w-[125px] border-secondary bg-primary h-[30px] justify-between font-bold"
         >
           {(value
-            ? algorithms.find((a) => a.id === value)?.name
+            ? algorithms.find((a) => a.id === value)?.title
             : defaultPlaceholder
           )?.slice(0, 8)}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -81,7 +81,7 @@ export function AlgoComboBox({
                     value === algo.id ? 'opacity-100' : 'opacity-0'
                   )}
                 />
-                {algo.name.slice(0, 8)}
+                {algo.title.slice(0, 8)}
               </CommandItem>
             ))}
           </CommandGroup>
