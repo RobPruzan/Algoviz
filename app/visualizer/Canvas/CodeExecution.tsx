@@ -25,6 +25,18 @@ import { useSession } from 'next-auth/react';
 import { Algorithm } from '@prisma/client';
 import Resizable from '../Resizeable';
 import { codeExecActions } from '@/redux/slices/codeExecSlice';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const CodeExecution = () => {
   const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
@@ -120,7 +132,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
 
   return variables.show ? (
     <div className="w-full h-full border-2 border-secondary">
-      <div className="w-full max-h-[7%] w-16">
+      <div className="w-full max-h-[7%]">
         <div className="  prevent-select overflow-x-scroll p-3 flex w-full justify-evenly items-center border-b-2 border-secondary">
           {getAlgorithmsQuery.isLoading ? (
             <AlgoComboBox
@@ -165,7 +177,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
           >
             {isApplyingAlgorithm ? 'Pause' : 'Apply'}
           </Button>
-          <Button
+          {/* <Button
             onClick={() => {
               saveAlgorithmMutation.mutate({
                 code,
@@ -177,7 +189,50 @@ function algorithm(adjList: AdjacencyList): Visualization{
             className="w-[90px] flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
           >
             Save
-          </Button>
+          </Button> */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                className="w-[90px] flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
+                variant="outline"
+              >
+                Save
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Save Algorithm</DialogTitle>
+                <DialogDescription>
+                  {
+                    "Make changes to your profile here. Click save when you're done."
+                  }
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4 bg-">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Title
+                  </Label>
+                  <Input
+                    id="name"
+                    value="Pedro Duarte"
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="description" className="text-right">
+                    Description
+                  </Label>
+                  {/* <Input id="description" className="col-span-3" /> */}
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" type="submit">
+                  Save changes
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       <div className="w-full h-[93%]">
