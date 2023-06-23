@@ -342,7 +342,7 @@ const CodeExecution = () => {
                   <TabsTrigger
                     className={`w-1/5 ${
                       tabValue === 'output'
-                        ? 'border-2 rounded-md  bg-secondary '
+                        ? 'border-2 rounded-md  bg-secondary'
                         : 'border-2 rounded-md border-secondary'
                     }`}
                     value="output"
