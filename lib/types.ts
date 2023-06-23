@@ -154,7 +154,7 @@ export type MaxPoints = {
 export type AdjacencyList<T> = Map<T, T[]>;
 
 export type SelectedGeometryInfo = {
-  selectedIds: Set<string>;
+  selectedIds: Array<string>;
   maxPoints: MaxPoints;
 };
 

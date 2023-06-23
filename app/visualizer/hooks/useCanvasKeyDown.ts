@@ -21,7 +21,7 @@ import { CanvasActions } from '@/redux/slices/canvasSlice';
 
 export const useCanvasKeyDown = () => {
   const dispatch = useAppDispatch();
-  const [copied, setCopied] = useState<Set<string>>(new Set());
+  const [copied, setCopied] = useState<Array<string>>([]);
   const { attachableLines, circles, creationZoomFactor, selectedGeometryInfo } =
     useAppSelector((store) => store.canvas);
 
@@ -29,16 +29,8 @@ export const useCanvasKeyDown = () => {
     // e.preventDefault();
     if (e.key === 'Backspace') {
       if (selectedGeometryInfo) {
-        dispatch(
-          CanvasActions.deleteCircles([
-            ...selectedGeometryInfo.selectedIds.keys(),
-          ])
-        );
-        dispatch(
-          CanvasActions.deleteLines([
-            ...selectedGeometryInfo.selectedIds.keys(),
-          ])
-        );
+        dispatch(CanvasActions.deleteCircles(selectedGeometryInfo.selectedIds));
+        dispatch(CanvasActions.deleteLines(selectedGeometryInfo.selectedIds));
       }
       // setSelectedGeometryInfo(null);
       dispatch(CanvasActions.nullifySelectedGeometryInfo());
@@ -56,7 +48,7 @@ export const useCanvasKeyDown = () => {
       // should build helper functions for updating, since I'm doing this so much, but it may be an over abstraction
       const idMap = new Map<string, string>();
       circles
-        .filter((circle) => copied.has(circle.id))
+        .filter((circle) => copied.includes(circle.id))
         .forEach((circle) => {
           idMap.set(circle.id, crypto.randomUUID());
           idMap.set(circle.nodeReceiver.id, crypto.randomUUID());
@@ -67,7 +59,7 @@ export const useCanvasKeyDown = () => {
         });
 
       attachableLines
-        .filter((line) => copied.has(line.id))
+        .filter((line) => copied.includes(line.id))
         .forEach((line) => {
           idMap.set(line.id, crypto.randomUUID());
           idMap.set(line.attachNodeOne.id, crypto.randomUUID());
@@ -81,7 +73,7 @@ export const useCanvasKeyDown = () => {
       //  should design this without asserting non null, but for now its fine
       const offset = 20;
       const pasteCircles: CircleReceiver[] = circles
-        .filter((circle) => copied.has(circle.id))
+        .filter((circle) => copied.includes(circle.id))
         .map((circle) => ({
           ...circle,
           id: idMap.get(circle.id)!,
@@ -99,7 +91,7 @@ export const useCanvasKeyDown = () => {
           },
         }));
       const pasteLines: Edge[] = attachableLines
-        .filter((line) => copied.has(line.id))
+        .filter((line) => copied.includes(line.id))
         .map((line) => ({
           ...line,
           id: idMap.get(line.id)!,

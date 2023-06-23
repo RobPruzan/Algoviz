@@ -46,7 +46,7 @@ export const useCanvasMouseDown = ({
   const isSelectBoxSet =
     selectBox === null &&
     selectedGeometryInfo &&
-    (selectedGeometryInfo?.selectedIds.size ?? -1) > 0;
+    (selectedGeometryInfo?.selectedIds.length ?? -1) > 0;
   const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
     isMouseDownRef.current = true;
     const activeItemInfo = Canvas.getMouseDownActiveItem({
@@ -104,7 +104,7 @@ export const useCanvasMouseDown = ({
       .with({ type: 'pencil' }, () => {})
 
       .otherwise(() => {
-        if (selectedGeometryInfo?.selectedIds.size ?? -1 > 0) return;
+        if (selectedGeometryInfo?.selectedIds.length ?? -1 > 0) return;
 
         // this is just mouse down, so it begins the render of the select box
         const initialMouseCoordinate: [number, number] = [

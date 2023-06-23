@@ -31,10 +31,10 @@ const Visualize = ({ canvasWidth }: Props) => {
     (store) => store.canvas.selectedGeometryInfo
   );
   const selectedAttachableLines = attachableLines.filter((line) =>
-    selectedGeometryInfo?.selectedIds.has(line.id)
+    selectedGeometryInfo?.selectedIds.includes(line.id)
   );
   const selectedCircles = circles.filter((circle) =>
-    selectedGeometryInfo?.selectedIds.has(circle.id)
+    selectedGeometryInfo?.selectedIds.includes(circle.id)
   );
 
   const adjacencyList = Graph.getAdjacencyList({

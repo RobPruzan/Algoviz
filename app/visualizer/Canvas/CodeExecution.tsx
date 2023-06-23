@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import Editor, { useMonaco } from '@monaco-editor/react';
 import * as Graph from '@/lib/graph';
-
+// import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
@@ -37,6 +37,7 @@ import {
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 const CodeExecution = () => {
   const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
@@ -47,7 +48,7 @@ const CodeExecution = () => {
   const { attachableLines, circles, selectedGeometryInfo } = useAppSelector(
     (store) => store.canvas
   );
-
+  const [open, setOpen] = useState(false);
   const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>();
   const [code, setCode] = useState(
@@ -66,10 +67,11 @@ function algorithm(adjList: AdjacencyList): Visualization{
     (store) => store.codeExec.isApplyingAlgorithm
   );
   const selectedAttachableLines = attachableLines.filter((line) =>
-    selectedGeometryInfo?.selectedIds.has(line.id)
+    // not a set because of redux :(
+    selectedGeometryInfo?.selectedIds.includes(line.id)
   );
   const selectedCircles = circles.filter((circle) =>
-    selectedGeometryInfo?.selectedIds.has(circle.id)
+    selectedGeometryInfo?.selectedIds.includes(circle.id)
   );
 
   const adjacencyList: Record<string, string[]> = [
@@ -132,7 +134,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
 
   return variables.show ? (
     <div className="w-full h-full border-2 border-secondary">
-      <div className="w-full max-h-[7%]">
+      <div className="w-full max-h-[7%] min-h-[50px]">
         <div className="  prevent-select overflow-x-scroll p-3 flex w-full justify-evenly items-center border-b-2 border-secondary">
           {getAlgorithmsQuery.isLoading ? (
             <AlgoComboBox
@@ -190,7 +192,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
           >
             Save
           </Button> */}
-          <Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button
                 className="w-[90px] flex items-center justify-center h-[30px] border-secondary bg-primary  font-bold"
@@ -200,36 +202,49 @@ function algorithm(adjList: AdjacencyList): Visualization{
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
+              {/* <form
+                onSubmit={(e) => {
+                  console.log('submitting');
+                  e.preventDefault();
+                }}
+                className="grid gap-4 py-4 bg-"
+              > */}
               <DialogHeader>
                 <DialogTitle>Save Algorithm</DialogTitle>
                 <DialogDescription>
                   {
-                    "Make changes to your profile here. Click save when you're done."
+                    'Enter the information about your algorithm. Click confirm save when done.'
                   }
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4 bg-">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Title
-                  </Label>
-                  <Input
-                    id="name"
-                    value="Pedro Duarte"
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="description" className="text-right">
-                    Description
-                  </Label>
-                  {/* <Input id="description" className="col-span-3" /> */}
-                </div>
+
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Title
+                </Label>
+                <Input id="name" className="col-span-3" />
               </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="description" className="text-right">
+                  Description
+                </Label>
+                {/* <Input id="description" className="col-span-3" /> */}
+                <Textarea className="col-span-3" />
+              </div>
+              {/* </form> */}
               <DialogFooter>
-                <Button variant="outline" type="submit">
-                  Save changes
+                {/* <DialogPrimitiveClose  aria-label="Close"> */}
+                <Button
+                  onClick={() => {
+                    setOpen(false);
+                  }}
+                  variant="outline"
+                  type="submit"
+                >
+                  Confirm Save
                 </Button>
+                {/* </DialogPrimitiveClose> */}
+                {/* </DialogPrimitive.Close> */}
               </DialogFooter>
             </DialogContent>
           </Dialog>

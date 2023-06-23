@@ -142,13 +142,13 @@ const canvasSlice = createSlice({
       const updatedCircles: CircleReceiver[] = state.circles.map((circle) => {
         const { selectedGeometryInfo, shift } = action.payload;
         const shiftedCircle = Canvas.shiftCircle({ circle, shift });
-        if (selectedGeometryInfo.selectedIds.has(circle.id)) {
+        if (selectedGeometryInfo.selectedIds.includes(circle.id)) {
           return {
             ...shiftedCircle,
             nodeReceiver: {
               ...shiftedCircle.nodeReceiver,
               attachedIds: circle.nodeReceiver.attachedIds.filter((id) =>
-                selectedGeometryInfo.selectedIds.has(id)
+                selectedGeometryInfo.selectedIds.includes(id)
               ),
             },
           };
@@ -158,7 +158,7 @@ const canvasSlice = createSlice({
             nodeReceiver: {
               ...circle.nodeReceiver,
               attachedIds: circle.nodeReceiver.attachedIds.filter((id) =>
-                selectedGeometryInfo.selectedIds.has(id)
+                selectedGeometryInfo.selectedIds.includes(id)
               ),
             },
           };
@@ -177,13 +177,13 @@ const canvasSlice = createSlice({
       if (selectedGeometryInfo) {
         const updatedLines: Edge[] = state.attachableLines.map((line) => {
           if (
-            selectedGeometryInfo.selectedIds.has(line.id) ||
-            selectedGeometryInfo.selectedIds.has(line.attachNodeOne.id) ||
-            selectedGeometryInfo.selectedIds.has(line.attachNodeTwo.id)
+            selectedGeometryInfo.selectedIds.includes(line.id) ||
+            selectedGeometryInfo.selectedIds.includes(line.attachNodeOne.id) ||
+            selectedGeometryInfo.selectedIds.includes(line.attachNodeTwo.id)
           ) {
             const nodeOneConnectedToId =
               line.attachNodeOne.connectedToId &&
-              selectedGeometryInfo.selectedIds.has(
+              selectedGeometryInfo.selectedIds.includes(
                 line.attachNodeOne.connectedToId
               )
                 ? line.attachNodeOne.connectedToId
@@ -191,7 +191,7 @@ const canvasSlice = createSlice({
 
             const nodeTwoConnectedToId =
               line.attachNodeTwo.connectedToId &&
-              selectedGeometryInfo.selectedIds.has(
+              selectedGeometryInfo.selectedIds.includes(
                 line.attachNodeTwo.connectedToId
               )
                 ? line.attachNodeTwo.connectedToId
@@ -277,17 +277,16 @@ const canvasSlice = createSlice({
     mapSelectedIds: (state, action: PayloadAction<(id: string) => string>) => {
       const cb = action.payload;
       if (state.selectedGeometryInfo) {
-        state.selectedGeometryInfo.selectedIds = new Set(
-          [...state.selectedGeometryInfo.selectedIds].map(cb)
-        );
+        state.selectedGeometryInfo.selectedIds =
+          state.selectedGeometryInfo.selectedIds.map(cb);
       }
     },
     addSelectedIds: (state, action: PayloadAction<string[]>) => {
       if (state.selectedGeometryInfo) {
-        state.selectedGeometryInfo.selectedIds = new Set([
-          ...[...state.selectedGeometryInfo.selectedIds],
+        state.selectedGeometryInfo.selectedIds = [
+          ...state.selectedGeometryInfo.selectedIds,
           ...action.payload,
-        ]);
+        ];
       }
     },
   },

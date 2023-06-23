@@ -17,7 +17,7 @@ export const drawNodes = ({
   nodes: CircleReceiver[];
   ctx: CanvasRenderingContext2D;
   selectedCircleID: string | null;
-  selectedIds: Set<string> | undefined;
+  selectedIds: Array<string> | undefined;
   dfsVisitedNodes: string[];
 }) => {
   ctx.save();
@@ -35,7 +35,7 @@ export const drawNodes = ({
       ctx.fillStyle = 'green';
     }
     ctx.fill();
-    if (selectedCircleID === node.id || selectedIds?.has(node.id)) {
+    if (selectedCircleID === node.id || selectedIds?.includes(node.id)) {
       ctx.lineWidth = 1;
       ctx.strokeStyle = 'white';
       ctx.stroke();
@@ -52,11 +52,14 @@ export const drawEdges = ({
 }: {
   edges: Edge[];
   ctx: CanvasRenderingContext2D;
-  selectedIds: Set<string> | undefined;
+  selectedIds: Array<string> | undefined;
   selectedAttachableLine: SelectedAttachableLine | null;
 }) => {
   edges.forEach((edge) => {
-    if (selectedAttachableLine?.id === edge.id || selectedIds?.has(edge.id)) {
+    if (
+      selectedAttachableLine?.id === edge.id ||
+      selectedIds?.includes(edge.id)
+    ) {
       ctx.beginPath();
 
       ctx.moveTo(Math.floor(edge.x1), Math.floor(edge.y1));

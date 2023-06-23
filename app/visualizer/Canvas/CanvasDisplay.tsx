@@ -213,6 +213,7 @@ const CanvasDisplay = ({ selectedControlBarAction, canvasWidth }: Props) => {
           <ContextMenuTrigger>
             <canvas
               onMouseLeave={() => {
+                console.log('mouse leave');
                 isMouseDownRef.current = false;
               }}
               className={`
@@ -226,9 +227,7 @@ const CanvasDisplay = ({ selectedControlBarAction, canvasWidth }: Props) => {
               tabIndex={-1}
               onContextMenu={handleContextMenu}
               onMouseUp={handleMouseUp}
-              width={
-                typeof window !== 'undefined' ? window.innerWidth * 0.6 : 1000
-              }
+              width={typeof window !== 'undefined' ? window.innerWidth : 1000}
               onKeyDown={handleKeyDown}
               height={typeof window !== 'undefined' ? window.innerHeight : 1000}
             />

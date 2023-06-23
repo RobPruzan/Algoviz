@@ -64,7 +64,7 @@ export function AlgoComboBox({
         <Command>
           <CommandInput placeholder="Search Sorting Algorithm..." />
           <CommandEmpty>No algorithm found.</CommandEmpty>
-          <CommandGroup className="max-h-[500px] overflow-y-scroll">
+          <CommandGroup className="max-h-[350px] overflow-y-scroll">
             {algorithms.map((algo) => (
               <CommandItem
                 key={algo.id}

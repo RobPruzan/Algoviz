@@ -214,13 +214,13 @@ export const getActiveGeometry = ({
     selected: 'line' | 'node1' | 'node2';
   } | null;
   selectedGeometryInfo: {
-    selectedIds: Set<string>;
+    selectedIds: Array<string>;
     maxPoints: MaxPoints;
   } | null;
 }) => {
   if (
     selectedGeometryInfo != null &&
-    selectedGeometryInfo.selectedIds.size != 0
+    selectedGeometryInfo.selectedIds.length != 0
   ) {
     return 'selectBox';
   }
@@ -514,7 +514,7 @@ export const getSelectedGeometry = ({
   let minY = +Infinity;
   let maxX = -Infinity;
   let maxY = -Infinity;
-  const selectedIds = new Set<string>();
+  const selectedIds: string[] = [];
   // if edge node is selected, so is attach node
   edges.forEach((edge) => {
     const doesEdgeIntersect = doRectanglesIntersect(
@@ -537,9 +537,9 @@ export const getSelectedGeometry = ({
     );
 
     if (doesEdgeIntersect || doesNodeTwoIntersect || doesNodeOneIntersect) {
-      selectedIds.add(edge.id);
-      selectedIds.add(edge.attachNodeOne.id);
-      selectedIds.add(edge.attachNodeTwo.id);
+      selectedIds.push(edge.id);
+      selectedIds.push(edge.attachNodeOne.id);
+      selectedIds.push(edge.attachNodeTwo.id);
 
       // this sucks but how can i do better
       minX = Math.min(edge.x1, minX);
@@ -567,8 +567,8 @@ export const getSelectedGeometry = ({
   vertices.forEach((vertex) => {
     const circleBox = generateCircleSelectBox(vertex);
     if (doRectanglesIntersect(circleBox, selectBoxRect)) {
-      selectedIds.add(vertex.id);
-      selectedIds.add(vertex.nodeReceiver.id);
+      selectedIds.push(vertex.id);
+      selectedIds.push(vertex.nodeReceiver.id);
       minX = Math.min(circleBox.p1[0], minX);
       minY = Math.min(circleBox.p1[1], minY);
 

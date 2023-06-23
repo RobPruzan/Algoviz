@@ -48,7 +48,7 @@ export const useCanvasMouseMove = ({
   const isSelectBoxSet =
     selectBox === null &&
     selectedGeometryInfo &&
-    (selectedGeometryInfo?.selectedIds.size ?? -1) > 0;
+    (selectedGeometryInfo?.selectedIds.length ?? -1) > 0;
   const dispatch = useAppDispatch();
 
   const handleMouseMove = (event: MouseEvent<HTMLCanvasElement>) => {
