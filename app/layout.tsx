@@ -32,7 +32,7 @@ export default function RootLayout({
           <nav className="w-screen pt-[10px] h-[15%] flex justify-end items-center  ">
             <div className="w-1/5 flex justify-center items-center ">
               <Link href="/">
-                <Button className="bg-secondary ">Home</Button>
+                <Button variant="outline">Home</Button>
               </Link>
             </div>
 

@@ -43,7 +43,8 @@ export default function Home() {
         <Link href="/visualizer">
           <Button
             className="text-xl p-7 font-bold w-fit text-gray-300 hover:scale-105 transition bg-opacity-50"
-            variant="secondary"
+            // variant="secondary"
+            variant="outline"
           >
             Start visualizing
           </Button>
