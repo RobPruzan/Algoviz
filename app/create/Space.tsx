@@ -35,10 +35,11 @@ const Space = ({ space }: Props) => {
       );
     },
   });
-  console.log('the delet space mutation', deleteSpaceMutation.isLoading);
+
   return (
     <Card className="w-72 h-64  flex items-center justify-center">
       <div className="w-[70%] h-full flex items-center justify-end">
+        {space.id}
         <Link href={`/visualizer?space-id=${space.id}`}>
           <Button variant={'outline'}>Join Space</Button>
         </Link>

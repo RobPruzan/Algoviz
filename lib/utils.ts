@@ -59,23 +59,24 @@ function algorithm(adjList: AdjacencyList): Visualization{
 };
 `;
 
+export const serializedSpaceSchema = z.object({
+  id: z.number(),
+  createdAt: z.string(),
+  circles: z.array(z.any()),
+  lines: z.array(z.any()),
+  pencil: z.array(z.any()),
+  userId: z.string(),
+  name: z.string(),
+});
+
+export const serializedSpacesSchema = z.object({
+  spaces: z.array(serializedSpaceSchema),
+});
 export const getSpaces = async (): Promise<SerializedSpace[]> => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_ROUTE}/space/get`);
   const json = await res.json();
-  const spacesSchema = z.object({
-    spaces: z.array(
-      z.object({
-        id: z.number(),
-        createdAt: z.string(),
-        circles: z.array(z.any()),
-        lines: z.array(z.any()),
-        pencil: z.array(z.any()),
-        userId: z.string(),
-        name: z.string(),
-      })
-    ),
-  });
+
   console.log('THE OG JSON', json);
-  const parsedJson = spacesSchema.parse(json);
+  const parsedJson = serializedSpacesSchema.parse(json);
   return parsedJson.spaces;
 };

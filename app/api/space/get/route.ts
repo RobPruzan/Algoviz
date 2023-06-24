@@ -20,6 +20,9 @@ export async function GET(request: NextRequest) {
     where: {
       userId: session.user.id,
     },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 
   const tag = request.nextUrl.searchParams.get('tag');

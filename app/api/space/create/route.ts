@@ -25,11 +25,12 @@ export async function POST(request: Request) {
     },
   });
 
-  console.log('the new space', space.id);
+  console.log('the new space', space);
 
   return NextResponse.json({
     msg: 'Successfully created new space: ' + space,
     status: 200,
-    spaceId: space.id,
+    space,
+    // spaceId: space.id,
   });
 }
