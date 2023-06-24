@@ -10,7 +10,7 @@ export const metadata = {};
 const page = () => {
   return (
     <div className="h-screen w-screen flex items-display ">
-      <div className="h-full w-full overflow-hidden">
+      <div className="h-[95%] w-full ">
         <Content>
           <ContentWrapper />
         </Content>

@@ -4,11 +4,10 @@ import {
   AlgorithmInfo,
   HistoryNode,
   NodeMetadata,
-  SerializedSpace,
+  SerializedPlayground,
 } from './types';
 import { z } from 'zod';
 import ky from 'ky';
-import { Space } from '@prisma/client';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -59,7 +58,7 @@ function algorithm(adjList: AdjacencyList): Visualization{
 };
 `;
 
-export const serializedSpaceSchema = z.object({
+export const serializedPlaygroundSchema = z.object({
   id: z.number(),
   createdAt: z.string(),
   circles: z.array(z.any()),
@@ -69,14 +68,16 @@ export const serializedSpaceSchema = z.object({
   name: z.string(),
 });
 
-export const serializedSpacesSchema = z.object({
-  spaces: z.array(serializedSpaceSchema),
+export const serializedPlaygroundsSchema = z.object({
+  playgrounds: z.array(serializedPlaygroundSchema),
 });
-export const getSpaces = async (): Promise<SerializedSpace[]> => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_ROUTE}/space/get`);
+export const getPlaygrounds = async (): Promise<SerializedPlayground[]> => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_ROUTE}/playground/get`
+  );
   const json = await res.json();
 
   console.log('THE OG JSON', json);
-  const parsedJson = serializedSpacesSchema.parse(json);
-  return parsedJson.spaces;
+  const parsedJson = serializedPlaygroundsSchema.parse(json);
+  return parsedJson.playgrounds;
 };

@@ -85,7 +85,7 @@ const CodeExecutionControlBar = ({
             }
           }}
           variant="outline"
-          className="w-[90px]  flex items-center justify-center h-[30px]  bg-primary  font-bold"
+          className="w-[90px]  flex items-center justify-center h-[30px]   font-bold"
         >
           Run
         </Button>
@@ -94,14 +94,14 @@ const CodeExecutionControlBar = ({
             dispatch(codeExecActions.toggleIsApplyingAlgorithm());
           }}
           variant="outline"
-          className="w-[90px] flex items-center justify-center h-[30px]  bg-primary  font-bold"
+          className="w-[90px] flex items-center justify-center h-[30px]   font-bold"
         >
           {isApplyingAlgorithm ? 'Pause' : 'Apply'}
         </Button>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button
-              className="w-[90px] flex items-center justify-center h-[30px]  bg-primary  font-bold"
+              className="w-[90px] flex items-center justify-center h-[30px]   font-bold"
               variant="outline"
             >
               Save

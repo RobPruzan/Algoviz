@@ -225,7 +225,7 @@ const SortControlBar = ({ algorithm }: Props) => {
               //   onFinish: (sortedArr) => console.warn('not implemented'),
               // });
             }}
-            className="bg-primary border-2-r rounded-r-none  border-2-primary w-1/2 p-3 hover:bg-slate-800  "
+            className=" border-2-r rounded-r-none  border-2-primary w-1/2 p-3 hover:bg-slate-800  "
           >
             <PlusIcon className="" />
           </Button>
@@ -238,7 +238,7 @@ const SortControlBar = ({ algorithm }: Props) => {
               //   onFinish: (sortedArr) => console.warn('not implemented'),
               // });
             }}
-            className="bg-primary w-1/2 p-3 rounded-md hover:bg-slate-800"
+            className=" w-1/2 p-3 rounded-md hover:bg-slate-800"
           >
             <MinusIcon className="" />
           </Button>

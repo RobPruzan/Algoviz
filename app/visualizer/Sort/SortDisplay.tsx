@@ -97,7 +97,7 @@ const SortDisplay = ({ algorithm }: Props) => {
 
   return (
     // have a floating box above each node showing it's +/- like a leader board
-    <div ref={scrollRef} className="bg-primary">
+    <div ref={scrollRef} className="">
       {algorithm === 'quick sort' &&
         [
           ...historyNodesState.historyNodes,

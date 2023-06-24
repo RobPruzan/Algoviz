@@ -279,7 +279,7 @@ const CanvasDisplay = ({ selectedControlBarAction, canvasWidth }: Props) => {
                     ))}
                   </CommandGroup>
                 </Command>
-                <Button className="bg-secondary mt-3 ring-0 hover:bg-primary hover:border-2 hover:border-secondary w-full">
+                <Button className="bg-secondary mt-3 ring-0 hover: hover:border-2 hover:border-secondary w-full">
                   Apply algorithm
                 </Button>
               </ContextMenuSubContent>

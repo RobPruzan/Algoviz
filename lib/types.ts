@@ -1,4 +1,4 @@
-import { Space } from '@prisma/client';
+import { Playground } from '@prisma/client';
 import { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { string } from 'zod';
 
@@ -99,10 +99,12 @@ export type GeoCircle = {
   radius: number;
 };
 
-export type CircleReceiver = Omit<CircleConnector, 'nodeConnector'> & {
-  nodeReceiver: NodeReceiver;
-  algorithmMetadata: AlgorithmMetadata;
-};
+export type CircleReceiver = Prettify<
+  Omit<CircleConnector, 'nodeConnector'> & {
+    nodeReceiver: NodeReceiver;
+    algorithmMetadata: AlgorithmMetadata;
+  }
+>;
 
 export type Rect = {
   id: string;
@@ -172,4 +174,6 @@ export type Prettify<T> = {
   [Key in keyof T]: T[Key];
 } & {};
 
-export type SerializedSpace = Omit<Space, 'createdAt'> & { createdAt: string };
+export type SerializedPlayground = Omit<Playground, 'createdAt'> & {
+  createdAt: string;
+};

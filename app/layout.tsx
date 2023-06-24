@@ -58,7 +58,7 @@ export default function RootLayout({
                   </Link>
                   <Link href="/create">
                     <Button className="mx-2" variant="outline">
-                      Spaces
+                      Playgrounds
                     </Button>
                   </Link>
                 </div>

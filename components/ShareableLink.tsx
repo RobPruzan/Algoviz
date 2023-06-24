@@ -36,7 +36,7 @@ const ShareableLink = () => {
     mutationFn: async (permission: string) => {
       const json = await (
         await ky.post(
-          `${process.env.NEXT_PUBLIC_API_ROUTE}/space/link/create`,
+          `${process.env.NEXT_PUBLIC_API_ROUTE}/playground/link/create`,
           {
             json: {
               permission,

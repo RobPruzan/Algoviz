@@ -122,7 +122,7 @@ const Resizable = (props: Props) => {
       style={{
         display: 'flex',
         width: '100%',
-        height: '95%',
+        height: '100%',
         padding: `${padding}px`,
         paddingTop: '10px',
       }}

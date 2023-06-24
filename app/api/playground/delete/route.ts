@@ -1,39 +1,36 @@
 import { prisma } from '@/lib/prisma';
-import { Space } from '@prisma/client';
+
 import { getServerSession } from 'next-auth';
 import { z } from 'zod';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidateTag } from 'next/cache';
 
-export async function GET(request: NextRequest) {
+export async function DELETE(request: NextRequest) {
   console.log('got req');
   const session = await getServerSession(authOptions);
   if (!session?.user)
+    // should turn this into middle ware
     return NextResponse.json({
       msg: 'Must be signed in',
       status: 401,
     });
+  const jsonSchema = z.object({
+    id: z.number(),
+  });
 
-  console.log('incoming');
-  const spaces = await prisma.space.findMany({
+  const { id } = jsonSchema.parse(await request.json());
+
+  const playground = await prisma.playground.delete({
     where: {
-      userId: session.user.id,
-    },
-    orderBy: {
-      createdAt: 'desc',
+      id,
     },
   });
 
-  const tag = request.nextUrl.searchParams.get('tag');
-  tag && revalidateTag(tag);
-
-  console.log('the spaces', spaces);
+  console.log('deleted playground', playground.id);
 
   return NextResponse.json({
+    msg: 'Deleted playground: ' + playground.id,
     status: 200,
-    spaces,
-    revalidated: true,
-    now: Date.now(),
+    playgroundId: playground.id,
   });
 }

@@ -130,7 +130,7 @@ const CodeExecution = ({ selectedAlgorithm, setUserAlgorithm }: Props) => {
               defaultValue="input"
               className=" flex p-1 justify-evenly items-center  w-full  "
             >
-              <TabsList className="w-full  bg-primary p-3 flex justify-evenly items-center">
+              <TabsList className="w-full dark:bg-primary  p-3 flex justify-evenly items-center">
                 <TabsTrigger
                   className={`w-1/5 ${
                     tabValue === 'input'
@@ -154,7 +154,7 @@ const CodeExecution = ({ selectedAlgorithm, setUserAlgorithm }: Props) => {
               </TabsList>
             </Tabs>
 
-            <div className=" bg-primary pl-5 pt-3 w-full border-t-2  border-secondary flex flex-col items-start justify-start text-white  h-full: overflow-y-scroll">
+            <div className="  pl-5 pt-3 w-full border-t-2  border-secondary flex flex-col items-start justify-start text-white  h-full: overflow-y-scroll">
               {match(tabValue)
                 .with('input', () => (
                   <>

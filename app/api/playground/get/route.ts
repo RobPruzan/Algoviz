@@ -1,11 +1,12 @@
 import { prisma } from '@/lib/prisma';
-import { Space } from '@prisma/client';
+
 import { getServerSession } from 'next-auth';
 import { z } from 'zod';
 import { authOptions } from '../../auth/[...nextauth]/route';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 
-export async function POST(request: Request) {
+export async function GET(request: NextRequest) {
   console.log('got req');
   const session = await getServerSession(authOptions);
   if (!session?.user)
@@ -15,22 +16,24 @@ export async function POST(request: Request) {
     });
 
   console.log('incoming');
-  const space = await prisma.space.create({
-    data: {
-      circles: [],
-      lines: [],
-      pencil: [],
+  const playgrounds = await prisma.playground.findMany({
+    where: {
       userId: session.user.id,
-      name: 'test name',
+    },
+    orderBy: {
+      createdAt: 'desc',
     },
   });
 
-  console.log('the new space', space);
+  const tag = request.nextUrl.searchParams.get('tag');
+  tag && revalidateTag(tag);
+
+  console.log('the playgrounds', playgrounds);
 
   return NextResponse.json({
-    msg: 'Successfully created new space: ' + space,
     status: 200,
-    space,
-    // spaceId: space.id,
+    playgrounds,
+    revalidated: true,
+    now: Date.now(),
   });
 }

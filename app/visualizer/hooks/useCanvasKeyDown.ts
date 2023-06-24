@@ -52,6 +52,7 @@ export const useCanvasKeyDown = () => {
         .forEach((circle) => {
           idMap.set(circle.id, crypto.randomUUID());
           idMap.set(circle.nodeReceiver.id, crypto.randomUUID());
+
           circle.nodeReceiver.attachedIds.forEach((id) =>
             idMap.set(id, crypto.randomUUID())
           );
