@@ -77,7 +77,7 @@ model Algorithm {
 // }
 
 model Space {
-  id        String   @id @default(cuid())
+  id        Int      @id @default(autoincrement()) @db.SmallInt
   createdAt DateTime @default(now())
   userId    String
   user      User     @relation(fields: [userId], references: [id])

@@ -162,7 +162,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/algo-viz-code-exec/dev/1687220405327-2023-06-20T00:20:05.327Z/algo-viz-code-exec.zip"
+          "S3Key": "serverless/algo-viz-code-exec/dev/1687586523815-2023-06-24T06:02:03.815Z/algo-viz-code-exec.zip"
         },
         "Handler": "app/app.handler",
         "Runtime": "nodejs18.x",
@@ -180,14 +180,14 @@
         "AppLogGroup"
       ]
     },
-    "AppLambdaVersionDWiB5MA8idVMGqQCKM5oXvEIjmy2a5PKwb3bIAHPw": {
+    "AppLambdaVersionVuZKQK81P698gMfsaGhbm73hr09J1txzoxUfalGsC0I": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "AppLambdaFunction"
         },
-        "CodeSha256": "8ZxO+BeJFtGx+hyL9C3sy2Jmvbj3Q7In8gjw9sJPX1k="
+        "CodeSha256": "dgn/ac0wHph/Hwrn0WBBf03D7AppriEhqkJN43QEydY="
       }
     },
     "ApiGatewayRestApi": {
@@ -405,7 +405,7 @@
         "AppLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1687220404152": {
+    "ApiGatewayDeployment1687586522477": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -470,7 +470,7 @@
     "AppLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "AppLambdaVersionDWiB5MA8idVMGqQCKM5oXvEIjmy2a5PKwb3bIAHPw"
+        "Ref": "AppLambdaVersionVuZKQK81P698gMfsaGhbm73hr09J1txzoxUfalGsC0I"
       },
       "Export": {
         "Name": "sls-algo-viz-code-exec-dev-AppLambdaFunctionQualifiedArn"

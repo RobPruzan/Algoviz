@@ -1,3 +1,4 @@
+import { Space } from '@prisma/client';
 import { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { string } from 'zod';
 
@@ -170,3 +171,5 @@ export type Percentage = `${string}%`;
 export type Prettify<T> = {
   [Key in keyof T]: T[Key];
 } & {};
+
+export type SerializedSpace = Omit<Space, 'createdAt'> & { createdAt: string };

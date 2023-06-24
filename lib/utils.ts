@@ -1,6 +1,14 @@
 import { ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { AlgorithmInfo, HistoryNode, NodeMetadata } from './types';
+import {
+  AlgorithmInfo,
+  HistoryNode,
+  NodeMetadata,
+  SerializedSpace,
+} from './types';
+import { z } from 'zod';
+import ky from 'ky';
+import { Space } from '@prisma/client';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -50,3 +58,24 @@ function algorithm(adjList: AdjacencyList): Visualization{
     // your code here
 };
 `;
+
+export const getSpaces = async (): Promise<SerializedSpace[]> => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_ROUTE}/space/get`);
+  const json = await res.json();
+  const spacesSchema = z.object({
+    spaces: z.array(
+      z.object({
+        id: z.number(),
+        createdAt: z.string(),
+        circles: z.array(z.any()),
+        lines: z.array(z.any()),
+        pencil: z.array(z.any()),
+        userId: z.string(),
+        name: z.string(),
+      })
+    ),
+  });
+  console.log('THE OG JSON', json);
+  const parsedJson = spacesSchema.parse(json);
+  return parsedJson.spaces;
+};

@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 // This could be an environment variable
 const jwtSecret = process.env.NEXTAUTH_SECRET;
 
-function generateRoomUrl(roomId: string) {
+function generateRoomUrl(roomId: string, permission: string) {
   // generates encrypted JWT
   const payload = {
     roomId,
@@ -16,9 +16,9 @@ function generateRoomUrl(roomId: string) {
   };
 
   const token = jwt.sign(payload, jwtSecret);
-  console.log('token');
+  console.log('token', token);
 
-  return `${process.env.NEXTAUTH_URL}/${token}`;
+  return `${process.env.NEXTAUTH_URL}/visualizer?room-id=${roomId}=&id=${token}`;
 }
 
 export async function POST(request: Request) {
@@ -30,10 +30,10 @@ export async function POST(request: Request) {
     });
 
   const json = await request.json();
-  const { roomId } = json;
+  const { roomId, permission } = json;
 
-  const url = generateRoomUrl(roomId);
-
+  const url = generateRoomUrl(roomId, permission);
+  console.log('returned url', url);
   return NextResponse.json({
     url,
     status: 200,

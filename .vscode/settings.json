@@ -5,6 +5,9 @@
     "moogly",
     "NEXTAUTH",
     "Reciever",
+    "roomid",
+    "signin",
     "unselectable"
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

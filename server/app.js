@@ -26,7 +26,7 @@ app.post('/exec', (req, res) => {
       },
     }
   ).outputText;
-  console.log('transpiled js code:', jsCode, '\n\n\n\n');
+  // console.log('transpiled js code:', jsCode, '\n\n\n\n');
 
   let logs = [];
 
@@ -46,10 +46,10 @@ app.post('/exec', (req, res) => {
   });
   let result;
   try {
-    console.log('attemtping to run code');
+    // console.log('attemtping to run code');
     // {exitValue: any, logs: str[]}
     result = JSON.parse(vm.run(jsCode));
-    console.log('the result is', result);
+    // console.log('the result is', result);
   } catch (error) {
     console.error('failed:', error);
     return res.status(400).send({ error: error.toString() });
@@ -57,7 +57,7 @@ app.post('/exec', (req, res) => {
 
   return res.send({ result });
 });
-// module.exports.handler = serverless(app);
+module.exports.handler = serverless(app);
 app.listen(8000, () => {
   console.log('Server is running on port 8000');
 });
