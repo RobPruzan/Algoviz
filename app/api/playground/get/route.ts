@@ -28,8 +28,6 @@ export async function GET(request: NextRequest) {
   const tag = request.nextUrl.searchParams.get('tag');
   tag && revalidateTag(tag);
 
-  console.log('the playgrounds', playgrounds);
-
   return NextResponse.json({
     status: 200,
     playgrounds,

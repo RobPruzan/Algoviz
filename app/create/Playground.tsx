@@ -17,8 +17,9 @@ const Playground = ({ playground }: Props) => {
   const queryClient = useQueryClient();
   const deletePlaygroundMutation = useMutation({
     mutationFn: async (playgroundId: number) => {
+      await queryClient.cancelQueries({ queryKey: ['todos'] });
       const json = await ky
-        .delete(`${process.env.NEXT_PUBLIC_API_ROUTE}/playground/delete`, {
+        .post(`${process.env.NEXT_PUBLIC_API_ROUTE}/playground/delete`, {
           json: {
             id: playgroundId,
           },
