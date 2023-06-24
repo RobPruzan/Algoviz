@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ code: code + `algorithm(globalVar);`, globalVar }),
+    body: JSON.stringify({ code: code, globalVar }),
   });
   const data = await res.json();
   console.log('Successfully execed code, result', data);

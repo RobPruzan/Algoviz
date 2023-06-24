@@ -8,7 +8,7 @@ import * as Graph from '@/lib/graph';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { P } from 'ts-pattern';
+import { P, match } from 'ts-pattern';
 import { z } from 'zod';
 import { nightOwlTheme, outputTheme } from './theme';
 import { ChevronsUpDown, Circle, Loader, Play } from 'lucide-react';
@@ -21,23 +21,13 @@ import {
 import { AlgoComboBox } from '../Sort/AlgoComboBox';
 import { DEFAULT_CODE, algorithmsInfo } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useSession } from 'next-auth/react';
 import { Algorithm } from '@prisma/client';
 import Resizable from '../Resizeable';
-import { codeExecActions } from '@/redux/slices/codeExecSlice';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 
 type Props = {
   selectedAlgorithm: string | undefined;
@@ -75,23 +65,7 @@ const CodeExecution = ({ selectedAlgorithm, setUserAlgorithm }: Props) => {
     return { ...prev, [id]: neighbors };
   }, {});
 
-  const getAlgorithmsQuery = useQuery({
-    queryKey: ['getallAlgorithms'],
-    queryFn: async () => {
-      const algorithmSchema = z.object({
-        id: z.string(),
-        userId: z.string(),
-        title: z.string(),
-        code: z.string(),
-        description: z.string(),
-        createdAt: z.string(),
-      });
-      const res = (
-        await axios.get(`${process.env.NEXT_PUBLIC_API_ROUTE}/algo/getall`)
-      ).data;
-      return z.array(algorithmSchema).parse(res);
-    },
-  });
+  const getAlgorithmsQuery = useGetAlgorithmsQuery();
 
   const currentAlgorithm = getAlgorithmsQuery.data?.find(
     (d) => d.id === selectedAlgorithm
@@ -179,24 +153,31 @@ const CodeExecution = ({ selectedAlgorithm, setUserAlgorithm }: Props) => {
             </Tabs>
 
             <div className=" bg-primary pl-5 pt-3 w-full border-t-2  border-secondary flex flex-col items-start justify-start text-white  h-full: overflow-y-scroll">
-              {Object.entries(adjacencyList).length === 0 && (
-                <div className="w-full h-full flex items-start font-bold text-xl justify-center text-gray-500">
-                  No graph selected in playground
-                </div>
-              )}
-              {Object.entries(adjacencyList).map(([k, v]) => (
-                <div className="flex text-2xl" key={k}>
-                  <div className="">
-                    {circles.find((c) => c.id === k)?.value}
-                  </div>
-                  :
-                  <div className="">
-                    {JSON.stringify(
-                      v.map((v) => circles.find((c) => c.id === v)?.value)
+              {match(tabValue)
+                .with('input', () => (
+                  <>
+                    {Object.entries(adjacencyList).length === 0 && (
+                      <div className="w-full h-full flex items-start font-bold text-xl justify-center text-gray-500">
+                        No graph selected in playground
+                      </div>
                     )}
-                  </div>
-                </div>
-              ))}
+                    {Object.entries(adjacencyList).map(([k, v]) => (
+                      <div className="flex text-2xl" key={k}>
+                        <div className="">
+                          {circles.find((c) => c.id === k)?.value}
+                        </div>
+                        :
+                        <div className="">
+                          {JSON.stringify(
+                            v.map((v) => circles.find((c) => c.id === v)?.value)
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                ))
+                .with('output', () => <div> da output :p</div>)
+                .run()}
             </div>
           </div>
         }

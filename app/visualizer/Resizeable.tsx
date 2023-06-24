@@ -49,8 +49,7 @@ const Resizable = (props: Props) => {
           props.setCodeExecSize(newDiv2Width);
         })
         .with({ type: 'vertical' }, (props) => {
-          let newDiv1Height =
-            e.clientY - parentDiv.offsetTop - (padding + resizeBarSize / 2);
+          let newDiv1Height = e.clientY - parentDiv.offsetTop;
           newDiv1Height = Math.max(0, newDiv1Height);
           newDiv1Height = Math.min(parentDiv.offsetHeight, newDiv1Height);
           const newDiv2Width = parentDiv.offsetHeight - newDiv1Height;

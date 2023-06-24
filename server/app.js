@@ -9,25 +9,46 @@ app.use(express.json());
 app.post('/exec', (req, res) => {
   const { code, globalVar } = req.body;
   // console.log('recieved the following code', code);
-  const jsCode = ts.transpileModule(code, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS },
-  }).outputText;
+  const jsCode = ts.transpileModule(
+    code + `JSON.stringify({exitValue: algorithm(globalVar), logs});`,
+    {
+      compilerOptions: {
+        target: 'ES2020',
+        module: 'CommonJS',
+        moduleResolution: 'node',
+        lib: ['ESNext', 'DOM'],
+        resolveJsonModule: true,
+        esModuleInterop: true,
+        allowSyntheticDefaultImports: true,
+        strict: true,
+        outDir: './dist',
+        rootDir: './src',
+      },
+    }
+  ).outputText;
   console.log('transpiled js code:', jsCode, '\n\n\n\n');
-  const vm = new VM({
-    timeout: 10000,
-    sandbox: {
-      globalVar,
-      console: {
-        log: (...args) => {
-          console.log('From sandbox:', ...args);
-        },
+
+  let logs = [];
+
+  const sandbox = {
+    globalVar,
+    logs,
+    console: {
+      log: function (...args) {
+        sandbox.logs.push(args);
       },
     },
+  };
+
+  const vm = new VM({
+    timeout: 10000,
+    sandbox: sandbox,
   });
   let result;
   try {
     console.log('attemtping to run code');
-    result = vm.run(jsCode);
+    // {exitValue: any, logs: str[]}
+    result = JSON.parse(vm.run(jsCode));
     console.log('the result is', result);
   } catch (error) {
     console.error('failed:', error);

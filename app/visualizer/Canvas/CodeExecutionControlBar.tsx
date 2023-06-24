@@ -78,7 +78,9 @@ const CodeExecutionControlBar = ({
 
         <Button
           onClick={() => {
+            console.log('did click');
             if (currentAlgorithm?.code) {
+              console.log('mutating');
               codeMutation.mutate(currentAlgorithm.code);
             }
           }}
