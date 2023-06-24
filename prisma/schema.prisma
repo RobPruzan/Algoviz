@@ -51,6 +51,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   Algorithm     Algorithm[]
+  Space         Space[]
 }
 
 model VerificationToken {
@@ -69,4 +70,19 @@ model Algorithm {
   title       String
   description String
   code        String
+}
+
+// model Circle {
+
+// }
+
+model Space {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  circles   Json
+  lines     Json
+  pencil    Json
 }

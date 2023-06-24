@@ -1,15 +1,17 @@
 import {
-  CircleReceiver,
   AlgorithmMetadata,
   DirectedEdge,
   Edge,
   SelectedGeometryInfo,
+  Prettify,
 } from '@/lib/types';
 import { enableMapSet } from 'immer';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import * as Canvas from '@/lib/Canvas/canvas';
 import * as Draw from '@/lib/Canvas/drawUtils';
 import { ImmutableQueue } from '@/lib/graph';
+
+// type test = Prettify<CircleReceiver>;
 export type CanvasState = {
   circles: CircleReceiver[];
   attachableLines: Edge[];

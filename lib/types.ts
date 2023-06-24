@@ -167,3 +167,6 @@ export type PencilCoordinates = {
 };
 
 export type Percentage = `${string}%`;
+export type Prettify<T> = {
+  [Key in keyof T]: T[Key];
+} & {};

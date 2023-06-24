@@ -2,9 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 export async function POST(request: Request) {
-  // const url = 'https://v2wogsjzra.execute-api.us-east-1.amazonaws.com/dev/exec';
-  const url = 'http://localhost:8000/exec';
-  if (!url) return;
+  const url = process.env.SERVERLESS_EXEC_ROUTE;
   const globalVarSchema = z.record(z.array(z.string()));
   const codeSchema = z.object({ code: z.string(), globalVar: globalVarSchema });
   const json = await request.json();

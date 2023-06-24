@@ -9,6 +9,18 @@ import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { ModeToggle } from '@/components/ui/mode-toggle';
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogDescription,
+//   DialogFooter,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogTrigger,
+// } from '@/components/ui/dialog';
+// import { Label } from '@/components/ui/label';
+// import { Input } from '@/components/ui/input';
+import ShareableLink from '@/components/ShareableLink';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -31,20 +43,30 @@ export default function RootLayout({
           )}
         >
           {/* temporary padding */}
-          <nav className="w-screen pt-[10px] h-[15%] flex justify-end items-center  ">
-            <div className="w-1/5 flex justify-center items-center ">
+          <nav className="w-screen pt-[10px] h-[15%] flex justify-end items-center px-[30px] ">
+            <div className="w-3/6 flex justify-start items-center ">
               <Link href="/">
-                <Button variant="outline">Home</Button>
+                <Button className="mr-2" variant="outline">
+                  Home
+                </Button>
+              </Link>
+              <Link href="/create">
+                <Button className="mx-2" variant="outline">
+                  New Space
+                </Button>
               </Link>
             </div>
 
-            <div className="w-3/5 flex items-center " />
+            <div className="w-2/6  " />
 
-            <div className="w-1/5 flex justify-center items-center">
+            <div className="w-2/5 flex justify-end items-center">
+              <div className="mx-2 min-w-fit">
+                <ShareableLink />
+              </div>
               <div className="mx-2">
                 <ModeToggle />
               </div>
-              <div className="mx-2">
+              <div className="ml-2">
                 <SignInButton />
               </div>
             </div>

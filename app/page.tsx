@@ -10,19 +10,20 @@ import { SignInButton } from '@/components/Auth/AuthButtons';
 import { z } from 'zod';
 
 const envSchema = z.object({
-  GOOGLE_CLIENT_ID: z.string(),
-  GOOGLE_CLIENT_SECRET: z.string(),
-  NEXTAUTH_URL: z.string(),
-  NEXTAUTH_SECRET: z.string(),
-  POSTGRES_URL: z.string(),
-  POSTGRES_PRISMA_URL: z.string(),
-  POSTGRES_URL_NON_POOLING: z.string(),
-  POSTGRES_USER: z.string(),
-  POSTGRES_HOST: z.string(),
-  POSTGRES_PASSWORD: z.string(),
-  POSTGRES_DATABASE: z.string(),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  NEXTAUTH_URL: z.string().optional(),
+  NEXTAUTH_SECRET: z.string().optional(),
+  POSTGRES_URL: z.string().optional(),
+  POSTGRES_PRISMA_URL: z.string().optional(),
+  POSTGRES_URL_NON_POOLING: z.string().optional(),
+  POSTGRES_USER: z.string().optional(),
+  POSTGRES_HOST: z.string().optional(),
+  POSTGRES_PASSWORD: z.string().optional(),
+  POSTGRES_DATABASE: z.string().optional(),
   NEXT_PUBLIC_CODE_EXEC_URL: z.string(),
   NEXT_PUBLIC_API_ROUTE: z.string(),
+  SERVERLESS_EXEC_ROUTE: z.string().optional(),
 });
 declare global {
   namespace NodeJS {

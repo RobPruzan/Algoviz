@@ -2,7 +2,10 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
-import Editor, { useMonaco } from '@monaco-editor/react';
+import Editor from '@monaco-editor/react';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+
 import * as Graph from '@/lib/graph';
 // import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -28,7 +31,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
-
 type Props = {
   selectedAlgorithm: string | undefined;
   setUserAlgorithm: React.Dispatch<
