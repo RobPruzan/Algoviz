@@ -18,7 +18,7 @@ function generateRoomUrl(roomId: string, permission: string) {
   const token = jwt.sign(payload, jwtSecret);
   console.log('token', token);
 
-  return `${process.env.NEXTAUTH_URL}/visualizer?room-id=${roomId}=&id=${token}`;
+  return `${process.env.NEXTAUTH_URL}/visualizer?playground-id=${roomId}=&id=${token}`;
 }
 
 export async function POST(request: Request) {

@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 import { Button } from './ui/button';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import CopyButton from './CopyButton';
 import { useMutation } from '@tanstack/react-query';
 import ky from 'ky';
@@ -30,6 +30,8 @@ const isPermission = (value: string): value is Permissions => {
 
 const ShareableLink = () => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [permissions, setPermissions] = useState<Permissions>('EDIT');
 
   const generateLinkMutation = useMutation({
@@ -40,7 +42,7 @@ const ShareableLink = () => {
           {
             json: {
               permission,
-              roomId: 'test',
+              roomId: searchParams.get('playground-id'),
             },
           }
         )
