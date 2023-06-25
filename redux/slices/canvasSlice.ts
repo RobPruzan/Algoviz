@@ -44,6 +44,12 @@ const canvasSlice = createSlice({
     setLines: (state, action: PayloadAction<Edge[]>) => {
       state.attachableLines = action.payload;
     },
+    resetLines: (state) => {
+      state.attachableLines = [];
+    },
+    resetCircles: (state) => {
+      state.circles = [];
+    },
     updateCreationZoomFactor: (state, action: PayloadAction<number>) => {
       state.creationZoomFactor *= action.payload;
     },

@@ -38,17 +38,17 @@ const ContentWrapper = ({ shapes }: Props) => {
   });
 
   useEffect(() => {
-    console.log('does this run on the server?');
+    // #TODO need to do zod validation
     const circles = shapes?.circles as CircleReceiver[] | undefined;
-    const lines = shapes?.circles as Edge[] | undefined;
+    const lines = shapes?.lines as Edge[] | undefined;
     console.log('the recievec circles and lines', circles, lines);
     if (circles && circles.length > 0) {
       dispatch(CanvasActions.setCircles(circles));
     }
-    // simple error here that im somewhere saving the circles for the lines
-    // if (lines && lines.length > 0) {
-    //   dispatch(CanvasActions.setLines(lines));
-    // }
+    if (lines && lines.length > 0) {
+      dispatch(CanvasActions.setLines(lines));
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (

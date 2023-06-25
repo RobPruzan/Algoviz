@@ -87,11 +87,11 @@ export const drawEdgeConnectors = ({
   edges: Edge[];
   ctx: CanvasRenderingContext2D;
 }) => {
-  console.log('the recieved edges', edges);
+  // console.log('the recieved edges', edges);
   edges
     .map((edge) => edge.attachNodeOne)
     .forEach((circle) => {
-      console.log('looping through the conenctors', circle);
+      // console.log('looping through the conenctors', circle);
       ctx.beginPath();
       ctx.arc(
         Math.floor(circle.center[0]),

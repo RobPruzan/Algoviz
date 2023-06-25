@@ -61,9 +61,9 @@ function algorithm(adjList: AdjacencyList): Visualization{
 export const serializedPlaygroundSchema = z.object({
   id: z.number(),
   createdAt: z.string(),
-  circles: z.array(z.any()),
-  lines: z.array(z.any()),
-  pencil: z.array(z.any()),
+  // circles: z.array(z.any()),
+  // lines: z.array(z.any()),
+  // pencil: z.array(z.any()),
   userId: z.string(),
   name: z.string(),
 });
@@ -83,7 +83,8 @@ export const getPlaygrounds = async (): Promise<
   );
   const json = await res.json();
 
-  console.log('THE OG JSON', json);
+  console.log('THE OG JSON (maybe whats fr failing)', json);
   const parsedJson = serializedPlaygroundsSchema.parse(json);
+  console.log('passed');
   return parsedJson.playgrounds;
 };

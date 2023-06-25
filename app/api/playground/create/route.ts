@@ -21,7 +21,8 @@ export async function POST(request: Request) {
       lines: [],
       pencil: [],
       userId: session.user.id,
-      name: 'test name',
+      name: 'Untitled',
+      zoomAmount: 1,
     },
   });
 

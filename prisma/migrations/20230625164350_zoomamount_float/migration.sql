@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Playground" ALTER COLUMN "zoomAmount" SET DATA TYPE DOUBLE PRECISION;

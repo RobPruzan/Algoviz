@@ -22,12 +22,13 @@ export async function PUT(request: NextRequest, context: unknown) {
     // going to need to do a big validation for this unfortunately
     circles: z.array(z.any()).optional(),
     lines: z.array(z.any()).optional(),
+    zoomAmount: z.number(),
 
     // shapes: z.array(z.unknown())
   });
   const parsedJson = jsonSchema.parse(json);
 
-  console.log('incoming');
+  // console.log('incoming');
 
   if (parsedJson.circles) {
     await prisma.playground.update({
@@ -36,6 +37,7 @@ export async function PUT(request: NextRequest, context: unknown) {
       },
       data: {
         circles: parsedJson.circles,
+        zoomAmount: parsedJson.zoomAmount,
       },
     });
   }
@@ -47,6 +49,7 @@ export async function PUT(request: NextRequest, context: unknown) {
       },
       data: {
         lines: parsedJson.lines,
+        zoomAmount: parsedJson.zoomAmount,
       },
     });
   }

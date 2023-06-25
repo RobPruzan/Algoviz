@@ -17,6 +17,7 @@ export const useGetAlgorithmsQuery = () =>
       const res = (
         await axios.get(`${process.env.NEXT_PUBLIC_API_ROUTE}/algo/getall`)
       ).data;
+      console.log('the res that is failing', res);
       return z.array(algorithmSchema).parse(res);
     },
   });

@@ -9,6 +9,7 @@ export const useShapeUpdateMutation = () => {
     mutationFn: async (shapes: {
       circles?: CircleReceiver[];
       lines?: Edge[];
+      zoomAmount: number;
     }) => {
       const playgroundID = searchParams.get('playground-id');
       if (!playgroundID) {
@@ -21,6 +22,7 @@ export const useShapeUpdateMutation = () => {
             json: {
               circles: shapes.circles,
               playgroundID: +playgroundID,
+              zoomAmount: shapes.zoomAmount,
             },
           }
         );
@@ -32,6 +34,7 @@ export const useShapeUpdateMutation = () => {
             json: {
               lines: shapes.lines,
               playgroundID: +playgroundID,
+              zoomAmount: shapes.zoomAmount,
             },
           }
         );

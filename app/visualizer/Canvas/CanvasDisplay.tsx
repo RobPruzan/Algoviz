@@ -40,6 +40,8 @@ import { useCanvasWheel } from '../hooks/useCanvasWheel';
 import { useApplyAlgorithm } from '../hooks/useApplyAlgorithm';
 import { useCanvasKeyDown } from '../hooks/useCanvasKeyDown';
 import { useFullyConnect } from '../hooks/useFullyConnect';
+import useDebounce from '@/hooks/useDebounce';
+import { useShapeUpdateMutation } from '../hooks/useShapeUpdateMutation';
 
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
@@ -60,7 +62,9 @@ const CanvasDisplay = ({ selectedControlBarAction }: Props) => {
   );
   const { sideBarState, setSideBarState } = useContext(SideBarContext);
   const dispatch = useAppDispatch();
-  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
+  const { attachableLines, circles, creationZoomFactor } = useAppSelector(
+    (store) => store.canvas
+  );
   const isMouseDownRef = useRef(false);
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
@@ -71,7 +75,38 @@ const CanvasDisplay = ({ selectedControlBarAction }: Props) => {
 
   const visualizationNodes = visualization.at(visualizationPointer);
 
-  useEffect(() => {}, []);
+  // useEffect(() => {}, []);
+  // const [text, setText] = useState('');
+  const debouncedCircles = useDebounce(circles, 500);
+  const debouncedLines = useDebounce(attachableLines, 500);
+  const shapeUpdateMutation = useShapeUpdateMutation();
+  useEffect(
+    () => () => {
+      dispatch(CanvasActions.resetCircles());
+    },
+    []
+  );
+  useEffect(
+    () => () => {
+      dispatch(CanvasActions.resetLines());
+    },
+    []
+  );
+
+  useEffect(() => {
+    console.log('mutating circles');
+    shapeUpdateMutation.mutate({
+      circles: debouncedCircles,
+      zoomAmount: creationZoomFactor,
+    });
+  }, [debouncedCircles]);
+  useEffect(() => {
+    console.log('mutating lines');
+    shapeUpdateMutation.mutate({
+      lines: debouncedLines,
+      zoomAmount: creationZoomFactor,
+    });
+  }, [debouncedLines]);
 
   const handleMouseDown = useCanvasMouseDown({
     canvasRef,

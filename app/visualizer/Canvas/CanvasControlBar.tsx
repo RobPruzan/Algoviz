@@ -98,6 +98,7 @@ const CanvasControlBar = ({
     };
     shapeUpdateMutation.mutate({
       lines: [...attachableLines, newLine],
+      zoomAmount: creationZoomFactor,
     });
     dispatch(CanvasActions.addLine(newLine));
   };
@@ -168,6 +169,7 @@ const CanvasControlBar = ({
 
     shapeUpdateMutation.mutate({
       circles: [...circles, newCircle],
+      zoomAmount: creationZoomFactor,
     });
 
     dispatch(CanvasActions.addCircle(newCircle));

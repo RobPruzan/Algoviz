@@ -77,12 +77,13 @@ model Algorithm {
 // }
 
 model Playground {
-  id        Int      @id @default(autoincrement()) @db.SmallInt
-  createdAt DateTime @default(now())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  name      String
-  circles   Json
-  lines     Json
-  pencil    Json
+  id         Int      @id @default(autoincrement()) @db.SmallInt
+  createdAt  DateTime @default(now())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  name       String
+  circles    Json
+  lines      Json
+  pencil     Json
+  zoomAmount Float
 }

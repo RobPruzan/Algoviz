@@ -17,7 +17,7 @@ import {
   INITIAL_SIDE_BAR_STATE,
   SideBarContext,
 } from '@/context/SideBarContext';
-import { store } from '@/redux/store';
+
 import {
   ControlBarContextState,
   defaultState,
@@ -36,37 +36,31 @@ const Content = ({ children }: Props) => {
 
   const [controlBarState, setControlBarState] =
     useState<ControlBarContextState>(defaultState);
-  const [queryClient] = React.useState(() => new QueryClient());
   return (
-    <Provider store={store}>
-      <SideBarContext.Provider
+    <SideBarContext.Provider
+      value={{
+        sideBarState,
+        setSideBarState,
+      }}
+    >
+      <HistoryNodesContext.Provider
         value={{
-          sideBarState,
-          setSideBarState,
+          historyNodes,
+          setHistoryNodes,
+          quickSortTempHistoryArrayList,
+          mergeSortTempHistoryArrayList,
         }}
       >
-        <HistoryNodesContext.Provider
+        <ControlBarContext.Provider
           value={{
-            historyNodes,
-            setHistoryNodes,
-            quickSortTempHistoryArrayList,
-            mergeSortTempHistoryArrayList,
+            controlBarState,
+            setControlBarState,
           }}
         >
-          <ControlBarContext.Provider
-            value={{
-              controlBarState,
-              setControlBarState,
-            }}
-          >
-            {/* <QueryClientProvider client={queryClient}> */}
-            {children}
-            {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-            {/* </QueryClientProvider> */}
-          </ControlBarContext.Provider>
-        </HistoryNodesContext.Provider>
-      </SideBarContext.Provider>
-    </Provider>
+          {children}
+        </ControlBarContext.Provider>
+      </HistoryNodesContext.Provider>
+    </SideBarContext.Provider>
   );
 };
 

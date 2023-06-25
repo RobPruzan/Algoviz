@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
       id: true,
       userId: true,
       name: true,
+      createdAt: true,
     },
   });
 

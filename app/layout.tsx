@@ -24,6 +24,9 @@ import ShareableLink from '@/components/ShareableLink';
 import React from 'react';
 
 import { QueryProvider } from './QueryProvider';
+import { Provider } from 'react-redux';
+import { store } from '@/redux/store';
+import ReduxProvider from './ReduxProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -41,46 +44,52 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          'min-h-screen bg-background  font-sans antialiased ',
+          'min-h-screen bg-background overflow-hidden font-sans antialiased ',
           fontSans.variable
         )}
       >
         <AuthProvider>
           <QueryProvider>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              {/* temporary padding */}
-              <nav className="w-screen pt-[10px] h-[15%] flex justify-end items-center px-[30px] ">
-                <div className="w-3/6 flex justify-start items-center ">
-                  <Link href="/">
-                    <Button className="mr-2" variant="outline">
-                      Home
-                    </Button>
-                  </Link>
-                  <Link href="/create">
-                    <Button className="mx-2" variant="outline">
-                      Playgrounds
-                    </Button>
-                  </Link>
-                </div>
-
-                <div className="w-2/6  " />
-
-                <div className="w-2/5 flex justify-end items-center">
-                  <div className="mx-2 min-w-fit">
-                    <ShareableLink />
+            <ReduxProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+              >
+                {/* temporary padding */}
+                <nav className="w-screen pt-[10px] h-[15%] flex justify-end items-center px-[30px] ">
+                  <div className="w-3/6 flex justify-start items-center ">
+                    <Link href="/">
+                      <Button className="mr-2" variant="outline">
+                        Home
+                      </Button>
+                    </Link>
+                    <Link href="/create">
+                      <Button className="mx-2" variant="outline">
+                        Playgrounds
+                      </Button>
+                    </Link>
                   </div>
-                  <div className="mx-2">
-                    <ModeToggle />
-                  </div>
-                  <div className="ml-2">
-                    <SignInButton />
-                  </div>
-                </div>
-              </nav>
-              {/* <Navbar /> */}
 
-              {children}
-            </ThemeProvider>
+                  <div className="w-2/6  " />
+
+                  <div className="w-2/5 flex justify-end items-center">
+                    <div className="mx-2 min-w-fit">
+                      <ShareableLink />
+                    </div>
+                    <div className="mx-2">
+                      <ModeToggle />
+                    </div>
+                    <div className="ml-2">
+                      <SignInButton />
+                    </div>
+                  </div>
+                </nav>
+                {/* <Navbar /> */}
+
+                {children}
+              </ThemeProvider>
+            </ReduxProvider>
           </QueryProvider>
         </AuthProvider>
       </body>
