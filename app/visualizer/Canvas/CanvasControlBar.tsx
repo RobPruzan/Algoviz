@@ -9,6 +9,7 @@ import {
   CircleReceiver,
   DirectedEdge,
   DrawTypes,
+  Edge,
   UndirectedEdge,
 } from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
@@ -31,6 +32,9 @@ import { BinarySearchTreeIcon } from '@/components/icons/BinarySearchTree';
 import { GraphIcon } from '@/components/icons/Graph';
 import { RedBlackTreeIcon } from '@/components/icons/RedBlackTree';
 import { LinkedListIcon } from '@/components/icons/LinkedList';
+import { useMutation } from '@tanstack/react-query';
+import ky from 'ky';
+import { useShapeUpdateMutation } from '../hooks/useShapeUpdateMutation';
 
 type Props = {
   handleDfs: () => void;
@@ -51,10 +55,13 @@ const CanvasControlBar = ({
     variableInspector: { show },
   } = useAppSelector((store) => store.canvas);
 
-  const adjacencyList = Graph.getAdjacencyList({
-    edges: attachableLines,
-    vertices: circles,
-  });
+  // const adjacencyList = Graph.getAdjacencyList({
+  //   edges: attachableLines,
+  //   vertices: circles,
+  // });
+
+  // constShape;
+  const shapeUpdateMutation = useShapeUpdateMutation();
 
   // fix all these hard coded numbers and random spawn points
   // move random spawn points to slight distribution around middle of canvas
@@ -89,46 +96,48 @@ const CanvasControlBar = ({
         connectedToId: null,
       },
     };
-
+    shapeUpdateMutation.mutate({
+      lines: [...attachableLines, newLine],
+    });
     dispatch(CanvasActions.addLine(newLine));
   };
 
-  const handleAddDirectedEdge = () => {
-    const [x1, y1] = [
-      Math.random() * 400 * creationZoomFactor,
-      Math.random() * 600 * creationZoomFactor,
-    ];
-    const newLine: DirectedEdge = {
-      id: crypto.randomUUID(),
+  // const handleAddDirectedEdge = () => {
+  //   const [x1, y1] = [
+  //     Math.random() * 400 * creationZoomFactor,
+  //     Math.random() * 600 * creationZoomFactor,
+  //   ];
+  //   const newLine: DirectedEdge = {
+  //     id: crypto.randomUUID(),
 
-      type: 'rect',
-      x1,
-      y1,
-      x2: x1 - 10,
-      y2: y1 - 50,
-      width: 7 * creationZoomFactor,
-      directed: true,
-      color: 'white',
-      attachNodeOne: {
-        center: [x1, y1],
-        radius: 10 * creationZoomFactor,
-        color: '#42506e',
-        id: crypto.randomUUID(),
-        type: 'node1',
-        connectedToId: null,
-      },
-      attachNodeTwo: {
-        center: [x1 - 10, y1 - 50],
-        radius: 10 * creationZoomFactor,
-        color: '#42506e',
-        id: crypto.randomUUID(),
-        type: 'node2',
-        connectedToId: null,
-      },
-    };
+  //     type: 'rect',
+  //     x1,
+  //     y1,
+  //     x2: x1 - 10,
+  //     y2: y1 - 50,
+  //     width: 7 * creationZoomFactor,
+  //     directed: true,
+  //     color: 'white',
+  //     attachNodeOne: {
+  //       center: [x1, y1],
+  //       radius: 10 * creationZoomFactor,
+  //       color: '#42506e',
+  //       id: crypto.randomUUID(),
+  //       type: 'node1',
+  //       connectedToId: null,
+  //     },
+  //     attachNodeTwo: {
+  //       center: [x1 - 10, y1 - 50],
+  //       radius: 10 * creationZoomFactor,
+  //       color: '#42506e',
+  //       id: crypto.randomUUID(),
+  //       type: 'node2',
+  //       connectedToId: null,
+  //     },
+  //   };
 
-    dispatch(CanvasActions.addLine(newLine));
-  };
+  //   dispatch(CanvasActions.addLine(newLine));
+  // };
 
   const handleAddCircle = () => {
     const circleCenter: [number, number] = [
@@ -156,6 +165,10 @@ const CanvasControlBar = ({
       color: '#181e2b',
       nodeReceiver: newNodeConnector,
     };
+
+    shapeUpdateMutation.mutate({
+      circles: [...circles, newCircle],
+    });
 
     dispatch(CanvasActions.addCircle(newCircle));
   };

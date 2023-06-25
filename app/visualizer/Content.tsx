@@ -59,10 +59,10 @@ const Content = ({ children }: Props) => {
               setControlBarState,
             }}
           >
-            <QueryClientProvider client={queryClient}>
-              {children}
-              <ReactQueryDevtools initialIsOpen={false} />
-            </QueryClientProvider>
+            {/* <QueryClientProvider client={queryClient}> */}
+            {children}
+            {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+            {/* </QueryClientProvider> */}
           </ControlBarContext.Provider>
         </HistoryNodesContext.Provider>
       </SideBarContext.Provider>

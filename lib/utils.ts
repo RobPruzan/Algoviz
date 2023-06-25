@@ -71,7 +71,13 @@ export const serializedPlaygroundSchema = z.object({
 export const serializedPlaygroundsSchema = z.object({
   playgrounds: z.array(serializedPlaygroundSchema),
 });
-export const getPlaygrounds = async (): Promise<SerializedPlayground[]> => {
+export const getPlaygrounds = async (): Promise<
+  {
+    userId: string;
+    id: number;
+    name: string;
+  }[]
+> => {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_ROUTE}/playground/get`
   );

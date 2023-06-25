@@ -20,7 +20,7 @@ type Props = {
 };
 const Visualize = ({ canvasWidth }: Props) => {
   const { sideBarState } = useContext(SideBarContext);
-  const { show } = useAppSelector((store) => store.canvas.variableInspector);
+  // const { show } = useAppSelector((store) => store.canvas.variableInspector);
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
   const [selectedControlBarAction, setSelectedControlBarAction] =
     useState<DrawTypes | null>(null);
@@ -69,10 +69,10 @@ const Visualize = ({ canvasWidth }: Props) => {
           <SortDisplay algorithm={sideBarState.algorithm} />
         ) : (
           <CanvasDisplay
-            canvasWidth={canvasWidth}
+            // canvasWidth={canvasWidth}
             selectedControlBarAction={selectedControlBarAction}
-            setSelectedControlBarAction={setSelectedControlBarAction}
-            handleDfs={handleDfs}
+            // setSelectedControlBarAction={setSelectedControlBarAction}
+            // handleDfs={handleDfs}
           />
         )}
       </div>

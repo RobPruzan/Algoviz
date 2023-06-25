@@ -5,18 +5,9 @@ import {
   SelectBox,
   DrawTypes,
   PencilCoordinates,
-  SelectedGeometryInfo,
-  Percentage,
 } from '@/lib/types';
 import { isStringAlgorithm } from '../Sort/AlgoComboBox';
-import React, {
-  useRef,
-  useState,
-  useEffect,
-  useContext,
-  Dispatch,
-  SetStateAction,
-} from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import * as Draw from '@/lib/Canvas/drawUtils';
 
 import { useAppDispatch, useAppSelector } from '@/redux/store';
@@ -51,13 +42,10 @@ import { useCanvasKeyDown } from '../hooks/useCanvasKeyDown';
 import { useFullyConnect } from '../hooks/useFullyConnect';
 
 export type Props = {
-  canvasWidth: number | Percentage;
-  handleDfs: () => void;
   selectedControlBarAction: DrawTypes | null;
-  setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
 };
 
-const CanvasDisplay = ({ selectedControlBarAction, canvasWidth }: Props) => {
+const CanvasDisplay = ({ selectedControlBarAction }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
@@ -79,9 +67,11 @@ const CanvasDisplay = ({ selectedControlBarAction, canvasWidth }: Props) => {
   const { visualization, visualizationPointer } = useAppSelector(
     (store) => store.codeExec
   );
+  const isContextMenuActiveRef = useRef(false);
 
   const visualizationNodes = visualization.at(visualizationPointer);
-  const isContextMenuActiveRef = useRef(false);
+
+  useEffect(() => {}, []);
 
   const handleMouseDown = useCanvasMouseDown({
     canvasRef,

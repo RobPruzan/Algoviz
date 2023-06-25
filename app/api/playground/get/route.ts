@@ -23,6 +23,11 @@ export async function GET(request: NextRequest) {
     orderBy: {
       createdAt: 'desc',
     },
+    select: {
+      id: true,
+      userId: true,
+      name: true,
+    },
   });
 
   const tag = request.nextUrl.searchParams.get('tag');

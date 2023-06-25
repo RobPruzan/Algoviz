@@ -10,7 +10,11 @@ import { json } from 'stream/consumers';
 import { z } from 'zod';
 
 type Props = {
-  playground: SerializedPlayground;
+  playground: {
+    userId: string;
+    id: number;
+    name: string;
+  };
 };
 
 const Playground = ({ playground }: Props) => {

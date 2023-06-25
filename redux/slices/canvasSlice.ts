@@ -4,6 +4,7 @@ import {
   Edge,
   SelectedGeometryInfo,
   Prettify,
+  CircleReceiver,
 } from '@/lib/types';
 import { enableMapSet } from 'immer';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
@@ -54,6 +55,7 @@ const canvasSlice = createSlice({
     setCircles: (state, action: PayloadAction<CircleReceiver[]>) => {
       state.circles = action.payload;
     },
+
     replaceCircle: (state, action: PayloadAction<CircleReceiver>) => {
       state.circles = state.circles = Canvas.replaceCanvasElement({
         oldArray: state.circles,

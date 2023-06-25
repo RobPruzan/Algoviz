@@ -1,13 +1,7 @@
 'use client';
 import React from 'react';
-import { Card } from '@/components/ui/card';
-import { useMutation, useQuery } from '@tanstack/react-query';
-
-import ky from 'ky';
-import { z } from 'zod';
+import { useQuery } from '@tanstack/react-query';
 import { getPlaygrounds } from '@/lib/utils';
-import { DeleteIcon, Trash } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import Playground from './Playground';
 
 const Playgrounds = () => {
