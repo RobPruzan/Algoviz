@@ -31,6 +31,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
+import { useTheme } from 'next-themes';
 type Props = {
   selectedAlgorithm: string | undefined;
   setUserAlgorithm: React.Dispatch<
@@ -57,6 +58,7 @@ const CodeExecution = ({ selectedAlgorithm, setUserAlgorithm }: Props) => {
   const selectedCircles = circles.filter((circle) =>
     selectedGeometryInfo?.selectedIds.includes(circle.id)
   );
+  const themeInfo = useTheme();
 
   const adjacencyList: Record<string, string[]> = [
     ...Graph.getAdjacencyList({
@@ -84,7 +86,15 @@ const CodeExecution = ({ selectedAlgorithm, setUserAlgorithm }: Props) => {
         setCodeExecSize={setCodeExecHeight}
         type="vertical"
         topDiv={
-          <div className="w-full h-full bg-[#1E1E1E]">
+          <div
+            className={`w-full h-full ${
+              themeInfo.theme === 'dark'
+                ? 'bg-[#1E1E1E]'
+                : themeInfo.theme === 'light'
+                ? 'bg-[#FFFFFE]'
+                : 'bg-[#1E1E1E]'
+            }`}
+          >
             <div
               style={{
                 margin: '0px !important ',
@@ -98,7 +108,13 @@ const CodeExecution = ({ selectedAlgorithm, setUserAlgorithm }: Props) => {
                   m.editor.defineTheme('night-owl', nightOwlTheme as any);
                 }}
                 // theme="night-owl"
-                theme="vs-dark"
+                theme={
+                  themeInfo.theme === 'dark'
+                    ? 'vs-dark'
+                    : themeInfo.theme === 'light'
+                    ? 'light'
+                    : 'vs-dark'
+                }
                 value={currentAlgorithm?.code ?? DEFAULT_CODE}
                 // this doesn't make sense without edit functionality will do that next
                 onChange={(value) => {

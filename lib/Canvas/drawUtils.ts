@@ -13,12 +13,14 @@ export const drawNodes = ({
   selectedCircleID,
   selectedIds,
   dfsVisitedNodes,
+  theme,
 }: {
   nodes: CircleReceiver[];
   ctx: CanvasRenderingContext2D;
   selectedCircleID: string | null;
   selectedIds: Array<string> | undefined;
   dfsVisitedNodes: string[];
+  theme: string;
 }) => {
   ctx.save();
   // console.log(
@@ -28,8 +30,8 @@ export const drawNodes = ({
   nodes.forEach((node) => {
     ctx.beginPath();
     ctx.arc(node.center[0], node.center[1], node.radius, 0, 2 * Math.PI, false);
-
-    ctx.fillStyle = node.color;
+    console.log('the theme', theme);
+    ctx.fillStyle = theme === 'dark' ? node.color : '#DADADA';
 
     if (dfsVisitedNodes.includes(node.id)) {
       ctx.fillStyle = 'green';
@@ -130,9 +132,11 @@ export const drawEdgeConnectors = ({
 export const drawNodeReceivers = ({
   ctx,
   nodes,
+  theme,
 }: {
   nodes: CircleReceiver[];
   ctx: CanvasRenderingContext2D;
+  theme: string;
 }) => {
   nodes.forEach((node) => {
     const nodeReceiver = node.nodeReceiver;
@@ -146,7 +150,9 @@ export const drawNodeReceivers = ({
       2 * Math.PI,
       false
     );
-    ctx.fillStyle = nodeReceiver.color;
+    // ctx.fillStyle = nodeReceiver.color;
+    ctx.fillStyle =
+      theme === 'dark' ? '#45506C' : theme === 'light' ? 'white' : '#45506C';
     ctx.fill();
 
     if (nodeReceiver.attachedIds.length > 0) {
@@ -156,7 +162,8 @@ export const drawNodeReceivers = ({
     }
     // set the text style
     ctx.font = `${node.radius / 2}px Arial`; // change to whatever font style you want
-    ctx.fillStyle = 'white'; // text color
+    ctx.fillStyle =
+      theme === 'dark' ? 'white' : theme === 'light' ? 'black' : 'white';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
@@ -172,10 +179,12 @@ export const drawBox = ({
   ctx,
   box,
   fill,
+  theme,
 }: {
   box: Omit<SelectBox, 'type'>;
   ctx: CanvasRenderingContext2D;
   fill?: boolean;
+  theme: string;
 }) => {
   // ill want the inside highlighted and other interior selected indicator
   ctx.beginPath();
@@ -203,14 +212,19 @@ export const drawBox = ({
   // |  |
   // ---
 
-  ctx.strokeStyle = 'white';
+  ctx.strokeStyle =
+    theme === 'light' ? '#ADD8E6' : theme === 'dark' ? 'white' : 'white';
   ctx.lineWidth = 1;
 
   ctx.closePath(); // This ensures the path is closed and can be filled
 
   // Set the fill color
   if (fill) {
-    ctx.fillStyle = 'rgba(173, 216, 230, 0.15)';
+    const darkTheme = 'rgba(173, 216, 230, 0.15)';
+    const lightTheme = 'rgba(173, 216, 230, 0.15)';
+    // ctx.fillStyle = 'rgba(173, 216, 230, 0.15)';
+    ctx.fillStyle =
+      theme === 'dark' ? darkTheme : theme === 'light' ? lightTheme : darkTheme;
 
     // Fill the square
     ctx.fill();

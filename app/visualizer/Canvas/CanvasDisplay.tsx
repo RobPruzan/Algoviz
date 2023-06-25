@@ -44,6 +44,7 @@ import useDebounce from '@/hooks/useDebounce';
 import { useShapeUpdateMutation } from '../hooks/useShapeUpdateMutation';
 import { useServerUpdateShapes } from '../hooks/useServerUpdateShapes';
 import { useClearCanvasState } from '../hooks/useClearCanvasState';
+import { useTheme } from 'next-themes';
 
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
@@ -129,7 +130,7 @@ const CanvasDisplay = ({ selectedControlBarAction }: Props) => {
   const handleKeyDown = useCanvasKeyDown();
 
   const handleFullyConnect = useFullyConnect();
-
+  const themeInfo = useTheme();
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
@@ -148,6 +149,7 @@ const CanvasDisplay = ({ selectedControlBarAction }: Props) => {
           p1: selectedGeometryInfo?.maxPoints.closestToOrigin,
           p2: selectedGeometryInfo?.maxPoints.furthestFromOrigin,
         },
+        theme: themeInfo.theme ?? 'dark',
       });
     }
     // first written, first rendered
@@ -159,6 +161,7 @@ const CanvasDisplay = ({ selectedControlBarAction }: Props) => {
       selectedCircleID,
       selectedIds: selectedGeometryInfo?.selectedIds,
       dfsVisitedNodes: visualizationNodes ?? [],
+      theme: themeInfo.theme ?? 'dark',
     });
 
     if (selectBox) {
@@ -166,6 +169,7 @@ const CanvasDisplay = ({ selectedControlBarAction }: Props) => {
         ctx,
         box: selectBox,
         fill: true,
+        theme: themeInfo.theme ?? 'dark',
       });
     }
 
@@ -184,6 +188,7 @@ const CanvasDisplay = ({ selectedControlBarAction }: Props) => {
     Draw.drawNodeReceivers({
       ctx,
       nodes: circles,
+      theme: themeInfo.theme ?? 'dark',
     });
 
     if (pencilCoordinates) {
@@ -202,6 +207,7 @@ const CanvasDisplay = ({ selectedControlBarAction }: Props) => {
     selectedGeometryInfo?.maxPoints,
     pencilCoordinates,
     visualizationNodes,
+    themeInfo.theme,
   ]);
 
   return (

@@ -6,7 +6,7 @@ import { fontSans } from '@/lib/fonts';
 import { SignInButton } from '@/components/Auth/AuthButtons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Navbar } from '@/components/Navbar';
+
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { ModeToggle } from '@/components/ui/mode-toggle';
 // import {
@@ -27,6 +27,7 @@ import { QueryProvider } from './QueryProvider';
 import { Provider } from 'react-redux';
 import { store } from '@/redux/store';
 import ReduxProvider from './ReduxProvider';
+import PlaygroundsButton from './PlaygroundsButton';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -64,19 +65,15 @@ export default function RootLayout({
                         Home
                       </Button>
                     </Link>
-                    <Link href="/create">
-                      <Button className="mx-2" variant="outline">
-                        Playgrounds
-                      </Button>
-                    </Link>
+                    <PlaygroundsButton />
                   </div>
 
                   <div className="w-2/6  " />
 
                   <div className="w-2/5 flex justify-end items-center">
-                    <div className="mx-2 min-w-fit">
-                      <ShareableLink />
-                    </div>
+                    {/* <div className="mx-2 min-w-fit"> */}
+                    <ShareableLink />
+                    {/* </div> */}
                     <div className="mx-2">
                       <ModeToggle />
                     </div>

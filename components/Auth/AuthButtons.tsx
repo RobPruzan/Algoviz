@@ -19,7 +19,11 @@ export const SignInButton = () => {
   const session = useSession();
 
   if (session.status === 'loading') {
-    return <>...</>;
+    return (
+      <Button className="w-20" variant="outline">
+        ...
+      </Button>
+    );
   }
 
   if (session.status === 'authenticated') {

@@ -109,9 +109,6 @@ const getCases = async ({
   }
 
   return { type: 'DENIED', data: null };
-  // }
-
-  // if (session) {
 };
 
 type Props = {
@@ -123,7 +120,6 @@ type Props = {
 const page = async ({ searchParams }: Props) => {
   const shareID = searchParams?.['share-id'];
   const playgroundID = searchParams?.['playground-id'];
-  console.log('wadu', shareID, playgroundID);
   const body = shareID
     ? playgroundID
       ? { shareID, playgroundID: +playgroundID }
@@ -131,39 +127,7 @@ const page = async ({ searchParams }: Props) => {
     : playgroundID
     ? { playgroundID: +playgroundID }
     : {};
-
-  console.log('da body', body);
   const pattern = await getCases(body);
-  console.log('final pattern', pattern);
-
-  // const authCaseRes = await fetch(
-  //   `${process.env.NEXT_PUBLIC_API_ROUTE}/playground/link/validate`,
-  //   {
-  //     method: 'POST',
-  //     body: JSON.stringify(body),
-  //     headers: {
-  //       'content-type': 'application/json',
-  //     },
-  //   }
-  // );
-  // console.log('ffoidsjfoidsf', authCaseRes);
-
-  // const authCaseJSON = await authCaseRes.json();
-  // const authCaseJSONSchema = z
-  //   .object({
-  //     msg: z.string(),
-  //     status: z.string(),
-  //     playground: z.object({
-  //       circles: z.array(z.any()),
-  //       lines: z.array(z.any()),
-  //       pencil: z.array(z.any()),
-  //     }),
-  //   })
-  //   .nullable();
-
-  // const parsedAuthCaseJSON = authCaseJSONSchema.parse(authCaseJSON);
-
-  // console.log('the shapes', parsedAuthCaseJSON);
   return (
     <div className="h-screen w-screen flex items-display ">
       <div className="h-[95%] w-full  ">

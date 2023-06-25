@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { siteConfig } from '@/config/site';
 import Link from 'next/link';
 import { NavigationMenu } from '@radix-ui/react-navigation-menu';
-import { Navbar } from '@/components/Navbar';
+
 import AuthProvider from './AuthProvider';
 import { SignInButton } from '@/components/Auth/AuthButtons';
 import { z } from 'zod';

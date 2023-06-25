@@ -183,15 +183,22 @@ const CanvasControlBar = ({
       >
         {/* <RectangleHorizontal /> */}
         <svg
-          width="29"
-          height="8"
-          viewBox="0 0 29 8"
+          width="53"
+          height="13"
+          viewBox="0 0 53 13"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <circle cx="3.75" cy="3.75" r="3.75" fill="white" />
-          <circle cx="24.75" cy="3.75" r="3.75" fill="white" />
-          <rect x="7" y="3" width="15" height="1" fill="white" />
+          <circle cx="6.25" cy="6.25" r="5.75" fill="white" stroke="black" />
+          <circle cx="46.25" cy="6.25" r="5.75" fill="white" stroke="black" />
+          <rect
+            x="12.5"
+            y="5.5"
+            width="28"
+            height="2"
+            fill="white"
+            stroke="black"
+          />
         </svg>
       </Button>
       <Button onClick={handleAddCircle} variant={'outline'} className="px-2">
