@@ -42,6 +42,8 @@ import { useCanvasKeyDown } from '../hooks/useCanvasKeyDown';
 import { useFullyConnect } from '../hooks/useFullyConnect';
 import useDebounce from '@/hooks/useDebounce';
 import { useShapeUpdateMutation } from '../hooks/useShapeUpdateMutation';
+import { useServerUpdateShapes } from '../hooks/useServerUpdateShapes';
+import { useClearCanvasState } from '../hooks/useClearCanvasState';
 
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
@@ -75,38 +77,9 @@ const CanvasDisplay = ({ selectedControlBarAction }: Props) => {
 
   const visualizationNodes = visualization.at(visualizationPointer);
 
-  // useEffect(() => {}, []);
-  // const [text, setText] = useState('');
-  const debouncedCircles = useDebounce(circles, 500);
-  const debouncedLines = useDebounce(attachableLines, 500);
-  const shapeUpdateMutation = useShapeUpdateMutation();
-  useEffect(
-    () => () => {
-      dispatch(CanvasActions.resetCircles());
-    },
-    []
-  );
-  useEffect(
-    () => () => {
-      dispatch(CanvasActions.resetLines());
-    },
-    []
-  );
+  useClearCanvasState();
 
-  useEffect(() => {
-    console.log('mutating circles');
-    shapeUpdateMutation.mutate({
-      circles: debouncedCircles,
-      zoomAmount: creationZoomFactor,
-    });
-  }, [debouncedCircles]);
-  useEffect(() => {
-    console.log('mutating lines');
-    shapeUpdateMutation.mutate({
-      lines: debouncedLines,
-      zoomAmount: creationZoomFactor,
-    });
-  }, [debouncedLines]);
+  useServerUpdateShapes();
 
   const handleMouseDown = useCanvasMouseDown({
     canvasRef,

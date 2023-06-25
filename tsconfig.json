@@ -28,7 +28,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "server/app.js"
+    "server/app.js",
+    "app/api/playground/link/validate"
   ],
   "exclude": ["node_modules"]
 }

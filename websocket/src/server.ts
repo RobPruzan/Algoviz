@@ -22,7 +22,7 @@ io.on('connection', (socket) => {
   console.log('a user connected');
 
   // join room event
-  socket.on('join room', (room) => {
+  socket.on('join playground', (room) => {
     console.log('User joined room ' + room);
     socket.join(room);
   });

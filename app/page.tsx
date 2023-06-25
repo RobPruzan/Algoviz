@@ -24,6 +24,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_CODE_EXEC_URL: z.string(),
   NEXT_PUBLIC_API_ROUTE: z.string(),
   SERVERLESS_EXEC_ROUTE: z.string().optional(),
+  SOCKET_SERVER_URL: z.string(),
 });
 declare global {
   namespace NodeJS {

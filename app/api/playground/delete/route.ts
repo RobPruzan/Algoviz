@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   console.log('got req', request);
   const session = await getServerSession(authOptions);
+  console.log('the user session in delete', session);
   if (!session?.user) {
     return NextResponse.json({
       msg: 'Must be signed in',
@@ -15,8 +16,6 @@ export async function POST(request: NextRequest) {
     });
   }
   // should turn this into middle ware
-
-  console.log('cock');
 
   const jsonSchema = z.object({
     id: z.number(),
