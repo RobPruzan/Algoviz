@@ -45,8 +45,8 @@ io.on('connect', (socket) => {
       new Date().getTime()
     );
 
-    data.meta.fromServer = false;
-    socket.broadcast.to(data.meta.playgroundID).emit('action', data);
+    data.meta.fromServer = true;
+    io.to(data.meta.playgroundID).emit('action', data);
   });
 
   socket.on('disconnect', () => {

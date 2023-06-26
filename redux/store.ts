@@ -43,11 +43,15 @@ export const socketMiddleware =
             // console.log(
             //   `current user is: ${action.meta?.userID}, the sender is ${socketAction.meta.userID}`
             // );
-            console.log('getting action ');
+            console.log(
+              'getting action and sending this specific action',
+              socketAction
+            );
             if (socketAction.meta.userID !== action.meta.userID) {
               // console.log(
               //   `dispatching, the current user is: ${action.meta.userID}, the sender is ${socketAction.meta.userID}`
               // );
+              // note, performance is pretty good with circles, but awful with boxes, investigate
               dispatch(socketAction);
             }
           });
@@ -61,7 +65,7 @@ export const socketMiddleware =
           action.meta &&
           !action.meta.fromServer
         ) {
-          console.log('sending action');
+          // console.log('sending action');
           socket.sendSocketAction(action);
         }
     }
