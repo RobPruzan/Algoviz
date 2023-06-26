@@ -4,7 +4,7 @@ import {
   PencilCoordinates,
   SelectedAttachableLine,
 } from '@/lib/types';
-import { CanvasActions } from '@/redux/slices/canvasSlice';
+import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import {
   MutableRefObject,
@@ -18,10 +18,11 @@ import * as Draw from '@/lib/Canvas/drawUtils';
 type UseCanvasWheel = {
   setPencilCoordinates: React.Dispatch<React.SetStateAction<PencilCoordinates>>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
+  meta: Meta;
 };
 export const useCanvasWheel = ({
   setPencilCoordinates,
-
+  meta,
   canvasRef,
 }: UseCanvasWheel) => {
   const offsetX = useRef(0);
@@ -74,7 +75,8 @@ export const useCanvasWheel = ({
                 center,
                 zoomAmount
               )[1],
-            }))
+            })),
+            meta
           )
         );
         dispatch(

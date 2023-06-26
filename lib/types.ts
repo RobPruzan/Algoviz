@@ -1,3 +1,4 @@
+import { Meta } from '@/redux/slices/canvasSlice';
 import { Playground } from '@prisma/client';
 import { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { io } from 'socket.io-client';
@@ -182,4 +183,4 @@ export type IO = ReturnType<typeof io>;
 export type UntypedData =
   | { roomID: string; type: 'circleReciever'; state: any; senderID: string }
   | { roomID: string; type: 'edge'; state: any; senderID: string };
-export type SocketAction = { type: string; payload: any };
+export type SocketAction = { type: string; payload: any; meta: Meta };

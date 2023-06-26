@@ -37,7 +37,11 @@ const initialState: CanvasState = {
 // enableMapSet();
 // }
 
-export type Meta = { userID: string; playgroundID: string };
+export type Meta = {
+  userID: string;
+  playgroundID: string | null;
+  fromServer?: boolean;
+};
 // export type Meta = {
 //   userID: string
 //   playgroundID: string
@@ -58,30 +62,19 @@ const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
-    // i should break this up this is no good
     setLines: withMeta<Edge[]>((state, action) => {
       action.meta?.playgroundID;
       state.attachableLines = action.payload;
     }),
-    // setLines: {
-    //   reducer: (state, action: PayloadAction<Edge[], string, Meta>) => {
-    //     state.attachableLines = action.payload;
-    //   },
-    //   prepare: (lines: Edge[], userID: string, playgroundID: string) => {
-    //     return { payload: lines, meta: { userID, playgroundID } };
-    //   },
-    // },
     resetLines: withMeta<undefined>((state) => {
       state.attachableLines = [];
     }),
     resetCircles: withMeta<undefined>((state) => {
       state.circles = [];
     }),
-    updateCreationZoomFactor: withMeta<number>(
-      (state, action: PayloadAction<number>) => {
-        state.creationZoomFactor *= action.payload;
-      }
-    ),
+    updateCreationZoomFactor: (state, action: PayloadAction<number>) => {
+      state.creationZoomFactor *= action.payload;
+    },
     deleteCircle: withMeta<string>((state, action: PayloadAction<string>) => {
       state.circles = state.circles.filter(
         (circle) => circle.id !== action.payload
@@ -276,46 +269,41 @@ const canvasSlice = createSlice({
         state.selectedGeometryInfo = action.payload;
       }
     ),
-    zoomMaxPoints: withMeta<{ center: [number, number]; zoomAmount: number }>(
-      (
-        state,
-        action: PayloadAction<{ center: [number, number]; zoomAmount: number }>
-      ) => {
-        if (state.selectedGeometryInfo) {
-          state.selectedGeometryInfo.maxPoints.closestToOrigin = Draw.zoomLine(
-            state.selectedGeometryInfo.maxPoints.closestToOrigin,
-            action.payload.center,
-            action.payload.zoomAmount
-          );
+    zoomMaxPoints: (
+      state,
+      action: PayloadAction<{ center: [number, number]; zoomAmount: number }>
+    ) => {
+      if (state.selectedGeometryInfo) {
+        state.selectedGeometryInfo.maxPoints.closestToOrigin = Draw.zoomLine(
+          state.selectedGeometryInfo.maxPoints.closestToOrigin,
+          action.payload.center,
+          action.payload.zoomAmount
+        );
 
-          state.selectedGeometryInfo.maxPoints.furthestFromOrigin =
-            Draw.zoomLine(
-              state.selectedGeometryInfo.maxPoints.furthestFromOrigin,
-              action.payload.center,
-              action.payload.zoomAmount
-            );
-        }
+        state.selectedGeometryInfo.maxPoints.furthestFromOrigin = Draw.zoomLine(
+          state.selectedGeometryInfo.maxPoints.furthestFromOrigin,
+          action.payload.center,
+          action.payload.zoomAmount
+        );
       }
-    ),
-    panMaxPoints: withMeta<{ pan: [number, number] }>(
-      (state, action: PayloadAction<{ pan: [number, number] }>) => {
-        if (state.selectedGeometryInfo) {
-          state.selectedGeometryInfo.maxPoints.closestToOrigin = [
-            state.selectedGeometryInfo.maxPoints.closestToOrigin[0] -
-              action.payload.pan[0],
-            state.selectedGeometryInfo.maxPoints.closestToOrigin[1] -
-              action.payload.pan[1],
-          ];
+    },
+    panMaxPoints: (state, action: PayloadAction<{ pan: [number, number] }>) => {
+      if (state.selectedGeometryInfo) {
+        state.selectedGeometryInfo.maxPoints.closestToOrigin = [
+          state.selectedGeometryInfo.maxPoints.closestToOrigin[0] -
+            action.payload.pan[0],
+          state.selectedGeometryInfo.maxPoints.closestToOrigin[1] -
+            action.payload.pan[1],
+        ];
 
-          state.selectedGeometryInfo.maxPoints.furthestFromOrigin = [
-            state.selectedGeometryInfo.maxPoints.furthestFromOrigin[0] -
-              action.payload.pan[0],
-            state.selectedGeometryInfo.maxPoints.furthestFromOrigin[1] -
-              action.payload.pan[1],
-          ];
-        }
+        state.selectedGeometryInfo.maxPoints.furthestFromOrigin = [
+          state.selectedGeometryInfo.maxPoints.furthestFromOrigin[0] -
+            action.payload.pan[0],
+          state.selectedGeometryInfo.maxPoints.furthestFromOrigin[1] -
+            action.payload.pan[1],
+        ];
       }
-    ),
+    },
     mapSelectedIds: withMeta<(id: string) => string>(
       (state, action: PayloadAction<(id: string) => string>) => {
         const cb = action.payload;

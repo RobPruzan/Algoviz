@@ -38,14 +38,17 @@ import ky from 'ky';
 import { useShapeUpdateMutation } from '../hooks/useShapeUpdateMutation';
 import * as Utils from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 type Props = {
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
   socketRef: ReturnType<typeof useRef<IO>>;
+  notSignedInUserId: string;
 };
 
 const CanvasControlBar = ({
   setSelectedControlBarAction,
   socketRef,
+  notSignedInUserId,
 }: Props) => {
   const dispatch = useAppDispatch();
   const {
@@ -64,6 +67,12 @@ const CanvasControlBar = ({
   const shapeUpdateMutation = useShapeUpdateMutation();
   const searchParams = useSearchParams();
   const playgroundID = searchParams.get('playground-id');
+  const session = useSession();
+
+  const meta = {
+    userID: session.data?.user.id ?? notSignedInUserId,
+    playgroundID,
+  };
   // fix all these hard coded numbers and random spawn points
   // move random spawn points to slight distribution around middle of canvas
   // or when I have time do so you select then click on the screen
@@ -111,7 +120,7 @@ const CanvasControlBar = ({
         socketRef
       );
     }
-    dispatch(CanvasActions.addLine(newLine));
+    dispatch(CanvasActions.addLine(newLine, meta));
   };
 
   // const handleAddDirectedEdge = () => {
@@ -193,7 +202,7 @@ const CanvasControlBar = ({
       );
     }
 
-    dispatch(CanvasActions.addCircle(newCircle));
+    dispatch(CanvasActions.addCircle(newCircle, meta));
   };
   return (
     <div className="w-full items-center prevent-select overflow-x-scroll overflow-y-hidden  h-14 flex justify-evenly ">

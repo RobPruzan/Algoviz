@@ -19,7 +19,7 @@ import {
   SelectedGeometryInfo,
 } from '@/lib/types';
 import { match } from 'ts-pattern';
-import { CanvasActions } from '@/redux/slices/canvasSlice';
+import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
 import * as Utils from '@/lib/utils';
 import { useSession } from 'next-auth/react';
 type UseCanvasMouseMoveProps = {
@@ -27,12 +27,13 @@ type UseCanvasMouseMoveProps = {
   selectBox: SelectBox | null;
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
   selectedControlBarAction: 'pencil' | null;
-  playgroundID: string | null;
+  // playgroundID: string | null;
   setPencilCoordinates: React.Dispatch<React.SetStateAction<PencilCoordinates>>;
   selectedCircleID: string | null;
   selectedAttachableLine: SelectedAttachableLine | null;
   socketRef: ReturnType<typeof useRef<IO>>;
-  notSignedInUserId: string;
+  meta: Meta;
+  // notSignedInUserId: string;
 };
 
 export const useCanvasMouseMove = ({
@@ -43,15 +44,13 @@ export const useCanvasMouseMove = ({
   setSelectBox,
   selectedCircleID,
   selectedAttachableLine,
-  playgroundID,
+
   socketRef,
-  notSignedInUserId,
+  meta,
 }: UseCanvasMouseMoveProps) => {
   const { attachableLines, circles, selectedGeometryInfo } = useAppSelector(
     (store) => store.canvas
   );
-
-  const senderID = useSession().data?.user.id ?? notSignedInUserId;
 
   const previousMousePositionRef = useRef<[number, number]>();
   const isSelectBoxSet =
@@ -95,13 +94,16 @@ export const useCanvasMouseMove = ({
         // this should be a case obviously just doing this for quick measures
         if (isSelectBoxSet && isMouseDownRef.current) {
           dispatch(
-            CanvasActions.shiftCircles({
-              selectedGeometryInfo,
-              shift,
-            })
+            CanvasActions.shiftCircles(
+              {
+                selectedGeometryInfo,
+                shift,
+              },
+              meta
+            )
           );
-          dispatch(CanvasActions.shiftLines({ shift }));
-          dispatch(CanvasActions.shiftSelectBox({ shift }));
+          dispatch(CanvasActions.shiftLines({ shift }, meta));
+          dispatch(CanvasActions.shiftSelectBox({ shift }, meta));
           previousMousePositionRef.current = [mousePositionX, mousePositionY];
           return;
         }
@@ -145,7 +147,9 @@ export const useCanvasMouseMove = ({
                 nodeRecieverType: 'one',
               });
 
-              dispatch(CanvasActions.replaceAttachableLine(newAttachedLine));
+              dispatch(
+                CanvasActions.replaceAttachableLine(newAttachedLine, meta)
+              );
             }
             if (nodeTwoConnectedLine) {
               const newAttachedLine = Canvas.builtUpdatedAttachedLine({
@@ -153,22 +157,24 @@ export const useCanvasMouseMove = ({
                 currentLine: nodeTwoConnectedLine,
                 nodeRecieverType: 'two',
               });
-              dispatch(CanvasActions.replaceAttachableLine(newAttachedLine));
-            }
-
-            dispatch(CanvasActions.replaceCircle(newCircle));
-            // sendUpdate()
-            if (playgroundID) {
-              Utils.sendUpdate(
-                {
-                  roomID: playgroundID,
-                  type: 'circleReciever',
-                  state: newCircle,
-                  senderID,
-                },
-                socketRef
+              dispatch(
+                CanvasActions.replaceAttachableLine(newAttachedLine, meta)
               );
             }
+
+            dispatch(CanvasActions.replaceCircle(newCircle, meta));
+            // sendUpdate()
+            // if (playgroundID) {
+            //   Utils.sendUpdate(
+            //     {
+            //       roomID: playgroundID,
+            //       type: 'circleReciever',
+            //       state: newCircle,
+            //       senderID,
+            //     },
+            //     socketRef
+            //   );
+            // }
 
             break;
           case 'line':
@@ -209,19 +215,19 @@ export const useCanvasMouseMove = ({
               };
             });
 
-            dispatch(CanvasActions.setCircles(filteredCircles));
-            dispatch(CanvasActions.replaceAttachableLine(newRect));
-            if (playgroundID) {
-              Utils.sendUpdate(
-                {
-                  roomID: playgroundID,
-                  type: 'edge',
-                  state: newRect,
-                  senderID,
-                },
-                socketRef
-              );
-            }
+            dispatch(CanvasActions.setCircles(filteredCircles, meta));
+            dispatch(CanvasActions.replaceAttachableLine(newRect, meta));
+            // if (playgroundID) {
+            //   Utils.sendUpdate(
+            //     {
+            //       roomID: playgroundID,
+            //       type: 'edge',
+            //       state: newRect,
+            //       senderID,
+            //     },
+            //     socketRef
+            //   );
+            // }
             break;
           case 'node1':
             const activeRectContainingNodeOne = attachableLines.find(
@@ -269,27 +275,33 @@ export const useCanvasMouseMove = ({
 
               nodeRecieverContainerOne &&
                 dispatch(
-                  CanvasActions.replaceCircle({
-                    ...nodeRecieverContainerOne,
-                    nodeReceiver: newIntersectingCircleOne,
-                  })
+                  CanvasActions.replaceCircle(
+                    {
+                      ...nodeRecieverContainerOne,
+                      nodeReceiver: newIntersectingCircleOne,
+                    },
+                    meta
+                  )
                 );
             }
 
             dispatch(
-              CanvasActions.replaceAttachableLine(newRectContainingNodeOne)
+              CanvasActions.replaceAttachableLine(
+                newRectContainingNodeOne,
+                meta
+              )
             );
-            if (playgroundID) {
-              Utils.sendUpdate(
-                {
-                  roomID: playgroundID,
-                  type: 'edge',
-                  state: newRectContainingNodeOne,
-                  senderID,
-                },
-                socketRef
-              );
-            }
+            // if (playgroundID) {
+            //   Utils.sendUpdate(
+            //     {
+            //       roomID: playgroundID,
+            //       type: 'edge',
+            //       state: newRectContainingNodeOne,
+            //       senderID,
+            //     },
+            //     socketRef
+            //   );
+            // }
             break;
           case 'node2':
             const activeRectContainingNodeTwo = attachableLines.find(
@@ -336,26 +348,32 @@ export const useCanvasMouseMove = ({
 
               nodeConnectorContainerTwo &&
                 dispatch(
-                  CanvasActions.replaceCircle({
-                    ...nodeConnectorContainerTwo,
-                    nodeReceiver: newIntersectingCircleTwo,
-                  })
+                  CanvasActions.replaceCircle(
+                    {
+                      ...nodeConnectorContainerTwo,
+                      nodeReceiver: newIntersectingCircleTwo,
+                    },
+                    meta
+                  )
                 );
             }
             dispatch(
-              CanvasActions.replaceAttachableLine(newRectContainingNodeTwo)
+              CanvasActions.replaceAttachableLine(
+                newRectContainingNodeTwo,
+                meta
+              )
             );
-            if (playgroundID) {
-              Utils.sendUpdate(
-                {
-                  roomID: playgroundID,
-                  type: 'edge',
-                  state: newRectContainingNodeTwo,
-                  senderID,
-                },
-                socketRef
-              );
-            }
+            // if (playgroundID) {
+            //   Utils.sendUpdate(
+            //     {
+            //       roomID: playgroundID,
+            //       type: 'edge',
+            //       state: newRectContainingNodeTwo,
+            //       senderID,
+            //     },
+            //     socketRef
+            //   );
+            // }
             break;
           default:
             if (selectBox) {
@@ -373,7 +391,10 @@ export const useCanvasMouseMove = ({
                 });
 
                 dispatch(
-                  CanvasActions.setSelectedGeometryInfo(selectedGeometryInfo)
+                  CanvasActions.setSelectedGeometryInfo(
+                    selectedGeometryInfo,
+                    meta
+                  )
                 );
                 return prev?.p1 ? { ...prev, p2: adjustableCord } : null;
               });

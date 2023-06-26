@@ -3,7 +3,7 @@
 import { io } from 'socket.io-client';
 import { CircleReceiver, Edge, IO, SocketAction, UntypedData } from '../types';
 import { useAppDispatch } from '@/redux/store';
-import { CanvasActions } from '@/redux/slices/canvasSlice';
+import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
 type SecondParam<T> = T extends (arg1: any, arg2: infer P) => any ? P : T;
 type OnCB = SecondParam<ReturnType<typeof io>['on']>;
 
@@ -27,7 +27,7 @@ export class SocketIO {
     this.socket?.emit('update', state);
   }
 
-  sendSocketAction(action: SocketAction) {
+  sendSocketAction(action: SocketAction & { meta: Meta | undefined }) {
     this.socket?.emit('action', action);
   }
 
@@ -48,8 +48,8 @@ export class SocketIO {
     });
   }
 
-  updateListener(cb: OnCB) {
-    this.socket?.on('update', cb);
+  actionListener(cb: OnCB) {
+    this.socket?.on('action', cb);
   }
   disconnect() {
     this.socket?.disconnect();
@@ -60,7 +60,7 @@ export class SocketIO {
       switch (data.type) {
         case 'circleReciever':
           if (data.senderID !== userID) {
-            // console.log('dispatching update');
+            console.log('dispatching update');
             dispatch(CanvasActions.replaceCircle(data.state));
           }
         case 'edge':

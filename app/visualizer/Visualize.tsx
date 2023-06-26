@@ -55,6 +55,7 @@ const Visualize = ({ canvasWidth }: Props) => {
     // temporary until select is implemented
     startingNode: [...adjacencyList.keys()].at(0) ?? '',
   });
+  const notSignedInUserIdRef = useRef(crypto.randomUUID());
 
   return (
     <div className={`flex w-full flex-col h-full items-center justify-start `}>
@@ -63,6 +64,7 @@ const Visualize = ({ canvasWidth }: Props) => {
           <SortControlBar algorithm={sideBarState.algorithm} />
         ) : (
           <CanvasControlBar
+            notSignedInUserId={notSignedInUserIdRef.current}
             setSelectedControlBarAction={setSelectedControlBarAction}
             socketRef={socketRef}
           />
@@ -76,6 +78,7 @@ const Visualize = ({ canvasWidth }: Props) => {
           <SortDisplay algorithm={sideBarState.algorithm} />
         ) : (
           <CanvasDisplay
+            notSignedInUserId={notSignedInUserIdRef.current}
             socketRef={socketRef}
             // canvasWidth={canvasWidth}
             selectedControlBarAction={selectedControlBarAction}

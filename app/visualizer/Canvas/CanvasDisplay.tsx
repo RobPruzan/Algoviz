@@ -15,7 +15,7 @@ import React, { useRef, useState, useEffect, useContext } from 'react';
 import * as Draw from '@/lib/Canvas/drawUtils';
 
 import { useAppDispatch, useAppSelector } from '@/redux/store';
-import { CanvasActions } from '@/redux/slices/canvasSlice';
+import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -52,13 +52,18 @@ import { useTheme } from 'next-themes';
 import { io } from 'socket.io-client';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-
+import { SocketAction } from '@/lib/types';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
   socketRef: ReturnType<typeof useRef<IO>>;
+  notSignedInUserId: string;
 };
 
-const CanvasDisplay = ({ selectedControlBarAction, socketRef }: Props) => {
+const CanvasDisplay = ({
+  selectedControlBarAction,
+  socketRef,
+  notSignedInUserId,
+}: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
@@ -87,56 +92,65 @@ const CanvasDisplay = ({ selectedControlBarAction, socketRef }: Props) => {
   const visualizationNodes = visualization.at(visualizationPointer);
   const searchParams = useSearchParams();
   const session = useSession();
-  const notSignedInUserIdRef = useRef(crypto.randomUUID());
   const playgroundID = searchParams.get('playground-id');
+  const userID = session.data?.user.id ?? notSignedInUserId;
+
+  const meta: Meta = { playgroundID, userID };
 
   useEffect(() => {
-    const joinPlayground = () => {
-      if (!playgroundID) {
-        return;
-      }
-      socketRef.current?.emit('join playground', playgroundID);
-    };
-    // why cant i use the env var here????????? its the same thing
-    socketRef.current = io('http://localhost:8080');
-
-    socketRef.current.on('connect', () => {
-      console.log('connected to playground', playgroundID);
-      joinPlayground();
+    // connects to playground socket room
+    dispatch({
+      type: 'socket/connect',
+      meta,
     });
-    socketRef.current.on('update', (data: UntypedData) => {
-      switch (data.type) {
-        case 'circleReciever':
-          if (
-            data.senderID !== session.data?.user.id &&
-            data.senderID !== notSignedInUserIdRef.current
-          ) {
-            // console.log('dispatching update');
-            dispatch(CanvasActions.replaceCircle(data.state));
-          }
-        case 'edge':
-          dispatch(CanvasActions.replaceAttachableLine(data.state));
-      }
-      // dispatch
-    });
+  }, []);
+  // useEffect(() => {
+  //   const joinPlayground = () => {
+  //     if (!playgroundID) {
+  //       return;
+  //     }
+  //     socketRef.current?.emit('join playground', playgroundID);
+  //   };
+  //   // why cant i use the env var here????????? its the same thing
+  //   socketRef.current = io('http://localhost:8080');
 
-    socketRef.current.on('create', (data: UntypedData) => {
-      switch (data.type) {
-        case 'circleReciever':
-          if (
-            data.senderID !== session.data?.user.id &&
-            data.senderID !== notSignedInUserIdRef.current
-          ) {
-            console.log();
-            dispatch(CanvasActions.addCircle(data.state));
-          }
+  //   socketRef.current.on('connect', () => {
+  //     console.log('connected to playground', playgroundID);
+  //     joinPlayground();
+  //   });
+  //   socketRef.current.on('update', (data: UntypedData) => {
+  //     switch (data.type) {
+  //       case 'circleReciever':
+  //         if (
+  //           data.senderID !== session.data?.user.id &&
+  //           data.senderID !== notSignedInUserIdRef.current
+  //         ) {
+  //           // console.log('dispatching update');
+  //           dispatch(CanvasActions.replaceCircle(data.state));
+  //         }
+  //       case 'edge':
+  //         dispatch(CanvasActions.replaceAttachableLine(data.state));
+  //     }
+  //     // dispatch
+  //   });
 
-        case 'edge':
-          console.log('edge create data', data);
-        // dispatch(CanvasActions.addLine(data.state));
-      }
-    });
-  }, [playgroundID]);
+  //   socketRef.current.on('create', (data: UntypedData) => {
+  //     switch (data.type) {
+  //       case 'circleReciever':
+  //         if (
+  //           data.senderID !== session.data?.user.id &&
+  //           data.senderID !== notSignedInUserIdRef.current
+  //         ) {
+  //           console.log();
+  //           dispatch(CanvasActions.addCircle(data.state));
+  //         }
+
+  //       case 'edge':
+  //         console.log('edge create data', data);
+  //       // dispatch(CanvasActions.addLine(data.state));
+  //     }
+  //   });
+  // }, [playgroundID]);
 
   // useEffect(() => {
   //   if (playgroundID) {
@@ -153,7 +167,7 @@ const CanvasDisplay = ({ selectedControlBarAction, socketRef }: Props) => {
   //   }
   // }, [attachableLines]);
 
-  useClearCanvasState();
+  useClearCanvasState(meta);
 
   useServerUpdateShapes();
 
@@ -182,8 +196,7 @@ const CanvasDisplay = ({ selectedControlBarAction, socketRef }: Props) => {
     setPencilCoordinates,
     setSelectBox,
     socketRef,
-    playgroundID,
-    notSignedInUserId: notSignedInUserIdRef.current,
+    meta,
   });
 
   const handleMouseUp = useHandleMouseUp({
@@ -201,6 +214,7 @@ const CanvasDisplay = ({ selectedControlBarAction, socketRef }: Props) => {
   useCanvasWheel({
     canvasRef,
     setPencilCoordinates,
+    meta,
   });
 
   useApplyAlgorithm();
@@ -317,7 +331,16 @@ const CanvasDisplay = ({ selectedControlBarAction, socketRef }: Props) => {
             <ContextMenuItem
               onClick={() => {
                 if (selectedCircleID) {
-                  dispatch(CanvasActions.deleteCircle(selectedCircleID));
+                  if (playgroundID) {
+                    dispatch(
+                      CanvasActions.deleteCircle(selectedCircleID, {
+                        playgroundID,
+                        userID,
+                      })
+                    );
+                  } else {
+                    dispatch(CanvasActions.deleteCircle(selectedCircleID));
+                  }
 
                   setSelectedCircleID(null);
                 }
