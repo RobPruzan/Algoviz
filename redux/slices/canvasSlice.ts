@@ -34,121 +34,150 @@ const initialState: CanvasState = {
   selectedGeometryInfo: null,
 };
 // if (typeof window != 'undefined') {
-enableMapSet();
+// enableMapSet();
 // }
+
+export type Meta = { userID: string; playgroundID: string };
+// export type Meta = {
+//   userID: string
+//   playgroundID: string
+// }
+function withMeta<P>(
+  reducer: (
+    state: CanvasState,
+    action: PayloadAction<P, string, Meta | undefined>
+  ) => void
+) {
+  return {
+    reducer,
+    prepare: (payload: P, meta?: Meta) => ({ payload, meta }),
+  };
+}
+
 const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
     // i should break this up this is no good
-    setLines: (state, action: PayloadAction<Edge[]>) => {
+    setLines: withMeta<Edge[]>((state, action) => {
+      action.meta?.playgroundID;
       state.attachableLines = action.payload;
-    },
-    resetLines: (state) => {
+    }),
+    // setLines: {
+    //   reducer: (state, action: PayloadAction<Edge[], string, Meta>) => {
+    //     state.attachableLines = action.payload;
+    //   },
+    //   prepare: (lines: Edge[], userID: string, playgroundID: string) => {
+    //     return { payload: lines, meta: { userID, playgroundID } };
+    //   },
+    // },
+    resetLines: withMeta<undefined>((state) => {
       state.attachableLines = [];
-    },
-    resetCircles: (state) => {
+    }),
+    resetCircles: withMeta<undefined>((state) => {
       state.circles = [];
-    },
-    updateCreationZoomFactor: (state, action: PayloadAction<number>) => {
-      state.creationZoomFactor *= action.payload;
-    },
-    deleteCircle: (state, action: PayloadAction<string>) => {
+    }),
+    updateCreationZoomFactor: withMeta<number>(
+      (state, action: PayloadAction<number>) => {
+        state.creationZoomFactor *= action.payload;
+      }
+    ),
+    deleteCircle: withMeta<string>((state, action: PayloadAction<string>) => {
       state.circles = state.circles.filter(
         (circle) => circle.id !== action.payload
       );
-    },
-    setCircles: (state, action: PayloadAction<CircleReceiver[]>) => {
-      state.circles = action.payload;
-    },
+    }),
+    setCircles: withMeta<CircleReceiver[]>(
+      (state, action: PayloadAction<CircleReceiver[]>) => {
+        state.circles = action.payload;
+      }
+    ),
 
-    replaceCircle: (state, action: PayloadAction<CircleReceiver>) => {
-      state.circles = Canvas.replaceCanvasElement({
-        oldArray: state.circles,
-        newElement: action.payload,
-      });
-    },
-    attachNodeToReciever: (
-      state,
-      action: PayloadAction<{ circleId: string; attachId: string }>
-    ) => {
-      state.circles
-        .find((circle) => circle.id === action.payload.circleId)
-        ?.nodeReceiver.attachedIds.push(action.payload.attachId);
-    },
-    replaceAttachableLine: (state, action: PayloadAction<Edge>) => {
+    replaceCircle: withMeta<CircleReceiver>(
+      (state, action: PayloadAction<CircleReceiver>) => {
+        state.circles = Canvas.replaceCanvasElement({
+          oldArray: state.circles,
+          newElement: action.payload,
+        });
+      }
+    ),
+    attachNodeToReciever: withMeta<{ circleId: string; attachId: string }>(
+      (
+        state,
+        action: PayloadAction<{ circleId: string; attachId: string }>
+      ) => {
+        state.circles
+          .find((circle) => circle.id === action.payload.circleId)
+          ?.nodeReceiver.attachedIds.push(action.payload.attachId);
+      }
+    ),
+    replaceAttachableLine: withMeta<Edge>((state, action) => {
       state.attachableLines = Canvas.replaceCanvasElement({
         oldArray: state.attachableLines,
         newElement: action.payload,
       });
-    },
-    addLine: (state, action: PayloadAction<Edge>) => {
+    }),
+    addLine: withMeta<Edge>((state, action: PayloadAction<Edge>) => {
       state.attachableLines = [...state.attachableLines, action.payload];
-    },
-    addCircle: (state, action: PayloadAction<CircleReceiver>) => {
-      state.circles = [...state.circles, action.payload];
-    },
-    updateInspectorVisibility: (state, action: PayloadAction<boolean>) => {
-      state.variableInspector.show = action.payload;
-    },
-    updateVariableInspectorQueue: (
-      state,
-      action: PayloadAction<ImmutableQueue<unknown>[]>
-    ) => {
-      if (state.variableInspector.show) {
-        state.variableInspector.queues = action.payload;
+    }),
+    addCircle: withMeta<CircleReceiver>(
+      (state, action: PayloadAction<CircleReceiver>) => {
+        state.circles = [...state.circles, action.payload];
       }
-    },
+    ),
 
-    deleteCircles: (state, action: PayloadAction<string[]>) => {
-      const idSet = new Set<string>(action.payload);
-      const filtered = state.circles.filter((circle) => !idSet.has(circle.id));
+    deleteCircles: withMeta<string[]>(
+      (state, action: PayloadAction<string[]>) => {
+        const idSet = new Set<string>(action.payload);
+        const filtered = state.circles.filter(
+          (circle) => !idSet.has(circle.id)
+        );
 
-      state.attachableLines.forEach((line) => {
-        if (
-          line.attachNodeOne.connectedToId &&
-          idSet.has(line.attachNodeOne.connectedToId)
-        ) {
-          line.attachNodeOne = {
-            ...line.attachNodeOne,
-            connectedToId: null,
-          };
-        }
+        state.attachableLines.forEach((line) => {
+          if (
+            line.attachNodeOne.connectedToId &&
+            idSet.has(line.attachNodeOne.connectedToId)
+          ) {
+            line.attachNodeOne = {
+              ...line.attachNodeOne,
+              connectedToId: null,
+            };
+          }
 
-        if (
-          line.attachNodeTwo.connectedToId &&
-          idSet.has(line.attachNodeTwo.connectedToId)
-        ) {
-          line.attachNodeTwo = {
-            ...line.attachNodeTwo,
-            connectedToId: null,
-          };
-        }
-      });
+          if (
+            line.attachNodeTwo.connectedToId &&
+            idSet.has(line.attachNodeTwo.connectedToId)
+          ) {
+            line.attachNodeTwo = {
+              ...line.attachNodeTwo,
+              connectedToId: null,
+            };
+          }
+        });
 
-      state.circles = filtered;
-    },
+        state.circles = filtered;
+      }
+    ),
 
-    deleteLines: (state, action: PayloadAction<string[]>) => {
-      const filtered = state.attachableLines.filter(
-        (line) => !action.payload.includes(line.id)
-      );
-      const idSet = new Set<string>(action.payload);
+    deleteLines: withMeta<string[]>(
+      (state, action: PayloadAction<string[]>) => {
+        const filtered = state.attachableLines.filter(
+          (line) => !action.payload.includes(line.id)
+        );
+        const idSet = new Set<string>(action.payload);
 
-      state.circles.forEach((circle) => {
-        circle.nodeReceiver.attachedIds =
-          circle.nodeReceiver.attachedIds.filter((id) => !idSet.has(id));
-      });
+        state.circles.forEach((circle) => {
+          circle.nodeReceiver.attachedIds =
+            circle.nodeReceiver.attachedIds.filter((id) => !idSet.has(id));
+        });
 
-      state.attachableLines = filtered;
-    },
-    shiftCircles: (
-      state,
-      action: PayloadAction<{
-        selectedGeometryInfo: SelectedGeometryInfo;
-        shift: [number, number];
-      }>
-    ) => {
+        state.attachableLines = filtered;
+      }
+    ),
+    shiftCircles: withMeta<{
+      selectedGeometryInfo: SelectedGeometryInfo;
+      shift: [number, number];
+    }>((state, action) => {
       const updatedCircles: CircleReceiver[] = state.circles.map((circle) => {
         const { selectedGeometryInfo, shift } = action.payload;
         const shiftedCircle = Canvas.shiftCircle({ circle, shift });
@@ -176,13 +205,13 @@ const canvasSlice = createSlice({
       });
 
       state.circles = updatedCircles;
-    },
+    }),
 
-    nullifySelectedGeometryInfo: (state) => {
+    nullifySelectedGeometryInfo: withMeta<undefined>((state) => {
       state.selectedGeometryInfo = null;
-    },
+    }),
 
-    shiftLines: (state, action: PayloadAction<{ shift: [number, number] }>) => {
+    shiftLines: withMeta<{ shift: [number, number] }>((state, action) => {
       const selectedGeometryInfo = state.selectedGeometryInfo;
       if (selectedGeometryInfo) {
         const updatedLines: Edge[] = state.attachableLines.map((line) => {
@@ -230,75 +259,82 @@ const canvasSlice = createSlice({
 
         state.attachableLines = updatedLines;
       }
-    },
+    }),
 
-    shiftSelectBox: (
-      state,
-      action: PayloadAction<{ shift: [number, number] }>
-    ) => {
-      if (state.selectedGeometryInfo) {
-        state.selectedGeometryInfo = Canvas.shiftSelectBox({
-          selectedGeometryInfo: state.selectedGeometryInfo,
-          shift: action.payload.shift,
-        });
+    shiftSelectBox: withMeta<{ shift: [number, number] }>(
+      (state, action: PayloadAction<{ shift: [number, number] }>) => {
+        if (state.selectedGeometryInfo) {
+          state.selectedGeometryInfo = Canvas.shiftSelectBox({
+            selectedGeometryInfo: state.selectedGeometryInfo,
+            shift: action.payload.shift,
+          });
+        }
       }
-    },
-    setSelectedGeometryInfo: (
-      state,
-      action: PayloadAction<CanvasState['selectedGeometryInfo']>
-    ) => {
-      state.selectedGeometryInfo = action.payload;
-    },
-    zoomMaxPoints: (
-      state,
-      action: PayloadAction<{ center: [number, number]; zoomAmount: number }>
-    ) => {
-      if (state.selectedGeometryInfo) {
-        state.selectedGeometryInfo.maxPoints.closestToOrigin = Draw.zoomLine(
-          state.selectedGeometryInfo.maxPoints.closestToOrigin,
-          action.payload.center,
-          action.payload.zoomAmount
-        );
+    ),
+    setSelectedGeometryInfo: withMeta<CanvasState['selectedGeometryInfo']>(
+      (state, action: PayloadAction<CanvasState['selectedGeometryInfo']>) => {
+        state.selectedGeometryInfo = action.payload;
+      }
+    ),
+    zoomMaxPoints: withMeta<{ center: [number, number]; zoomAmount: number }>(
+      (
+        state,
+        action: PayloadAction<{ center: [number, number]; zoomAmount: number }>
+      ) => {
+        if (state.selectedGeometryInfo) {
+          state.selectedGeometryInfo.maxPoints.closestToOrigin = Draw.zoomLine(
+            state.selectedGeometryInfo.maxPoints.closestToOrigin,
+            action.payload.center,
+            action.payload.zoomAmount
+          );
 
-        state.selectedGeometryInfo.maxPoints.furthestFromOrigin = Draw.zoomLine(
-          state.selectedGeometryInfo.maxPoints.furthestFromOrigin,
-          action.payload.center,
-          action.payload.zoomAmount
-        );
+          state.selectedGeometryInfo.maxPoints.furthestFromOrigin =
+            Draw.zoomLine(
+              state.selectedGeometryInfo.maxPoints.furthestFromOrigin,
+              action.payload.center,
+              action.payload.zoomAmount
+            );
+        }
       }
-    },
-    panMaxPoints: (state, action: PayloadAction<{ pan: [number, number] }>) => {
-      if (state.selectedGeometryInfo) {
-        state.selectedGeometryInfo.maxPoints.closestToOrigin = [
-          state.selectedGeometryInfo.maxPoints.closestToOrigin[0] -
-            action.payload.pan[0],
-          state.selectedGeometryInfo.maxPoints.closestToOrigin[1] -
-            action.payload.pan[1],
-        ];
+    ),
+    panMaxPoints: withMeta<{ pan: [number, number] }>(
+      (state, action: PayloadAction<{ pan: [number, number] }>) => {
+        if (state.selectedGeometryInfo) {
+          state.selectedGeometryInfo.maxPoints.closestToOrigin = [
+            state.selectedGeometryInfo.maxPoints.closestToOrigin[0] -
+              action.payload.pan[0],
+            state.selectedGeometryInfo.maxPoints.closestToOrigin[1] -
+              action.payload.pan[1],
+          ];
 
-        state.selectedGeometryInfo.maxPoints.furthestFromOrigin = [
-          state.selectedGeometryInfo.maxPoints.furthestFromOrigin[0] -
-            action.payload.pan[0],
-          state.selectedGeometryInfo.maxPoints.furthestFromOrigin[1] -
-            action.payload.pan[1],
-        ];
+          state.selectedGeometryInfo.maxPoints.furthestFromOrigin = [
+            state.selectedGeometryInfo.maxPoints.furthestFromOrigin[0] -
+              action.payload.pan[0],
+            state.selectedGeometryInfo.maxPoints.furthestFromOrigin[1] -
+              action.payload.pan[1],
+          ];
+        }
       }
-    },
-    mapSelectedIds: (state, action: PayloadAction<(id: string) => string>) => {
-      const cb = action.payload;
-      if (state.selectedGeometryInfo) {
-        state.selectedGeometryInfo.selectedIds =
-          state.selectedGeometryInfo.selectedIds.map(cb);
+    ),
+    mapSelectedIds: withMeta<(id: string) => string>(
+      (state, action: PayloadAction<(id: string) => string>) => {
+        const cb = action.payload;
+        if (state.selectedGeometryInfo) {
+          state.selectedGeometryInfo.selectedIds =
+            state.selectedGeometryInfo.selectedIds.map(cb);
+        }
       }
-    },
-    addSelectedIds: (state, action: PayloadAction<string[]>) => {
-      if (state.selectedGeometryInfo) {
-        state.selectedGeometryInfo.selectedIds = [
-          ...state.selectedGeometryInfo.selectedIds,
-          ...action.payload,
-        ];
+    ),
+    addSelectedIds: withMeta<string[]>(
+      (state, action: PayloadAction<string[]>) => {
+        if (state.selectedGeometryInfo) {
+          state.selectedGeometryInfo.selectedIds = [
+            ...state.selectedGeometryInfo.selectedIds,
+            ...action.payload,
+          ];
+        }
       }
-    },
+    ),
   },
 });
 

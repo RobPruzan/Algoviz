@@ -179,3 +179,7 @@ export type SerializedPlayground = Omit<Playground, 'createdAt'> & {
   createdAt: string;
 };
 export type IO = ReturnType<typeof io>;
+export type UntypedData =
+  | { roomID: string; type: 'circleReciever'; state: any; senderID: string }
+  | { roomID: string; type: 'edge'; state: any; senderID: string };
+export type SocketAction = { type: string; payload: any };

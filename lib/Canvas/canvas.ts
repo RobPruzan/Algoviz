@@ -18,14 +18,14 @@ import {
 import { RefObject, type MouseEvent } from 'react';
 export const replaceCanvasElement = <T extends { id: string }>({
   oldArray,
-  newElement: newCircle,
+  newElement,
 }: {
   oldArray: T[];
   newElement: T;
 }) => {
-  const newId = newCircle.id;
-  const newArray = oldArray.filter((circle) => circle.id !== newId);
-  newArray.push(newCircle);
+  const newId = newElement.id;
+  const newArray = oldArray.filter((elem) => elem.id !== newId);
+  newArray.push(newElement);
   return newArray;
 };
 

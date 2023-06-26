@@ -13,7 +13,7 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-
+export type SocketAction = { type: string; payload: any };
 type Data =
   | { roomID: string; type: 'circleReciever'; state: any; senderID: string }
   | { roomID: string; type: 'edge'; state: any; senderID: string };
@@ -33,12 +33,12 @@ io.on('connect', (socket) => {
     console.log('state update', data.roomID);
     io.to(data.roomID).emit('update', data);
   });
-  socket.on('create', (data: Data) => {
-    // event comes in (like an event handler) you emit the event to the entire room
-    // console.log('state create', data.state);
-    console.log('state create', data.roomID);
 
-    io.to(data.roomID).emit('create', data);
+  socket.on('action', (data: SocketAction) => {
+    // event comes in (like an event handler) you emit the event to the entire room
+    // console.log('state update', data.state);
+    console.log('state update', data.roomID);
+    io.to(data.roomID).emit('update', data);
   });
 
   socket.on('disconnect', () => {

@@ -8,6 +8,7 @@ import {
   CircleReceiver,
   Edge,
   IO,
+  UntypedData,
 } from '@/lib/types';
 import { isStringAlgorithm } from '../Sort/AlgoComboBox';
 import React, { useRef, useState, useEffect, useContext } from 'react';
@@ -89,10 +90,6 @@ const CanvasDisplay = ({ selectedControlBarAction, socketRef }: Props) => {
   const notSignedInUserIdRef = useRef(crypto.randomUUID());
   const playgroundID = searchParams.get('playground-id');
 
-  type UntypedData =
-    | { roomID: string; type: 'circleReciever'; state: any; senderID: string }
-    | { roomID: string; type: 'edge'; state: any; senderID: string };
-
   useEffect(() => {
     const joinPlayground = () => {
       if (!playgroundID) {
@@ -114,11 +111,11 @@ const CanvasDisplay = ({ selectedControlBarAction, socketRef }: Props) => {
             data.senderID !== session.data?.user.id &&
             data.senderID !== notSignedInUserIdRef.current
           ) {
-            console.log('dispatching update');
+            // console.log('dispatching update');
             dispatch(CanvasActions.replaceCircle(data.state));
           }
-        // case 'edge':
-        //   dispatch(CanvasActions.replaceAttachableLine(data.state));
+        case 'edge':
+          dispatch(CanvasActions.replaceAttachableLine(data.state));
       }
       // dispatch
     });
@@ -134,17 +131,11 @@ const CanvasDisplay = ({ selectedControlBarAction, socketRef }: Props) => {
             dispatch(CanvasActions.addCircle(data.state));
           }
 
-        // case 'edge':
-        //   dispatch(CanvasActions.addLine(data.state));
+        case 'edge':
+          console.log('edge create data', data);
+        // dispatch(CanvasActions.addLine(data.state));
       }
-      // dispatch
     });
-    // game plan is that we need to connect to the room on mount
-    // anytime we make a change we broadcast the change
-    // anytime we receive an update we set the state with a replace
-    // we will need a connected mouse visualization, will require new redux state
-    // the socket itself will need to handle the json incoming and outbound
-    // should look at the chat as reference rq
   }, [playgroundID]);
 
   // useEffect(() => {
