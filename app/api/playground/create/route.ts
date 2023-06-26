@@ -6,7 +6,6 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  console.log('got req');
   const session = await getServerSession(authOptions);
   if (!session?.user)
     return NextResponse.json({
@@ -14,7 +13,6 @@ export async function POST(request: Request) {
       status: 401,
     });
 
-  console.log('incoming');
   const playground = await prisma.playground.create({
     data: {
       circles: [],
@@ -25,8 +23,6 @@ export async function POST(request: Request) {
       zoomAmount: 1,
     },
   });
-
-  console.log('the new playground', playground);
 
   return NextResponse.json({
     msg: 'Successfully created new playground: ' + playground,

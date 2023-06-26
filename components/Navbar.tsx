@@ -35,7 +35,6 @@ const NavBar = (props: Props) => {
       <div className="w-2/6  " />
 
       <div className="w-2/5 flex justify-end items-center">
-        {/* {pathname === VISUALIZE_PATH && session.status === 'authenticated'}{' '} */}
         {
           <div className="mx-2 min-w-fit">
             <ShareableLink />

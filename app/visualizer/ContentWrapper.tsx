@@ -41,7 +41,6 @@ const ContentWrapper = ({ shapes }: Props) => {
     // #TODO need to do zod validation
     const circles = shapes?.circles as CircleReceiver[] | undefined;
     const lines = shapes?.lines as Edge[] | undefined;
-    console.log('the recievec circles and lines', circles, lines);
     if (circles && circles.length > 0) {
       dispatch(CanvasActions.setCircles(circles));
     }

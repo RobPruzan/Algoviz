@@ -8,8 +8,6 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { P, match } from 'ts-pattern';
 
 export async function PUT(request: NextRequest, context: unknown) {
-  console.log('the context for next requests are', context);
-  console.log('got req');
   const session = await getServerSession(authOptions);
   if (!session?.user)
     return NextResponse.json({
@@ -27,8 +25,6 @@ export async function PUT(request: NextRequest, context: unknown) {
     // shapes: z.array(z.unknown())
   });
   const parsedJson = jsonSchema.parse(json);
-
-  // console.log('incoming');
 
   if (parsedJson.circles) {
     await prisma.playground.update({

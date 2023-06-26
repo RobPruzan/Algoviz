@@ -52,12 +52,10 @@ const ShareableLink = () => {
         url: z.string(),
       });
       const { url } = urlSchema.parse(json);
-      console.log('returned url', url);
+
       return url;
     },
-    onError: (e) => {
-      console.log('da error', e);
-    },
+    onError: (e) => {},
   });
 
   return pathname === VISUALIZE_PATH &&
@@ -100,7 +98,6 @@ const ShareableLink = () => {
           <DialogFooter>
             <Button
               onClick={() => {
-                console.log('clickin');
                 generateLinkMutation.mutate(permissions);
               }}
               variant="outline"

@@ -6,9 +6,7 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
-  console.log('got req', request);
   const session = await getServerSession(authOptions);
-  console.log('the user session in delete', session);
   if (!session?.user) {
     return NextResponse.json({
       msg: 'Must be signed in',
@@ -20,18 +18,13 @@ export async function POST(request: NextRequest) {
   const jsonSchema = z.object({
     id: z.number(),
   });
-  console.log('1');
 
   const { id } = jsonSchema.parse(await request.json());
-  console.log('2');
   const playground = await prisma.playground.delete({
     where: {
       id,
     },
   });
-  console.log('3');
-
-  console.log('deleted playground', playground.id);
 
   return NextResponse.json({
     msg: 'Deleted playground: ' + playground.id,

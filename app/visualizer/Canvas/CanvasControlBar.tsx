@@ -10,6 +10,7 @@ import {
   DirectedEdge,
   DrawTypes,
   Edge,
+  IO,
   UndirectedEdge,
 } from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
@@ -26,7 +27,7 @@ import {
   RectangleHorizontal,
 } from 'lucide-react';
 import { Play } from 'next/font/google';
-import React, { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction, useRef } from 'react';
 import { DirectedEdgeIcon } from '@/components/icons/DirectedEdge';
 import { BinarySearchTreeIcon } from '@/components/icons/BinarySearchTree';
 import { GraphIcon } from '@/components/icons/Graph';
@@ -35,17 +36,16 @@ import { LinkedListIcon } from '@/components/icons/LinkedList';
 import { useMutation } from '@tanstack/react-query';
 import ky from 'ky';
 import { useShapeUpdateMutation } from '../hooks/useShapeUpdateMutation';
-
+import * as Utils from '@/lib/utils';
+import { useSearchParams } from 'next/navigation';
 type Props = {
-  handleDfs: () => void;
-  selectedControlBarAction: DrawTypes | null;
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
+  socketRef: ReturnType<typeof useRef<IO>>;
 };
 
 const CanvasControlBar = ({
-  handleDfs,
-  selectedControlBarAction,
   setSelectedControlBarAction,
+  socketRef,
 }: Props) => {
   const dispatch = useAppDispatch();
   const {
@@ -62,7 +62,8 @@ const CanvasControlBar = ({
 
   // constShape;
   const shapeUpdateMutation = useShapeUpdateMutation();
-
+  const searchParams = useSearchParams();
+  const playgroundID = searchParams.get('playground-id');
   // fix all these hard coded numbers and random spawn points
   // move random spawn points to slight distribution around middle of canvas
   // or when I have time do so you select then click on the screen
@@ -100,6 +101,16 @@ const CanvasControlBar = ({
       lines: [...attachableLines, newLine],
       zoomAmount: creationZoomFactor,
     });
+    if (playgroundID) {
+      Utils.sendCreate(
+        {
+          roomID: playgroundID,
+          type: 'edge',
+          state: newLine,
+        },
+        socketRef
+      );
+    }
     dispatch(CanvasActions.addLine(newLine));
   };
 
@@ -171,6 +182,16 @@ const CanvasControlBar = ({
       circles: [...circles, newCircle],
       zoomAmount: creationZoomFactor,
     });
+    if (playgroundID) {
+      Utils.sendCreate(
+        {
+          roomID: playgroundID,
+          type: 'circleReciever',
+          state: newCircle,
+        },
+        socketRef
+      );
+    }
 
     dispatch(CanvasActions.addCircle(newCircle));
   };

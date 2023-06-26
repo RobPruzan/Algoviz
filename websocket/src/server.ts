@@ -14,22 +14,31 @@ const io = new Server(server, {
   },
 });
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello world</h1>');
-});
-
-io.on('connection', (socket) => {
+type Data =
+  | { roomID: string; type: 'circleReciever'; state: any; senderID: string }
+  | { roomID: string; type: 'edge'; state: any; senderID: string };
+io.on('connect', (socket) => {
   console.log('a user connected');
 
   // join room event
-  socket.on('join playground', (room) => {
-    console.log('User joined room ' + room);
-    socket.join(room);
+  socket.on('join playground', (roomID: string) => {
+    console.log('User joined playground ' + roomID);
+    socket.join(roomID);
   });
 
   // chat message event within rooms
-  socket.on('chat message', (data) => {
-    io.to(data.room).emit('chat message', data.msg);
+  socket.on('update', (data: Data) => {
+    // event comes in (like an event handler) you emit the event to the entire room
+    // console.log('state update', data.state);
+    console.log('state update', data.roomID);
+    io.to(data.roomID).emit('update', data);
+  });
+  socket.on('create', (data: Data) => {
+    // event comes in (like an event handler) you emit the event to the entire room
+    // console.log('state create', data.state);
+    console.log('state create', data.roomID);
+
+    io.to(data.roomID).emit('create', data);
   });
 
   socket.on('disconnect', () => {

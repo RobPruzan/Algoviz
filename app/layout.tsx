@@ -40,7 +40,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  console.log('SHOULD BE ON SERVER');
   return (
     <html lang="en">
       <body

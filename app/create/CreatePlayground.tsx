@@ -24,8 +24,6 @@ const CreatePlayground = () => {
         playground: serializedPlaygroundSchema,
       });
 
-      console.log('incoming json', json);
-
       return resPlaygroundSchema.parse(json);
     },
     onSuccess: (data) => {

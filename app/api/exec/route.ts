@@ -9,16 +9,20 @@ export async function POST(request: Request) {
   const parsedJson = codeSchema.parse(json);
   const { code, globalVar } = parsedJson;
 
-  console.log('code got from client', code);
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ code: code, globalVar }),
-  });
-  const data = await res.json();
-  console.log('Successfully execed code, result', data);
-  return NextResponse.json({ data });
+  if (url) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code: code, globalVar }),
+    });
+    const data = await res.json();
+    return NextResponse.json({ data });
+  } else {
+    return NextResponse.json({
+      msg: 'could not find server exec url',
+      status: 400,
+    });
+  }
 }

@@ -51,8 +51,6 @@ const getCases = async ({
     return { type: 'NO_VERIFICATION_NEEDED', data: null };
   }
 
-  console.log('the user session', session?.user);
-
   let playgrounds = session?.user.id
     ? ({
         type: 'signed_in',
@@ -82,8 +80,6 @@ const getCases = async ({
           },
         }),
       } as const);
-
-  console.log('the retturned playgrounds', playgrounds);
 
   switch (playgrounds.type) {
     case 'signed_in':

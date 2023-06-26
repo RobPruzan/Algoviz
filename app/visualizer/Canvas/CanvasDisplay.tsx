@@ -5,6 +5,9 @@ import {
   SelectBox,
   DrawTypes,
   PencilCoordinates,
+  CircleReceiver,
+  Edge,
+  IO,
 } from '@/lib/types';
 import { isStringAlgorithm } from '../Sort/AlgoComboBox';
 import React, { useRef, useState, useEffect, useContext } from 'react';
@@ -45,12 +48,16 @@ import { useShapeUpdateMutation } from '../hooks/useShapeUpdateMutation';
 import { useServerUpdateShapes } from '../hooks/useServerUpdateShapes';
 import { useClearCanvasState } from '../hooks/useClearCanvasState';
 import { useTheme } from 'next-themes';
+import { io } from 'socket.io-client';
+import { useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
+  socketRef: ReturnType<typeof useRef<IO>>;
 };
 
-const CanvasDisplay = ({ selectedControlBarAction }: Props) => {
+const CanvasDisplay = ({ selectedControlBarAction, socketRef }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
@@ -77,6 +84,83 @@ const CanvasDisplay = ({ selectedControlBarAction }: Props) => {
   const isContextMenuActiveRef = useRef(false);
 
   const visualizationNodes = visualization.at(visualizationPointer);
+  const searchParams = useSearchParams();
+  const session = useSession();
+  const notSignedInUserIdRef = useRef(crypto.randomUUID());
+  const playgroundID = searchParams.get('playground-id');
+
+  type UntypedData =
+    | { roomID: string; type: 'circleReciever'; state: any; senderID: string }
+    | { roomID: string; type: 'edge'; state: any; senderID: string };
+
+  useEffect(() => {
+    const joinPlayground = () => {
+      if (!playgroundID) {
+        return;
+      }
+      socketRef.current?.emit('join playground', playgroundID);
+    };
+    // why cant i use the env var here????????? its the same thing
+    socketRef.current = io('http://localhost:8080');
+
+    socketRef.current.on('connect', () => {
+      console.log('connected to playground', playgroundID);
+      joinPlayground();
+    });
+    socketRef.current.on('update', (data: UntypedData) => {
+      switch (data.type) {
+        case 'circleReciever':
+          if (
+            data.senderID !== session.data?.user.id &&
+            data.senderID !== notSignedInUserIdRef.current
+          ) {
+            console.log('dispatching update');
+            dispatch(CanvasActions.replaceCircle(data.state));
+          }
+        // case 'edge':
+        //   dispatch(CanvasActions.replaceAttachableLine(data.state));
+      }
+      // dispatch
+    });
+
+    socketRef.current.on('create', (data: UntypedData) => {
+      switch (data.type) {
+        case 'circleReciever':
+          if (
+            data.senderID !== session.data?.user.id &&
+            data.senderID !== notSignedInUserIdRef.current
+          ) {
+            console.log();
+            dispatch(CanvasActions.addCircle(data.state));
+          }
+
+        // case 'edge':
+        //   dispatch(CanvasActions.addLine(data.state));
+      }
+      // dispatch
+    });
+    // game plan is that we need to connect to the room on mount
+    // anytime we make a change we broadcast the change
+    // anytime we receive an update we set the state with a replace
+    // we will need a connected mouse visualization, will require new redux state
+    // the socket itself will need to handle the json incoming and outbound
+    // should look at the chat as reference rq
+  }, [playgroundID]);
+
+  // useEffect(() => {
+  //   if (playgroundID) {
+  //     sendUpdate({
+  //       room: playgroundID,
+  //       type: 'circleReciever',
+  //       state: circles,
+  //     });
+  //   }
+  // }, [circles]);
+  // useEffect(() => {
+  //   if (playgroundID) {
+  //     sendUpdate({ room: playgroundID, type: 'edge', state: attachableLines });
+  //   }
+  // }, [attachableLines]);
 
   useClearCanvasState();
 
@@ -106,6 +190,9 @@ const CanvasDisplay = ({ selectedControlBarAction }: Props) => {
     selectedControlBarAction,
     setPencilCoordinates,
     setSelectBox,
+    socketRef,
+    playgroundID,
+    notSignedInUserId: notSignedInUserIdRef.current,
   });
 
   const handleMouseUp = useHandleMouseUp({

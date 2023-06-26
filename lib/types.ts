@@ -1,5 +1,6 @@
 import { Playground } from '@prisma/client';
 import { Dispatch, MutableRefObject, SetStateAction } from 'react';
+import { io } from 'socket.io-client';
 import { string } from 'zod';
 
 export type NodeMetadata = {
@@ -177,3 +178,4 @@ export type Prettify<T> = {
 export type SerializedPlayground = Omit<Playground, 'createdAt'> & {
   createdAt: string;
 };
+export type IO = ReturnType<typeof io>;

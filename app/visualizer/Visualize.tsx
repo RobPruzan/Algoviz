@@ -1,5 +1,11 @@
 'use client';
-import React, { Dispatch, SetStateAction, useContext, useState } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 import SortControlBar from './Sort/SortControlBar';
 import SortDisplay from './Sort/SortDisplay';
 import * as Graph from '@/lib/graph';
@@ -8,6 +14,7 @@ import CanvasControlBar from './Canvas/CanvasControlBar';
 import {
   CircleReceiver,
   DrawTypes,
+  IO,
   Percentage,
   SelectedGeometryInfo,
   UndirectedEdge,
@@ -41,6 +48,7 @@ const Visualize = ({ canvasWidth }: Props) => {
     edges: selectedAttachableLines,
     vertices: selectedCircles,
   });
+  const socketRef = useRef<IO>();
 
   const { handleDfs } = useDepthFirstSearch({
     adjacencyList,
@@ -55,9 +63,8 @@ const Visualize = ({ canvasWidth }: Props) => {
           <SortControlBar algorithm={sideBarState.algorithm} />
         ) : (
           <CanvasControlBar
-            selectedControlBarAction={selectedControlBarAction}
             setSelectedControlBarAction={setSelectedControlBarAction}
-            handleDfs={handleDfs}
+            socketRef={socketRef}
           />
         )}
       </div>
@@ -69,6 +76,7 @@ const Visualize = ({ canvasWidth }: Props) => {
           <SortDisplay algorithm={sideBarState.algorithm} />
         ) : (
           <CanvasDisplay
+            socketRef={socketRef}
             // canvasWidth={canvasWidth}
             selectedControlBarAction={selectedControlBarAction}
             // setSelectedControlBarAction={setSelectedControlBarAction}

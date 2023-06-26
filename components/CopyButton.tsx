@@ -33,37 +33,9 @@ function CopyButton({ copyText, isLoading }: Props) {
         onClick={copyToClipboard}
         variant={'outline'}
       >
-        {/* {showCopyAlert ? <CopyCheck size={20} /> : <CopyIcon size={20} />} */}
-        {/* {match(showCopyAlert)
-          .when(
-            (show) => show && !isLoading,
-            () => <CopyCheck size={20} />
-          )
-          .when(
-            (show) => show && isLoading,
-            () => <>LOADING</>
-          )
-          .when(
-            (show) => !show,
-            () => <CopyIcon size={20} />
-          )
-          .run()} */}
         {isLoading && <LoaderIcon className="animate-spin" />}
         {!isLoading && showCopyAlert && <CopyCheck size={20} />}
         {!isLoading && !showCopyAlert && <CopyIcon size={20} />}
-
-        {/* {(() => {
-          console.log(showCopyAlert, isLoading);
-          if (showCopyAlert && !isLoading) {
-            return <CopyCheck size={20} />;
-          } else if (showCopyAlert && isLoading) {
-            console.log('this case');
-
-            return <>LOADING</>;
-          } else {
-            return <>else</>;
-          }
-        })()} */}
       </Button>
       <Input
         disabled

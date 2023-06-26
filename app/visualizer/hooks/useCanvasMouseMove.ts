@@ -11,6 +11,7 @@ import * as Canvas from '@/lib/Canvas/canvas';
 import {
   CircleReceiver,
   Edge,
+  IO,
   NodeReceiver,
   PencilCoordinates,
   SelectBox,
@@ -19,16 +20,19 @@ import {
 } from '@/lib/types';
 import { match } from 'ts-pattern';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
-
+import * as Utils from '@/lib/utils';
+import { useSession } from 'next-auth/react';
 type UseCanvasMouseMoveProps = {
   isMouseDownRef: MutableRefObject<boolean>;
   selectBox: SelectBox | null;
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
   selectedControlBarAction: 'pencil' | null;
-
+  playgroundID: string | null;
   setPencilCoordinates: React.Dispatch<React.SetStateAction<PencilCoordinates>>;
   selectedCircleID: string | null;
   selectedAttachableLine: SelectedAttachableLine | null;
+  socketRef: ReturnType<typeof useRef<IO>>;
+  notSignedInUserId: string;
 };
 
 export const useCanvasMouseMove = ({
@@ -39,10 +43,15 @@ export const useCanvasMouseMove = ({
   setSelectBox,
   selectedCircleID,
   selectedAttachableLine,
+  playgroundID,
+  socketRef,
+  notSignedInUserId,
 }: UseCanvasMouseMoveProps) => {
   const { attachableLines, circles, selectedGeometryInfo } = useAppSelector(
     (store) => store.canvas
   );
+
+  const senderID = useSession().data?.user.id ?? notSignedInUserId;
 
   const previousMousePositionRef = useRef<[number, number]>();
   const isSelectBoxSet =
@@ -148,6 +157,19 @@ export const useCanvasMouseMove = ({
             }
 
             dispatch(CanvasActions.replaceCircle(newCircle));
+            // sendUpdate()
+            if (playgroundID) {
+              Utils.sendUpdate(
+                {
+                  roomID: playgroundID,
+                  type: 'circleReciever',
+                  state: newCircle,
+                  senderID,
+                },
+                socketRef
+              );
+            }
+
             break;
           case 'line':
             const activeRect = attachableLines.find(
@@ -189,6 +211,17 @@ export const useCanvasMouseMove = ({
 
             dispatch(CanvasActions.setCircles(filteredCircles));
             dispatch(CanvasActions.replaceAttachableLine(newRect));
+            if (playgroundID) {
+              Utils.sendUpdate(
+                {
+                  roomID: playgroundID,
+                  type: 'edge',
+                  state: newRect,
+                  senderID,
+                },
+                socketRef
+              );
+            }
             break;
           case 'node1':
             const activeRectContainingNodeOne = attachableLines.find(
@@ -246,6 +279,17 @@ export const useCanvasMouseMove = ({
             dispatch(
               CanvasActions.replaceAttachableLine(newRectContainingNodeOne)
             );
+            if (playgroundID) {
+              Utils.sendUpdate(
+                {
+                  roomID: playgroundID,
+                  type: 'edge',
+                  state: newRectContainingNodeOne,
+                  senderID,
+                },
+                socketRef
+              );
+            }
             break;
           case 'node2':
             const activeRectContainingNodeTwo = attachableLines.find(
@@ -301,6 +345,17 @@ export const useCanvasMouseMove = ({
             dispatch(
               CanvasActions.replaceAttachableLine(newRectContainingNodeTwo)
             );
+            if (playgroundID) {
+              Utils.sendUpdate(
+                {
+                  roomID: playgroundID,
+                  type: 'edge',
+                  state: newRectContainingNodeTwo,
+                  senderID,
+                },
+                socketRef
+              );
+            }
             break;
           default:
             if (selectBox) {

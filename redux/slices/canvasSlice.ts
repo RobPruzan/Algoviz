@@ -63,7 +63,7 @@ const canvasSlice = createSlice({
     },
 
     replaceCircle: (state, action: PayloadAction<CircleReceiver>) => {
-      state.circles = state.circles = Canvas.replaceCanvasElement({
+      state.circles = Canvas.replaceCanvasElement({
         oldArray: state.circles,
         newElement: action.payload,
       });

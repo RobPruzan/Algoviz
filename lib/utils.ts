@@ -2,12 +2,16 @@ import { ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import {
   AlgorithmInfo,
+  CircleReceiver,
+  Edge,
   HistoryNode,
+  IO,
   NodeMetadata,
   SerializedPlayground,
 } from './types';
 import { z } from 'zod';
 import ky from 'ky';
+import { useRef } from 'react';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -61,11 +65,12 @@ function algorithm(adjList: AdjacencyList): Visualization{
 export const serializedPlaygroundSchema = z.object({
   id: z.number(),
   createdAt: z.string(),
-  // circles: z.array(z.any()),
-  // lines: z.array(z.any()),
-  // pencil: z.array(z.any()),
+  circles: z.array(z.any()),
+  lines: z.array(z.any()),
+  pencil: z.array(z.any()),
   userId: z.string(),
   name: z.string(),
+  zoomAmount: z.number(),
 });
 
 export const serializedPlaygroundsSchema = z.object({
@@ -83,8 +88,30 @@ export const getPlaygrounds = async (): Promise<
   );
   const json = await res.json();
 
-  console.log('THE OG JSON (maybe whats fr failing)', json);
   const parsedJson = serializedPlaygroundsSchema.parse(json);
-  console.log('passed');
+
   return parsedJson.playgrounds;
+};
+
+export const sendUpdate = (
+  state:
+    | {
+        roomID: string;
+        type: 'circleReciever';
+        state: CircleReceiver;
+        senderID: string;
+      }
+    | { roomID: string; type: 'edge'; state: Edge; senderID: string },
+  socketRef: ReturnType<typeof useRef<IO>>
+) => {
+  socketRef.current?.emit('update', state);
+};
+
+export const sendCreate = (
+  state:
+    | { roomID: string; type: 'circleReciever'; state: CircleReceiver }
+    | { roomID: string; type: 'edge'; state: Edge },
+  socketRef: ReturnType<typeof useRef<IO>>
+) => {
+  socketRef.current?.emit('create', state);
 };

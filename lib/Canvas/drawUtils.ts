@@ -23,14 +23,11 @@ export const drawNodes = ({
   theme: string;
 }) => {
   ctx.save();
-  // console.log(
-  //   'node ids',
-  //   nodes.map((n) => n.id)
-  // );
+
   nodes.forEach((node) => {
     ctx.beginPath();
     ctx.arc(node.center[0], node.center[1], node.radius, 0, 2 * Math.PI, false);
-    console.log('the theme', theme);
+
     ctx.fillStyle = theme === 'dark' ? node.color : '#DADADA';
 
     if (dfsVisitedNodes.includes(node.id)) {
@@ -89,11 +86,9 @@ export const drawEdgeConnectors = ({
   edges: Edge[];
   ctx: CanvasRenderingContext2D;
 }) => {
-  // console.log('the recieved edges', edges);
   edges
     .map((edge) => edge.attachNodeOne)
     .forEach((circle) => {
-      // console.log('looping through the conenctors', circle);
       ctx.beginPath();
       ctx.arc(
         Math.floor(circle.center[0]),

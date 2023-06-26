@@ -7,7 +7,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
 
 export async function GET(request: NextRequest) {
-  console.log('got req');
   const session = await getServerSession(authOptions);
   if (!session?.user)
     return NextResponse.json({
@@ -15,7 +14,6 @@ export async function GET(request: NextRequest) {
       status: 401,
     });
 
-  console.log('incoming');
   const playgrounds = await prisma.playground.findMany({
     where: {
       userId: session.user.id,

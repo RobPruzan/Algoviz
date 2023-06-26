@@ -16,7 +16,6 @@ function generateRoomUrl(roomId: string, permission: string) {
   };
 
   const token = jwt.sign(payload, jwtSecret);
-  console.log('token', token);
 
   return `${process.env.NEXTAUTH_URL}/visualizer?playground-id=${roomId}&share-id=${token}`;
 }
@@ -33,7 +32,6 @@ export async function POST(request: Request) {
   const { roomId, permission } = json;
 
   const url = generateRoomUrl(roomId, permission);
-  console.log('returned url', url);
   return NextResponse.json({
     url,
     status: 200,
