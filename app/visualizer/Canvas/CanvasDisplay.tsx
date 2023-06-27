@@ -223,7 +223,7 @@ const CanvasDisplay = ({
 
   const handleKeyDown = useCanvasKeyDown();
 
-  const handleFullyConnect = useFullyConnect();
+  const handleFullyConnect = useFullyConnect(meta);
   const themeInfo = useTheme();
   // dont mutate anything or query/disable them if the playground is is undefined (unless they are joining a playground)
   useEffect(() => {

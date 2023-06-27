@@ -1,10 +1,10 @@
 import { CircleReceiver, Edge, SelectedGeometryInfo } from '@/lib/types';
-import { CanvasActions } from '@/redux/slices/canvasSlice';
+import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { Dispatch, SetStateAction } from 'react';
 import * as Graph from '@/lib/graph';
 
-export const useFullyConnect = () => {
+export const useFullyConnect = (meta: Meta) => {
   const { circles, creationZoomFactor, attachableLines, selectedGeometryInfo } =
     useAppSelector((store) => store.canvas);
   const selectedAttachableLines = attachableLines.filter((line) =>
@@ -72,26 +72,31 @@ export const useFullyConnect = () => {
           },
         };
         dispatch(
-          CanvasActions.attachNodeToReciever({
-            circleId: storeCircleA.id,
-            attachId: newLine.attachNodeOne.id,
-          })
+          CanvasActions.attachNodeToReciever(
+            {
+              circleId: storeCircleA.id,
+              attachId: newLine.attachNodeOne.id,
+            },
+            meta
+          )
         );
         dispatch(
-          CanvasActions.attachNodeToReciever({
-            circleId: storeCircleB.id,
-            attachId: newLine.attachNodeTwo.id,
-          })
+          CanvasActions.attachNodeToReciever(
+            {
+              circleId: storeCircleB.id,
+              attachId: newLine.attachNodeTwo.id,
+            },
+            meta
+          )
         );
-        dispatch(CanvasActions.addLine(newLine));
+        dispatch(CanvasActions.addLine(newLine, meta));
         visited.add(storeCircleA.id + storeCircleB.id);
         visited.add(storeCircleB.id + storeCircleA.id);
         dispatch(
-          CanvasActions.addSelectedIds([
-            newLine.id,
-            newLine.attachNodeOne.id,
-            newLine.attachNodeTwo.id,
-          ])
+          CanvasActions.addSelectedIds(
+            [newLine.id, newLine.attachNodeOne.id, newLine.attachNodeTwo.id],
+            meta
+          )
         );
       }
     }

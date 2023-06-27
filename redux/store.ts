@@ -21,10 +21,10 @@ export const socketMiddleware =
           socket.connect(action.meta.playgroundID);
           socket.addActionListener((socketAction: SocketAction) => {
             // need to not run the middleware if only 1 connected
-            // console.log('receiving action');
+            console.log('receiving action');
             if (socketAction.meta.userID !== action.meta.userID) {
               // note, performance is pretty good with circles, but awful with boxes, investigate
-              // console.log('dispatching server action');
+              console.log('dispatching server action');
               dispatch(socketAction);
             }
           });
@@ -37,7 +37,7 @@ export const socketMiddleware =
           action.meta &&
           !action.meta.fromServer
         ) {
-          // console.log('sending action');
+          console.log('sending action');
           socket.sendSocketAction(action);
         }
     }

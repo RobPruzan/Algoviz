@@ -113,6 +113,7 @@ type Props = {
     ['share-id']?: string;
   };
 };
+
 const page = async ({ searchParams }: Props) => {
   const shareID = searchParams?.['share-id'];
   const playgroundID = searchParams?.['playground-id'];

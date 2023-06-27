@@ -101,13 +101,9 @@ const CodeExecutionControlBar = ({
           />
         )} */}
         <Popover>
-          <PopoverTrigger>
-            <Button
-              className="min-w-fit flex items-center justify-center h-[30px] font-bold"
-              variant={'outline'}
-            >
-              Options
-            </Button>
+          <PopoverTrigger className="min-w-fit flex items-center justify-center h-[30px] font-bold">
+            Options
+            {/* </Button> */}
           </PopoverTrigger>
           <PopoverContent>
             {/* {getAlgorithmsQuery.isLoading ? (
