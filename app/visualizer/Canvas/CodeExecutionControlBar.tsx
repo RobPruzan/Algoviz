@@ -29,6 +29,13 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { HelpCircle } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { match } from 'ts-pattern';
 
 type Props = {
   selectedAlgorithm: string | undefined;
@@ -63,10 +70,20 @@ const CodeExecutionControlBar = ({
   const currentAlgorithm = getAlgorithmsQuery.data?.find(
     (d) => d.id === selectedAlgorithm
   );
+
+  const [tabValue, setTabValue] = useState<'visualizer' | 'validator'>(
+    'visualizer'
+  );
+
+  const isValueTabType = (
+    value: string
+  ): value is 'visualizer' | 'validator' => {
+    return value === 'visualizer' || value === 'validator';
+  };
   return (
     <div className="w-full max-h-[7%] min-h-[50px]">
       <div className="  prevent-select overflow-x-scroll p-3 flex w-full border-secondary justify-evenly items-center border-b-2 ">
-        {getAlgorithmsQuery.isLoading ? (
+        {/* {getAlgorithmsQuery.isLoading ? (
           <AlgoComboBox
             algorithms={[]}
             defaultPlaceholder="Loading"
@@ -82,7 +99,79 @@ const CodeExecutionControlBar = ({
               setSelectedAlgorithm(d);
             }}
           />
-        )}
+        )} */}
+        <Popover>
+          <PopoverTrigger>
+            <Button
+              className="min-w-fit flex items-center justify-center h-[30px] font-bold"
+              variant={'outline'}
+            >
+              Options
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            {/* {getAlgorithmsQuery.isLoading ? (
+              <AlgoComboBox
+                algorithms={[]}
+                defaultPlaceholder="Loading"
+                setValue={() => undefined}
+                value={undefined}
+              />
+            ) : (
+              <AlgoComboBox
+                algorithms={getAlgorithmsQuery.data ?? []}
+                defaultPlaceholder="Algorithm"
+                value={selectedAlgorithm}
+                setValue={(d) => {
+                  setSelectedAlgorithm(d);
+                }}
+              />
+            )} */}
+            <Tabs
+              defaultValue="input"
+              className=" flex p-1 justify-evenly items-center  w-full "
+              onValueChange={(value) =>
+                isValueTabType(value) && setTabValue(value)
+              }
+            >
+              <TabsList className="w-full dark:bg-primary   flex justify-evenly items-center">
+                <TabsTrigger
+                  className={`w-2/5 ${
+                    tabValue === 'visualizer'
+                      ? 'border-2 rounded-md   '
+                      : 'border-2 rounded-md border-secondary'
+                  }`}
+                  value="visualizer"
+                >
+                  Visualizer
+                </TabsTrigger>
+                <TabsTrigger
+                  className={`w-2/5 ${
+                    tabValue === 'validator'
+                      ? 'border-2 rounded-md '
+                      : 'border-2 rounded-md border-secondary'
+                  }`}
+                  value="validator"
+                >
+                  Validator
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {match(tabValue)
+              .with('visualizer', () => <>vis</>)
+              .with('validator', () => <>val</>)
+              .exhaustive()}
+
+            {/* main option is what type do you want a validator or a visualizer
+                need to tell the user the difference between the two
+                can do tabs between the two to not couple them
+                can then allow the user to pick defaults like shape type
+                language
+                will default to algo
+            */}
+          </PopoverContent>
+        </Popover>
 
         <Button
           onClick={() => {
@@ -93,7 +182,7 @@ const CodeExecutionControlBar = ({
           variant="outline"
           className="w-[90px]  flex items-center justify-center h-[30px]   font-bold"
         >
-          Run
+          Debug
         </Button>
         <Button
           onClick={(e) => {
@@ -139,92 +228,6 @@ const CodeExecutionControlBar = ({
                 className="col-span-3"
               />
             </div>
-            {/* <RadioGroup
-
-              defaultValue="comfortable"
-            >
-              <div className="grid grid-cols-4 items-center gap-4 ">
-                <Label htmlFor="description" className="text-right">
-                  Description
-                </Label>
-                <Textarea
-                  value={userAlgorithm.description}
-                  onChange={(e) =>
-                    setUserAlgorithm((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4 my-2">
-                <div className="flex items-center justify-evenly">
-                  <Label htmlFor="description" className="text-right">
-                    Validator
-                  </Label>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger className="max-w-fit ml-auto">
-                        <HelpCircle size={15} />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>A validator algorithm will take in a datastructure and </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-
-                <RadioGroupItem value={'EDIT'} id="r1" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4 my-2">
-
-                <div className="flex items-center justify-around">
-                  <Label htmlFor="description" className="text-right">
-                    Visualization
-                  </Label>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger className="max-w-fit ml-auto">
-                        <HelpCircle size={15} />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Add to library</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <RadioGroupItem value={'READ-ONLY'} id="r2" />
-              </div>
-            </RadioGroup> */}
-            {/* <div className="w-full h-28 flex justify-start">
-              <div className="w-1/4 h-full flex flex-col">
-                <div className="h-1/2 flex justify-end mr-2">
-                  <Label htmlFor="r1">Destructure Validator</Label>
-                </div>
-                <div className="h-1/2 flex justify-end mr-2">
-                  <Label htmlFor="r2">Algorithm Visualization</Label>
-                </div>
-              </div>
-              <div className="w-3/4">
-                <RadioGroup
-                  className="flex flex-col justify-evenly"
-                  // value={permissions}
-                  // onValueChange={(v) => {
-                  //   isPermission(v) && setPermissions(v);
-                  // }}
-                  defaultValue="comfortable"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value={'EDIT'} id="r1" />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value={'READ-ONLY'} id="r2" />
-                  </div>
-                </RadioGroup>
-              </div> */}
-            {/* </div> */}
-
             <DialogFooter>
               <Button
                 onClick={async () => {
