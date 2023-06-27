@@ -11,7 +11,14 @@ export class SocketIO {
   socket: IO | null;
 
   constructor(url: string) {
-    this.socket = io(url);
+    if (typeof window !== 'undefined') {
+      console.log('client');
+      this.socket = io(url);
+    } else {
+      console.log('servercode');
+
+      this.socket = null;
+    }
   }
 
   sendUpdate(
@@ -48,7 +55,7 @@ export class SocketIO {
     });
   }
 
-  actionListener(cb: OnCB) {
+  addActionListener(cb: OnCB) {
     this.socket?.on('action', cb);
   }
   disconnect() {

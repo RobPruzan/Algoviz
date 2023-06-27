@@ -39,7 +39,8 @@ io.on('connect', (socket) => {
         // console.log('incoming data', data);
         console.log(`receiving action, playgroundID:${data.meta.playgroundID}`, new Date().getTime());
         data.meta.fromServer = true;
-        io.to(data.meta.playgroundID).emit('action', data);
+        io.in(data.meta.playgroundID).emit('action', data);
+        // io.to(data.meta.playgroundID).emit('action', data);
     });
     socket.on('disconnect', () => {
         console.log('user disconnected', new Date().getTime());

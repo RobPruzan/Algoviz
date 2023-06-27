@@ -21,6 +21,14 @@ import { Label } from '@/components/ui/label';
 import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 import { useCodeMutation } from '../hooks/useCodeMutation';
 import { useSaveAlgorithmMutation } from '../hooks/useSaveAlgorithmMutation';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { HelpCircle } from 'lucide-react';
 
 type Props = {
   selectedAlgorithm: string | undefined;
@@ -131,21 +139,92 @@ const CodeExecutionControlBar = ({
                 className="col-span-3"
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
-                Description
-              </Label>
-              <Textarea
-                value={userAlgorithm.description}
-                onChange={(e) =>
-                  setUserAlgorithm((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
-                className="col-span-3"
-              />
-            </div>
+            {/* <RadioGroup
+
+              defaultValue="comfortable"
+            >
+              <div className="grid grid-cols-4 items-center gap-4 ">
+                <Label htmlFor="description" className="text-right">
+                  Description
+                </Label>
+                <Textarea
+                  value={userAlgorithm.description}
+                  onChange={(e) =>
+                    setUserAlgorithm((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4 my-2">
+                <div className="flex items-center justify-evenly">
+                  <Label htmlFor="description" className="text-right">
+                    Validator
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger className="max-w-fit ml-auto">
+                        <HelpCircle size={15} />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>A validator algorithm will take in a datastructure and </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+
+                <RadioGroupItem value={'EDIT'} id="r1" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4 my-2">
+
+                <div className="flex items-center justify-around">
+                  <Label htmlFor="description" className="text-right">
+                    Visualization
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger className="max-w-fit ml-auto">
+                        <HelpCircle size={15} />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Add to library</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <RadioGroupItem value={'READ-ONLY'} id="r2" />
+              </div>
+            </RadioGroup> */}
+            {/* <div className="w-full h-28 flex justify-start">
+              <div className="w-1/4 h-full flex flex-col">
+                <div className="h-1/2 flex justify-end mr-2">
+                  <Label htmlFor="r1">Destructure Validator</Label>
+                </div>
+                <div className="h-1/2 flex justify-end mr-2">
+                  <Label htmlFor="r2">Algorithm Visualization</Label>
+                </div>
+              </div>
+              <div className="w-3/4">
+                <RadioGroup
+                  className="flex flex-col justify-evenly"
+                  // value={permissions}
+                  // onValueChange={(v) => {
+                  //   isPermission(v) && setPermissions(v);
+                  // }}
+                  defaultValue="comfortable"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value={'EDIT'} id="r1" />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value={'READ-ONLY'} id="r2" />
+                  </div>
+                </RadioGroup>
+              </div> */}
+            {/* </div> */}
+
             <DialogFooter>
               <Button
                 onClick={async () => {

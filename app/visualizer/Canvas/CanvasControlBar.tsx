@@ -86,12 +86,12 @@ const CanvasControlBar = ({
       y1,
       x2: x1 - 10,
       y2: y1 - 50,
-      width: 7 * creationZoomFactor,
+      width: 4 * creationZoomFactor,
       directed: false,
-      color: 'white',
+      color: '#ACACAC',
       attachNodeOne: {
         center: [x1, y1],
-        radius: 10 * creationZoomFactor,
+        radius: 15 * creationZoomFactor,
         color: '#42506e',
         id: crypto.randomUUID(),
         type: 'node1',
@@ -99,7 +99,7 @@ const CanvasControlBar = ({
       },
       attachNodeTwo: {
         center: [x1 - 10, y1 - 50],
-        radius: 10 * creationZoomFactor,
+        radius: 15 * creationZoomFactor,
         color: '#42506e',
         id: crypto.randomUUID(),
         type: 'node2',
@@ -170,7 +170,7 @@ const CanvasControlBar = ({
       id: crypto.randomUUID(),
       center: circleCenter,
       radius: circleRadius * 0.4 * creationZoomFactor,
-      color: '#42506e',
+      color: '#262D3F',
       type: 'circle',
       attachedIds: [],
     };
@@ -183,7 +183,7 @@ const CanvasControlBar = ({
       type: 'circle',
       center: circleCenter,
       radius: circleRadius * creationZoomFactor,
-      color: '#181e2b',
+      color: 'rgb(24, 30, 43, .85)',
       nodeReceiver: newNodeConnector,
     };
 

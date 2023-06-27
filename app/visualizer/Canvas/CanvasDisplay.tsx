@@ -57,12 +57,14 @@ export type Props = {
   selectedControlBarAction: DrawTypes | null;
   socketRef: ReturnType<typeof useRef<IO>>;
   notSignedInUserId: string;
+  canvasWidth: number | `${string}%`;
 };
 
 const CanvasDisplay = ({
   selectedControlBarAction,
   socketRef,
   notSignedInUserId,
+  canvasWidth,
 }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
@@ -223,18 +225,28 @@ const CanvasDisplay = ({
 
   const handleFullyConnect = useFullyConnect();
   const themeInfo = useTheme();
+  // dont mutate anything or query/disable them if the playground is is undefined (unless they are joining a playground)
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!ctx) return;
     if (!canvas) return;
-
+    ctx.globalAlpha = 0.5; // Set the transparency
     Draw.optimizeCanvas({
       ctx,
       canvas,
     });
-
-    if (selectedGeometryInfo?.maxPoints) {
+    // this is so hacky and i need to fix this
+    const thresholdForMultipleItemsSelected = 3;
+    if (
+      selectedGeometryInfo?.maxPoints &&
+      selectedGeometryInfo.selectedIds.length >
+        thresholdForMultipleItemsSelected
+    ) {
+      console.log(
+        'the selected geomotry info',
+        selectedGeometryInfo.selectedIds
+      );
       Draw.drawBox({
         ctx,
         box: {
@@ -244,6 +256,12 @@ const CanvasDisplay = ({
         theme: themeInfo.theme ?? 'dark',
       });
     }
+    Draw.drawEdges({
+      ctx,
+      edges: attachableLines,
+      selectedIds: selectedGeometryInfo?.selectedIds,
+      selectedAttachableLine,
+    });
     // first written, first rendered
     // meaning items written later will layer over the previous
 
@@ -264,13 +282,6 @@ const CanvasDisplay = ({
         theme: themeInfo.theme ?? 'dark',
       });
     }
-
-    Draw.drawEdges({
-      ctx,
-      edges: attachableLines,
-      selectedIds: selectedGeometryInfo?.selectedIds,
-      selectedAttachableLine,
-    });
 
     Draw.drawEdgeConnectors({
       ctx,
@@ -300,6 +311,8 @@ const CanvasDisplay = ({
     pencilCoordinates,
     visualizationNodes,
     themeInfo.theme,
+    // need to add the canvasheight to redraw on for the resizeable
+    canvasWidth,
   ]);
 
   return (

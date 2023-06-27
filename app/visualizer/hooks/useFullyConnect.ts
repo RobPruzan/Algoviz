@@ -42,6 +42,8 @@ export const useFullyConnect = () => {
         // reciever only ends up with one new connector node attached
         const [x1, y1] = storeCircleA.center;
         const [x2, y2] = storeCircleB.center;
+        // need to combine this with canvascontrol bar object to create new
+        // just make a build new edge func
         const newLine: Edge = {
           x1,
           y1,
@@ -49,12 +51,12 @@ export const useFullyConnect = () => {
           y2,
           id: crypto.randomUUID(),
           type: 'rect',
-          width: 7 * creationZoomFactor,
+          width: 4 * creationZoomFactor,
           directed: false,
-          color: 'white',
+          color: '#8A8A8A',
           attachNodeOne: {
             center: [x1, y1],
-            radius: 10 * creationZoomFactor,
+            radius: 15 * creationZoomFactor,
             color: '#42506e',
             id: crypto.randomUUID(),
             type: 'node1',
@@ -62,7 +64,7 @@ export const useFullyConnect = () => {
           },
           attachNodeTwo: {
             center: [x2, y2],
-            radius: 10 * creationZoomFactor,
+            radius: 15 * creationZoomFactor,
             color: '#42506e',
             id: crypto.randomUUID(),
             type: 'node2',
@@ -93,7 +95,7 @@ export const useFullyConnect = () => {
         );
       }
     }
-    dispatch(CanvasActions.nullifySelectedGeometryInfo());
+    dispatch(CanvasActions.nullifySelectedGeometryInfo(undefined));
   };
 
   return handleFullyConnect;

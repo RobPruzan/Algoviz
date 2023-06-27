@@ -80,7 +80,7 @@ const Visualize = ({ canvasWidth }: Props) => {
           <CanvasDisplay
             notSignedInUserId={notSignedInUserIdRef.current}
             socketRef={socketRef}
-            // canvasWidth={canvasWidth}
+            canvasWidth={canvasWidth}
             selectedControlBarAction={selectedControlBarAction}
             // setSelectedControlBarAction={setSelectedControlBarAction}
             // handleDfs={handleDfs}

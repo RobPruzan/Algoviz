@@ -76,6 +76,7 @@ export const isPointInRectangle = (
     point[0] >= minX && point[0] <= maxX && point[1] >= minY && point[1] <= maxY
   );
 };
+
 export const isPointInLine = ({
   px,
   py,
@@ -116,6 +117,190 @@ export const isPointInLine = ({
   let distanceSquared = dx * dx + dy * dy;
 
   return distanceSquared <= Math.pow(width, 2);
+};
+type TempLineCleanMeUp = { x1: number; y1: number; x2: number; y2: number };
+function checkLineIntersection(
+  line1: TempLineCleanMeUp,
+  line2: TempLineCleanMeUp
+) {
+  const { x1: x1, y1: y1, x2: x2, y2: y2 } = line1;
+  const { x1: x3, y1: y3, x2: x4, y2: y4 } = line2;
+
+  const denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+  if (denominator === 0) {
+    return false; // lines are parallel
+  }
+
+  let t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator;
+  let u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denominator;
+
+  return t >= 0 && t <= 1 && u >= 0 && u <= 1;
+}
+
+type Point = {
+  x: number;
+  y: number;
+};
+
+// Given three collinear points p, q, r, the function checks if
+// point q lies on line segment 'pr'
+const onSegment = (p: Point, q: Point, r: Point): boolean => {
+  if (
+    q.x <= Math.max(p.x, r.x) &&
+    q.x >= Math.min(p.x, r.x) &&
+    q.y <= Math.max(p.y, r.y) &&
+    q.y >= Math.min(p.y, r.y)
+  )
+    return true;
+
+  return false;
+};
+
+// To find orientation of ordered triplet (p, q, r).
+// The function returns following values
+// 0 --> p, q and r are collinear
+// 1 --> Clockwise
+// 2 --> Counterclockwise
+const orientation = (p: Point, q: Point, r: Point): number => {
+  // See https://www.geeksforgeeks.org/orientation-3-ordered-points/
+  // for details of below formula.
+  let val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+
+  if (val == 0) return 0; // collinear
+
+  return val > 0 ? 1 : 2; // clock or counterclockwise
+};
+
+// The main function that returns true if line segment 'p1q1'
+// and 'p2q2' intersect.
+const doIntersect = (p1: Point, q1: Point, p2: Point, q2: Point): boolean => {
+  // Find the four orientations needed for general and
+  // special cases
+  let o1 = orientation(p1, q1, p2);
+  let o2 = orientation(p1, q1, q2);
+  let o3 = orientation(p2, q2, p1);
+  let o4 = orientation(p2, q2, q1);
+
+  // should find 8 total
+
+  // General case
+  if (o1 != o2 && o3 != o4) return true;
+
+  // Special Cases
+  // p1, q1 and p2 are collinear and p2 lies on segment p1q1
+  if (o1 == 0 && onSegment(p1, p2, q1)) return true;
+
+  // p1, q1 and q2 are collinear and q2 lies on segment p1q1
+  if (o2 == 0 && onSegment(p1, q2, q1)) return true;
+
+  // p2, q2 and p1 are collinear and p1 lies on segment p2q2
+  if (o3 == 0 && onSegment(p2, p1, q2)) return true;
+
+  // p2, q2 and q1 are collinear and q1 lies on segment p2q2
+  if (o4 == 0 && onSegment(p2, q1, q2)) return true;
+
+  return false; // Doesn't fall in any of the above cases
+};
+
+type Line = {
+  p: Point;
+  q: Point;
+  width: number;
+};
+
+const adjustPoints = (line: Line): [Point, Point, Point, Point] => {
+  const dx = line.q.x - line.p.x;
+  const dy = line.q.y - line.p.y;
+
+  const n = Math.sqrt(dx * dx + dy * dy);
+  const ux = ((line.width / 2) * dy) / n;
+  const uy = (-(line.width / 2) * dx) / n;
+
+  return [
+    { x: line.p.x + ux, y: line.p.y + uy },
+    { x: line.q.x + ux, y: line.q.y + uy },
+    { x: line.q.x - ux, y: line.q.y - uy },
+    { x: line.p.x - ux, y: line.p.y - uy },
+  ];
+};
+
+const doIntersectRectangle = (
+  rect1: [Point, Point, Point, Point],
+  rect2: [Point, Point, Point, Point]
+): boolean => {
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 4; j++) {
+      if (
+        doIntersect(rect1[i], rect1[(i + 1) % 4], rect2[j], rect2[(j + 1) % 4])
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+type RectCorner = { x: number; y: number };
+const doesLineIntersectRect = ({
+  rectTopLeft,
+  rectBottomRight,
+  line,
+}: {
+  rectTopLeft: RectCorner;
+  rectBottomRight: RectCorner;
+  line: TempLineCleanMeUp;
+}) => {
+  const rectTopRight = { x: rectBottomRight.x, y: rectTopLeft.y };
+  const rectBottomLeft = { x: rectTopLeft.x, y: rectBottomRight.y };
+
+  const rectSides = [
+    {
+      x1: rectTopLeft.x,
+      y1: rectTopLeft.y,
+      x2: rectTopRight.x,
+      y2: rectTopRight.y,
+    }, // Top edge
+    {
+      x1: rectTopRight.x,
+      y1: rectTopRight.y,
+      x2: rectBottomRight.x,
+      y2: rectBottomRight.y,
+    }, // Right edge
+    {
+      x1: rectBottomRight.x,
+      y1: rectBottomRight.y,
+      x2: rectBottomLeft.x,
+      y2: rectBottomLeft.y,
+    }, // Bottom edge
+    {
+      x1: rectBottomLeft.x,
+      y1: rectBottomLeft.y,
+      x2: rectTopLeft.x,
+      y2: rectTopLeft.y,
+    }, // Left edge
+  ];
+
+  for (const rectSide of rectSides) {
+    const res = doIntersect(
+      { x: line.x1, y: line.y1 },
+      { x: line.x2, y: line.y2 },
+      { x: rectSide.x1, y: rectSide.y1 },
+      { x: rectSide.x2, y: rectSide.y2 }
+    );
+    console.log(
+      'are they intersecting',
+      res,
+      { x: line.x1, y: line.y1 },
+      { x: line.x2, y: line.y2 },
+      { x: rectSide.x1, y: rectSide.y1 },
+      { x: rectSide.x2, y: rectSide.y2 }
+    );
+    if (res) {
+      return true;
+    }
+  }
+  return false;
 };
 
 export const getActiveRect = ({
@@ -517,13 +702,21 @@ export const getSelectedGeometry = ({
   const selectedIds: string[] = [];
   // if edge node is selected, so is attach node
   edges.forEach((edge) => {
-    const doesEdgeIntersect = doRectanglesIntersect(
-      {
-        p1: [edge.x1, edge.y1],
-        p2: [edge.x2, edge.y2],
+    const topLeft: [number, number] = selectBox.p1;
+    const bottomRight: [number, number] = selectBox.p2;
+
+    const intersecting = doesLineIntersectRect({
+      rectTopLeft: {
+        x: topLeft[0],
+        y: topLeft[1],
       },
-      selectBoxRect
-    );
+      rectBottomRight: {
+        x: bottomRight[0],
+        y: bottomRight[1],
+      },
+      line: edge,
+    });
+
     const nodeOnwBox = generateCircleSelectBox(edge.attachNodeOne);
     const nodeTwoBox = generateCircleSelectBox(edge.attachNodeTwo);
 
@@ -535,8 +728,11 @@ export const getSelectedGeometry = ({
       nodeOnwBox,
       selectBoxRect
     );
-
-    if (doesEdgeIntersect || doesNodeTwoIntersect || doesNodeOneIntersect) {
+    // you could say the corner of the select boxes are the point
+    // just check if a point (a corner of the select box) is inside the select box
+    // that solves one problem
+    if (intersecting || doesNodeTwoIntersect || doesNodeOneIntersect) {
+      // should be a direct line drawing for edge or else it will be a box:/
       selectedIds.push(edge.id);
       selectedIds.push(edge.attachNodeOne.id);
       selectedIds.push(edge.attachNodeTwo.id);
@@ -566,6 +762,11 @@ export const getSelectedGeometry = ({
 
   vertices.forEach((vertex) => {
     const circleBox = generateCircleSelectBox(vertex);
+    // const calcRectangle: CalcRectangle = {
+    //   p1: [
+
+    //   ]
+    // }
     if (doRectanglesIntersect(circleBox, selectBoxRect)) {
       selectedIds.push(vertex.id);
       selectedIds.push(vertex.nodeReceiver.id);

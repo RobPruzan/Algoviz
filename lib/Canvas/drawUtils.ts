@@ -63,7 +63,7 @@ export const drawEdges = ({
 
       ctx.moveTo(Math.floor(edge.x1), Math.floor(edge.y1));
       ctx.lineTo(Math.floor(edge.x2), Math.floor(edge.y2));
-      ctx.strokeStyle = '#8E9094';
+      ctx.strokeStyle = '#23ddff';
 
       ctx.lineWidth = Math.floor(edge.width * 1.6);
       ctx.stroke();

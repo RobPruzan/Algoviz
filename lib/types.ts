@@ -159,6 +159,7 @@ export type MaxPoints = {
 export type AdjacencyList<T> = Map<T, T[]>;
 
 export type SelectedGeometryInfo = {
+  // every piece of geomotry that's selected should exist here, even if it's part of the same object
   selectedIds: Array<string>;
   maxPoints: MaxPoints;
 };

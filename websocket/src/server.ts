@@ -46,7 +46,8 @@ io.on('connect', (socket) => {
     );
 
     data.meta.fromServer = true;
-    io.to(data.meta.playgroundID).emit('action', data);
+    io.in(data.meta.playgroundID).emit('action', data);
+    // io.to(data.meta.playgroundID).emit('action', data);
   });
 
   socket.on('disconnect', () => {
