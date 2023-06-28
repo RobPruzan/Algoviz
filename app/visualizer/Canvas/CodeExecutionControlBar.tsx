@@ -101,11 +101,20 @@ const CodeExecutionControlBar = ({
           />
         )} */}
         <Popover>
-          <PopoverTrigger className="min-w-fit flex items-center justify-center h-[30px] font-bold">
-            Options
+          <PopoverTrigger
+            asChild
+            className="min-w-fit flex items-center  justify-center h-[30px] font-bold"
+          >
+            <Button
+              variant={'outline'}
+              className="w-[90px]  flex items-center justify-center h-[30px]   font-bold"
+              // asChild
+            >
+              Options
+            </Button>
             {/* </Button> */}
           </PopoverTrigger>
-          <PopoverContent>
+          <PopoverContent className="px-0">
             {/* {getAlgorithmsQuery.isLoading ? (
               <AlgoComboBox
                 algorithms={[]}
@@ -125,7 +134,7 @@ const CodeExecutionControlBar = ({
             )} */}
             <Tabs
               defaultValue="input"
-              className=" flex p-1 justify-evenly items-center  w-full "
+              className=" flex py-1 justify-evenly items-center  w-full border-b"
               onValueChange={(value) =>
                 isValueTabType(value) && setTabValue(value)
               }
@@ -153,6 +162,13 @@ const CodeExecutionControlBar = ({
                 </TabsTrigger>
               </TabsList>
             </Tabs>
+
+            {/* goal here is to allow to create different types of programs based on the selection
+              - can select input type
+              - can select color scheme
+              - can select output type (i may prefer if this is done programmatically)
+              - will do this after the mouse thingy
+            */}
 
             {match(tabValue)
               .with('visualizer', () => <>vis</>)

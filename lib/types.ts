@@ -185,3 +185,7 @@ export type UntypedData =
   | { roomID: string; type: 'circleReciever'; state: any; senderID: string }
   | { roomID: string; type: 'edge'; state: any; senderID: string };
 export type SocketAction = { type: string; payload: any; meta: Meta };
+
+export type FirstParameter<T> = T extends (arg: infer R, ...rest: any[]) => any
+  ? R
+  : T;

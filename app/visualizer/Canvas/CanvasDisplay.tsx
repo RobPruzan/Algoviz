@@ -100,8 +100,6 @@ const CanvasDisplay = ({
   const meta: Meta = { playgroundID, userID };
 
   useEffect(() => {
-    // connects to playground socket room
-    console.log('user connecting');
     dispatch({
       type: 'socket/connect',
       meta,
@@ -113,68 +111,6 @@ const CanvasDisplay = ({
       });
     };
   }, [playgroundID]);
-  // useEffect(() => {
-  //   const joinPlayground = () => {
-  //     if (!playgroundID) {
-  //       return;
-  //     }
-  //     socketRef.current?.emit('join playground', playgroundID);
-  //   };
-  //   // why cant i use the env var here????????? its the same thing
-  //   socketRef.current = io('http://localhost:8080');
-
-  //   socketRef.current.on('connect', () => {
-  //     console.log('connected to playground', playgroundID);
-  //     joinPlayground();
-  //   });
-  //   socketRef.current.on('update', (data: UntypedData) => {
-  //     switch (data.type) {
-  //       case 'circleReciever':
-  //         if (
-  //           data.senderID !== session.data?.user.id &&
-  //           data.senderID !== notSignedInUserIdRef.current
-  //         ) {
-  //           // console.log('dispatching update');
-  //           dispatch(CanvasActions.replaceCircle(data.state));
-  //         }
-  //       case 'edge':
-  //         dispatch(CanvasActions.replaceAttachableLine(data.state));
-  //     }
-  //     // dispatch
-  //   });
-
-  //   socketRef.current.on('create', (data: UntypedData) => {
-  //     switch (data.type) {
-  //       case 'circleReciever':
-  //         if (
-  //           data.senderID !== session.data?.user.id &&
-  //           data.senderID !== notSignedInUserIdRef.current
-  //         ) {
-  //           console.log();
-  //           dispatch(CanvasActions.addCircle(data.state));
-  //         }
-
-  //       case 'edge':
-  //         console.log('edge create data', data);
-  //       // dispatch(CanvasActions.addLine(data.state));
-  //     }
-  //   });
-  // }, [playgroundID]);
-
-  // useEffect(() => {
-  //   if (playgroundID) {
-  //     sendUpdate({
-  //       room: playgroundID,
-  //       type: 'circleReciever',
-  //       state: circles,
-  //     });
-  //   }
-  // }, [circles]);
-  // useEffect(() => {
-  //   if (playgroundID) {
-  //     sendUpdate({ room: playgroundID, type: 'edge', state: attachableLines });
-  //   }
-  // }, [attachableLines]);
 
   useClearCanvasState(meta);
 

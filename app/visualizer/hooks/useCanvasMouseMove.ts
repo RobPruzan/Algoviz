@@ -62,6 +62,12 @@ export const useCanvasMouseMove = ({
   const handleMouseMove = (event: MouseEvent<HTMLCanvasElement>) => {
     const mousePositionX = event.nativeEvent.offsetX;
     const mousePositionY = event.nativeEvent.offsetY;
+    dispatch(
+      CanvasActions.setCurrentUserCursorPosition([
+        mousePositionX,
+        mousePositionY,
+      ])
+    );
 
     // if (selectedControlBarAction === 'pencil')
     match(selectedControlBarAction)

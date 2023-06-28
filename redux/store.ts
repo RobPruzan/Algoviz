@@ -1,4 +1,9 @@
-import { AnyAction, Middleware, configureStore } from '@reduxjs/toolkit';
+import {
+  AnyAction,
+  Middleware,
+  PayloadAction,
+  configureStore,
+} from '@reduxjs/toolkit';
 import { CanvasActions, Meta, canvasReducer } from './slices/canvasSlice';
 import {
   useDispatch,
@@ -9,6 +14,19 @@ import { dfsReducer } from './slices/dfsSlice';
 import { codeExecReducer } from './slices/codeExecSlice';
 import { SocketIO, socket } from '@/lib/socket/utils';
 import { SocketAction, UntypedData } from '@/lib/types';
+import { collaborationStateReducer } from './slices/colloborationState';
+
+export function withMeta<TPayload, TState>(
+  reducer: (
+    state: TState,
+    action: PayloadAction<TPayload, string, Meta | undefined>
+  ) => void
+) {
+  return {
+    reducer,
+    prepare: (payload: TPayload, meta?: Meta) => ({ payload, meta }),
+  };
+}
 
 export const socketMiddleware =
   (socket: SocketIO): Middleware<{}, any> =>
@@ -17,18 +35,11 @@ export const socketMiddleware =
   (action: SocketAction & { meta: Meta | undefined }) => {
     switch (action.type) {
       case 'socket/connect':
-        // oh god maybe?
-        // where is the join playground action?
-        console.log('initial action.meta', action.meta, !!action.meta);
         if (action.meta?.playgroundID) {
-          console.log('inisde condition');
           socket.joinPlayground(action.meta.playgroundID);
           socket.addActionListener((socketAction: SocketAction) => {
-            // need to not run the middleware if only 1 connected
-            console.log('receiving action');
             if (socketAction.meta.userID !== action.meta.userID) {
               // note, performance is pretty good with circles, but awful with boxes, investigate
-              console.log('dispatching server action');
               dispatch(socketAction);
             }
           });
@@ -56,8 +67,9 @@ export const socketMiddleware =
 export const store = configureStore({
   reducer: {
     canvas: canvasReducer,
-    dfs: dfsReducer,
     codeExec: codeExecReducer,
+    // other state can be shared between clients, but this state is specifically for supporting collaboration
+    collaborationState: canvasReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(socketMiddleware(socket)),

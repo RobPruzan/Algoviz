@@ -5,12 +5,14 @@ import {
   SelectedGeometryInfo,
   Prettify,
   CircleReceiver,
+  FirstParameter,
 } from '@/lib/types';
 import { enableMapSet } from 'immer';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import * as Canvas from '@/lib/Canvas/canvas';
 import * as Draw from '@/lib/Canvas/drawUtils';
 import { ImmutableQueue } from '@/lib/graph';
+import { withMeta } from '../store';
 
 // type test = Prettify<CircleReceiver>;
 export type CanvasState = {
@@ -24,6 +26,7 @@ export type CanvasState = {
   };
   //
   creationZoomFactor: number;
+  currentUserCursorPosition: [number, number];
 };
 
 const initialState: CanvasState = {
@@ -32,61 +35,53 @@ const initialState: CanvasState = {
   variableInspector: { show: true, queues: [], stack: [] },
   creationZoomFactor: 1,
   selectedGeometryInfo: null,
+  currentUserCursorPosition: [0, 0],
 };
-// if (typeof window != 'undefined') {
-// enableMapSet();
-// }
 
 export type Meta = {
   userID: string;
   playgroundID: string | null;
   fromServer?: boolean;
 };
-// export type Meta = {
-//   userID: string
-//   playgroundID: string
-// }
-function withMeta<P>(
-  reducer: (
-    state: CanvasState,
-    action: PayloadAction<P, string, Meta | undefined>
-  ) => void
-) {
-  return {
-    reducer,
-    prepare: (payload: P, meta?: Meta) => ({ payload, meta }),
-  };
-}
+
+type MetaParams<TPayload> = FirstParameter<
+  typeof withMeta<TPayload, CanvasState>
+>;
+
+const withCanvasMeta = <TPayload>(args: MetaParams<TPayload>) =>
+  withMeta<TPayload, CanvasState>(args);
 
 const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
-    setLines: withMeta<Edge[]>((state, action) => {
+    setLines: withCanvasMeta<Edge[]>((state, action) => {
       action.meta?.playgroundID;
       state.attachableLines = action.payload;
     }),
-    resetLines: withMeta<undefined>((state) => {
+    resetLines: withCanvasMeta<undefined>((state) => {
       state.attachableLines = [];
     }),
-    resetCircles: withMeta<undefined>((state) => {
+    resetCircles: withCanvasMeta<undefined>((state) => {
       state.circles = [];
     }),
     updateCreationZoomFactor: (state, action: PayloadAction<number>) => {
       state.creationZoomFactor *= action.payload;
     },
-    deleteCircle: withMeta<string>((state, action: PayloadAction<string>) => {
-      state.circles = state.circles.filter(
-        (circle) => circle.id !== action.payload
-      );
-    }),
-    setCircles: withMeta<CircleReceiver[]>(
+    deleteCircle: withCanvasMeta<string>(
+      (state, action: PayloadAction<string>) => {
+        state.circles = state.circles.filter(
+          (circle) => circle.id !== action.payload
+        );
+      }
+    ),
+    setCircles: withCanvasMeta<CircleReceiver[]>(
       (state, action: PayloadAction<CircleReceiver[]>) => {
         state.circles = action.payload;
       }
     ),
 
-    replaceCircle: withMeta<CircleReceiver>(
+    replaceCircle: withCanvasMeta<CircleReceiver>(
       (state, action: PayloadAction<CircleReceiver>) => {
         state.circles = Canvas.replaceCanvasElement({
           oldArray: state.circles,
@@ -94,7 +89,10 @@ const canvasSlice = createSlice({
         });
       }
     ),
-    attachNodeToReciever: withMeta<{ circleId: string; attachId: string }>(
+    attachNodeToReciever: withCanvasMeta<{
+      circleId: string;
+      attachId: string;
+    }>(
       (
         state,
         action: PayloadAction<{ circleId: string; attachId: string }>
@@ -104,22 +102,22 @@ const canvasSlice = createSlice({
           ?.nodeReceiver.attachedIds.push(action.payload.attachId);
       }
     ),
-    replaceAttachableLine: withMeta<Edge>((state, action) => {
+    replaceAttachableLine: withCanvasMeta<Edge>((state, action) => {
       state.attachableLines = Canvas.replaceCanvasElement({
         oldArray: state.attachableLines,
         newElement: action.payload,
       });
     }),
-    addLine: withMeta<Edge>((state, action: PayloadAction<Edge>) => {
+    addLine: withCanvasMeta<Edge>((state, action: PayloadAction<Edge>) => {
       state.attachableLines = [...state.attachableLines, action.payload];
     }),
-    addCircle: withMeta<CircleReceiver>(
+    addCircle: withCanvasMeta<CircleReceiver>(
       (state, action: PayloadAction<CircleReceiver>) => {
         state.circles = [...state.circles, action.payload];
       }
     ),
 
-    deleteCircles: withMeta<string[]>(
+    deleteCircles: withCanvasMeta<string[]>(
       (state, action: PayloadAction<string[]>) => {
         const idSet = new Set<string>(action.payload);
         const filtered = state.circles.filter(
@@ -152,7 +150,7 @@ const canvasSlice = createSlice({
       }
     ),
 
-    deleteLines: withMeta<string[]>(
+    deleteLines: withCanvasMeta<string[]>(
       (state, action: PayloadAction<string[]>) => {
         const filtered = state.attachableLines.filter(
           (line) => !action.payload.includes(line.id)
@@ -167,7 +165,7 @@ const canvasSlice = createSlice({
         state.attachableLines = filtered;
       }
     ),
-    shiftCircles: withMeta<{
+    shiftCircles: withCanvasMeta<{
       selectedGeometryInfo: SelectedGeometryInfo;
       shift: [number, number];
     }>((state, action) => {
@@ -200,11 +198,11 @@ const canvasSlice = createSlice({
       state.circles = updatedCircles;
     }),
 
-    nullifySelectedGeometryInfo: withMeta<undefined>((state) => {
+    nullifySelectedGeometryInfo: withCanvasMeta<undefined>((state) => {
       state.selectedGeometryInfo = null;
     }),
 
-    shiftLines: withMeta<{ shift: [number, number] }>((state, action) => {
+    shiftLines: withCanvasMeta<{ shift: [number, number] }>((state, action) => {
       const selectedGeometryInfo = state.selectedGeometryInfo;
       if (selectedGeometryInfo) {
         const updatedLines: Edge[] = state.attachableLines.map((line) => {
@@ -254,7 +252,7 @@ const canvasSlice = createSlice({
       }
     }),
 
-    shiftSelectBox: withMeta<{ shift: [number, number] }>(
+    shiftSelectBox: withCanvasMeta<{ shift: [number, number] }>(
       (state, action: PayloadAction<{ shift: [number, number] }>) => {
         if (state.selectedGeometryInfo) {
           state.selectedGeometryInfo = Canvas.shiftSelectBox({
@@ -264,11 +262,11 @@ const canvasSlice = createSlice({
         }
       }
     ),
-    setSelectedGeometryInfo: withMeta<CanvasState['selectedGeometryInfo']>(
-      (state, action: PayloadAction<CanvasState['selectedGeometryInfo']>) => {
-        state.selectedGeometryInfo = action.payload;
-      }
-    ),
+    setSelectedGeometryInfo: withCanvasMeta<
+      CanvasState['selectedGeometryInfo']
+    >((state, action: PayloadAction<CanvasState['selectedGeometryInfo']>) => {
+      state.selectedGeometryInfo = action.payload;
+    }),
     zoomMaxPoints: (
       state,
       action: PayloadAction<{ center: [number, number]; zoomAmount: number }>
@@ -304,7 +302,7 @@ const canvasSlice = createSlice({
         ];
       }
     },
-    mapSelectedIds: withMeta<(id: string) => string>(
+    mapSelectedIds: withCanvasMeta<(id: string) => string>(
       (state, action: PayloadAction<(id: string) => string>) => {
         const cb = action.payload;
         if (state.selectedGeometryInfo) {
@@ -313,7 +311,7 @@ const canvasSlice = createSlice({
         }
       }
     ),
-    addSelectedIds: withMeta<string[]>(
+    addSelectedIds: withCanvasMeta<string[]>(
       (state, action: PayloadAction<string[]>) => {
         if (state.selectedGeometryInfo) {
           state.selectedGeometryInfo.selectedIds = [
@@ -321,6 +319,11 @@ const canvasSlice = createSlice({
             ...action.payload,
           ];
         }
+      }
+    ),
+    setCurrentUserCursorPosition: withCanvasMeta<[number, number]>(
+      (state, action: PayloadAction<[number, number]>) => {
+        state.currentUserCursorPosition = action.payload;
       }
     ),
   },
