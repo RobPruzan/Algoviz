@@ -19,8 +19,10 @@ export const socketMiddleware =
       case 'socket/connect':
         // oh god maybe?
         // where is the join playground action?
+        console.log('initial action.meta', action.meta, !!action.meta);
         if (action.meta?.playgroundID) {
-          socket.connect(action.meta.playgroundID);
+          console.log('inisde condition');
+          socket.joinPlayground(action.meta.playgroundID);
           socket.addActionListener((socketAction: SocketAction) => {
             // need to not run the middleware if only 1 connected
             console.log('receiving action');

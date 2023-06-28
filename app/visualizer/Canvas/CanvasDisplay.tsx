@@ -106,13 +106,13 @@ const CanvasDisplay = ({
       type: 'socket/connect',
       meta,
     });
-    () => {
+    return () => {
       dispatch({
         type: 'socket/disconnect',
         meta,
       });
     };
-  }, [playgroundID, userID]);
+  }, [playgroundID]);
   // useEffect(() => {
   //   const joinPlayground = () => {
   //     if (!playgroundID) {

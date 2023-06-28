@@ -22,11 +22,13 @@ let mainId = '';
 //   | { roomID: string; type: 'circleReciever'; state: any; senderID: string }
 //   | { roomID: string; type: 'edge'; state: any; senderID: string };
 io.on('connect', (socket) => {
-  console.log('a user connected', new Date().getTime());
+  console.log('a user connected (+1)', new Date().getUTCDay());
 
   // join room event
   socket.on('join playground', (roomID: string) => {
-    console.log('User joined playground ' + roomID, new Date().getTime());
+    const clientsInRoom = io.sockets.adapter.rooms.get(roomID);
+    // console.log('Current users in the room:', Array.from(clientsInRoom ?? []));
+    console.log('User joined playground ' + roomID, clientsInRoom);
     mainId = roomID;
     playgroundUsers.set(roomID, (playgroundUsers.get(roomID) ?? 0) + 1);
     console.log('users', playgroundUsers);
@@ -56,6 +58,8 @@ io.on('connect', (socket) => {
     // the problem is an action is being emitted to a room, but only one person is in the room
     // sometimes a user connects
     // console.log('fsfds');
+    const clientsInRoom = io.sockets.adapter.rooms.get(data.meta.playgroundID);
+    console.log('Current users in the room:', Array.from(clientsInRoom ?? []));
     data.meta.fromServer = true;
     // console.log('ufsd');
     // socket bug is when simply creating a link and someone joins, it's only one way. When resetting the server though it immediatly goes back to bidirectional. Need to debug this
@@ -63,13 +67,14 @@ io.on('connect', (socket) => {
     // could make sure im tracking on the server the people in the room with a map
     // io.in(data.meta.playgroundID).emit('action', data);
     // io.to(data.meta.playgroundID).emit('action', data);
+    socket.broadcast.to(data.meta.playgroundID).emit('action', data);
   });
 
   socket.on('disconnect', () => {
     playgroundUsers.set(mainId, (playgroundUsers.get(mainId) ?? 0) - 1);
     console.log('users', playgroundUsers);
 
-    console.log('user disconnected', new Date().getTime());
+    console.log('user disconnected (-1)', new Date().getTime());
   });
 });
 
