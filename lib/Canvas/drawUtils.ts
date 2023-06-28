@@ -28,7 +28,12 @@ export const drawNodes = ({
     ctx.beginPath();
     ctx.arc(node.center[0], node.center[1], node.radius, 0, 2 * Math.PI, false);
 
-    ctx.fillStyle = theme === 'dark' ? node.color : '#DADADA';
+    ctx.fillStyle =
+      theme === 'dark'
+        ? node.color
+        : theme === 'light'
+        ? '#DADADA'
+        : node.color;
 
     if (dfsVisitedNodes.includes(node.id)) {
       ctx.fillStyle = 'green';

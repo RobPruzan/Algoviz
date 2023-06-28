@@ -101,11 +101,18 @@ const CanvasDisplay = ({
 
   useEffect(() => {
     // connects to playground socket room
+    console.log('user connecting');
     dispatch({
       type: 'socket/connect',
       meta,
     });
-  }, []);
+    () => {
+      dispatch({
+        type: 'socket/disconnect',
+        meta,
+      });
+    };
+  }, [playgroundID, userID]);
   // useEffect(() => {
   //   const joinPlayground = () => {
   //     if (!playgroundID) {

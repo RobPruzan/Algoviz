@@ -17,6 +17,8 @@ export const socketMiddleware =
   (action: SocketAction & { meta: Meta | undefined }) => {
     switch (action.type) {
       case 'socket/connect':
+        // oh god maybe?
+        // where is the join playground action?
         if (action.meta?.playgroundID) {
           socket.connect(action.meta.playgroundID);
           socket.addActionListener((socketAction: SocketAction) => {
@@ -30,6 +32,10 @@ export const socketMiddleware =
           });
         }
         break;
+      case 'socket/disconnect':
+        if (action.meta?.playgroundID) {
+          socket.disconnect();
+        }
 
       default:
         if (
