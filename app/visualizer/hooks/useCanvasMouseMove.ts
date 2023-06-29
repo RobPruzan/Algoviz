@@ -22,6 +22,7 @@ import { match } from 'ts-pattern';
 import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
 import * as Utils from '@/lib/utils';
 import { useSession } from 'next-auth/react';
+import { CollaborationActions } from '@/redux/slices/colloborationState';
 type UseCanvasMouseMoveProps = {
   isMouseDownRef: MutableRefObject<boolean>;
   selectBox: SelectBox | null;
@@ -31,7 +32,6 @@ type UseCanvasMouseMoveProps = {
   setPencilCoordinates: React.Dispatch<React.SetStateAction<PencilCoordinates>>;
   selectedCircleID: string | null;
   selectedAttachableLine: SelectedAttachableLine | null;
-  socketRef: ReturnType<typeof useRef<IO>>;
   meta: Meta;
   // notSignedInUserId: string;
 };
@@ -44,8 +44,6 @@ export const useCanvasMouseMove = ({
   setSelectBox,
   selectedCircleID,
   selectedAttachableLine,
-
-  socketRef,
   meta,
 }: UseCanvasMouseMoveProps) => {
   const { attachableLines, circles, selectedGeometryInfo } = useAppSelector(
@@ -63,10 +61,15 @@ export const useCanvasMouseMove = ({
     const mousePositionX = event.nativeEvent.offsetX;
     const mousePositionY = event.nativeEvent.offsetY;
     dispatch(
-      CanvasActions.setCurrentUserCursorPosition([
-        mousePositionX,
-        mousePositionY,
-      ])
+      CollaborationActions.setUserMousePosition(
+        {
+          mousePosition: [mousePositionX, mousePositionY],
+          user: {
+            id: meta.userID,
+          },
+        },
+        meta
+      )
     );
 
     // if (selectedControlBarAction === 'pencil')

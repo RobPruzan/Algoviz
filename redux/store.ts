@@ -14,7 +14,10 @@ import { dfsReducer } from './slices/dfsSlice';
 import { codeExecReducer } from './slices/codeExecSlice';
 import { SocketIO, socket } from '@/lib/socket/utils';
 import { SocketAction, UntypedData } from '@/lib/types';
-import { collaborationStateReducer } from './slices/colloborationState';
+import {
+  collaborationReducer,
+  collaborationStateReducer,
+} from './slices/colloborationState';
 
 export function withMeta<TPayload, TState>(
   reducer: (
@@ -33,11 +36,17 @@ export const socketMiddleware =
   ({ dispatch, getState }) =>
   (next) =>
   (action: SocketAction & { meta: Meta | undefined }) => {
+    const isSharedAction =
+      action.type.startsWith('canvas/') ||
+      action.type.startsWith('collaborationState/');
+
     switch (action.type) {
       case 'socket/connect':
         if (action.meta?.playgroundID) {
           socket.joinPlayground(action.meta.playgroundID);
           socket.addActionListener((socketAction: SocketAction) => {
+            // console.log('receving action');
+
             if (socketAction.meta.userID !== action.meta.userID) {
               // note, performance is pretty good with circles, but awful with boxes, investigate
               dispatch(socketAction);
@@ -51,12 +60,16 @@ export const socketMiddleware =
         }
 
       default:
-        if (
-          action.type.startsWith('canvas/') &&
-          action.meta &&
-          !action.meta.fromServer
-        ) {
-          console.log('sending action');
+        // console.log(
+        //   'sending action',
+        //   'will dispatch: ',
+        //   isSharedAction && action.meta && !action.meta.fromServer,
+        //   isSharedAction,
+        //   action.meta
+        //   // !action.meta.fromServer
+        // );
+
+        if (isSharedAction && action.meta && !action.meta.fromServer) {
           socket.sendSocketAction(action);
         }
     }
@@ -69,7 +82,7 @@ export const store = configureStore({
     canvas: canvasReducer,
     codeExec: codeExecReducer,
     // other state can be shared between clients, but this state is specifically for supporting collaboration
-    collaborationState: canvasReducer,
+    collaborationState: collaborationReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(socketMiddleware(socket)),

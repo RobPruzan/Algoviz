@@ -26,7 +26,6 @@ export type CanvasState = {
   };
   //
   creationZoomFactor: number;
-  currentUserCursorPosition: [number, number];
 };
 
 const initialState: CanvasState = {
@@ -35,7 +34,6 @@ const initialState: CanvasState = {
   variableInspector: { show: true, queues: [], stack: [] },
   creationZoomFactor: 1,
   selectedGeometryInfo: null,
-  currentUserCursorPosition: [0, 0],
 };
 
 export type Meta = {
@@ -319,11 +317,6 @@ const canvasSlice = createSlice({
             ...action.payload,
           ];
         }
-      }
-    ),
-    setCurrentUserCursorPosition: withCanvasMeta<[number, number]>(
-      (state, action: PayloadAction<[number, number]>) => {
-        state.currentUserCursorPosition = action.payload;
       }
     ),
   },

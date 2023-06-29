@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { AlgoComboBox } from '../Sort/AlgoComboBox';
 import { Button } from '@/components/ui/button';
 import {
   DialogHeader,
@@ -10,7 +9,6 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 import { codeExecActions } from '@/redux/slices/codeExecSlice';
 
 import { Input } from '@/components/ui/input';
@@ -21,14 +19,6 @@ import { Label } from '@/components/ui/label';
 import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 import { useCodeMutation } from '../hooks/useCodeMutation';
 import { useSaveAlgorithmMutation } from '../hooks/useSaveAlgorithmMutation';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { HelpCircle } from 'lucide-react';
 import {
   Popover,
   PopoverContent,
@@ -83,23 +73,6 @@ const CodeExecutionControlBar = ({
   return (
     <div className="w-full max-h-[7%] min-h-[50px]">
       <div className="  prevent-select overflow-x-scroll p-3 flex w-full border-secondary justify-evenly items-center border-b-2 ">
-        {/* {getAlgorithmsQuery.isLoading ? (
-          <AlgoComboBox
-            algorithms={[]}
-            defaultPlaceholder="Loading"
-            setValue={() => undefined}
-            value={undefined}
-          />
-        ) : (
-          <AlgoComboBox
-            algorithms={getAlgorithmsQuery.data ?? []}
-            defaultPlaceholder="Algorithm"
-            value={selectedAlgorithm}
-            setValue={(d) => {
-              setSelectedAlgorithm(d);
-            }}
-          />
-        )} */}
         <Popover>
           <PopoverTrigger
             asChild

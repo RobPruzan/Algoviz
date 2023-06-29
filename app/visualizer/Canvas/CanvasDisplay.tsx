@@ -9,6 +9,7 @@ import {
   Edge,
   IO,
   UntypedData,
+  FirstParameter,
 } from '@/lib/types';
 import { isStringAlgorithm } from '../Sort/AlgoComboBox';
 import React, { useRef, useState, useEffect, useContext } from 'react';
@@ -53,6 +54,7 @@ import { io } from 'socket.io-client';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { SocketAction } from '@/lib/types';
+import { CollaborationActions } from '@/redux/slices/colloborationState';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
   socketRef: ReturnType<typeof useRef<IO>>;
@@ -80,9 +82,9 @@ const CanvasDisplay = ({
   );
   const { sideBarState, setSideBarState } = useContext(SideBarContext);
   const dispatch = useAppDispatch();
-  const { attachableLines, circles, creationZoomFactor } = useAppSelector(
-    (store) => store.canvas
-  );
+  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
+  const { collabInfos } = useAppSelector((store) => store.collaborationState);
+  // console.log('real data', collabInfos);
   const isMouseDownRef = useRef(false);
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
@@ -98,12 +100,14 @@ const CanvasDisplay = ({
   const userID = session.data?.user.id ?? notSignedInUserId;
 
   const meta: Meta = { playgroundID, userID };
+  const cursorImgRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
     dispatch({
       type: 'socket/connect',
       meta,
     });
+
     return () => {
       dispatch({
         type: 'socket/disconnect',
@@ -111,6 +115,29 @@ const CanvasDisplay = ({
       });
     };
   }, [playgroundID]);
+
+  useEffect(() => {
+    const img = new Image(20, 20);
+    img.src = 'joint-cursor.png';
+
+    // if (!cursorImgRef.current) return;
+    img.onload = function () {
+      // console.log('LOADINGIGIG');
+      cursorImgRef.current = img;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (session.status === 'loading') return;
+    const item: FirstParameter<typeof CollaborationActions.addUser> = {
+      user: {
+        ...session.data?.user,
+        id: userID,
+      },
+      mousePosition: [0, 0],
+    };
+    dispatch(CollaborationActions.addUser(item, meta));
+  }, [session.data?.user, userID, session.status]);
 
   useClearCanvasState(meta);
 
@@ -140,7 +167,6 @@ const CanvasDisplay = ({
     selectedControlBarAction,
     setPencilCoordinates,
     setSelectBox,
-    socketRef,
     meta,
   });
 
@@ -168,28 +194,43 @@ const CanvasDisplay = ({
 
   const handleFullyConnect = useFullyConnect(meta);
   const themeInfo = useTheme();
-  // dont mutate anything or query/disable them if the playground is is undefined (unless they are joining a playground)
+  // don't mutate anything or query/disable them if the playground is is undefined (unless they are joining a playground)
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!ctx) return;
     if (!canvas) return;
+
     ctx.globalAlpha = 0.5; // Set the transparency
     Draw.optimizeCanvas({
       ctx,
       canvas,
     });
+
+    const val = cursorImgRef.current;
+    val &&
+      collabInfos.forEach((info) => {
+        if (info.user.id !== userID) {
+          ctx.drawImage(
+            val,
+            info.mousePosition[0],
+            info.mousePosition[1],
+            20,
+            20
+          );
+        }
+      });
+
+    // ctx.crea;
+
     // this is so hacky and i need to fix this
+    // because multiple ids of an obj can be selected, we can only say multiple items are selected if its greater than 3 ids, this can change if new geome try is added
     const thresholdForMultipleItemsSelected = 3;
     if (
       selectedGeometryInfo?.maxPoints &&
       selectedGeometryInfo.selectedIds.length >
         thresholdForMultipleItemsSelected
     ) {
-      console.log(
-        'the selected geomotry info',
-        selectedGeometryInfo.selectedIds
-      );
       Draw.drawBox({
         ctx,
         box: {
@@ -254,8 +295,9 @@ const CanvasDisplay = ({
     pencilCoordinates,
     visualizationNodes,
     themeInfo.theme,
-    // need to add the canvasheight to redraw on for the resizeable
+    collabInfos,
     canvasWidth,
+    userID,
   ]);
 
   return (
