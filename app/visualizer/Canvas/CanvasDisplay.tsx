@@ -88,7 +88,7 @@ const CanvasDisplay = ({
   const isMouseDownRef = useRef(false);
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
-  const { visualization, visualizationPointer } = useAppSelector(
+  const { visualization, visualizationPointer, validation } = useAppSelector(
     (store) => store.codeExec
   );
   const isContextMenuActiveRef = useRef(false);
@@ -254,8 +254,9 @@ const CanvasDisplay = ({
       nodes: circles,
       selectedCircleID,
       selectedIds: selectedGeometryInfo?.selectedIds,
-      dfsVisitedNodes: visualizationNodes ?? [],
+      visualizationNodes: visualizationNodes ?? [],
       theme: themeInfo.theme ?? 'dark',
+      validationNodes: validation,
     });
 
     if (selectBox) {
@@ -298,6 +299,7 @@ const CanvasDisplay = ({
     collabInfos,
     canvasWidth,
     userID,
+    validation,
   ]);
 
   return (

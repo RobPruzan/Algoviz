@@ -52,7 +52,7 @@ export const algorithmsInfo: AlgorithmInfo[] = [
   },
 ];
 
-export const DEFAULT_CODE = `type NodeID = string // uuid representing a node
+export const DEFAULT_VISUALIZATION_CODE = `type NodeID = string // uuid representing a node
 type AdjacencyList = Record<NodeID, NodeID[]>
 type VisitedIDs = NodeID[]
 type Visualization = VisitedIDs[]
@@ -62,6 +62,15 @@ function algorithm(adjList: AdjacencyList): Visualization{
 };
 `;
 
+export const DEFAULT_VALIDATOR_CODE = `type NodeID = string // uuid representing a node
+type AdjacencyList = Record<NodeID, NodeID[]>
+type VisitedIDs = NodeID[]
+
+
+function algorithm(adjList: AdjacencyList): boolean {
+    // your code here
+};
+`;
 export const serializedPlaygroundSchema = z.object({
   id: z.number(),
   createdAt: z.string(),
@@ -114,4 +123,11 @@ export const sendCreate = (
   socketRef: ReturnType<typeof useRef<IO>>
 ) => {
   socketRef.current?.emit('create', state);
+};
+
+export const twCond = (
+  cases: { cond: boolean; className: string }[],
+  fallback?: string
+): string => {
+  return cases.find((cond) => cond.cond)?.className ?? fallback ?? '';
 };

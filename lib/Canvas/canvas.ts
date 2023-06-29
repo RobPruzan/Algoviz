@@ -288,14 +288,7 @@ const doesLineIntersectRect = ({
       { x: rectSide.x1, y: rectSide.y1 },
       { x: rectSide.x2, y: rectSide.y2 }
     );
-    console.log(
-      'are they intersecting',
-      res,
-      { x: line.x1, y: line.y1 },
-      { x: line.x2, y: line.y2 },
-      { x: rectSide.x1, y: rectSide.y1 },
-      { x: rectSide.x2, y: rectSide.y2 }
-    );
+
     if (res) {
       return true;
     }

@@ -60,15 +60,6 @@ export const socketMiddleware =
         }
 
       default:
-        // console.log(
-        //   'sending action',
-        //   'will dispatch: ',
-        //   isSharedAction && action.meta && !action.meta.fromServer,
-        //   isSharedAction,
-        //   action.meta
-        //   // !action.meta.fromServer
-        // );
-
         if (isSharedAction && action.meta && !action.meta.fromServer) {
           socket.sendSocketAction(action);
         }

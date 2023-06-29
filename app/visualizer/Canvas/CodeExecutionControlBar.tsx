@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+
 import {
   DialogHeader,
   DialogFooter,
@@ -9,7 +11,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { codeExecActions } from '@/redux/slices/codeExecSlice';
+import { MODES, Modes, CodeExecActions } from '@/redux/slices/codeExecSlice';
 
 import { Input } from '@/components/ui/input';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
@@ -26,6 +28,8 @@ import {
 } from '@/components/ui/popover';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { match } from 'ts-pattern';
+import { twCond } from '@/lib/utils';
+import { AlgoComboBox } from '../Sort/AlgoComboBox';
 
 type Props = {
   selectedAlgorithm: string | undefined;
@@ -53,6 +57,8 @@ const CodeExecutionControlBar = ({
 
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
 
+  console.log('da query', getAlgorithmsQuery);
+
   const codeMutation = useCodeMutation();
 
   const saveAlgorithmMutation = useSaveAlgorithmMutation();
@@ -61,14 +67,13 @@ const CodeExecutionControlBar = ({
     (d) => d.id === selectedAlgorithm
   );
 
-  const [tabValue, setTabValue] = useState<'visualizer' | 'validator'>(
-    'visualizer'
+  const execMode = useAppSelector((store) => store.codeExec.mode);
+  const appliedToWholeApp = useAppSelector(
+    (store) => store.codeExec.appliedToWholeApp
   );
 
-  const isValueTabType = (
-    value: string
-  ): value is 'visualizer' | 'validator' => {
-    return value === 'visualizer' || value === 'validator';
+  const isValueMode = (value: string): value is Modes => {
+    return MODES.some((mode) => mode === value);
   };
   return (
     <div className="w-full max-h-[7%] min-h-[50px]">
@@ -109,13 +114,13 @@ const CodeExecutionControlBar = ({
               defaultValue="input"
               className=" flex py-1 justify-evenly items-center  w-full border-b"
               onValueChange={(value) =>
-                isValueTabType(value) && setTabValue(value)
+                isValueMode(value) && dispatch(CodeExecActions.setMode(value))
               }
             >
               <TabsList className="w-full dark:bg-primary   flex justify-evenly items-center">
                 <TabsTrigger
                   className={`w-2/5 ${
-                    tabValue === 'visualizer'
+                    execMode === 'visualizer'
                       ? 'border-2 rounded-md   '
                       : 'border-2 rounded-md border-secondary'
                   }`}
@@ -125,7 +130,7 @@ const CodeExecutionControlBar = ({
                 </TabsTrigger>
                 <TabsTrigger
                   className={`w-2/5 ${
-                    tabValue === 'validator'
+                    execMode === 'validator'
                       ? 'border-2 rounded-md '
                       : 'border-2 rounded-md border-secondary'
                   }`}
@@ -142,9 +147,54 @@ const CodeExecutionControlBar = ({
               - can select output type (i may prefer if this is done programmatically)
               - will do this after the mouse thingy
             */}
-
-            {match(tabValue)
-              .with('visualizer', () => <>vis</>)
+            {/* {console.log('fuck', appliedToWholeApp) ;return 'fdsaf'} */}
+            {match(execMode)
+              .with('visualizer', () => (
+                <div className="flex flex-col p-3 ">
+                  {getAlgorithmsQuery.isLoading ? (
+                    <AlgoComboBox
+                      algorithms={[]}
+                      defaultPlaceholder="Loading"
+                      setValue={() => undefined}
+                      value={undefined}
+                    />
+                  ) : (
+                    <AlgoComboBox
+                      algorithms={getAlgorithmsQuery.data ?? []}
+                      defaultPlaceholder="Algorithm"
+                      value={selectedAlgorithm}
+                      setValue={(d) => {
+                        setSelectedAlgorithm(d);
+                      }}
+                    />
+                  )}
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      onCheckedChange={(val) => {
+                        dispatch(CodeExecActions.setApplyAlgoToWholeApp(val));
+                        console.log(val);
+                      }}
+                      checked={appliedToWholeApp}
+                      className=" border-2 data-[state=unchecked]:bg-secondary data-[state=unchecked]:border-gray-800  data-[state=checked]:bg-foreground data-[state=checked]:border-gray-100"
+                      // className={twCond([
+                      //   {
+                      //     cond: appliedToWholeApp,
+                      //     className: 'bg-white',
+                      //   },
+                      //   {
+                      //     cond: !appliedToWholeApp,
+                      //     className:
+                      //       ' data-[state=unchecked]:bg-input[data-state=unchecked]',
+                      //   },
+                      // ])}
+                      id="whole-canvas"
+                    />
+                    <Label htmlFor="whole-canvas">
+                      Apply to all canvas items
+                    </Label>
+                  </div>
+                </div>
+              ))
               .with('validator', () => <>val</>)
               .exhaustive()}
 
@@ -167,11 +217,11 @@ const CodeExecutionControlBar = ({
           variant="outline"
           className="w-[90px]  flex items-center justify-center h-[30px]   font-bold"
         >
-          Debug
+          Execute
         </Button>
         <Button
           onClick={(e) => {
-            dispatch(codeExecActions.toggleIsApplyingAlgorithm());
+            dispatch(CodeExecActions.toggleIsApplyingAlgorithm());
           }}
           variant="outline"
           className="w-[90px] flex items-center justify-center h-[30px]   font-bold"

@@ -249,7 +249,7 @@ const CanvasControlBar = ({
         // you define the color, and the logic behind what changes it
         // yes i like that very much
         */}
-        {'Red-Black Tree | > more'}
+        {'Red-Black Tree'}
       </Button>
       <Button variant={'outline'} className="px-2 min-w-fit">
         Binary Search Tree

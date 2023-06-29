@@ -6,20 +6,23 @@ import {
   SelectBox,
   PencilCoordinates,
 } from '../types';
+import { NodeValidation } from '@/redux/slices/codeExecSlice';
 
 export const drawNodes = ({
   nodes,
   ctx,
   selectedCircleID,
   selectedIds,
-  dfsVisitedNodes,
+  visualizationNodes,
   theme,
+  validationNodes,
 }: {
   nodes: CircleReceiver[];
   ctx: CanvasRenderingContext2D;
   selectedCircleID: string | null;
   selectedIds: Array<string> | undefined;
-  dfsVisitedNodes: string[];
+  visualizationNodes: string[];
+  validationNodes: NodeValidation[];
   theme: string;
 }) => {
   ctx.save();
@@ -35,9 +38,17 @@ export const drawNodes = ({
         ? '#DADADA'
         : node.color;
 
-    if (dfsVisitedNodes.includes(node.id)) {
+    if (visualizationNodes.includes(node.id)) {
       ctx.fillStyle = 'green';
     }
+    if (validationNodes.length > 0) {
+      if (validationNodes.find((vNode) => vNode.id === node.id)?.valid) {
+        ctx.fillStyle = 'green';
+      } else {
+        ctx.fillStyle === 'red';
+      }
+    }
+
     ctx.fill();
     if (selectedCircleID === node.id || selectedIds?.includes(node.id)) {
       ctx.lineWidth = 1;

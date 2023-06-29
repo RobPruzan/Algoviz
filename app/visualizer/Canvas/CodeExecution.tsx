@@ -1,35 +1,21 @@
 'use client';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { useAppDispatch, useAppSelector } from '@/redux/store';
+import { useAppSelector } from '@/redux/store';
 import Editor from '@monaco-editor/react';
-import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
 
 import * as Graph from '@/lib/graph';
 // import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { P, match } from 'ts-pattern';
-import { z } from 'zod';
-import { nightOwlTheme, outputTheme } from './theme';
-import { ChevronsUpDown, Circle, Loader, Play } from 'lucide-react';
-import Node from '@/components/Visualizers/Node';
+import React, { useState } from 'react';
+import { match } from 'ts-pattern';
+import { nightOwlTheme } from './theme';
+import { Percentage } from '@/lib/types';
 import {
-  Percentage,
-  SelectedGeometryInfo,
-  SideBarContextState,
-} from '@/lib/types';
-import { AlgoComboBox } from '../Sort/AlgoComboBox';
-import { DEFAULT_CODE, algorithmsInfo } from '@/lib/utils';
+  DEFAULT_VALIDATOR_CODE,
+  DEFAULT_VISUALIZATION_CODE,
+} from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Algorithm } from '@prisma/client';
 import Resizable from '../Resizeable';
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 import { useTheme } from 'next-themes';
 type Props = {
@@ -75,9 +61,13 @@ const CodeExecution = ({ selectedAlgorithm, setUserAlgorithm }: Props) => {
     (d) => d.id === selectedAlgorithm
   );
 
-  return variables.show ? (
-    // <div className="w-full h-full border-2 border-secondary">
+  const execMode = useAppSelector((store) => store.codeExec.mode);
+  const defaultCode = match(execMode)
+    .with('validator', () => DEFAULT_VALIDATOR_CODE)
+    .with('visualizer', () => DEFAULT_VISUALIZATION_CODE)
+    .exhaustive();
 
+  return variables.show ? (
     <div className="w-full h-[93%]">
       <Resizable
         canvasSize={editorHeight}
@@ -115,7 +105,7 @@ const CodeExecution = ({ selectedAlgorithm, setUserAlgorithm }: Props) => {
                     ? 'light'
                     : 'vs-dark'
                 }
-                value={currentAlgorithm?.code ?? DEFAULT_CODE}
+                value={currentAlgorithm?.code ?? defaultCode}
                 // this doesn't make sense without edit functionality will do that next
                 onChange={(value) => {
                   if (value) {

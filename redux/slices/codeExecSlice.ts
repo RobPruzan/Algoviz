@@ -1,16 +1,30 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { boolean } from 'zod';
 
 type NodeID = string;
+export const MODES = ['visualizer', 'validator'] as const;
+export type Modes = (typeof MODES)[number];
+
+export type NodeValidation = {
+  id: string;
+  valid: boolean;
+};
 
 type InitialState = {
   visualization: NodeID[][];
   visualizationPointer: number;
   isApplyingAlgorithm: boolean;
+  mode: Modes;
+  appliedToWholeApp: boolean;
+  validation: NodeValidation[];
 };
 const initialState: InitialState = {
   visualization: [],
   visualizationPointer: 0,
   isApplyingAlgorithm: false,
+  mode: 'visualizer',
+  appliedToWholeApp: false,
+  validation: [],
 };
 const codeExecSlice = createSlice({
   name: 'dfs',
@@ -42,8 +56,19 @@ const codeExecSlice = createSlice({
     toggleIsApplyingAlgorithm: (state) => {
       state.isApplyingAlgorithm = !state.isApplyingAlgorithm;
     },
+    setMode: (state, action: PayloadAction<Modes>) => {
+      state.mode = action.payload;
+    },
+    setApplyAlgoToWholeApp: (state, action: PayloadAction<boolean>) => {
+      console.log('man what');
+      state.appliedToWholeApp = action.payload;
+    },
+
+    setAreNodesValid: (state, action: PayloadAction<NodeValidation[]>) => {
+      state.validation = action.payload;
+    },
   },
 });
 
-export const codeExecActions = codeExecSlice.actions;
+export const CodeExecActions = codeExecSlice.actions;
 export const codeExecReducer = codeExecSlice.reducer;

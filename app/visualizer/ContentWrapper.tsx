@@ -11,9 +11,14 @@ import Resizable from './Resizeable';
 import Visualize from './Visualize';
 import { Algorithm, Prisma } from '@prisma/client';
 import CodeExecutionControlBar from './Canvas/CodeExecutionControlBar';
-import { DEFAULT_CODE } from '@/lib/utils';
+import {
+  DEFAULT_VALIDATOR_CODE,
+  DEFAULT_VISUALIZATION_CODE,
+} from '@/lib/utils';
 import { useDispatch } from 'react-redux';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
+import { useAppSelector } from '@/redux/store';
+import { match } from 'ts-pattern';
 type Props = {
   shapes: {
     circles: Prisma.JsonValue;
@@ -32,7 +37,7 @@ const ContentWrapper = ({ shapes }: Props) => {
   const [userAlgorithm, setUserAlgorithm] = useState<
     Pick<Algorithm, 'code' | 'description' | 'title'>
   >({
-    code: DEFAULT_CODE,
+    code: DEFAULT_VISUALIZATION_CODE,
     description: '',
     title: '',
   });

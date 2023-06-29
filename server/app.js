@@ -8,6 +8,7 @@ app.use(express.json());
 
 app.post('/exec', (req, res) => {
   const { code, globalVar } = req.body;
+  console.log('incoming code', globalVar);
   const jsCode = ts.transpileModule(
     code + `JSON.stringify({exitValue: algorithm(globalVar), logs});`,
     {
@@ -50,7 +51,7 @@ app.post('/exec', (req, res) => {
     console.error('failed:', error);
     return res.status(400).send({ error: error.toString() });
   }
-
+  console.log('returning result:', result);
   return res.send({ result });
 });
 module.exports.handler = serverless(app);

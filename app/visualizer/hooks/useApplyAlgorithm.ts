@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { useEffect, useState } from 'react';
 import { DFSActions } from '@/redux/slices/dfsSlice';
-import { codeExecActions } from '@/redux/slices/codeExecSlice';
+import { CodeExecActions } from '@/redux/slices/codeExecSlice';
 import { useInterval } from '@/hooks/useInterval';
 
 export const useApplyAlgorithm = () => {
@@ -12,10 +12,10 @@ export const useApplyAlgorithm = () => {
   useInterval(
     () => {
       if (visualizationPointer < visualization.length) {
-        dispatch(codeExecActions.incrementVisualizationPointer());
+        dispatch(CodeExecActions.incrementVisualizationPointer());
       } else {
-        dispatch(codeExecActions.resetVisitedPointer());
-        dispatch(codeExecActions.setIsApplyingAlgorithm(false));
+        dispatch(CodeExecActions.resetVisitedPointer());
+        dispatch(CodeExecActions.setIsApplyingAlgorithm(false));
       }
     },
     isApplyingAlgorithm ? 1000 : null

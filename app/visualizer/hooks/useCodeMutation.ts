@@ -1,4 +1,4 @@
-import { codeExecActions } from '@/redux/slices/codeExecSlice';
+import { CodeExecActions } from '@/redux/slices/codeExecSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
@@ -34,8 +34,14 @@ export const useCodeMutation = () => {
         code,
         globalVar: adjacencyList,
       });
+      console.log('da resss', res);
       const dataSchema = z.object({
-        data: z.object({ result: z.array(z.array(z.string())) }),
+        data: z.object({
+          result: z.object({
+            exitValue: z.array(z.array(z.string())),
+            logs: z.array(z.string()),
+          }),
+        }),
       });
       const parsed = dataSchema.parse(res.data);
 
@@ -43,7 +49,8 @@ export const useCodeMutation = () => {
     },
     onError: (err) => {},
     onSuccess: (data) => {
-      dispatch(codeExecActions.setVisited(data));
+      console.log('success', data);
+      dispatch(CodeExecActions.setVisited(data.exitValue));
     },
   });
 
