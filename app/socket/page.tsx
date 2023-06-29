@@ -1,6 +1,6 @@
 import Chat from './Chat';
 
-export const page = () => {
+const page = () => {
   return <Chat />;
 };
 

@@ -1,62 +1,47 @@
 'use client';
+import React, { useEffect, useState } from 'react';
 
-const SOCKET_SERVER_URL = 'http://localhost:8080';
-
-type IO = ReturnType<typeof io>;
-import React, { useEffect, useRef, useState } from 'react';
-import io from 'socket.io-client';
-
-const Chat = () => {
-  const [room, setRoom] = useState('');
-  const [message, setMessage] = useState('');
+const Chat: React.FC = () => {
+  const [ws, setWs] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<string[]>([]);
-  const socketRef = useRef<IO>();
+  const [input, setInput] = useState('');
 
   useEffect(() => {
-    socketRef.current = io(SOCKET_SERVER_URL);
+    let websocket = new WebSocket('ws://localhost:9001');
+    console.log('web socket', websocket);
+    websocket.onopen = () => console.log('WebSocket is connected.');
+    websocket.onmessage = (ev) => {
+      setMessages((messages) => [...messages, ev.data]);
+    };
+    websocket.onerror = (ev) =>
+      console.log('WebSocket encountered error: ', ev);
+    websocket.onclose = () => console.log('WebSocket is closed now.');
 
-    socketRef.current.on('chat message', (message) => {
-      setMessages((messages) => [...messages, JSON.stringify(message)]);
-    });
-
+    setWs(websocket);
     return () => {
-      socketRef.current?.disconnect();
+      websocket.close();
     };
   }, []);
 
-  const joinRoom = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    socketRef.current?.emit('join room', room);
-    setMessages([]);
-  };
-
   const sendMessage = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    socketRef.current?.emit('chat message', { room, msg: message });
-    setMessage('');
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(input);
+      setInput('');
+    }
   };
 
   return (
-    <div>
-      <form onSubmit={joinRoom}>
-        <input
-          value={room}
-          onChange={(e) => setRoom(e.target.value)}
-          placeholder="Enter room..."
-        />
-        <button className="border border-white">Join Room</button>
-      </form>
-      {messages.map((message, i) => (
-        <div key={i}>{message}</div>
-      ))}
+    <div className="App">
       <form onSubmit={sendMessage}>
-        <input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Type message..."
-        />
-        <button className="border border-white">Send</button>
+        <input value={input} onChange={(e) => setInput(e.target.value)} />
+        <button type="submit">Send</button>
       </form>
+      <ul>
+        {messages.map((message, idx) => (
+          <li key={idx}>{message}</li>
+        ))}
+      </ul>
     </div>
   );
 };
