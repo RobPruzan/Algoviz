@@ -8,6 +8,7 @@ import {
   IO,
   FirstParameter,
   SelectedValidatorLens,
+  SelectedValidatorLensResizeCircle,
 } from '@/lib/types';
 import { isStringAlgorithm } from '../Sort/AlgoComboBox';
 import React, { useRef, useState, useEffect, useContext } from 'react';
@@ -100,8 +101,12 @@ const CanvasDisplay = ({
 
   const meta: Meta = { playgroundID, userID };
   const cursorImgRef = useRef<HTMLImageElement | null>(null);
-  const directedEdges = attachableLines.filter((edge) => edge.directed);
-  const undirectedEdges = attachableLines.filter((edge) => !edge.directed);
+
+  const [
+    selectedResizeValidatorLensCircle,
+    setSelectedResizeValidatorLensCircle,
+  ] = useState<SelectedValidatorLensResizeCircle | null>(null);
+
   useEffect(() => {
     dispatch({
       type: 'socket/connect',
@@ -154,6 +159,7 @@ const CanvasDisplay = ({
     setSelectedAttachableLine,
     setSelectedCircleID,
     setSelectedValidatorLens,
+    setSelectedResizeValidatorLensCircle,
     meta,
   });
 
@@ -174,6 +180,7 @@ const CanvasDisplay = ({
     setSelectBox,
     meta,
     selectedValidatorLens,
+    selectedResizeValidatorLensCircle,
   });
 
   const handleMouseUp = useHandleMouseUp({
@@ -188,6 +195,7 @@ const CanvasDisplay = ({
     setSelectedCircleID,
     setSelectedValidatorLens,
     selectedValidatorLens,
+    setSelectedResizeValidatorLensCircle,
   });
 
   useCanvasWheel({
@@ -321,6 +329,8 @@ const CanvasDisplay = ({
     selectedValidatorLens,
   ]);
 
+  // const dontRemovePls = ['cursor-crosshair', 'cursor-n-resize'];
+
   return (
     <>
       <ContextMenu>
@@ -332,18 +342,18 @@ const CanvasDisplay = ({
               }}
               className={`
               outline-none 
-              ${
-                selectedControlBarAction === 'pencil' ? 'cursor-crosshair' : ''
-              }`}
+              ${selectedControlBarAction === 'pencil' ? 'cursor-crosshair' : ''}
+         
+                `}
               ref={canvasRef}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               tabIndex={-1}
               onContextMenu={handleContextMenu}
               onMouseUp={handleMouseUp}
-              width={typeof window !== 'undefined' ? window.innerWidth : 1000}
+              width={typeof window !== 'undefined' ? window.innerWidth : 1200}
               onKeyDown={handleKeyDown}
-              height={typeof window !== 'undefined' ? window.innerHeight : 1000}
+              height={typeof window !== 'undefined' ? window.innerHeight : 1200}
             />
           </ContextMenuTrigger>
           <ContextMenuContent className="w-64">

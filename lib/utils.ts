@@ -12,6 +12,7 @@ import {
 import { z } from 'zod';
 import ky from 'ky';
 import { useRef } from 'react';
+import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -130,4 +131,29 @@ export const twCond = (
   fallback?: string
 ): string => {
   return cases.find((cond) => cond.cond)?.className ?? fallback ?? '';
+};
+
+export const RESIZE_CIRCLE_RADIUS = 5;
+
+export const getValidatorLensResizeCirclesCenter = (
+  validatorLens: ValidatorLensInfo
+) => {
+  const topLeft = validatorLens.rect.topLeft;
+  const topRight: [number, number] = [
+    validatorLens.rect.bottomRight[0],
+    validatorLens.rect.topLeft[1],
+  ];
+  const bottomLeft: [number, number] = [
+    validatorLens.rect.topLeft[0],
+    validatorLens.rect.bottomRight[1],
+  ];
+  const bottomRight = validatorLens.rect.bottomRight;
+
+  return {
+    topLeft,
+    topRight,
+    bottomLeft,
+    bottomRight,
+    RESIZE_CIRCLE_RADIUS,
+  };
 };

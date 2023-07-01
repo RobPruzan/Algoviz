@@ -13,6 +13,7 @@ import * as Canvas from '@/lib/Canvas/canvas';
 import * as Draw from '@/lib/Canvas/draw';
 import { ImmutableQueue } from '@/lib/graph';
 import { withMeta } from '../store';
+import { match } from 'ts-pattern';
 
 // this validatorLens will have code attached to it
 // it should probably extend the selectedGeomotryInfo
@@ -69,6 +70,55 @@ const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    resizeValidatorLens: withCanvasMeta<{
+      lens: ValidatorLensInfo;
+      side: 'bottom-left' | 'bottom-right' | 'top-right' | 'top-left';
+      mousePos: [number, number];
+    }>((state, action) => {
+      console.log('incoming side', action.payload.side);
+      const lens = state.validatorLensContainer.find(
+        (lens) => lens.id === action.payload.lens.id
+      );
+      if (!lens) return;
+      // state.validatorLensContainer[lensIndex].rect.bottomRight
+      match(action.payload.side)
+        .with('bottom-left', () => {
+          // its just adjusting the bottomRights y
+          // adjusting the topLefts x
+          const newBottomRight: [number, number] = [
+            lens.rect.bottomRight[0],
+            action.payload.mousePos[1],
+          ];
+          const newTopLeft: [number, number] = [
+            action.payload.mousePos[0],
+            lens.rect.topLeft[1],
+          ];
+
+          lens.rect.bottomRight = newBottomRight;
+          lens.rect.topLeft = newTopLeft;
+        })
+        .with('bottom-right', () => {
+          lens.rect.bottomRight = action.payload.mousePos;
+        })
+        .with('top-left', () => {
+          lens.rect.topLeft = action.payload.mousePos;
+        })
+        .with('top-right', () => {
+          const newBottomRight: [number, number] = [
+            action.payload.mousePos[0],
+            lens.rect.bottomRight[1],
+          ];
+          const newTopLeft: [number, number] = [
+            // action.payload.mousePos[0],
+            lens.rect.topLeft[0],
+            action.payload.mousePos[1],
+          ];
+
+          lens.rect.bottomRight = newBottomRight;
+          lens.rect.topLeft = newTopLeft;
+        })
+        .exhaustive();
+    }),
     addValidatorLens: withCanvasMeta<ValidatorLensInfo>((state, action) => {
       state.validatorLensContainer = [
         ...state.validatorLensContainer,

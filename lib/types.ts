@@ -150,7 +150,10 @@ export type SelectedValidatorLens = {
   id: string;
   selected: 'validator-lens';
 };
-
+export type SelectedValidatorLensResizeCircle = {
+  id: string;
+  type: 'bottom-right' | 'top-left' | 'top-right' | 'bottom-left';
+};
 export type SelectBox = {
   p1: [number, number];
   p2: [number, number];

@@ -235,7 +235,7 @@ const CanvasControlBar = ({
         variant={'outline'}
         className="px-2 min-w-fit"
       >
-        <Square className="bg-green-500" />
+        <Square />
       </Button>
       <Button variant={'outline'} className="px-2 min-w-fit">
         {/* here goes options for specific r/b tree data structure stuff

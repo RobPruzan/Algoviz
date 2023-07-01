@@ -15,7 +15,9 @@ import {
   PencilCoordinates,
   SelectedGeometryInfo,
   SelectedValidatorLens,
+  SelectedValidatorLensResizeCircle,
 } from '../types';
+import * as Utils from '@/lib/utils';
 import { RefObject, type MouseEvent } from 'react';
 import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 export const replaceCanvasElement = <T extends { id: string }>({
@@ -29,6 +31,107 @@ export const replaceCanvasElement = <T extends { id: string }>({
   const newArray = oldArray.filter((elem) => elem.id !== newId);
   newArray.push(newElement);
   return newArray;
+};
+
+const getActiveLensResizeCircle = ({
+  canvasRef,
+  event,
+  validatorLensContainer,
+}: {
+  event: MouseEvent<HTMLCanvasElement>;
+  canvasRef: React.RefObject<HTMLCanvasElement>;
+  validatorLensContainer: ValidatorLensInfo[];
+}) => {
+  // getValidatorLensResizeCirclesCenter
+  const canvas = canvasRef.current;
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  // // validatorLensContainer.find((lens) => {
+  // const { bottomLeft, bottomRight, topLeft, topRight, RESIZE_CIRCLE_RADIUS } =
+  //   Utils.getValidatorLensResizeCirclesCenter(lens);
+  // return (
+  //   isPointInCircle(
+  //     x,
+  //     y,
+  //     bottomLeft[0],
+  //     bottomLeft[1],
+  //     RESIZE_CIRCLE_RADIUS
+  //   ) ||
+  // isPointInCircle(
+  //   x,
+  //   y,
+  //   bottomRight[0],
+  //   bottomRight[1],
+  //   RESIZE_CIRCLE_RADIUS
+  // ) ||
+  //   isPointInCircle(x, y, topLeft[0], topLeft[1], RESIZE_CIRCLE_RADIUS) ||
+  //   isPointInCircle(x, y, topRight[0], topRight[1], RESIZE_CIRCLE_RADIUS)
+  // );
+  // // });
+
+  // const flatCenters =
+  return validatorLensContainer
+    .map((lens) => {
+      const {
+        bottomLeft,
+        bottomRight,
+        topLeft,
+        topRight,
+        RESIZE_CIRCLE_RADIUS,
+      } = Utils.getValidatorLensResizeCirclesCenter(lens);
+
+      if (
+        isPointInCircle(
+          x,
+          y,
+          bottomLeft[0],
+          bottomLeft[1],
+          RESIZE_CIRCLE_RADIUS
+        )
+      ) {
+        return {
+          lens,
+          type: 'bottom-left' as const,
+        };
+      }
+
+      if (
+        isPointInCircle(
+          x,
+          y,
+          bottomRight[0],
+          bottomRight[1],
+          RESIZE_CIRCLE_RADIUS
+        )
+      ) {
+        return {
+          lens,
+          type: 'bottom-right' as const,
+        };
+      }
+
+      if (isPointInCircle(x, y, topLeft[0], topLeft[1], RESIZE_CIRCLE_RADIUS)) {
+        return {
+          lens,
+          type: 'top-left' as const,
+        };
+      }
+
+      if (
+        isPointInCircle(x, y, topRight[0], topRight[1], RESIZE_CIRCLE_RADIUS)
+      ) {
+        return {
+          lens,
+          type: 'top-right' as const,
+        };
+      }
+
+      return null;
+    })
+    .find((res) => res !== null);
 };
 
 export const getActiveCircle = ({
@@ -46,11 +149,11 @@ export const getActiveCircle = ({
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
 
-  const activeCircleIndex = circles.find((circle) =>
+  const activeCircle = circles.find((circle) =>
     isPointInCircle(x, y, circle.center[0], circle.center[1], circle.radius)
   );
 
-  return activeCircleIndex?.id;
+  return activeCircle?.id;
 };
 
 export const isPointInCircle = (
@@ -251,12 +354,12 @@ const doesLineIntersectRect = ({
 export const getActiveValidatorLens = ({
   canvasRef,
   event,
-  container,
+  validatorLensContainer,
 }: {
   event: MouseEvent<HTMLCanvasElement>;
 
   canvasRef: React.RefObject<HTMLCanvasElement>;
-  container: ValidatorLensInfo[];
+  validatorLensContainer: ValidatorLensInfo[];
 }) => {
   const canvas = canvasRef.current;
   if (!canvas) return;
@@ -265,11 +368,13 @@ export const getActiveValidatorLens = ({
   const y = event.clientY - rect.top;
   // taking the reverse because we want the most recently added rectangle to be ontop  (so the last item in the list)
   // but alose be the first ite selected (top of thel ist when searching)
-  const activeLineIndex = container.findLastIndex((lens) =>
+  const activeLineIndex = validatorLensContainer.findLastIndex((lens) =>
     isPointInRectangle([x, y], lens.rect.bottomRight, lens.rect.topLeft)
   );
 
-  return activeLineIndex !== -1 ? container[activeLineIndex].id : null;
+  return activeLineIndex !== -1
+    ? validatorLensContainer[activeLineIndex].id
+    : null;
 };
 // isPointInRectangle
 export const getActiveLine = ({
@@ -362,6 +467,7 @@ export const getActiveGeometry = ({
   selectedAttachableLine,
   selectedGeometryInfo,
   selectedValidatorLens,
+  selectedResizeValidatorLensCircle,
 }: {
   selectedCircleID: string | null;
   selectedAttachableLine: {
@@ -369,11 +475,15 @@ export const getActiveGeometry = ({
     selected: 'line' | 'node1' | 'node2';
   } | null;
   selectedValidatorLens: SelectedValidatorLens | null;
+  selectedResizeValidatorLensCircle: SelectedValidatorLensResizeCircle | null;
   selectedGeometryInfo: {
     selectedIds: Array<string>;
     maxPoints: MaxPoints;
   } | null;
 }) => {
+  if (selectedResizeValidatorLensCircle != null) {
+    return selectedResizeValidatorLensCircle.type;
+  }
   if (selectedValidatorLens != null) {
     return selectedValidatorLens.selected;
   }
@@ -493,7 +603,13 @@ export const getMouseDownActiveItem = ({
   const activeValidatorLensId = getActiveValidatorLens({
     canvasRef,
     event,
-    container: validatorLensContainer,
+    validatorLensContainer,
+  });
+
+  const activeValidatorLensResizeCircle = getActiveLensResizeCircle({
+    canvasRef,
+    event,
+    validatorLensContainer,
   });
 
   const activeSelectableNodeOneId = getActiveCircle({
@@ -509,13 +625,15 @@ export const getMouseDownActiveItem = ({
   });
 
   if (
+    !activeValidatorLensResizeCircle &&
     !activeCircleId &&
     !activeRectID &&
     !activeSelectableNodeOneId &&
     !activeSelectableNodeTwoId &&
     !activeValidatorLensId
-  )
+  ) {
     return;
+  }
   const activeValidatorLens = validatorLensContainer.find(
     (lens) => lens.id === activeValidatorLensId
   );
@@ -540,10 +658,15 @@ export const getMouseDownActiveItem = ({
     );
   // extra attached check is to not select the node selector when attached
   // need to implement delete for this to work properly (or when you remove the connection this logic won';';;'t know)
+
   const activeItem =
+    // ^?
     selectedControlBarAction != null
-      ? { type: selectedControlBarAction }
+      ? //    ^?
+        { type: selectedControlBarAction }
       : null ||
+        // why does this have to be guarded by the selected control bar action?
+        activeValidatorLensResizeCircle ||
         (activeSelectNodeOne && isNodeOneAttached
           ? null
           : activeSelectNodeOne) ||
@@ -555,6 +678,9 @@ export const getMouseDownActiveItem = ({
         selectBox ||
         activeValidatorLens;
 
+  // (activeValidatorLensResizeCircle)
+  //     ^?
+
   return {
     activeItem,
     activeCircle,
@@ -562,6 +688,7 @@ export const getMouseDownActiveItem = ({
     activeSelectNodeOne,
     activeSelectNodeTwo,
     activeValidatorLens,
+    activeValidatorLensResizeCircle,
   };
 };
 

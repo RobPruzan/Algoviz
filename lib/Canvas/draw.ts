@@ -9,6 +9,7 @@ import {
 } from '../types';
 import { NodeValidation } from '@/redux/slices/codeExecSlice';
 import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
+import { RESIZE_CIRCLE_RADIUS } from '../utils';
 
 export const drawNodes = ({
   nodes,
@@ -203,7 +204,7 @@ export const drawValidatorLens = ({
   validatorLensContainer.forEach((lens, index) => {
     const [leftX, topY] = lens.rect.topLeft;
     const [rightX, bottomY] = lens.rect.bottomRight;
-    const resizeBoxLength = 5;
+
     // ill want the inside highlighted and other interior selected indicator
 
     // ctx.beginPath();
@@ -276,7 +277,7 @@ export const drawValidatorLens = ({
     ctx.arc(
       Math.floor(leftX),
       Math.floor(topY),
-      Math.floor(resizeBoxLength),
+      Math.floor(RESIZE_CIRCLE_RADIUS),
       0,
       2 * Math.PI,
       false
@@ -288,7 +289,7 @@ export const drawValidatorLens = ({
     ctx.arc(
       Math.floor(rightX),
       Math.floor(topY),
-      Math.floor(resizeBoxLength),
+      Math.floor(RESIZE_CIRCLE_RADIUS),
       0,
       2 * Math.PI,
       false
@@ -300,7 +301,7 @@ export const drawValidatorLens = ({
     ctx.arc(
       Math.floor(rightX),
       Math.floor(bottomY),
-      Math.floor(resizeBoxLength),
+      Math.floor(RESIZE_CIRCLE_RADIUS),
       0,
       2 * Math.PI,
       false
@@ -312,7 +313,7 @@ export const drawValidatorLens = ({
     ctx.arc(
       Math.floor(leftX),
       Math.floor(bottomY),
-      Math.floor(resizeBoxLength),
+      Math.floor(RESIZE_CIRCLE_RADIUS),
       0,
       2 * Math.PI,
       false
@@ -324,7 +325,7 @@ export const drawValidatorLens = ({
     ctx.arc(
       Math.floor(leftX),
       Math.floor(topY),
-      Math.floor(resizeBoxLength),
+      Math.floor(RESIZE_CIRCLE_RADIUS),
       0,
       2 * Math.PI,
       false

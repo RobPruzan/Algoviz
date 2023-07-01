@@ -15,6 +15,7 @@ import {
   SelectBox,
   SelectedAttachableLine,
   SelectedValidatorLens,
+  SelectedValidatorLensResizeCircle,
 } from '@/lib/types';
 import { match } from 'ts-pattern';
 import {
@@ -34,6 +35,7 @@ type UseCanvasMouseMoveProps = {
   selectedAttachableLine: SelectedAttachableLine | null;
   meta: Meta;
   selectedValidatorLens: SelectedValidatorLens | null;
+  selectedResizeValidatorLensCircle: SelectedValidatorLensResizeCircle | null;
 };
 
 export const useCanvasMouseMove = ({
@@ -46,6 +48,7 @@ export const useCanvasMouseMove = ({
   selectedAttachableLine,
   meta,
   selectedValidatorLens,
+  selectedResizeValidatorLensCircle,
 }: UseCanvasMouseMoveProps) => {
   const {
     attachableLines,
@@ -95,6 +98,7 @@ export const useCanvasMouseMove = ({
           selectedAttachableLine,
           selectedGeometryInfo,
           selectedValidatorLens,
+          selectedResizeValidatorLensCircle,
         });
         const prevPos = previousMousePositionRef.current ?? [
           mousePositionX,
@@ -123,6 +127,22 @@ export const useCanvasMouseMove = ({
         }
 
         switch (activeTask) {
+          case 'bottom-left':
+          case 'bottom-right':
+          case 'top-left':
+          case 'top-right':
+            const lens = validatorLensContainer.find(
+              (lens) => selectedResizeValidatorLensCircle?.id === lens.id
+            );
+            if (!lens) return;
+            dispatch(
+              CanvasActions.resizeValidatorLens({
+                lens,
+                mousePos: [mousePositionX, mousePositionY],
+                side: activeTask,
+              })
+            );
+
           case 'validator-lens':
             const activeLens = validatorLensContainer.find(
               (lens) => lens.id === selectedValidatorLens?.id

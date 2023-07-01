@@ -6,6 +6,7 @@ import {
   SelectBox,
   SelectedAttachableLine,
   SelectedValidatorLens,
+  SelectedValidatorLensResizeCircle,
 } from '@/lib/types';
 import { match } from 'ts-pattern';
 
@@ -26,6 +27,9 @@ type CanvasMouseUPParams = {
     React.SetStateAction<SelectedValidatorLens | null>
   >;
   selectedValidatorLens: SelectedValidatorLens | null;
+  setSelectedResizeValidatorLensCircle: React.Dispatch<
+    React.SetStateAction<SelectedValidatorLensResizeCircle | null>
+  >;
 };
 
 export const useHandleMouseUp = ({
@@ -40,6 +44,7 @@ export const useHandleMouseUp = ({
   setSelectBox,
   setSelectedValidatorLens,
   selectedValidatorLens,
+  setSelectedResizeValidatorLensCircle,
 }: CanvasMouseUPParams) => {
   const { attachableLines, circles, validatorLensContainer } = useAppSelector(
     (store) => store.canvas
@@ -85,6 +90,7 @@ export const useHandleMouseUp = ({
       .otherwise(() => {
         setSelectBox(null);
         setSelectedAttachableLine(null);
+        setSelectedResizeValidatorLensCircle(null);
       });
   };
   return handleMouseUp;

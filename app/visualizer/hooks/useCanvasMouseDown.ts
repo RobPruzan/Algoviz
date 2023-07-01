@@ -3,6 +3,7 @@ import {
   SelectedAttachableLine,
   SelectedGeometryInfo,
   SelectedValidatorLens,
+  SelectedValidatorLensResizeCircle,
 } from '@/lib/types';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import * as Canvas from '@/lib/Canvas/canvas';
@@ -32,6 +33,9 @@ type UseCanvasMouseDownParams = {
   setSelectedValidatorLens: Dispatch<
     SetStateAction<SelectedValidatorLens | null>
   >;
+  setSelectedResizeValidatorLensCircle: React.Dispatch<
+    React.SetStateAction<SelectedValidatorLensResizeCircle | null>
+  >;
 };
 
 export const useCanvasMouseDown = ({
@@ -44,6 +48,7 @@ export const useCanvasMouseDown = ({
   setSelectBox,
   selectedControlBarAction,
   setSelectedValidatorLens,
+  setSelectedResizeValidatorLensCircle,
 }: UseCanvasMouseDownParams) => {
   const {
     attachableLines,
@@ -58,6 +63,7 @@ export const useCanvasMouseDown = ({
     (selectedGeometryInfo?.selectedIds.length ?? -1) > 0;
   const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
     isMouseDownRef.current = true;
+
     const activeItemInfo = Canvas.getMouseDownActiveItem({
       attachableLines,
       canvasRef,
@@ -83,6 +89,23 @@ export const useCanvasMouseDown = ({
     // i hate this why am i doing this
 
     match(activeItemInfo?.activeItem)
+      .with({ type: 'bottom-left' }, ({ lens, type }) => {
+        console.log('got lens');
+        // dispatch(CanvasActions.resizeValidatorLens({
+        //   lens,
+        //   mousePos
+        // }))
+        setSelectedResizeValidatorLensCircle({ id: lens.id, type });
+      })
+      .with({ type: 'bottom-right' }, ({ lens, type }) => {
+        setSelectedResizeValidatorLensCircle({ id: lens.id, type });
+      })
+      .with({ type: 'top-left' }, ({ lens, type }) => {
+        setSelectedResizeValidatorLensCircle({ id: lens.id, type });
+      })
+      .with({ type: 'top-right' }, ({ lens, type }) => {
+        setSelectedResizeValidatorLensCircle({ id: lens.id, type });
+      })
       .with({ type: 'circle' }, (circle) => {
         setSelectedCircleID(circle.id);
       })
