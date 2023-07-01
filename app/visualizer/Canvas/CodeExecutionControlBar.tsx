@@ -57,8 +57,6 @@ const CodeExecutionControlBar = ({
 
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
 
-  console.log('da query', getAlgorithmsQuery);
-
   const codeMutation = useCodeMutation();
 
   const saveAlgorithmMutation = useSaveAlgorithmMutation();

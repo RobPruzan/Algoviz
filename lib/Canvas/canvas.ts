@@ -14,6 +14,7 @@ import {
   DrawTypes,
   PencilCoordinates,
   SelectedGeometryInfo,
+  SelectedValidatorLens,
 } from '../types';
 import { RefObject, type MouseEvent } from 'react';
 import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
@@ -247,15 +248,15 @@ const doesLineIntersectRect = ({
   return false;
 };
 
-export const getActiveRect = ({
-  event,
+export const getActiveValidatorLens = ({
   canvasRef,
-  rects,
+  event,
+  container,
 }: {
   event: MouseEvent<HTMLCanvasElement>;
 
   canvasRef: React.RefObject<HTMLCanvasElement>;
-  rects: Rect[];
+  container: ValidatorLensInfo[];
 }) => {
   const canvas = canvasRef.current;
   if (!canvas) return;
@@ -263,20 +264,43 @@ export const getActiveRect = ({
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
 
-  const activeLineIndex = rects.find((rect) =>
-    // isPointInRect(x, y, rect.center, rect.width, rect.length)
+  const activeLineIndex = container.findIndex((lens) =>
+    isPointInRectangle([x, y], lens.rect.bottomRight, lens.rect.topLeft)
+  );
+
+  return activeLineIndex !== -1 ? container[activeLineIndex].id : null;
+};
+// isPointInRectangle
+export const getActiveLine = ({
+  event,
+  canvasRef,
+  lines,
+}: {
+  event: MouseEvent<HTMLCanvasElement>;
+
+  canvasRef: React.RefObject<HTMLCanvasElement>;
+  lines: Rect[];
+}) => {
+  const canvas = canvasRef.current;
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  const activeLine = lines.find((line) =>
+    // isPointInline(x, y, line.center, line.width, line.length)
     isPointInLine({
       px: x,
       py: y,
-      x1: rect.x1,
-      x2: rect.x2,
-      y1: rect.y1,
-      y2: rect.y2,
-      width: rect.width,
+      x1: line.x1,
+      x2: line.x2,
+      y1: line.y1,
+      y2: line.y2,
+      width: line.width,
     })
   );
 
-  return activeLineIndex?.id;
+  return activeLine?.id;
 };
 
 export const findRectIntersectingCircle = ({
@@ -439,6 +463,7 @@ export const getMouseDownActiveItem = ({
   event,
   selectBox,
   selectedControlBarAction,
+  validatorLensContainer,
 }: {
   circles: CircleReceiver[];
   attachableLines: Edge[];
@@ -446,16 +471,23 @@ export const getMouseDownActiveItem = ({
   event: MouseEvent<HTMLCanvasElement>;
   selectBox: SelectBox | null;
   selectedControlBarAction: 'pencil' | null;
+  validatorLensContainer: ValidatorLensInfo[];
 }) => {
   const activeCircleId = getActiveCircle({
     circles,
     event,
     canvasRef,
   });
-  const activeRectID = getActiveRect({
+  const activeRectID = getActiveLine({
     canvasRef,
     event,
-    rects: attachableLines,
+    lines: attachableLines,
+  });
+
+  const activeValidatorLensId = getActiveValidatorLens({
+    canvasRef,
+    event,
+    container: validatorLensContainer,
   });
 
   const activeSelectableNodeOneId = getActiveCircle({
@@ -469,14 +501,21 @@ export const getMouseDownActiveItem = ({
     event,
     circles: attachableLines.map((line) => line.attachNodeTwo),
   });
+  console.log('dis is active ', activeValidatorLensId);
 
   if (
     !activeCircleId &&
     !activeRectID &&
     !activeSelectableNodeOneId &&
-    !activeSelectableNodeTwoId
+    !activeSelectableNodeTwoId &&
+    !activeValidatorLensId
   )
     return;
+  const activeValidatorLens = validatorLensContainer.find(
+    (lens) => lens.id === activeValidatorLensId
+  );
+
+  console.log('here wee', activeValidatorLens);
   const activeCircle = circles.find((circle) => circle.id === activeCircleId);
   const activeRect = attachableLines.find((line) => line.id === activeRectID);
   const activeSelectNodeOne = attachableLines.find(
@@ -509,7 +548,8 @@ export const getMouseDownActiveItem = ({
           : activeSelectNodeTwo) ||
         activeCircle ||
         activeRect ||
-        selectBox;
+        selectBox ||
+        activeValidatorLens;
 
   return {
     activeItem,
@@ -517,6 +557,7 @@ export const getMouseDownActiveItem = ({
     activeRect,
     activeSelectNodeOne,
     activeSelectNodeTwo,
+    activeValidatorLens,
   };
 };
 
@@ -527,6 +568,8 @@ export const getMouseUpActiveItem = ({
   selectedAttachableLine,
   selectBox,
   selectedControlBarAction,
+  selectedValidatorLens,
+  validatorLensContainer,
 }: {
   circles: CircleReceiver[];
   attachableLines: Edge[];
@@ -534,6 +577,8 @@ export const getMouseUpActiveItem = ({
   selectedAttachableLine: SelectedAttachableLine | null;
   selectBox: SelectBox | null;
   selectedControlBarAction: DrawTypes | null;
+  selectedValidatorLens: SelectedValidatorLens | null;
+  validatorLensContainer: ValidatorLensInfo[];
 }) => {
   const activeCircle = circles.find((circle) => circle.id === selectedCircleID);
 
@@ -558,14 +603,20 @@ export const getMouseUpActiveItem = ({
   const activeAttachNodeOne = activeRectContainerOne?.attachNodeOne;
   const activeAttachNodeTwo = activeRectContainerTwo?.attachNodeTwo;
 
+  const activeValidatorLens =
+    validatorLensContainer.find(
+      (lens) => lens.id === selectedValidatorLens?.id
+    ) ?? null;
+
   const activeItem =
     (selectedControlBarAction && { type: selectedControlBarAction }) ||
     activeCircle ||
     activeRect ||
     activeAttachNodeOne ||
     activeAttachNodeTwo ||
+    activeValidatorLens ||
     selectBox;
-
+  // this is simply a discriminated union encapsulated in acriveItem, and allows you to extract the intermediates early without matching
   return {
     activeItem,
     activeCircle,
@@ -574,6 +625,7 @@ export const getMouseUpActiveItem = ({
     activeRectContainerTwo,
     activeAttachNodeOne,
     activeAttachNodeTwo,
+    activeValidatorLens,
   };
 };
 

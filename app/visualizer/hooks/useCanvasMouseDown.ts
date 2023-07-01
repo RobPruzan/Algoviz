@@ -2,6 +2,7 @@ import {
   SelectBox,
   SelectedAttachableLine,
   SelectedGeometryInfo,
+  SelectedValidatorLens,
 } from '@/lib/types';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import * as Canvas from '@/lib/Canvas/canvas';
@@ -28,6 +29,9 @@ type UseCanvasMouseDownParams = {
     SetStateAction<SelectedAttachableLine | null>
   >;
   meta: Meta;
+  setSelectedValidatorLens: Dispatch<
+    SetStateAction<SelectedValidatorLens | null>
+  >;
 };
 
 export const useCanvasMouseDown = ({
@@ -39,10 +43,14 @@ export const useCanvasMouseDown = ({
   selectBox,
   setSelectBox,
   selectedControlBarAction,
+  setSelectedValidatorLens,
 }: UseCanvasMouseDownParams) => {
-  const { attachableLines, circles, selectedGeometryInfo } = useAppSelector(
-    (store) => store.canvas
-  );
+  const {
+    attachableLines,
+    circles,
+    selectedGeometryInfo,
+    validatorLensContainer,
+  } = useAppSelector((store) => store.canvas);
   const dispatch = useAppDispatch();
   const isSelectBoxSet =
     selectBox === null &&
@@ -57,6 +65,7 @@ export const useCanvasMouseDown = ({
       event,
       selectBox,
       selectedControlBarAction,
+      validatorLensContainer,
     });
 
     if (
@@ -70,6 +79,8 @@ export const useCanvasMouseDown = ({
       dispatch(CanvasActions.nullifySelectedGeometryInfo(undefined, meta));
       return;
     }
+
+    // i hate this why am i doing this
 
     match(activeItemInfo?.activeItem)
       .with({ type: 'circle' }, (circle) => {
@@ -102,6 +113,12 @@ export const useCanvasMouseDown = ({
         });
       })
       .with({ type: 'pencil' }, () => {})
+      .with({ type: 'validator-lens' }, (lens) => {
+        setSelectedValidatorLens({
+          id: lens.id,
+          selected: 'validator-lens',
+        });
+      })
 
       .otherwise(() => {
         if (selectedGeometryInfo?.selectedIds.length ?? -1 > 0) return;

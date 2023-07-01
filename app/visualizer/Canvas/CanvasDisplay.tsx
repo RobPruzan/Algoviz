@@ -7,6 +7,7 @@ import {
   PencilCoordinates,
   IO,
   FirstParameter,
+  SelectedValidatorLens,
 } from '@/lib/types';
 import { isStringAlgorithm } from '../Sort/AlgoComboBox';
 import React, { useRef, useState, useEffect, useContext } from 'react';
@@ -83,6 +84,9 @@ const CanvasDisplay = ({
   const isMouseDownRef = useRef(false);
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
+  const [selectedValidatorLens, setSelectedValidatorLens] =
+    useState<SelectedValidatorLens | null>(null);
+  // const [selected]
   const { visualization, visualizationPointer, validation } = useAppSelector(
     (store) => store.codeExec
   );
@@ -149,6 +153,7 @@ const CanvasDisplay = ({
     setSelectBox,
     setSelectedAttachableLine,
     setSelectedCircleID,
+    setSelectedValidatorLens,
     meta,
   });
 
@@ -180,6 +185,8 @@ const CanvasDisplay = ({
     setSelectBox,
     setSelectedAttachableLine,
     setSelectedCircleID,
+    setSelectedValidatorLens,
+    selectedValidatorLens,
   });
 
   useCanvasWheel({
@@ -261,8 +268,10 @@ const CanvasDisplay = ({
     });
     Draw.drawValidatorLens({
       ctx,
+      selectedIds: selectedGeometryInfo?.selectedIds,
       theme: themeInfo.theme ?? 'dark',
       validatorLensContainer,
+      selectedValidatorLens,
     });
 
     // bug, not intrinsic to this procedure, is im setting some ctx state and really caring about implications for future draws
@@ -308,6 +317,7 @@ const CanvasDisplay = ({
     userID,
     validation,
     validatorLensContainer,
+    selectedValidatorLens,
   ]);
 
   return (

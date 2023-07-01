@@ -146,6 +146,11 @@ export type SelectedAttachableLine = {
   selected: 'line' | 'node1' | 'node2';
 };
 
+export type SelectedValidatorLens = {
+  id: string;
+  selected: 'validator-lens';
+};
+
 export type SelectBox = {
   p1: [number, number];
   p2: [number, number];

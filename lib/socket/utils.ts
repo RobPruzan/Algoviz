@@ -105,4 +105,3 @@ export class SocketIO {
 
 // #TODO make this an env var
 export const socket = new SocketIO('http://localhost:8080');
-console.log('hjello');

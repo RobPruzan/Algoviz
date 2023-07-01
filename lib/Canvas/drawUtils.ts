@@ -5,6 +5,7 @@ import {
   SelectedAttachableLine,
   SelectBox,
   PencilCoordinates,
+  SelectedValidatorLens,
 } from '../types';
 import { NodeValidation } from '@/redux/slices/codeExecSlice';
 import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
@@ -190,14 +191,18 @@ export const drawValidatorLens = ({
   ctx,
   theme,
   validatorLensContainer,
+  selectedIds,
+  selectedValidatorLens,
 }: {
   validatorLensContainer: ValidatorLensInfo[];
   ctx: CanvasRenderingContext2D;
   theme: string;
+  selectedIds: string[] | undefined;
+  selectedValidatorLens: SelectedValidatorLens | null;
 }) => {
-  validatorLensContainer.forEach((validatorLens) => {
-    const [leftX, topY] = validatorLens.rect.topLeft;
-    const [rightX, bottomY] = validatorLens.rect.bottomRight;
+  validatorLensContainer.forEach((lens) => {
+    const [leftX, topY] = lens.rect.topLeft;
+    const [rightX, bottomY] = lens.rect.bottomRight;
     // ill want the inside highlighted and other interior selected indicator
 
     ctx.beginPath();
@@ -228,7 +233,19 @@ export const drawValidatorLens = ({
     ctx.lineWidth = 1;
     ctx.fill();
     // ctx.globalAlpha = 0.3;
-    ctx.fillStyle = 'blue';
+    console.log(
+      'i need sleep i dont know why th4e color are fucked up the logic seems fine'
+    );
+    if (selectedValidatorLens?.id === lens.id) {
+      console.log('woo', selectedValidatorLens, 'vs', lens.id);
+
+      // ctx.lineWidth = 1;
+      ctx.fillStyle = 'white';
+      ctx.fill();
+      // ctx.lineWidth = 0;
+    } else {
+      ctx.fillStyle = 'blue';
+    }
 
     ctx.closePath(); // This ensures the path is closed and can be filled
 
