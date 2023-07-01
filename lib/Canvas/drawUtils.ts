@@ -228,7 +228,7 @@ export const drawValidatorLens = ({
     ctx.lineWidth = 1;
     ctx.fill();
     // ctx.globalAlpha = 0.3;
-    // ctx.fillStyle = 'purple';
+    ctx.fillStyle = 'blue';
 
     ctx.closePath(); // This ensures the path is closed and can be filled
 
@@ -391,7 +391,7 @@ export function zoomCircle(
   return [newCenter, scaledRadius];
 }
 
-export function zoomLine(
+export function mouseCenteredZoom(
   center: [number, number],
   target: [number, number],
   zoomFactor: number

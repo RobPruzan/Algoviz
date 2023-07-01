@@ -1,9 +1,4 @@
-import {
-  SelectBox,
-  SelectedGeometryInfo,
-  PencilCoordinates,
-  SelectedAttachableLine,
-} from '@/lib/types';
+import { PencilCoordinates, SelectedAttachableLine } from '@/lib/types';
 import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import {
@@ -28,9 +23,7 @@ export const useCanvasWheel = ({
   const offsetX = useRef(0);
   const offsetY = useRef(0);
   const dispatch = useAppDispatch();
-  const { attachableLines, circles, selectedGeometryInfo } = useAppSelector(
-    (store) => store.canvas
-  );
+  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
   const handleWheel = useCallback(
     (event: WheelEvent) => {
       event.preventDefault();
@@ -43,6 +36,8 @@ export const useCanvasWheel = ({
           event,
           canvasRef
         );
+
+        dispatch(CanvasActions.setValidatorLensContainer);
 
         // should make a helper function for translations totallllyyy
         dispatch(
@@ -81,13 +76,35 @@ export const useCanvasWheel = ({
           )
         );
         dispatch(
+          CanvasActions.zoomValidatorLens({
+            center,
+            zoomAmount,
+          })
+        );
+        dispatch(
           CanvasActions.setLines(
             attachableLines.map((line) => ({
               ...line,
-              x1: Draw.zoomLine([line.x1, line.y1], center, zoomAmount)[0],
-              x2: Draw.zoomLine([line.x2, line.y2], center, zoomAmount)[0],
-              y1: Draw.zoomLine([line.x1, line.y1], center, zoomAmount)[1],
-              y2: Draw.zoomLine([line.x2, line.y2], center, zoomAmount)[1],
+              x1: Draw.mouseCenteredZoom(
+                [line.x1, line.y1],
+                center,
+                zoomAmount
+              )[0],
+              x2: Draw.mouseCenteredZoom(
+                [line.x2, line.y2],
+                center,
+                zoomAmount
+              )[0],
+              y1: Draw.mouseCenteredZoom(
+                [line.x1, line.y1],
+                center,
+                zoomAmount
+              )[1],
+              y2: Draw.mouseCenteredZoom(
+                [line.x2, line.y2],
+                center,
+                zoomAmount
+              )[1],
               width: line.width * zoomAmount,
 
               attachNodeOne: {
@@ -132,11 +149,11 @@ export const useCanvasWheel = ({
 
         setPencilCoordinates((prev) => ({
           drawingCoordinates: prev.drawingCoordinates.map((cords) =>
-            Draw.zoomLine(cords, center, zoomAmount)
+            Draw.mouseCenteredZoom(cords, center, zoomAmount)
           ),
           drawnCoordinates: prev.drawnCoordinates.map((continuousCords) =>
             continuousCords.map((cords) =>
-              Draw.zoomLine(cords, center, zoomAmount)
+              Draw.mouseCenteredZoom(cords, center, zoomAmount)
             )
           ),
         }));

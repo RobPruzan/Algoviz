@@ -173,6 +173,7 @@ const CanvasControlBar = ({
 
   const handleAddValidatorLens = () => {
     const newValidatorLens: ValidatorLensInfo = {
+      id: crypto.randomUUID(),
       code: null,
       rect: {
         bottomRight: [Math.random() * 400, Math.random() * 400],

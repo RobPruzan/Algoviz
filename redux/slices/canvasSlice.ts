@@ -75,8 +75,29 @@ const canvasSlice = createSlice({
         action.payload,
       ];
     }),
-    setValidatorLens: withCanvasMeta<ValidatorLensInfo[]>((state, action) => {
-      state.validatorLensContainer = action.payload;
+    setValidatorLensContainer: withCanvasMeta<ValidatorLensInfo[]>(
+      (state, action) => {
+        state.validatorLensContainer = action.payload;
+      }
+    ),
+    zoomValidatorLens: withCanvasMeta<{
+      zoomAmount: number;
+      center: [number, number];
+    }>((state, action) => {
+      state.validatorLensContainer.forEach((lens, index) => {
+        state.validatorLensContainer[index].rect.bottomRight =
+          Draw.mouseCenteredZoom(
+            lens.rect.bottomRight,
+            action.payload.center,
+            action.payload.zoomAmount
+          );
+        state.validatorLensContainer[index].rect.topLeft =
+          Draw.mouseCenteredZoom(
+            lens.rect.topLeft,
+            action.payload.center,
+            action.payload.zoomAmount
+          );
+      });
     }),
     setLines: withCanvasMeta<Edge[]>((state, action) => {
       action.meta?.playgroundID;
@@ -318,17 +339,19 @@ const canvasSlice = createSlice({
       action: PayloadAction<{ center: [number, number]; zoomAmount: number }>
     ) => {
       if (state.selectedGeometryInfo) {
-        state.selectedGeometryInfo.maxPoints.closestToOrigin = Draw.zoomLine(
-          state.selectedGeometryInfo.maxPoints.closestToOrigin,
-          action.payload.center,
-          action.payload.zoomAmount
-        );
+        state.selectedGeometryInfo.maxPoints.closestToOrigin =
+          Draw.mouseCenteredZoom(
+            state.selectedGeometryInfo.maxPoints.closestToOrigin,
+            action.payload.center,
+            action.payload.zoomAmount
+          );
 
-        state.selectedGeometryInfo.maxPoints.furthestFromOrigin = Draw.zoomLine(
-          state.selectedGeometryInfo.maxPoints.furthestFromOrigin,
-          action.payload.center,
-          action.payload.zoomAmount
-        );
+        state.selectedGeometryInfo.maxPoints.furthestFromOrigin =
+          Draw.mouseCenteredZoom(
+            state.selectedGeometryInfo.maxPoints.furthestFromOrigin,
+            action.payload.center,
+            action.payload.zoomAmount
+          );
       }
     },
     panMaxPoints: (state, action: PayloadAction<{ pan: [number, number] }>) => {
