@@ -200,13 +200,34 @@ export const drawValidatorLens = ({
   selectedIds: string[] | undefined;
   selectedValidatorLens: SelectedValidatorLens | null;
 }) => {
-  console.log('/');
   validatorLensContainer.forEach((lens, index) => {
     const [leftX, topY] = lens.rect.topLeft;
     const [rightX, bottomY] = lens.rect.bottomRight;
+    const resizeBoxLength = 5;
     // ill want the inside highlighted and other interior selected indicator
 
+    // ctx.beginPath();
+    // // ----
+
+    // //-\--
+    // // |- |
+    // // ----
+
+    // ctx.moveTo(Math.floor(leftX), Math.floor(topY));
+    // ctx.arc(
+    //   Math.floor(leftX),
+    //   Math.floor(topY),
+    //   Math.floor(resizeBoxLength),
+    //   0,
+    //   2 * Math.PI,
+    //   false
+    // );
+    // ctx.fillStyle = 'blue';
+    // ctx.fill();
+
     ctx.beginPath();
+
+    // ----
     //* ---
     // |  |
     // ---
@@ -232,28 +253,86 @@ export const drawValidatorLens = ({
     // ---
 
     ctx.lineWidth = 1;
-    // ctx.canvas.style.zIndex = (index)
-    // ctx.globalAlpha = 0.3;
-    console.log(selectedValidatorLens?.id, lens.id);
-    if (selectedValidatorLens?.id === lens.id) {
-      // ctx.lineWidth = 1;
-      console.log('is');
-      ctx.fillStyle = 'white';
 
-      // ctx.lineWidth = 0;
+    ctx.strokeStyle =
+      theme === 'light' ? '#ADD8E6' : theme === 'dark' ? 'white' : 'white';
+
+    if (selectedValidatorLens?.id === lens.id) {
+      ctx.fillStyle = 'white';
     } else {
-      console.log('isnt');
-      ctx.fillStyle = 'blue';
+      ctx.fillStyle = '#4D75FF';
     }
+    ctx.globalAlpha = 0.05;
     ctx.fill();
+    ctx.globalAlpha = 1;
 
     ctx.closePath(); // This ensures the path is closed and can be filled
+    ctx.stroke();
 
     // Set the fill colo
 
-    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(Math.floor(leftX), Math.floor(topY));
+    ctx.arc(
+      Math.floor(leftX),
+      Math.floor(topY),
+      Math.floor(resizeBoxLength),
+      0,
+      2 * Math.PI,
+      false
+    );
+    ctx.fillStyle = 'blue';
+    ctx.fill();
+    ctx.closePath();
+    ctx.beginPath();
+    ctx.arc(
+      Math.floor(rightX),
+      Math.floor(topY),
+      Math.floor(resizeBoxLength),
+      0,
+      2 * Math.PI,
+      false
+    );
+    ctx.fillStyle = 'blue';
+    ctx.fill();
+    ctx.closePath();
+    ctx.beginPath();
+    ctx.arc(
+      Math.floor(rightX),
+      Math.floor(bottomY),
+      Math.floor(resizeBoxLength),
+      0,
+      2 * Math.PI,
+      false
+    );
+    ctx.fillStyle = 'blue';
+    ctx.fill();
+    ctx.closePath();
+    ctx.beginPath();
+    ctx.arc(
+      Math.floor(leftX),
+      Math.floor(bottomY),
+      Math.floor(resizeBoxLength),
+      0,
+      2 * Math.PI,
+      false
+    );
+    ctx.fillStyle = 'blue';
+    ctx.fill();
+    ctx.closePath();
+    ctx.beginPath();
+    ctx.arc(
+      Math.floor(leftX),
+      Math.floor(topY),
+      Math.floor(resizeBoxLength),
+      0,
+      2 * Math.PI,
+      false
+    );
+    ctx.fillStyle = 'blue';
+    ctx.fill();
+    ctx.closePath();
   });
-  console.log('|');
 };
 
 export const drawBox = ({

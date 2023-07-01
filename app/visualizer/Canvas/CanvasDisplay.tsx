@@ -11,7 +11,7 @@ import {
 } from '@/lib/types';
 import { isStringAlgorithm } from '../Sort/AlgoComboBox';
 import React, { useRef, useState, useEffect, useContext } from 'react';
-import * as Draw from '@/lib/Canvas/drawUtils';
+import * as Draw from '@/lib/Canvas/draw';
 
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
@@ -173,6 +173,7 @@ const CanvasDisplay = ({
     setPencilCoordinates,
     setSelectBox,
     meta,
+    selectedValidatorLens,
   });
 
   const handleMouseUp = useHandleMouseUp({

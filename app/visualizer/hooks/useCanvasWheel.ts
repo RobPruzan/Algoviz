@@ -9,7 +9,7 @@ import {
   useRef,
   useEffect,
 } from 'react';
-import * as Draw from '@/lib/Canvas/drawUtils';
+import * as Draw from '@/lib/Canvas/draw';
 type UseCanvasWheel = {
   setPencilCoordinates: React.Dispatch<React.SetStateAction<PencilCoordinates>>;
   canvasRef: React.RefObject<HTMLCanvasElement>;

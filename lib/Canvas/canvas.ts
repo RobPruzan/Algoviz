@@ -319,7 +319,7 @@ export const findRectIntersectingCircle = ({
     [rect.x2 + Math.abs(rect.x1 - rect.x2), rect.y1],
   ];
 
-  const intersectingCircle = circles.find((circle) =>
+  const intersectingCircle = circles.findLast((circle) =>
     corners.some(([cx, cy]) =>
       isPointInCircle(cx, cy, circle.center[0], circle.center[1], circle.radius)
     )
@@ -361,17 +361,22 @@ export const getActiveGeometry = ({
   selectedCircleID,
   selectedAttachableLine,
   selectedGeometryInfo,
+  selectedValidatorLens,
 }: {
   selectedCircleID: string | null;
   selectedAttachableLine: {
     id: string;
     selected: 'line' | 'node1' | 'node2';
   } | null;
+  selectedValidatorLens: SelectedValidatorLens | null;
   selectedGeometryInfo: {
     selectedIds: Array<string>;
     maxPoints: MaxPoints;
   } | null;
 }) => {
+  if (selectedValidatorLens != null) {
+    return selectedValidatorLens.selected;
+  }
   if (
     selectedGeometryInfo != null &&
     selectedGeometryInfo.selectedIds.length != 0
@@ -395,7 +400,7 @@ export const getLineAttachedToNodeReciever = <T extends 'one' | 'two'>({
 }): (Edge & { nodeConnectedSide: T }) | undefined => {
   switch (nodeConnectedSide) {
     case 'one':
-      const connectedToNodeOneContainer = attachableLines.find((line) =>
+      const connectedToNodeOneContainer = attachableLines.findLast((line) =>
         activeCircle.nodeReceiver.attachedIds.some(
           (id) => id === line.attachNodeOne.id
         )
@@ -409,7 +414,7 @@ export const getLineAttachedToNodeReciever = <T extends 'one' | 'two'>({
 
       break;
     case 'two':
-      const connectedToNodeTwoContainer = attachableLines.find((line) =>
+      const connectedToNodeTwoContainer = attachableLines.findLast((line) =>
         activeCircle.nodeReceiver.attachedIds.some(
           (id) => id === line.attachNodeTwo.id
         )

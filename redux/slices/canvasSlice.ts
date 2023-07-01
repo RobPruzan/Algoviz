@@ -10,7 +10,7 @@ import {
 import { enableMapSet } from 'immer';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import * as Canvas from '@/lib/Canvas/canvas';
-import * as Draw from '@/lib/Canvas/drawUtils';
+import * as Draw from '@/lib/Canvas/draw';
 import { ImmutableQueue } from '@/lib/graph';
 import { withMeta } from '../store';
 
@@ -75,6 +75,23 @@ const canvasSlice = createSlice({
         action.payload,
       ];
     }),
+    shiftValidatorLens: withCanvasMeta<Shift & { id: string }>(
+      (state, action) => {
+        const shift = action.payload.shift;
+        const selectedLens = state.validatorLensContainer.find(
+          (lens, index) => lens.id === action.payload.id
+        );
+        if (!selectedLens) return;
+        selectedLens.rect.bottomRight = [
+          selectedLens.rect.bottomRight[0] - shift[0],
+          selectedLens.rect.bottomRight[1] - shift[1],
+        ];
+        selectedLens.rect.topLeft = [
+          selectedLens.rect.topLeft[0] - shift[0],
+          selectedLens.rect.topLeft[1] - shift[1],
+        ];
+      }
+    ),
     setValidatorLensContainer: withCanvasMeta<ValidatorLensInfo[]>(
       (state, action) => {
         state.validatorLensContainer = action.payload;

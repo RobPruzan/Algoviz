@@ -14,21 +14,26 @@ import {
   PencilCoordinates,
   SelectBox,
   SelectedAttachableLine,
+  SelectedValidatorLens,
 } from '@/lib/types';
 import { match } from 'ts-pattern';
-import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
+import {
+  CanvasActions,
+  Meta,
+  ValidatorLensInfo,
+} from '@/redux/slices/canvasSlice';
 import { CollaborationActions } from '@/redux/slices/colloborationState';
 type UseCanvasMouseMoveProps = {
   isMouseDownRef: MutableRefObject<boolean>;
   selectBox: SelectBox | null;
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
   selectedControlBarAction: 'pencil' | null;
-  // playgroundID: string | null;
+
   setPencilCoordinates: React.Dispatch<React.SetStateAction<PencilCoordinates>>;
   selectedCircleID: string | null;
   selectedAttachableLine: SelectedAttachableLine | null;
   meta: Meta;
-  // notSignedInUserId: string;
+  selectedValidatorLens: SelectedValidatorLens | null;
 };
 
 export const useCanvasMouseMove = ({
@@ -40,10 +45,14 @@ export const useCanvasMouseMove = ({
   selectedCircleID,
   selectedAttachableLine,
   meta,
+  selectedValidatorLens,
 }: UseCanvasMouseMoveProps) => {
-  const { attachableLines, circles, selectedGeometryInfo } = useAppSelector(
-    (store) => store.canvas
-  );
+  const {
+    attachableLines,
+    circles,
+    selectedGeometryInfo,
+    validatorLensContainer,
+  } = useAppSelector((store) => store.canvas);
 
   const previousMousePositionRef = useRef<[number, number]>();
   const isSelectBoxSet =
@@ -85,6 +94,7 @@ export const useCanvasMouseMove = ({
           selectedCircleID,
           selectedAttachableLine,
           selectedGeometryInfo,
+          selectedValidatorLens,
         });
         const prevPos = previousMousePositionRef.current ?? [
           mousePositionX,
@@ -113,6 +123,19 @@ export const useCanvasMouseMove = ({
         }
 
         switch (activeTask) {
+          case 'validator-lens':
+            const activeLens = validatorLensContainer.find(
+              (lens) => lens.id === selectedValidatorLens?.id
+            );
+            if (!activeLens) return;
+            dispatch(
+              CanvasActions.shiftValidatorLens(
+                { shift, id: activeLens.id },
+                meta
+              )
+            );
+
+            break;
           case 'circle':
             const activeCircle = circles.find(
               (circle) => circle.id === selectedCircleID
@@ -129,7 +152,7 @@ export const useCanvasMouseMove = ({
               activeCircle,
               nodeConnectedSide: 'two',
             });
-
+            // this needs to be cleaned up
             const newCircle: CircleReceiver = {
               ...activeCircle,
               center: [
@@ -170,6 +193,7 @@ export const useCanvasMouseMove = ({
 
             break;
           case 'line':
+            // why am i still normal shifting this??
             const activeRect = attachableLines.find(
               (rect) => rect.id === selectedAttachableLine?.id
             );
