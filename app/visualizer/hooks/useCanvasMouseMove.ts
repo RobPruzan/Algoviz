@@ -3,7 +3,6 @@ import React, {
   Dispatch,
   MouseEvent,
   MutableRefObject,
-  RefObject,
   SetStateAction,
   useRef,
 } from 'react';
@@ -11,17 +10,13 @@ import * as Canvas from '@/lib/Canvas/canvas';
 import {
   CircleReceiver,
   Edge,
-  IO,
   NodeReceiver,
   PencilCoordinates,
   SelectBox,
   SelectedAttachableLine,
-  SelectedGeometryInfo,
 } from '@/lib/types';
 import { match } from 'ts-pattern';
 import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
-import * as Utils from '@/lib/utils';
-import { useSession } from 'next-auth/react';
 import { CollaborationActions } from '@/redux/slices/colloborationState';
 type UseCanvasMouseMoveProps = {
   isMouseDownRef: MutableRefObject<boolean>;
@@ -172,18 +167,6 @@ export const useCanvasMouseMove = ({
             }
 
             dispatch(CanvasActions.replaceCircle(newCircle, meta));
-            // sendUpdate()
-            // if (playgroundID) {
-            //   Utils.sendUpdate(
-            //     {
-            //       roomID: playgroundID,
-            //       type: 'circleReciever',
-            //       state: newCircle,
-            //       senderID,
-            //     },
-            //     socketRef
-            //   );
-            // }
 
             break;
           case 'line':
@@ -226,17 +209,6 @@ export const useCanvasMouseMove = ({
 
             dispatch(CanvasActions.setCircles(filteredCircles, meta));
             dispatch(CanvasActions.replaceAttachableLine(newRect, meta));
-            // if (playgroundID) {
-            //   Utils.sendUpdate(
-            //     {
-            //       roomID: playgroundID,
-            //       type: 'edge',
-            //       state: newRect,
-            //       senderID,
-            //     },
-            //     socketRef
-            //   );
-            // }
             break;
           case 'node1':
             const activeRectContainingNodeOne = attachableLines.find(
@@ -300,17 +272,6 @@ export const useCanvasMouseMove = ({
                 meta
               )
             );
-            // if (playgroundID) {
-            //   Utils.sendUpdate(
-            //     {
-            //       roomID: playgroundID,
-            //       type: 'edge',
-            //       state: newRectContainingNodeOne,
-            //       senderID,
-            //     },
-            //     socketRef
-            //   );
-            // }
             break;
           case 'node2':
             const activeRectContainingNodeTwo = attachableLines.find(
@@ -372,17 +333,6 @@ export const useCanvasMouseMove = ({
                 meta
               )
             );
-            // if (playgroundID) {
-            //   Utils.sendUpdate(
-            //     {
-            //       roomID: playgroundID,
-            //       type: 'edge',
-            //       state: newRectContainingNodeTwo,
-            //       senderID,
-            //     },
-            //     socketRef
-            //   );
-            // }
             break;
           default:
             if (selectBox) {

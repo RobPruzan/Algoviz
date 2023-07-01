@@ -1,40 +1,15 @@
-import { Vertex } from '@/components/icons/Vertex';
-import { UndirectedEdgeIcon } from '@/components/icons/UndirectedEdge';
-
 import { Button } from '@/components/ui/button';
-import { useBreadthFirstSearch } from '@/hooks/useBreadthFirstSearch';
-import { useDepthFirstSearch } from '@/hooks/useDepthFirstSearch';
-import * as Graph from '@/lib/graph';
 import {
   CircleReceiver,
   DirectedEdge,
   DrawTypes,
-  Edge,
   IO,
   UndirectedEdge,
 } from '@/lib/types';
-import { CanvasActions } from '@/redux/slices/canvasSlice';
+import { CanvasActions, ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
-import {
-  ArrowUp,
-  ArrowUpDown,
-  Circle,
-  CircleDot,
-  GitBranchPlus,
-  Inspect,
-  Pencil,
-  PlayIcon,
-  RectangleHorizontal,
-} from 'lucide-react';
-import { Play } from 'next/font/google';
+import { ArrowRight, CircleDot, Pencil, Square } from 'lucide-react';
 import React, { Dispatch, SetStateAction, useRef } from 'react';
-import { DirectedEdgeIcon } from '@/components/icons/DirectedEdge';
-import { BinarySearchTreeIcon } from '@/components/icons/BinarySearchTree';
-import { GraphIcon } from '@/components/icons/Graph';
-import { RedBlackTreeIcon } from '@/components/icons/RedBlackTree';
-import { LinkedListIcon } from '@/components/icons/LinkedList';
-import { useMutation } from '@tanstack/react-query';
-import ky from 'ky';
 import { useShapeUpdateMutation } from '../hooks/useShapeUpdateMutation';
 import * as Utils from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
@@ -51,19 +26,10 @@ const CanvasControlBar = ({
   notSignedInUserId,
 }: Props) => {
   const dispatch = useAppDispatch();
-  const {
-    circles,
-    creationZoomFactor,
-    attachableLines,
-    variableInspector: { show },
-  } = useAppSelector((store) => store.canvas);
+  const { circles, creationZoomFactor, attachableLines } = useAppSelector(
+    (store) => store.canvas
+  );
 
-  // const adjacencyList = Graph.getAdjacencyList({
-  //   edges: attachableLines,
-  //   vertices: circles,
-  // });
-
-  // constShape;
   const shapeUpdateMutation = useShapeUpdateMutation();
   const searchParams = useSearchParams();
   const playgroundID = searchParams.get('playground-id');
@@ -123,42 +89,42 @@ const CanvasControlBar = ({
     dispatch(CanvasActions.addLine(newLine, meta));
   };
 
-  // const handleAddDirectedEdge = () => {
-  //   const [x1, y1] = [
-  //     Math.random() * 400 * creationZoomFactor,
-  //     Math.random() * 600 * creationZoomFactor,
-  //   ];
-  //   const newLine: DirectedEdge = {
-  //     id: crypto.randomUUID(),
+  const handleAddDirectedEdge = () => {
+    const [x1, y1] = [
+      Math.random() * 400 * creationZoomFactor,
+      Math.random() * 600 * creationZoomFactor,
+    ];
+    const newLine: DirectedEdge = {
+      // gotta change this iz so weird
+      id: crypto.randomUUID(),
+      type: 'rect',
+      x1,
+      y1,
+      x2: x1 - 10,
+      y2: y1 - 50,
+      width: 7 * creationZoomFactor,
+      directed: true,
+      color: 'white',
+      attachNodeOne: {
+        center: [x1, y1],
+        radius: 10 * creationZoomFactor,
+        color: '#42506e',
+        id: crypto.randomUUID(),
+        type: 'node1',
+        connectedToId: null,
+      },
+      attachNodeTwo: {
+        center: [x1 - 10, y1 - 50],
+        radius: 10 * creationZoomFactor,
+        color: '#42506e',
+        id: crypto.randomUUID(),
+        type: 'node2',
+        connectedToId: null,
+      },
+    };
 
-  //     type: 'rect',
-  //     x1,
-  //     y1,
-  //     x2: x1 - 10,
-  //     y2: y1 - 50,
-  //     width: 7 * creationZoomFactor,
-  //     directed: true,
-  //     color: 'white',
-  //     attachNodeOne: {
-  //       center: [x1, y1],
-  //       radius: 10 * creationZoomFactor,
-  //       color: '#42506e',
-  //       id: crypto.randomUUID(),
-  //       type: 'node1',
-  //       connectedToId: null,
-  //     },
-  //     attachNodeTwo: {
-  //       center: [x1 - 10, y1 - 50],
-  //       radius: 10 * creationZoomFactor,
-  //       color: '#42506e',
-  //       id: crypto.randomUUID(),
-  //       type: 'node2',
-  //       connectedToId: null,
-  //     },
-  //   };
-
-  //   dispatch(CanvasActions.addLine(newLine));
-  // };
+    dispatch(CanvasActions.addLine(newLine));
+  };
 
   const handleAddCircle = () => {
     const circleCenter: [number, number] = [
@@ -204,6 +170,19 @@ const CanvasControlBar = ({
 
     dispatch(CanvasActions.addCircle(newCircle, meta));
   };
+
+  const handleAddValidatorLens = () => {
+    const newValidatorLens: ValidatorLensInfo = {
+      code: null,
+      rect: {
+        bottomRight: [Math.random() * 400, Math.random() * 400],
+        topLeft: [Math.random() * 400, Math.random() * 400],
+      },
+      selectedIds: [],
+      type: 'validator-lens',
+    };
+    dispatch(CanvasActions.addValidatorLens(newValidatorLens));
+  };
   return (
     <div className="w-full items-center prevent-select overflow-x-scroll overflow-y-hidden  h-14 flex justify-evenly ">
       <Button
@@ -242,6 +221,20 @@ const CanvasControlBar = ({
         className="px-2"
       >
         <Pencil />
+      </Button>
+      <Button
+        onClick={handleAddDirectedEdge}
+        variant={'outline'}
+        className="px-2 min-w-fit"
+      >
+        <ArrowRight />
+      </Button>
+      <Button
+        onClick={handleAddValidatorLens}
+        variant={'outline'}
+        className="px-2 min-w-fit"
+      >
+        <Square className="bg-green-500" />
       </Button>
       <Button variant={'outline'} className="px-2 min-w-fit">
         {/* here goes options for specific r/b tree data structure stuff

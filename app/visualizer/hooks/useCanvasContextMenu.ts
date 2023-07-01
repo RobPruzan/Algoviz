@@ -2,18 +2,18 @@ import { useAppDispatch, useAppSelector } from '@/redux/store';
 import React, { Dispatch, MouseEvent, SetStateAction } from 'react';
 import * as Canvas from '@/lib/Canvas/canvas';
 import { SelectedGeometryInfo } from '@/lib/types';
-import { CanvasActions } from '@/redux/slices/canvasSlice';
+import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
 
 type CanvasContextMenuParams = {
   canvasRef: React.RefObject<HTMLCanvasElement>;
   setSelectedCircleID: Dispatch<SetStateAction<string | null>>;
-
+  meta: Meta;
   isContextMenuActiveRef: React.MutableRefObject<boolean>;
 };
 
 export const useCanvasContextMenu = ({
   canvasRef,
-
+  meta,
   setSelectedCircleID,
   isContextMenuActiveRef,
 }: CanvasContextMenuParams) => {
@@ -33,8 +33,8 @@ export const useCanvasContextMenu = ({
 
     if (!activeCircle) return;
     setSelectedCircleID(activeCircle.id);
-    // setSelectedGeometryInfo(null);
-    dispatch(CanvasActions.nullifySelectedGeometryInfo());
+
+    dispatch(CanvasActions.nullifySelectedGeometryInfo(undefined, meta));
   };
 
   return handleContextMenu;

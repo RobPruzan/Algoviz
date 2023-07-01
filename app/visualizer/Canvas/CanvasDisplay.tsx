@@ -5,10 +5,7 @@ import {
   SelectBox,
   DrawTypes,
   PencilCoordinates,
-  CircleReceiver,
-  Edge,
   IO,
-  UntypedData,
   FirstParameter,
 } from '@/lib/types';
 import { isStringAlgorithm } from '../Sort/AlgoComboBox';
@@ -45,15 +42,11 @@ import { useCanvasWheel } from '../hooks/useCanvasWheel';
 import { useApplyAlgorithm } from '../hooks/useApplyAlgorithm';
 import { useCanvasKeyDown } from '../hooks/useCanvasKeyDown';
 import { useFullyConnect } from '../hooks/useFullyConnect';
-import useDebounce from '@/hooks/useDebounce';
-import { useShapeUpdateMutation } from '../hooks/useShapeUpdateMutation';
 import { useServerUpdateShapes } from '../hooks/useServerUpdateShapes';
 import { useClearCanvasState } from '../hooks/useClearCanvasState';
 import { useTheme } from 'next-themes';
-import { io } from 'socket.io-client';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { SocketAction } from '@/lib/types';
 import { CollaborationActions } from '@/redux/slices/colloborationState';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
@@ -82,7 +75,9 @@ const CanvasDisplay = ({
   );
   const { sideBarState, setSideBarState } = useContext(SideBarContext);
   const dispatch = useAppDispatch();
-  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
+  const { attachableLines, circles, validatorLensContainer } = useAppSelector(
+    (store) => store.canvas
+  );
   const { collabInfos } = useAppSelector((store) => store.collaborationState);
   // console.log('real data', collabInfos);
   const isMouseDownRef = useRef(false);
@@ -101,7 +96,8 @@ const CanvasDisplay = ({
 
   const meta: Meta = { playgroundID, userID };
   const cursorImgRef = useRef<HTMLImageElement | null>(null);
-
+  const directedEdges = attachableLines.filter((edge) => edge.directed);
+  const undirectedEdges = attachableLines.filter((edge) => !edge.directed);
   useEffect(() => {
     dispatch({
       type: 'socket/connect',
@@ -114,6 +110,7 @@ const CanvasDisplay = ({
         meta,
       });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playgroundID]);
 
   useEffect(() => {
@@ -137,6 +134,7 @@ const CanvasDisplay = ({
       mousePosition: [0, 0],
     };
     dispatch(CollaborationActions.addUser(item, meta));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.data?.user, userID, session.status]);
 
   useClearCanvasState(meta);
@@ -151,9 +149,11 @@ const CanvasDisplay = ({
     setSelectBox,
     setSelectedAttachableLine,
     setSelectedCircleID,
+    meta,
   });
 
   const handleContextMenu = useCanvasContextMenu({
+    meta,
     canvasRef,
     setSelectedCircleID,
     isContextMenuActiveRef,
@@ -190,7 +190,7 @@ const CanvasDisplay = ({
 
   useApplyAlgorithm();
 
-  const handleKeyDown = useCanvasKeyDown();
+  const handleKeyDown = useCanvasKeyDown(meta);
 
   const handleFullyConnect = useFullyConnect(meta);
   const themeInfo = useTheme();
@@ -240,6 +240,7 @@ const CanvasDisplay = ({
         theme: themeInfo.theme ?? 'dark',
       });
     }
+
     Draw.drawEdges({
       ctx,
       edges: attachableLines,
@@ -258,7 +259,13 @@ const CanvasDisplay = ({
       theme: themeInfo.theme ?? 'dark',
       validationNodes: validation,
     });
+    Draw.drawValidatorLens({
+      ctx,
+      theme: themeInfo.theme ?? 'dark',
+      validatorLensContainer,
+    });
 
+    // bug, not intrinsic to this procedure, is im setting some ctx state and really caring about implications for future draws
     if (selectBox) {
       Draw.drawBox({
         ctx,
@@ -300,6 +307,7 @@ const CanvasDisplay = ({
     canvasWidth,
     userID,
     validation,
+    validatorLensContainer,
   ]);
 
   return (

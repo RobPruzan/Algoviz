@@ -17,9 +17,9 @@ import {
   useState,
 } from 'react';
 import { match } from 'ts-pattern';
-import { CanvasActions } from '@/redux/slices/canvasSlice';
+import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
 
-export const useCanvasKeyDown = () => {
+export const useCanvasKeyDown = (meta: Meta) => {
   const dispatch = useAppDispatch();
   const [copied, setCopied] = useState<Array<string>>([]);
   const { attachableLines, circles, creationZoomFactor, selectedGeometryInfo } =
@@ -32,12 +32,10 @@ export const useCanvasKeyDown = () => {
         dispatch(CanvasActions.deleteCircles(selectedGeometryInfo.selectedIds));
         dispatch(CanvasActions.deleteLines(selectedGeometryInfo.selectedIds));
       }
-      // setSelectedGeometryInfo(null);
-      dispatch(CanvasActions.nullifySelectedGeometryInfo());
+      dispatch(CanvasActions.nullifySelectedGeometryInfo(undefined, meta));
     }
     if (e.key === 'Escape') {
-      dispatch(CanvasActions.nullifySelectedGeometryInfo());
-      // setSelectedGeometryInfo(null);
+      dispatch(CanvasActions.nullifySelectedGeometryInfo(undefined, meta));
     }
     e;
     if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedGeometryInfo) {
@@ -124,36 +122,12 @@ export const useCanvasKeyDown = () => {
           },
         }));
 
-      // setSelectedGeometryInfo((geo) =>
-      //   geo
-      //     ? {
-      //         ...geo,
-
-      // selectedIds: new Set<string>(
-      //   [...geo.selectedIds.keys()].map((id) => idMap.get(id)!)
-      // ),
-      //         // still need to update selected box
-      //         maxPoints: {
-      //           closestToOrigin: [
-      //             geo.maxPoints.closestToOrigin[0] - offset,
-      //             geo.maxPoints.closestToOrigin[1] - offset,
-      //           ],
-      //           furthestFromOrigin: [
-      //             geo.maxPoints.furthestFromOrigin[0] - offset,
-      //             geo.maxPoints.furthestFromOrigin[1] - offset,
-      //           ],
-      //         },
-      //       }
-      //     : null
-      // );
       dispatch(
         CanvasActions.panMaxPoints({
           pan: [offset, offset],
         })
       );
       dispatch(CanvasActions.mapSelectedIds((id) => idMap.get(id)!));
-      // dispatch(CanvasActions.setSelectedIds([...geo.selectedIds.keys()].map((id) => idMap.get(id)!)))
-
       dispatch(CanvasActions.setCircles([...circles, ...pasteCircles]));
       dispatch(CanvasActions.setLines([...attachableLines, ...pasteLines]));
     }

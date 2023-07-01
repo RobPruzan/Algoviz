@@ -30,7 +30,7 @@ const CodeExecution = ({ selectedAlgorithm, setUserAlgorithm }: Props) => {
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
     '40%'
   );
-  const variables = useAppSelector((store) => store.canvas.variableInspector);
+
   const { attachableLines, circles, selectedGeometryInfo } = useAppSelector(
     (store) => store.canvas
   );
@@ -67,7 +67,7 @@ const CodeExecution = ({ selectedAlgorithm, setUserAlgorithm }: Props) => {
     .with('visualizer', () => DEFAULT_VISUALIZATION_CODE)
     .exhaustive();
 
-  return variables.show ? (
+  return (
     <div className="w-full h-[93%]">
       <Resizable
         canvasSize={editorHeight}
@@ -191,7 +191,7 @@ const CodeExecution = ({ selectedAlgorithm, setUserAlgorithm }: Props) => {
         }
       />
     </div>
-  ) : null;
+  );
 };
 
 export default CodeExecution;

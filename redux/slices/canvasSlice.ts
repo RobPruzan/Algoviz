@@ -14,24 +14,40 @@ import * as Draw from '@/lib/Canvas/drawUtils';
 import { ImmutableQueue } from '@/lib/graph';
 import { withMeta } from '../store';
 
-// type test = Prettify<CircleReceiver>;
+// this validatorLens will have code attached to it
+// it should probably extend the selectedGeomotryInfo
+// I do think it could extend the selected geomotry infi
+// but if we had a custom code shader
+// we would still need to take in the selections (lets not duplicate state)
+// but would we? Yes because we would need the representation to traverse and validate
+// we can have extra logic where the select box is considered a shader
+// if a pixel is hovered over an area, it changes the color
+// this can just be a low opacity translation
+// but we would need th color of the node to fundamentally change (needs to be red in that area)
+export type Shift = { shift: [number, number] };
+export type ValidatorLensInfo = {
+  id: string;
+  rect: {
+    topLeft: [number, number];
+    bottomRight: [number, number];
+  };
+  code: string | null;
+  selectedIds: string[];
+  type: 'validator-lens';
+};
+
 export type CanvasState = {
   circles: CircleReceiver[];
   attachableLines: Edge[];
   selectedGeometryInfo: SelectedGeometryInfo | null;
-  variableInspector: {
-    show: boolean;
-    stack: unknown[];
-    queues: ImmutableQueue<unknown>[];
-  };
-  //
+  validatorLensContainer: ValidatorLensInfo[];
   creationZoomFactor: number;
 };
 
 const initialState: CanvasState = {
   attachableLines: [],
   circles: [],
-  variableInspector: { show: true, queues: [], stack: [] },
+  validatorLensContainer: [],
   creationZoomFactor: 1,
   selectedGeometryInfo: null,
 };
@@ -53,6 +69,15 @@ const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    addValidatorLens: withCanvasMeta<ValidatorLensInfo>((state, action) => {
+      state.validatorLensContainer = [
+        ...state.validatorLensContainer,
+        action.payload,
+      ];
+    }),
+    setValidatorLens: withCanvasMeta<ValidatorLensInfo[]>((state, action) => {
+      state.validatorLensContainer = action.payload;
+    }),
     setLines: withCanvasMeta<Edge[]>((state, action) => {
       action.meta?.playgroundID;
       state.attachableLines = action.payload;
@@ -200,7 +225,7 @@ const canvasSlice = createSlice({
       state.selectedGeometryInfo = null;
     }),
 
-    shiftLines: withCanvasMeta<{ shift: [number, number] }>((state, action) => {
+    shiftLines: withCanvasMeta<Shift>((state, action) => {
       const selectedGeometryInfo = state.selectedGeometryInfo;
       if (selectedGeometryInfo) {
         const updatedLines: Edge[] = state.attachableLines.map((line) => {
@@ -250,8 +275,8 @@ const canvasSlice = createSlice({
       }
     }),
 
-    shiftSelectBox: withCanvasMeta<{ shift: [number, number] }>(
-      (state, action: PayloadAction<{ shift: [number, number] }>) => {
+    shiftSelectBox: withCanvasMeta<Shift>(
+      (state, action: PayloadAction<Shift>) => {
         if (state.selectedGeometryInfo) {
           state.selectedGeometryInfo = Canvas.shiftSelectBox({
             selectedGeometryInfo: state.selectedGeometryInfo,
@@ -260,6 +285,29 @@ const canvasSlice = createSlice({
         }
       }
     ),
+    // shiftValidatorLens: withCanvasMeta<Shift & { validatorLensId: string }>(
+    //   (state, action) => {
+    //     state.validatorLensContainer.find((lens, index) => {
+    //       if (lens.id === action.payload.validatorLensId) {
+    //         state.validatorLensContainer[index] ==
+    //           Canvas.shiftValidatorLens({
+    //             shift: action.payload.shift,
+    //             validatorLens: lens,
+    //           });
+    //         return true;
+    //       }
+    //     });
+    //   }
+    // ),
+    shiftValidatorLensContainer: withCanvasMeta<Shift>((state, action) => {
+      state.validatorLensContainer.forEach((lens, index) => {
+        state.validatorLensContainer[index] = Canvas.shiftValidatorLens({
+          shift: action.payload.shift,
+          validatorLens: lens,
+        });
+      });
+    }),
+
     setSelectedGeometryInfo: withCanvasMeta<
       CanvasState['selectedGeometryInfo']
     >((state, action: PayloadAction<CanvasState['selectedGeometryInfo']>) => {

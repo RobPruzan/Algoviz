@@ -43,6 +43,7 @@ export const useCanvasWheel = ({
           event,
           canvasRef
         );
+
         // should make a helper function for translations totallllyyy
         dispatch(
           CanvasActions.setCircles(
@@ -88,10 +89,6 @@ export const useCanvasWheel = ({
               y1: Draw.zoomLine([line.x1, line.y1], center, zoomAmount)[1],
               y2: Draw.zoomLine([line.x2, line.y2], center, zoomAmount)[1],
               width: line.width * zoomAmount,
-              // x1: line.x1 * zoomAmount,
-              // y1: line.y1 * zoomAmount,
-              // x2: line.x2 * zoomAmount,
-              // y2: line.y2 * zoomAmount,
 
               attachNodeOne: {
                 ...line.attachNodeOne,
@@ -149,7 +146,12 @@ export const useCanvasWheel = ({
 
         offsetX.current = newOffsetX;
         offsetY.current = newOffsetY;
+        const shift: [number, number] = [newOffsetX, newOffsetY];
         // should make a helper function for translations totallllyyy
+        // i have helper functions just need to start using them
+        // like this is literally just a shift why im i writing this
+        // if this was rust i can make this look silky smooth with shift just being a trait you impl ;()
+        dispatch(CanvasActions.shiftValidatorLensContainer({ shift }));
         dispatch(
           CanvasActions.setCircles(
             circles.map((circle) => ({
@@ -193,24 +195,6 @@ export const useCanvasWheel = ({
             }))
           )
         );
-
-        // setSelectedGeometryInfo((geoInfo) =>
-        //   geoInfo
-        //     ? {
-        //         ...geoInfo,
-        //         maxPoints: {
-        // closestToOrigin: [
-        //   geoInfo.maxPoints.closestToOrigin[0] - newOffsetX,
-        //   geoInfo.maxPoints.closestToOrigin[1] - newOffsetY,
-        // ],
-        // furthestFromOrigin: [
-        //   geoInfo.maxPoints.furthestFromOrigin[0] - newOffsetX,
-        //   geoInfo.maxPoints.furthestFromOrigin[1] - newOffsetY,
-        // ],
-        //         },
-        //       }
-        //     : null
-        // );
         dispatch(
           CanvasActions.panMaxPoints({
             pan: [newOffsetX, newOffsetY],
@@ -231,11 +215,13 @@ export const useCanvasWheel = ({
         }));
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [attachableLines, canvasRef, circles, dispatch, setPencilCoordinates]
   );
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    // needs to be an imperative event listener to set passive to false
     canvas.addEventListener('wheel', handleWheel, { passive: false });
 
     return () => {

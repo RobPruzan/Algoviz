@@ -7,6 +7,7 @@ import {
   PencilCoordinates,
 } from '../types';
 import { NodeValidation } from '@/redux/slices/codeExecSlice';
+import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 
 export const drawNodes = ({
   nodes,
@@ -183,6 +184,57 @@ export const drawNodeReceivers = ({
     var text = node.value.toString();
     ctx.fillText(text, Math.floor(node.center[0]), Math.floor(node.center[1]));
     ctx.canvas.style.zIndex = '100';
+  });
+};
+export const drawValidatorLens = ({
+  ctx,
+  theme,
+  validatorLensContainer,
+}: {
+  validatorLensContainer: ValidatorLensInfo[];
+  ctx: CanvasRenderingContext2D;
+  theme: string;
+}) => {
+  validatorLensContainer.forEach((validatorLens) => {
+    const [leftX, topY] = validatorLens.rect.topLeft;
+    const [rightX, bottomY] = validatorLens.rect.bottomRight;
+    // ill want the inside highlighted and other interior selected indicator
+
+    ctx.beginPath();
+    //* ---
+    // |  |
+    // ---
+    ctx.moveTo(Math.floor(leftX), Math.floor(topY));
+    ctx.lineTo(Math.floor(rightX), Math.floor(topY));
+    // ---*
+    // |  |
+    // ---
+
+    ctx.lineTo(Math.floor(rightX), Math.floor(bottomY));
+    // ---
+    // |  |
+    // ---*
+
+    ctx.lineTo(Math.floor(leftX), Math.floor(bottomY));
+    // ---
+    // |  |
+    // *---
+
+    ctx.lineTo(Math.floor(leftX), Math.floor(topY));
+    // *---
+    // |  |
+    // ---
+
+    ctx.lineWidth = 1;
+    ctx.fill();
+    // ctx.globalAlpha = 0.3;
+    // ctx.fillStyle = 'purple';
+
+    ctx.closePath(); // This ensures the path is closed and can be filled
+
+    // Set the fill colo
+
+    ctx.stroke();
   });
 };
 

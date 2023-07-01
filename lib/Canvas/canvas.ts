@@ -16,6 +16,7 @@ import {
   SelectedGeometryInfo,
 } from '../types';
 import { RefObject, type MouseEvent } from 'react';
+import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 export const replaceCanvasElement = <T extends { id: string }>({
   oldArray,
   newElement,
@@ -119,24 +120,6 @@ export const isPointInLine = ({
   return distanceSquared <= Math.pow(width, 2);
 };
 type TempLineCleanMeUp = { x1: number; y1: number; x2: number; y2: number };
-function checkLineIntersection(
-  line1: TempLineCleanMeUp,
-  line2: TempLineCleanMeUp
-) {
-  const { x1: x1, y1: y1, x2: x2, y2: y2 } = line1;
-  const { x1: x3, y1: y3, x2: x4, y2: y4 } = line2;
-
-  const denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-
-  if (denominator === 0) {
-    return false; // lines are parallel
-  }
-
-  let t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator;
-  let u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denominator;
-
-  return t >= 0 && t <= 1 && u >= 0 && u <= 1;
-}
 
 type Point = {
   x: number;
@@ -207,38 +190,6 @@ type Line = {
   p: Point;
   q: Point;
   width: number;
-};
-
-const adjustPoints = (line: Line): [Point, Point, Point, Point] => {
-  const dx = line.q.x - line.p.x;
-  const dy = line.q.y - line.p.y;
-
-  const n = Math.sqrt(dx * dx + dy * dy);
-  const ux = ((line.width / 2) * dy) / n;
-  const uy = (-(line.width / 2) * dx) / n;
-
-  return [
-    { x: line.p.x + ux, y: line.p.y + uy },
-    { x: line.q.x + ux, y: line.q.y + uy },
-    { x: line.q.x - ux, y: line.q.y - uy },
-    { x: line.p.x - ux, y: line.p.y - uy },
-  ];
-};
-
-const doIntersectRectangle = (
-  rect1: [Point, Point, Point, Point],
-  rect2: [Point, Point, Point, Point]
-): boolean => {
-  for (let i = 0; i < 4; i++) {
-    for (let j = 0; j < 4; j++) {
-      if (
-        doIntersect(rect1[i], rect1[(i + 1) % 4], rect2[j], rect2[(j + 1) % 4])
-      ) {
-        return true;
-      }
-    }
-  }
-  return false;
 };
 
 type RectCorner = { x: number; y: number };
@@ -839,7 +790,7 @@ export const shiftLine = ({
     },
   };
 };
-
+// duplicated code clean it up plsssssssssssssssssssssssssssssss :)
 export const shiftSelectBox = <T extends SelectedGeometryInfo>({
   selectedGeometryInfo,
   shift,
@@ -856,6 +807,27 @@ export const shiftSelectBox = <T extends SelectedGeometryInfo>({
     furthestFromOrigin: [
       selectedGeometryInfo.maxPoints.furthestFromOrigin[0] - shift[0],
       selectedGeometryInfo.maxPoints.furthestFromOrigin[1] - shift[1],
+    ],
+  },
+});
+
+// this is the offender btw ^
+export const shiftValidatorLens = ({
+  validatorLens,
+  shift,
+}: {
+  validatorLens: ValidatorLensInfo;
+  shift: [number, number];
+}): ValidatorLensInfo => ({
+  ...validatorLens,
+  rect: {
+    bottomRight: [
+      validatorLens.rect.bottomRight[0] - shift[0],
+      validatorLens.rect.bottomRight[1] - shift[1],
+    ],
+    topLeft: [
+      validatorLens.rect.topLeft[0] - shift[0],
+      validatorLens.rect.topLeft[1] - shift[1],
     ],
   },
 });

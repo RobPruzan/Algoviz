@@ -14,7 +14,7 @@ import {
   SetStateAction,
 } from 'react';
 import { match } from 'ts-pattern';
-import { CanvasActions } from '@/redux/slices/canvasSlice';
+import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
 
 type UseCanvasMouseDownParams = {
   isMouseDownRef: MutableRefObject<boolean>;
@@ -27,12 +27,13 @@ type UseCanvasMouseDownParams = {
   setSelectedAttachableLine: Dispatch<
     SetStateAction<SelectedAttachableLine | null>
   >;
+  meta: Meta;
 };
 
 export const useCanvasMouseDown = ({
   setSelectedCircleID,
   setSelectedAttachableLine,
-
+  meta,
   isMouseDownRef,
   canvasRef,
   selectBox,
@@ -66,8 +67,7 @@ export const useCanvasMouseDown = ({
         selectedGeometryInfo.maxPoints.furthestFromOrigin
       )
     ) {
-      // setSelectedGeometryInfo(null);
-      dispatch(CanvasActions.nullifySelectedGeometryInfo());
+      dispatch(CanvasActions.nullifySelectedGeometryInfo(undefined, meta));
       return;
     }
 
