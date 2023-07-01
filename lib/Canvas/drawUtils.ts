@@ -200,7 +200,8 @@ export const drawValidatorLens = ({
   selectedIds: string[] | undefined;
   selectedValidatorLens: SelectedValidatorLens | null;
 }) => {
-  validatorLensContainer.forEach((lens) => {
+  console.log('/');
+  validatorLensContainer.forEach((lens, index) => {
     const [leftX, topY] = lens.rect.topLeft;
     const [rightX, bottomY] = lens.rect.bottomRight;
     // ill want the inside highlighted and other interior selected indicator
@@ -231,21 +232,20 @@ export const drawValidatorLens = ({
     // ---
 
     ctx.lineWidth = 1;
-    ctx.fill();
+    // ctx.canvas.style.zIndex = (index)
     // ctx.globalAlpha = 0.3;
-    console.log(
-      'i need sleep i dont know why th4e color are fucked up the logic seems fine'
-    );
+    console.log(selectedValidatorLens?.id, lens.id);
     if (selectedValidatorLens?.id === lens.id) {
-      console.log('woo', selectedValidatorLens, 'vs', lens.id);
-
       // ctx.lineWidth = 1;
+      console.log('is');
       ctx.fillStyle = 'white';
-      ctx.fill();
+
       // ctx.lineWidth = 0;
     } else {
+      console.log('isnt');
       ctx.fillStyle = 'blue';
     }
+    ctx.fill();
 
     ctx.closePath(); // This ensures the path is closed and can be filled
 
@@ -253,6 +253,7 @@ export const drawValidatorLens = ({
 
     ctx.stroke();
   });
+  console.log('|');
 };
 
 export const drawBox = ({

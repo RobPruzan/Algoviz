@@ -263,8 +263,9 @@ export const getActiveValidatorLens = ({
   const rect = canvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
-
-  const activeLineIndex = container.findIndex((lens) =>
+  // taking the reverse because we want the most recently added rectangle to be ontop  (so the last item in the list)
+  // but alose be the first ite selected (top of thel ist when searching)
+  const activeLineIndex = container.findLastIndex((lens) =>
     isPointInRectangle([x, y], lens.rect.bottomRight, lens.rect.topLeft)
   );
 
@@ -501,7 +502,6 @@ export const getMouseDownActiveItem = ({
     event,
     circles: attachableLines.map((line) => line.attachNodeTwo),
   });
-  console.log('dis is active ', activeValidatorLensId);
 
   if (
     !activeCircleId &&
@@ -515,7 +515,6 @@ export const getMouseDownActiveItem = ({
     (lens) => lens.id === activeValidatorLensId
   );
 
-  console.log('here wee', activeValidatorLens);
   const activeCircle = circles.find((circle) => circle.id === activeCircleId);
   const activeRect = attachableLines.find((line) => line.id === activeRectID);
   const activeSelectNodeOne = attachableLines.find(
