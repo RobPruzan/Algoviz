@@ -17,15 +17,24 @@ import {
   IO,
   Percentage,
   SelectedGeometryInfo,
+  SelectedValidatorLens,
   UndirectedEdge,
 } from '@/lib/types';
 import { useAppSelector } from '@/redux/store';
 import { SideBarContext } from '@/context/SideBarContext';
 import { useDepthFirstSearch } from '@/hooks/useDepthFirstSearch';
 type Props = {
+  setSelectedValidatorLens: React.Dispatch<
+    React.SetStateAction<SelectedValidatorLens | null>
+  >;
+  selectedValidatorLens: SelectedValidatorLens | null;
   canvasWidth: number | Percentage;
 };
-const Visualize = ({ canvasWidth }: Props) => {
+const Visualize = ({
+  canvasWidth,
+  selectedValidatorLens,
+  setSelectedValidatorLens,
+}: Props) => {
   const { sideBarState } = useContext(SideBarContext);
   // const { show } = useAppSelector((store) => store.canvas.variableInspector);
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
@@ -48,7 +57,6 @@ const Visualize = ({ canvasWidth }: Props) => {
     edges: selectedAttachableLines,
     vertices: selectedCircles,
   });
-  const socketRef = useRef<IO>();
 
   const { handleDfs } = useDepthFirstSearch({
     adjacencyList,
@@ -56,6 +64,7 @@ const Visualize = ({ canvasWidth }: Props) => {
     startingNode: [...adjacencyList.keys()].at(0) ?? '',
   });
   const notSignedInUserIdRef = useRef(crypto.randomUUID());
+  const canvasWrapperRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className={`flex w-full flex-col h-full items-center justify-start `}>
@@ -66,11 +75,11 @@ const Visualize = ({ canvasWidth }: Props) => {
           <CanvasControlBar
             notSignedInUserId={notSignedInUserIdRef.current}
             setSelectedControlBarAction={setSelectedControlBarAction}
-            socketRef={socketRef}
           />
         )}
       </div>
       <div
+        ref={canvasWrapperRef}
         tabIndex={-1}
         className=" w-full overflow-y-scroll rounded-t-none h-full border-2 border-secondary border-t-0"
       >
@@ -78,8 +87,10 @@ const Visualize = ({ canvasWidth }: Props) => {
           <SortDisplay algorithm={sideBarState.algorithm} />
         ) : (
           <CanvasDisplay
+            selectedValidatorLens={selectedValidatorLens}
+            setSelectedValidatorLens={setSelectedValidatorLens}
+            canvasWrapperRef={canvasWrapperRef}
             notSignedInUserId={notSignedInUserIdRef.current}
-            socketRef={socketRef}
             canvasWidth={canvasWidth}
             selectedControlBarAction={selectedControlBarAction}
             // setSelectedControlBarAction={setSelectedControlBarAction}

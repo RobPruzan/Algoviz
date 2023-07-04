@@ -77,6 +77,45 @@ const canvasSlice = createSlice({
   initialState,
   reducers: {
     resetState: withCanvasMeta<undefined>(() => initialState),
+    setValidatorLensSelectedIds: withCanvasMeta<{ validatorLensId: string }>(
+      (state, action) => {
+        const selectedValidatorLens = state.validatorLensContainer.find(
+          (lens) => lens.id === action.payload.validatorLensId
+        );
+        if (!selectedValidatorLens?.selectedIds) return;
+        // selectedValidatorLens.selectedIds
+        const selectedGeometry = Canvas.getSelectedGeometry({
+          edges: state.attachableLines,
+          vertices: state.circles,
+          selectBox: {
+            p1: selectedValidatorLens?.rect.bottomRight,
+            p2: selectedValidatorLens?.rect.topLeft,
+            type: 'selectBox',
+          },
+        });
+        if (!selectedGeometry) return;
+        selectedValidatorLens.selectedIds = selectedGeometry.selectedIds;
+      }
+    ),
+    staticLensSetValidatorLensIds: withCanvasMeta<undefined>((state) => {
+      state.validatorLensContainer = state.validatorLensContainer.map(
+        (lens) => {
+          const selectedGeometry = Canvas.getSelectedGeometry({
+            edges: state.attachableLines,
+            vertices: state.circles,
+            selectBox: {
+              p1: lens?.rect.bottomRight,
+              p2: lens?.rect.topLeft,
+              type: 'selectBox',
+            },
+          });
+          if (!selectedGeometry) {
+            return lens;
+          }
+          return { ...lens, selectedIds: selectedGeometry.selectedIds };
+        }
+      );
+    }),
     panPencilCoordinates: withCanvasMeta<{ pan: [number, number] }>(
       (state, action) => {
         state.pencilCoordinates.drawingCoordinates =

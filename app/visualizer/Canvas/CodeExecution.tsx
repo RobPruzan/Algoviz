@@ -7,7 +7,7 @@ import * as Graph from '@/lib/graph';
 import React, { useState } from 'react';
 import { match } from 'ts-pattern';
 import { nightOwlTheme } from './theme';
-import { Percentage } from '@/lib/types';
+import { Percentage, SelectedValidatorLens } from '@/lib/types';
 import {
   DEFAULT_VALIDATOR_CODE,
   DEFAULT_VISUALIZATION_CODE,
@@ -23,26 +23,44 @@ type Props = {
   setUserAlgorithm: React.Dispatch<
     React.SetStateAction<Pick<Algorithm, 'code' | 'description' | 'title'>>
   >;
+  setSelectedValidatorLens: React.Dispatch<
+    React.SetStateAction<SelectedValidatorLens | null>
+  >;
+  selectedValidatorLens: SelectedValidatorLens | null;
 };
 
-const CodeExecution = ({ selectedAlgorithm, setUserAlgorithm }: Props) => {
+const CodeExecution = ({
+  selectedAlgorithm,
+  setUserAlgorithm,
+  selectedValidatorLens,
+  setSelectedValidatorLens,
+}: Props) => {
   const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
     '40%'
   );
 
-  const { attachableLines, circles, selectedGeometryInfo } = useAppSelector(
-    (store) => store.canvas
-  );
+  const {
+    attachableLines,
+    circles,
+    selectedGeometryInfo,
+    validatorLensContainer,
+  } = useAppSelector((store) => store.canvas);
 
   const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
 
+  // const selectedAttachableLines = attachableLines.filter((line) =>
+  //   // not a set because of redux :(
+  //   validatorLensContainer
+  //     .find((lens) => lens.id === selectedValidatorLens?.id)
+  //     ?.selectedIds.includes(line.id)
+  // );
+  console.log(validatorLensContainer.flatMap((lens) => lens.selectedIds));
   const selectedAttachableLines = attachableLines.filter((line) =>
-    // not a set because of redux :(
-    selectedGeometryInfo?.selectedIds.includes(line.id)
+    validatorLensContainer.some((lens) => lens.selectedIds.includes(line.id))
   );
   const selectedCircles = circles.filter((circle) =>
-    selectedGeometryInfo?.selectedIds.includes(circle.id)
+    validatorLensContainer.some((lens) => lens.selectedIds.includes(circle.id))
   );
   const themeInfo = useTheme();
 

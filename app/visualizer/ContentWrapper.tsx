@@ -4,6 +4,7 @@ import {
   Edge,
   Percentage,
   SelectedGeometryInfo,
+  SelectedValidatorLens,
 } from '@/lib/types';
 import React, { useEffect, useState } from 'react';
 import CodeExecution from './Canvas/CodeExecution';
@@ -32,6 +33,8 @@ const ContentWrapper = ({ shapes }: Props) => {
   const [codeExecWidth, setCodeExecWidth] = useState<number | Percentage>(
     '40%'
   );
+  const [selectedValidatorLens, setSelectedValidatorLens] =
+    useState<SelectedValidatorLens | null>(null);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>();
   const dispatch = useDispatch();
   const [userAlgorithm, setUserAlgorithm] = useState<
@@ -55,6 +58,32 @@ const ContentWrapper = ({ shapes }: Props) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const rx = /INPUT|SELECT|TEXTAREA/i;
+
+    const keyDownHandler = (e: any) => {
+      if (e.which === 8) {
+        // 8 == backspace
+        if (
+          !rx.test(e.target.tagName) ||
+          e.target.disabled ||
+          e.target.readOnly
+        ) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', keyDownHandler);
+    document.addEventListener('keypress', keyDownHandler);
+
+    // cleanup function
+    return () => {
+      document.removeEventListener('keydown', keyDownHandler);
+      document.removeEventListener('keypress', keyDownHandler);
+    };
+  }, []);
   return (
     <Resizable
       canvasSize={canvasWidth}
@@ -62,16 +91,25 @@ const ContentWrapper = ({ shapes }: Props) => {
       setCanvasSize={setCanvasWidth}
       setCodeExecSize={setCodeExecWidth}
       type="horizontal"
-      leftDiv={<Visualize canvasWidth={canvasWidth} />}
+      leftDiv={
+        <Visualize
+          selectedValidatorLens={selectedValidatorLens}
+          setSelectedValidatorLens={setSelectedValidatorLens}
+          canvasWidth={canvasWidth}
+        />
+      }
       rightDiv={
         <div className="w-full h-full border-2 border-secondary">
           <CodeExecutionControlBar
+            selectedValidatorLens={selectedValidatorLens}
             selectedAlgorithm={selectedAlgorithm}
             setSelectedAlgorithm={setSelectedAlgorithm}
             userAlgorithm={userAlgorithm}
             setUserAlgorithm={setUserAlgorithm}
           />
           <CodeExecution
+            selectedValidatorLens={selectedValidatorLens}
+            setSelectedValidatorLens={setSelectedValidatorLens}
             selectedAlgorithm={selectedAlgorithm}
             setUserAlgorithm={setUserAlgorithm}
           />

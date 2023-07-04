@@ -30,12 +30,14 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { match } from 'ts-pattern';
 import { twCond } from '@/lib/utils';
 import { AlgoComboBox } from '../Sort/AlgoComboBox';
+import { SelectedValidatorLens } from '@/lib/types';
 
 type Props = {
   selectedAlgorithm: string | undefined;
   setSelectedAlgorithm: React.Dispatch<
     React.SetStateAction<string | undefined>
   >;
+  selectedValidatorLens: SelectedValidatorLens | null;
   userAlgorithm: Pick<Algorithm, 'title' | 'code' | 'description'>;
   setUserAlgorithm: React.Dispatch<
     React.SetStateAction<Pick<Algorithm, 'code' | 'description' | 'title'>>

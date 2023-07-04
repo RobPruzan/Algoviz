@@ -53,16 +53,22 @@ import { CollaborationActions } from '@/redux/slices/colloborationState';
 import { match } from 'ts-pattern';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
-  socketRef: ReturnType<typeof useRef<IO>>;
+  canvasWrapperRef: React.RefObject<HTMLDivElement>;
   notSignedInUserId: string;
   canvasWidth: number | `${string}%`;
+  setSelectedValidatorLens: React.Dispatch<
+    React.SetStateAction<SelectedValidatorLens | null>
+  >;
+  selectedValidatorLens: SelectedValidatorLens | null;
 };
 
 const CanvasDisplay = ({
   selectedControlBarAction,
-  socketRef,
+  canvasWrapperRef,
+  selectedValidatorLens,
   notSignedInUserId,
   canvasWidth,
+  setSelectedValidatorLens,
 }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
@@ -89,8 +95,7 @@ const CanvasDisplay = ({
   const isMouseDownRef = useRef(false);
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
-  const [selectedValidatorLens, setSelectedValidatorLens] =
-    useState<SelectedValidatorLens | null>(null);
+
   // const [selected]
   const { visualization, visualizationPointer, validation } = useAppSelector(
     (store) => store.codeExec
@@ -334,8 +339,6 @@ const CanvasDisplay = ({
     selectedValidatorLens,
   ]);
 
-  // const dontRemovePls = ['cursor-crosshair', 'cursor-n-resize'];
-
   return (
     <>
       <ContextMenu>
@@ -348,7 +351,7 @@ const CanvasDisplay = ({
               className={`
               outline-none 
               ${selectedControlBarAction === 'pencil' ? 'cursor-crosshair' : ''}
-         
+         overflow-hidden
                 `}
               ref={canvasRef}
               onMouseDown={handleMouseDown}
@@ -356,9 +359,9 @@ const CanvasDisplay = ({
               tabIndex={-1}
               onContextMenu={handleContextMenu}
               onMouseUp={handleMouseUp}
-              width={typeof window !== 'undefined' ? window.innerWidth : 1200}
               onKeyDown={handleKeyDown}
-              height={typeof window !== 'undefined' ? window.innerHeight : 1200}
+              width={1000}
+              height={1000}
             />
           </ContextMenuTrigger>
           <ContextMenuContent className="w-64">

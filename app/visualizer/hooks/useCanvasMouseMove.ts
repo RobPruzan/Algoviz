@@ -140,6 +140,13 @@ export const useCanvasMouseMove = ({
               })
             );
 
+            dispatch(
+              CanvasActions.setValidatorLensSelectedIds(
+                { validatorLensId: lens.id },
+                meta
+              )
+            );
+
           case 'validator-lens':
             const activeLens = validatorLensContainer.find(
               (lens) => lens.id === selectedValidatorLens?.id
@@ -151,6 +158,13 @@ export const useCanvasMouseMove = ({
                 meta
               )
             );
+            dispatch(
+              CanvasActions.setValidatorLensSelectedIds(
+                { validatorLensId: activeLens.id },
+                meta
+              )
+            );
+            // console.log('the selected ids are', )
 
             break;
           case 'circle':
@@ -405,6 +419,7 @@ export const useCanvasMouseMove = ({
           event.nativeEvent.offsetX,
           event.nativeEvent.offsetY,
         ];
+        dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
       });
   };
 

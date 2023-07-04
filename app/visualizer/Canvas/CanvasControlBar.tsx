@@ -1,5 +1,14 @@
 import { Button } from '@/components/ui/button';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+import {
   CircleReceiver,
   DirectedEdge,
   DrawTypes,
@@ -33,13 +42,13 @@ import {
 } from '@/components/ui/hover-card';
 type Props = {
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
-  socketRef: ReturnType<typeof useRef<IO>>;
+
   notSignedInUserId: string;
 };
 
 const CanvasControlBar = ({
   setSelectedControlBarAction,
-  socketRef,
+
   notSignedInUserId,
 }: Props) => {
   const dispatch = useAppDispatch();
@@ -96,17 +105,18 @@ const CanvasControlBar = ({
       lines: [...attachableLines, newLine],
       zoomAmount: creationZoomFactor,
     });
-    if (playgroundID) {
-      Utils.sendCreate(
-        {
-          roomID: playgroundID,
-          type: 'edge',
-          state: newLine,
-        },
-        socketRef
-      );
-    }
+    // if (playgroundID) {
+    //   Utils.sendCreate(
+    //     {
+    //       roomID: playgroundID,
+    //       type: 'edge',
+    //       state: newLine,
+    //     },
+    //     socketRef
+    //   );
+    // }
     dispatch(CanvasActions.addLine(newLine, meta));
+    dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
   };
 
   const handleAddDirectedEdge = () => {
@@ -144,6 +154,7 @@ const CanvasControlBar = ({
     };
 
     dispatch(CanvasActions.addLine(newLine));
+    dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
   };
 
   const handleAddCircle = () => {
@@ -177,18 +188,19 @@ const CanvasControlBar = ({
       circles: [...circles, newCircle],
       zoomAmount: creationZoomFactor,
     });
-    if (playgroundID) {
-      Utils.sendCreate(
-        {
-          roomID: playgroundID,
-          type: 'circleReciever',
-          state: newCircle,
-        },
-        socketRef
-      );
-    }
+    // if (playgroundID) {
+    //   Utils.sendCreate(
+    //     {
+    //       roomID: playgroundID,
+    //       type: 'circleReciever',
+    //       state: newCircle,
+    //     },
+    //     socketRef
+    //   );
+    // }
 
     dispatch(CanvasActions.addCircle(newCircle, meta));
+    dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
   };
 
   const handleAddValidatorLens = () => {
@@ -203,6 +215,7 @@ const CanvasControlBar = ({
       type: 'validator-lens',
     };
     dispatch(CanvasActions.addValidatorLens(newValidatorLens));
+    dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
   };
   return (
     <div className="w-full items-center prevent-select overflow-x-scroll overflow-y-hidden  h-14 flex justify-evenly ">
@@ -260,22 +273,19 @@ const CanvasControlBar = ({
       <Button variant={'outline'} className="px-2">
         <Eraser />
       </Button>
-      <HoverCard>
-        <HoverCardTrigger>
-          <Button variant={'outline'} className="px-2 min-w-fit">
-            Validators <ChevronDown />
-          </Button>
-        </HoverCardTrigger>
-        <HoverCardContent className="flex items-center justify-center w-full">
-          <SquareIcon onClick={handleAddValidatorLens} />
-          <SquareIcon />
-          <SquareIcon />
-          <SquareIcon />
-          <SquareIcon />
-          <SquareIcon />
-          <SquareIcon />
-        </HoverCardContent>
-      </HoverCard>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger className="border-2 rounded-md text-sm p-2">
+          Validators
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={handleAddValidatorLens}>
+            Red Black Tree
+          </DropdownMenuItem>
+
+          <DropdownMenuItem>Binary Search Tree</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
