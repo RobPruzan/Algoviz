@@ -19,6 +19,7 @@ import {
   Pencil,
   Square,
   SquareIcon,
+  XCircle,
 } from 'lucide-react';
 import React, { Dispatch, SetStateAction, useRef } from 'react';
 import { useShapeUpdateMutation } from '../hooks/useShapeUpdateMutation';
@@ -205,6 +206,13 @@ const CanvasControlBar = ({
   };
   return (
     <div className="w-full items-center prevent-select overflow-x-scroll overflow-y-hidden  h-14 flex justify-evenly ">
+      <Button
+        onClick={() => dispatch(CanvasActions.resetState(undefined))}
+        variant={'outline'}
+        className="px-2 mb-0"
+      >
+        <XCircle />
+      </Button>
       <Button
         onClick={handleAddUndirectedEdge}
         variant={'outline'}

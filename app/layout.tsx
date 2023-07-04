@@ -9,17 +9,6 @@ import Link from 'next/link';
 
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { ModeToggle } from '@/components/ui/mode-toggle';
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogDescription,
-//   DialogFooter,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-// } from '@/components/ui/dialog';
-// import { Label } from '@/components/ui/label';
-// import { Input } from '@/components/ui/input';
 import ShareableLink from '@/components/ShareableLink';
 import React from 'react';
 

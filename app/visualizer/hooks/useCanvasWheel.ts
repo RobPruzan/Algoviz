@@ -11,15 +11,10 @@ import {
 } from 'react';
 import * as Draw from '@/lib/Canvas/draw';
 type UseCanvasWheel = {
-  setPencilCoordinates: React.Dispatch<React.SetStateAction<PencilCoordinates>>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   meta: Meta;
 };
-export const useCanvasWheel = ({
-  setPencilCoordinates,
-  meta,
-  canvasRef,
-}: UseCanvasWheel) => {
+export const useCanvasWheel = ({ meta, canvasRef }: UseCanvasWheel) => {
   const offsetX = useRef(0);
   const offsetY = useRef(0);
   const dispatch = useAppDispatch();
@@ -38,8 +33,8 @@ export const useCanvasWheel = ({
         );
 
         dispatch(CanvasActions.setValidatorLensContainer);
+        // this should all be a zoom action
 
-        // should make a helper function for translations totallllyyy
         dispatch(
           CanvasActions.setCircles(
             circles.map((circle) => ({
@@ -147,16 +142,17 @@ export const useCanvasWheel = ({
           })
         );
 
-        setPencilCoordinates((prev) => ({
-          drawingCoordinates: prev.drawingCoordinates.map((cords) =>
-            Draw.mouseCenteredZoom(cords, center, zoomAmount)
-          ),
-          drawnCoordinates: prev.drawnCoordinates.map((continuousCords) =>
-            continuousCords.map((cords) =>
-              Draw.mouseCenteredZoom(cords, center, zoomAmount)
-            )
-          ),
-        }));
+        // setPencilCoordinates((prev) => ({
+        //   drawingCoordinates: prev.drawingCoordinates.map((cords) =>
+        //     Draw.mouseCenteredZoom(cords, center, zoomAmount)
+        //   ),
+        //   drawnCoordinates: prev.drawnCoordinates.map((continuousCords) =>
+        //     continuousCords.map((cords) =>
+        //       Draw.mouseCenteredZoom(cords, center, zoomAmount)
+        //     )
+        //   ),
+        // }));
+        dispatch(CanvasActions.zoomPencilCoordinates({ center, zoomAmount }));
       } else {
         const newOffsetX = event.deltaX * 0.5;
         const newOffsetY = event.deltaY * 0.5;
@@ -217,23 +213,31 @@ export const useCanvasWheel = ({
             pan: [newOffsetX, newOffsetY],
           })
         );
-        setPencilCoordinates((prev) => ({
-          ...prev,
-          drawingCoordinates: prev.drawingCoordinates.map((cord) => [
-            cord[0] - newOffsetX,
-            cord[1] - newOffsetY,
-          ]),
-          drawnCoordinates: prev.drawnCoordinates.map((continuousCords) =>
-            continuousCords.map((cord) => [
-              cord[0] - newOffsetX,
-              cord[1] - newOffsetY,
-            ])
-          ),
-        }));
+        // setPencilCoordinates((prev) => ({
+        //   ...prev,
+        //   drawingCoordinates: prev.drawingCoordinates.map((cord) => [
+        //     cord[0] - newOffsetX,
+        //     cord[1] - newOffsetY,
+        //   ]),
+        //   drawnCoordinates: prev.drawnCoordinates.map((continuousCords) =>
+        //     continuousCords.map((cord) => [
+        //       cord[0] - newOffsetX,
+        //       cord[1] - newOffsetY,
+        //     ])
+        //   ),
+        // }));
+        dispatch(
+          CanvasActions.panPencilCoordinates(
+            {
+              pan: [newOffsetX, newOffsetY],
+            },
+            meta
+          )
+        );
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [attachableLines, canvasRef, circles, dispatch, setPencilCoordinates]
+    [attachableLines, canvasRef, circles]
   );
   useEffect(() => {
     const canvas = canvasRef.current;

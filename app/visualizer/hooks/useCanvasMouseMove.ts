@@ -30,7 +30,6 @@ type UseCanvasMouseMoveProps = {
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
   selectedControlBarAction: 'pencil' | null;
 
-  setPencilCoordinates: React.Dispatch<React.SetStateAction<PencilCoordinates>>;
   selectedCircleID: string | null;
   selectedAttachableLine: SelectedAttachableLine | null;
   meta: Meta;
@@ -39,7 +38,6 @@ type UseCanvasMouseMoveProps = {
 };
 
 export const useCanvasMouseMove = ({
-  setPencilCoordinates,
   isMouseDownRef,
   selectBox,
   selectedControlBarAction,
@@ -83,13 +81,12 @@ export const useCanvasMouseMove = ({
     match(selectedControlBarAction)
       .with('pencil', () => {
         if (isMouseDownRef.current) {
-          setPencilCoordinates((prev) => ({
-            ...prev,
-            drawingCoordinates: [
-              ...prev.drawingCoordinates,
-              [mousePositionX, mousePositionY],
-            ],
-          }));
+          dispatch(
+            CanvasActions.setPencilDrawingCoordinates([
+              mousePositionX,
+              mousePositionY,
+            ])
+          );
         }
       })
       .otherwise(() => {

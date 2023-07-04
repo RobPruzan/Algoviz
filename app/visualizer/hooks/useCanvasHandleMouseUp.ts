@@ -9,6 +9,8 @@ import {
   SelectedValidatorLensResizeCircle,
 } from '@/lib/types';
 import { match } from 'ts-pattern';
+import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
+import { useDispatch } from 'react-redux';
 
 type CanvasMouseUPParams = {
   isMouseDownRef: MutableRefObject<boolean>;
@@ -16,7 +18,7 @@ type CanvasMouseUPParams = {
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
   selectedControlBarAction: 'pencil' | null;
 
-  setPencilCoordinates: Dispatch<SetStateAction<PencilCoordinates>>;
+  meta: Meta;
   selectedCircleID: string | null;
   selectedAttachableLine: SelectedAttachableLine | null;
   setSelectedCircleID: Dispatch<SetStateAction<string | null>>;
@@ -40,15 +42,18 @@ export const useHandleMouseUp = ({
   selectedAttachableLine,
   selectedCircleID,
   selectedControlBarAction,
-  setPencilCoordinates,
+
   setSelectBox,
   setSelectedValidatorLens,
   selectedValidatorLens,
   setSelectedResizeValidatorLensCircle,
+  meta,
 }: CanvasMouseUPParams) => {
   const { attachableLines, circles, validatorLensContainer } = useAppSelector(
     (store) => store.canvas
   );
+
+  const dispatch = useDispatch();
 
   const handleMouseUp = () => {
     const { activeItem } = Canvas.getMouseUpActiveItem({
@@ -75,13 +80,14 @@ export const useHandleMouseUp = ({
       })
       .with({ type: 'pencil' }, () => {
         if (selectedControlBarAction === 'pencil') {
-          setPencilCoordinates((prev) => ({
-            drawnCoordinates: [
-              ...prev.drawnCoordinates,
-              prev.drawingCoordinates,
-            ],
-            drawingCoordinates: [],
-          }));
+          // setPencilCoordinates((prev) => ({
+          //   drawnCoordinates: [
+          //     ...prev.drawnCoordinates,
+          //     prev.drawingCoordinates,
+          //   ],
+          //   drawingCoordinates: [],
+          // }));
+          dispatch(CanvasActions.setPencilDrawnCoordinates(undefined, meta));
         }
       })
       .with({ type: 'validator-lens' }, (data) => {

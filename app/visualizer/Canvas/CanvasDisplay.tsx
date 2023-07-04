@@ -67,20 +67,23 @@ const CanvasDisplay = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
-  const [pencilCoordinates, setPencilCoordinates] = useState<PencilCoordinates>(
-    {
-      drawingCoordinates: [],
-      drawnCoordinates: [],
-    }
-  );
+  // const [pencilCoordinates, setPencilCoordinates] = useState<PencilCoordinates>(
+  //   {
+  //     drawingCoordinates: [],
+  //     drawnCoordinates: [],
+  //   }
+  // );
   const selectedGeometryInfo = useAppSelector(
     (store) => store.canvas.selectedGeometryInfo
   );
   const { sideBarState, setSideBarState } = useContext(SideBarContext);
   const dispatch = useAppDispatch();
-  const { attachableLines, circles, validatorLensContainer } = useAppSelector(
-    (store) => store.canvas
-  );
+  const {
+    attachableLines,
+    circles,
+    validatorLensContainer,
+    pencilCoordinates,
+  } = useAppSelector((store) => store.canvas);
   const { collabInfos } = useAppSelector((store) => store.collaborationState);
   // console.log('real data', collabInfos);
   const isMouseDownRef = useRef(false);
@@ -178,7 +181,7 @@ const CanvasDisplay = ({
     selectedAttachableLine,
     selectedCircleID,
     selectedControlBarAction,
-    setPencilCoordinates,
+
     setSelectBox,
     meta,
     selectedValidatorLens,
@@ -191,7 +194,7 @@ const CanvasDisplay = ({
     selectedAttachableLine,
     selectedCircleID,
     selectedControlBarAction,
-    setPencilCoordinates,
+    meta,
     setSelectBox,
     setSelectedAttachableLine,
     setSelectedCircleID,
@@ -202,7 +205,7 @@ const CanvasDisplay = ({
 
   useCanvasWheel({
     canvasRef,
-    setPencilCoordinates,
+
     meta,
   });
 

@@ -6,6 +6,7 @@ import {
   Prettify,
   CircleReceiver,
   FirstParameter,
+  PencilCoordinates,
 } from '@/lib/types';
 import { enableMapSet } from 'immer';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
@@ -43,6 +44,7 @@ export type CanvasState = {
   selectedGeometryInfo: SelectedGeometryInfo | null;
   validatorLensContainer: ValidatorLensInfo[];
   creationZoomFactor: number;
+  pencilCoordinates: PencilCoordinates;
 };
 
 const initialState: CanvasState = {
@@ -51,6 +53,10 @@ const initialState: CanvasState = {
   validatorLensContainer: [],
   creationZoomFactor: 1,
   selectedGeometryInfo: null,
+  pencilCoordinates: {
+    drawingCoordinates: [],
+    drawnCoordinates: [],
+  },
 };
 
 export type Meta = {
@@ -70,6 +76,60 @@ const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    resetState: withCanvasMeta<undefined>(() => initialState),
+    panPencilCoordinates: withCanvasMeta<{ pan: [number, number] }>(
+      (state, action) => {
+        state.pencilCoordinates.drawingCoordinates =
+          state.pencilCoordinates.drawingCoordinates.map((cord) => [
+            cord[0] - action.payload.pan[0],
+            cord[1] - action.payload.pan[1],
+          ]);
+        state.pencilCoordinates.drawnCoordinates =
+          state.pencilCoordinates.drawnCoordinates.map((continuousCords) =>
+            continuousCords.map((cord) => [
+              cord[0] - action.payload.pan[0],
+              cord[1] - action.payload.pan[1],
+            ])
+          );
+      }
+    ),
+    zoomPencilCoordinates: withCanvasMeta<{
+      center: [number, number];
+      zoomAmount: number;
+    }>((state, action) => {
+      state.pencilCoordinates.drawingCoordinates =
+        state.pencilCoordinates.drawingCoordinates.map((cords) =>
+          Draw.mouseCenteredZoom(
+            cords,
+            action.payload.center,
+            action.payload.zoomAmount
+          )
+        );
+      state.pencilCoordinates.drawnCoordinates =
+        state.pencilCoordinates.drawnCoordinates.map((continuousCords) =>
+          continuousCords.map((cords) =>
+            Draw.mouseCenteredZoom(
+              cords,
+              action.payload.center,
+              action.payload.zoomAmount
+            )
+          )
+        );
+    }),
+    setPencilDrawnCoordinates: withCanvasMeta<undefined>((state) => {
+      state.pencilCoordinates.drawnCoordinates = [
+        ...state.pencilCoordinates.drawnCoordinates,
+        state.pencilCoordinates.drawingCoordinates,
+      ];
+    }),
+    setPencilDrawingCoordinates: withCanvasMeta<[number, number]>(
+      (state, action) => {
+        state.pencilCoordinates.drawingCoordinates = [
+          ...state.pencilCoordinates.drawingCoordinates,
+          action.payload,
+        ];
+      }
+    ),
     resizeValidatorLens: withCanvasMeta<{
       lens: ValidatorLensInfo;
       side: 'bottom-left' | 'bottom-right' | 'top-right' | 'top-left';
