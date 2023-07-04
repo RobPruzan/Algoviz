@@ -50,6 +50,7 @@ import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { CollaborationActions } from '@/redux/slices/colloborationState';
+import { match } from 'ts-pattern';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
   socketRef: ReturnType<typeof useRef<IO>>;
@@ -108,6 +109,7 @@ const CanvasDisplay = ({
   ] = useState<SelectedValidatorLensResizeCircle | null>(null);
 
   useEffect(() => {
+    if (!playgroundID) return;
     dispatch({
       type: 'socket/connect',
       meta,

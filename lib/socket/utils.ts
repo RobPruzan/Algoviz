@@ -11,14 +11,15 @@ export class SocketIO {
   socket: IO | null;
 
   constructor(url: string) {
-    if (typeof window !== 'undefined') {
-      console.log('client');
-      this.socket = io(url);
-    } else {
-      console.log('servercode');
+    this.socket = null;
+    // if (typeof window !== 'undefined') {
+    //   console.log('client');
+    //   this.socket = io(url);
+    // } else {
+    //   console.log('servercode');
 
-      this.socket = null;
-    }
+    //   this.socket = null;
+    // }
   }
 
   sendUpdate(
@@ -50,21 +51,6 @@ export class SocketIO {
     console.log('is the user emitting a join playground request', playgroundID);
     this.socket?.emit('join playground', playgroundID);
   }
-  // connect(playgroundID: string) {
-  //   console.log(
-  //     'inside connect, and socket res is',
-  //     this.socket,
-  //     !!this.socket
-  //   );
-  //   // this.socket?.on('connect', () => {
-  //   //   console.log('bout to join da playground');
-  //   //   this.joinPlayground(playgroundID);
-  //   // });
-  //   this.joinPlayground(playgroundID);
-
-  //   // this.socket?.emit('connect');
-  // }
-
   addActionListener(cb: OnCB) {
     this.socket?.on('action', cb);
   }

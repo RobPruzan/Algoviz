@@ -2,6 +2,7 @@ import useDebounce from '@/hooks/useDebounce';
 import { useEffect } from 'react';
 import { useShapeUpdateMutation } from './useShapeUpdateMutation';
 import { useAppSelector } from '@/redux/store';
+import { useSearchParams } from 'next/navigation';
 
 export const useServerUpdateShapes = () => {
   const { attachableLines, circles, creationZoomFactor } = useAppSelector(
@@ -9,19 +10,27 @@ export const useServerUpdateShapes = () => {
   );
   const debouncedCircles = useDebounce(circles, 500);
   const debouncedLines = useDebounce(attachableLines, 500);
+  const searchParams = useSearchParams();
   const shapeUpdateMutation = useShapeUpdateMutation();
+  const playgroundID = searchParams.get('playground-id');
   useEffect(() => {
-    shapeUpdateMutation.mutate({
-      circles: debouncedCircles,
-      zoomAmount: creationZoomFactor,
-    });
+    if (playgroundID) {
+      shapeUpdateMutation.mutate({
+        circles: debouncedCircles,
+        zoomAmount: creationZoomFactor,
+      });
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedCircles]);
   useEffect(() => {
-    shapeUpdateMutation.mutate({
-      lines: debouncedLines,
-      zoomAmount: creationZoomFactor,
-    });
+    if (playgroundID) {
+      shapeUpdateMutation.mutate({
+        lines: debouncedLines,
+        zoomAmount: creationZoomFactor,
+      });
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedLines]);
 };

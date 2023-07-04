@@ -8,12 +8,28 @@ import {
 } from '@/lib/types';
 import { CanvasActions, ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
-import { ArrowRight, CircleDot, Pencil, Square } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowDown10Icon,
+  ArrowDownWideNarrow,
+  ArrowRight,
+  ChevronDown,
+  CircleDot,
+  Eraser,
+  Pencil,
+  Square,
+  SquareIcon,
+} from 'lucide-react';
 import React, { Dispatch, SetStateAction, useRef } from 'react';
 import { useShapeUpdateMutation } from '../hooks/useShapeUpdateMutation';
 import * as Utils from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
 type Props = {
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
   socketRef: ReturnType<typeof useRef<IO>>;
@@ -29,9 +45,12 @@ const CanvasControlBar = ({
   const { circles, creationZoomFactor, attachableLines } = useAppSelector(
     (store) => store.canvas
   );
+  const searchParams = useSearchParams();
 
   const shapeUpdateMutation = useShapeUpdateMutation();
-  const searchParams = useSearchParams();
+  const validShapeUpdateMutation = (
+    ...args: Parameters<typeof shapeUpdateMutation.mutate>
+  ) => searchParams.get('playground-id') && shapeUpdateMutation.mutate(...args);
   const playgroundID = searchParams.get('playground-id');
   const session = useSession();
 
@@ -72,7 +91,7 @@ const CanvasControlBar = ({
         connectedToId: null,
       },
     };
-    shapeUpdateMutation.mutate({
+    validShapeUpdateMutation({
       lines: [...attachableLines, newLine],
       zoomAmount: creationZoomFactor,
     });
@@ -153,7 +172,7 @@ const CanvasControlBar = ({
       nodeReceiver: newNodeConnector,
     };
 
-    shapeUpdateMutation.mutate({
+    validShapeUpdateMutation({
       circles: [...circles, newCircle],
       zoomAmount: creationZoomFactor,
     });
@@ -230,27 +249,25 @@ const CanvasControlBar = ({
       >
         <ArrowRight />
       </Button>
-      <Button
-        onClick={handleAddValidatorLens}
-        variant={'outline'}
-        className="px-2 min-w-fit"
-      >
-        <Square />
+      <Button variant={'outline'} className="px-2">
+        <Eraser />
       </Button>
-      <Button variant={'outline'} className="px-2 min-w-fit">
-        {/* here goes options for specific r/b tree data structure stuff
-        // can we do it so the user can bundle code with this to make it its own data structure
-        // you define the color, and the logic behind what changes it
-        // yes i like that very much
-        */}
-        {'Red-Black Tree'}
-      </Button>
-      <Button variant={'outline'} className="px-2 min-w-fit">
-        Binary Search Tree
-      </Button>
-      <Button variant={'outline'} className="px-2 min-w-fit">
-        Linked List
-      </Button>
+      <HoverCard>
+        <HoverCardTrigger>
+          <Button variant={'outline'} className="px-2 min-w-fit">
+            Validators <ChevronDown />
+          </Button>
+        </HoverCardTrigger>
+        <HoverCardContent className="flex items-center justify-center w-full">
+          <SquareIcon onClick={handleAddValidatorLens} />
+          <SquareIcon />
+          <SquareIcon />
+          <SquareIcon />
+          <SquareIcon />
+          <SquareIcon />
+          <SquareIcon />
+        </HoverCardContent>
+      </HoverCard>
     </div>
   );
 };

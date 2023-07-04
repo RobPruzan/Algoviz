@@ -18,6 +18,7 @@ import {
   collaborationReducer,
   collaborationStateReducer,
 } from './slices/colloborationState';
+import { io } from 'socket.io-client';
 
 export function withMeta<TPayload, TState>(
   reducer: (
@@ -43,6 +44,7 @@ export const socketMiddleware =
     switch (action.type) {
       case 'socket/connect':
         if (action.meta?.playgroundID) {
+          socket.socket = io('http://localhost:8080');
           socket.joinPlayground(action.meta.playgroundID);
           socket.addActionListener((socketAction: SocketAction) => {
             // console.log('receving action');
