@@ -30,14 +30,10 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { match } from 'ts-pattern';
 import { twCond } from '@/lib/utils';
 import { AlgoComboBox } from '../Sort/AlgoComboBox';
-import { SelectedValidatorLens } from '@/lib/types';
+import { AlgoType, SelectedValidatorLens } from '@/lib/types';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 type Props = {
-  selectedAlgorithm: string | undefined;
-  setSelectedAlgorithm: React.Dispatch<
-    React.SetStateAction<string | undefined>
-  >;
-  selectedValidatorLens: SelectedValidatorLens | null;
   userAlgorithm: Pick<Algorithm, 'title' | 'code' | 'description'>;
   setUserAlgorithm: React.Dispatch<
     React.SetStateAction<Pick<Algorithm, 'code' | 'description' | 'title'>>
@@ -45,15 +41,21 @@ type Props = {
 };
 
 const CodeExecutionControlBar = ({
-  selectedAlgorithm,
-  setSelectedAlgorithm,
   setUserAlgorithm,
   userAlgorithm,
 }: Props) => {
   const [open, setOpen] = useState(false);
+  const [type, setType] = useState<AlgoType>(AlgoType.Visualizer);
+
   const isApplyingAlgorithm = useAppSelector(
     (store) => store.codeExec.isApplyingAlgorithm
   );
+
+  const selectedAlgorithm = useAppSelector(
+    (store) => store.codeExec.selectedAlgorithm
+  );
+
+  console.log('fucking bitch', selectedAlgorithm);
 
   const dispatch = useAppDispatch();
 
@@ -67,14 +69,11 @@ const CodeExecutionControlBar = ({
     (d) => d.id === selectedAlgorithm
   );
 
-  const execMode = useAppSelector((store) => store.codeExec.mode);
   const appliedToWholeApp = useAppSelector(
     (store) => store.codeExec.appliedToWholeApp
   );
 
-  const isValueMode = (value: string): value is Modes => {
-    return MODES.some((mode) => mode === value);
-  };
+  console.log('gah', selectedAlgorithm);
   return (
     <div className="w-full max-h-[7%] min-h-[50px]">
       <div className="  prevent-select overflow-x-scroll p-3 flex w-full border-secondary justify-evenly items-center border-b-2 ">
@@ -100,8 +99,8 @@ const CodeExecutionControlBar = ({
                   className="w-[150px]"
                   algorithms={[]}
                   defaultPlaceholder="Loading"
-                  setValue={() => undefined}
-                  value={undefined}
+                  setValue={() => null}
+                  value={null}
                 />
               ) : (
                 <AlgoComboBox
@@ -109,9 +108,9 @@ const CodeExecutionControlBar = ({
                   algorithms={getAlgorithmsQuery.data ?? []}
                   defaultPlaceholder="Algorithm"
                   value={selectedAlgorithm}
-                  setValue={(d) => {
-                    setSelectedAlgorithm(d);
-                  }}
+                  setValue={(value) =>
+                    dispatch(CodeExecActions.setSelectedAlgorithm(value))
+                  }
                 />
               )}
               <div className="flex items-center space-x-2">
@@ -122,17 +121,6 @@ const CodeExecutionControlBar = ({
                   }}
                   checked={appliedToWholeApp}
                   className=" border-2 data-[state=unchecked]:bg-secondary data-[state=unchecked]:border-gray-800  data-[state=checked]:bg-foreground data-[state=checked]:border-gray-100"
-                  // className={twCond([
-                  //   {
-                  //     cond: appliedToWholeApp,
-                  //     className: 'bg-white',
-                  //   },
-                  //   {
-                  //     cond: !appliedToWholeApp,
-                  //     className:
-                  //       ' data-[state=unchecked]:bg-input[data-state=unchecked]',
-                  //   },
-                  // ])}
                   id="whole-canvas"
                 />
                 <Label htmlFor="whole-canvas">Apply to all canvas items</Label>
@@ -203,12 +191,38 @@ const CodeExecutionControlBar = ({
                 id="name"
                 className="col-span-3"
               />
+
+              <Label htmlFor="name" className="text-right">
+                Type
+              </Label>
+              <RadioGroup
+                onValueChange={(e) => {
+                  const valueIsAlgoType = (value: string): value is AlgoType =>
+                    value === AlgoType.Validator ||
+                    value === AlgoType.Visualizer;
+                  valueIsAlgoType(e) && setType(e);
+                }}
+                value={type}
+                defaultValue="Visualizer"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value={AlgoType.Visualizer} id="r1" />
+                  <Label htmlFor="r1">Visualizer</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value={AlgoType.Validator} id="r2" />
+                  <Label htmlFor="r2">Validator</Label>
+                </div>
+              </RadioGroup>
             </div>
             <DialogFooter>
               <Button
                 onClick={async () => {
                   // i need to clean up this logic, and also invalidate the validators in the validators part of the canvas control bar
-                  await saveAlgorithmMutation.mutateAsync(userAlgorithm);
+                  await saveAlgorithmMutation.mutateAsync({
+                    ...userAlgorithm,
+                    type,
+                  });
                   setOpen(false);
                   getAlgorithmsQuery.refetch();
                 }}

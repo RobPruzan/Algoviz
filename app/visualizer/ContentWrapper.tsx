@@ -35,7 +35,9 @@ const ContentWrapper = ({ shapes }: Props) => {
   );
   const [selectedValidatorLens, setSelectedValidatorLens] =
     useState<SelectedValidatorLens | null>(null);
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>();
+  const selectedAlgorithm = useAppSelector(
+    (store) => store.codeExec.selectedAlgorithm
+  );
   const dispatch = useDispatch();
   const [userAlgorithm, setUserAlgorithm] = useState<
     Pick<Algorithm, 'code' | 'description' | 'title'>
@@ -101,16 +103,12 @@ const ContentWrapper = ({ shapes }: Props) => {
       rightDiv={
         <div className="w-full h-full border-2 border-secondary">
           <CodeExecutionControlBar
-            selectedValidatorLens={selectedValidatorLens}
-            selectedAlgorithm={selectedAlgorithm}
-            setSelectedAlgorithm={setSelectedAlgorithm}
             userAlgorithm={userAlgorithm}
             setUserAlgorithm={setUserAlgorithm}
           />
           <CodeExecution
             selectedValidatorLens={selectedValidatorLens}
             setSelectedValidatorLens={setSelectedValidatorLens}
-            selectedAlgorithm={selectedAlgorithm}
             setUserAlgorithm={setUserAlgorithm}
           />
         </div>

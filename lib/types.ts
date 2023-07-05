@@ -197,3 +197,8 @@ export type SocketAction = { type: string; payload: any; meta: Meta };
 export type FirstParameter<T> = T extends (arg: infer R, ...rest: any[]) => any
   ? R
   : T;
+
+export enum AlgoType {
+  Visualizer = 'Visualizer',
+  Validator = 'Validator',
+}

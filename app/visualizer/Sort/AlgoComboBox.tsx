@@ -27,8 +27,8 @@ import { twMerge } from 'tailwind-merge';
 
 type Props = {
   className?: string;
-  value: string | undefined;
-  setValue: React.Dispatch<SetStateAction<string | undefined>>;
+  value: string | null;
+  setValue: (value: string) => void;
   defaultPlaceholder: string;
   algorithms: (Omit<Algorithm, 'createdAt'> & { createdAt: string })[];
 };
@@ -59,7 +59,7 @@ export function AlgoComboBox({
         >
           {(value
             ? algorithms.find((a) => a.id === value)?.title
-            : defaultPlaceholder
+            : defaultPlaceholder ?? 'Select Algorithm'
           )?.slice(0, 8)}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

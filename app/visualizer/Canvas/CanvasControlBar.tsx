@@ -6,9 +6,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu';
 
 import {
+  AlgoType,
   CircleReceiver,
   DirectedEdge,
   DrawTypes,
@@ -31,7 +33,7 @@ import {
   SquareIcon,
   XCircle,
 } from 'lucide-react';
-import React, { Dispatch, SetStateAction, useRef } from 'react';
+import React, { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { useShapeUpdateMutation } from '../hooks/useShapeUpdateMutation';
 import * as Utils from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
@@ -41,6 +43,8 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
+import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
+import { CodeExecActions } from '@/redux/slices/codeExecSlice';
 type Props = {
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
 
@@ -56,6 +60,7 @@ const CanvasControlBar = ({
   const { circles, creationZoomFactor, attachableLines } = useAppSelector(
     (store) => store.canvas
   );
+  const [itemChecked, setItemChecked] = useState<null | string>(null);
   const searchParams = useSearchParams();
 
   const shapeUpdateMutation = useShapeUpdateMutation();
@@ -64,6 +69,10 @@ const CanvasControlBar = ({
   ) => searchParams.get('playground-id') && shapeUpdateMutation.mutate(...args);
   const playgroundID = searchParams.get('playground-id');
   const session = useSession();
+
+  const getAlgorithmsQuery = useGetAlgorithmsQuery();
+
+  const selectedValidator: null | string = null;
 
   const meta = {
     userID: session.data?.user.id ?? notSignedInUserId,
@@ -204,9 +213,9 @@ const CanvasControlBar = ({
     dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
   };
 
-  const handleAddValidatorLens = () => {
+  const handleAddValidatorLens = (id: string) => {
     const newValidatorLens: ValidatorLensInfo = {
-      id: crypto.randomUUID(),
+      id,
       code: null,
       rect: {
         bottomRight: [Math.random() * 400, Math.random() * 400],
@@ -277,15 +286,39 @@ const CanvasControlBar = ({
 
       <DropdownMenu>
         <DropdownMenuTrigger className="border-2 w-32 flex items-center justify-evenly font-bold rounded-md text-sm p-2">
-          Validators
+          {getAlgorithmsQuery.data?.find(
+            (algoInfo) => algoInfo.id === itemChecked
+          )?.title ?? 'Validators'}
           <ChevronDown size={20} />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem onClick={handleAddValidatorLens}>
+          {getAlgorithmsQuery.data?.map((algo) =>
+            algo.type === AlgoType.Validator ? (
+              <div key={algo.id} className="flex items-center justify-end p-0 ">
+                <DropdownMenuItem
+                  className="w-full"
+                  onClick={() => {
+                    handleAddValidatorLens(algo.id);
+                    // dispatch(CodeExecActions.setSelectedAlgorithm(algo.id));
+                    // setItemChecked(algo.id);
+                  }}
+                  // textValue={algo.id}
+                  // onClick={e => e.}
+                >
+                  {algo.title}
+                  {/* <DropdownMenuCheckboxItem
+                    className="w-fit p-0 mx-2"
+                    checked={itemChecked === algo.id}
+                  /> */}
+                </DropdownMenuItem>
+              </div>
+            ) : null
+          )}
+          {/* <DropdownMenuItem onClick={handleAddValidatorLens}>
             Red Black Tree
           </DropdownMenuItem>
 
-          <DropdownMenuItem>Binary Search Tree</DropdownMenuItem>
+          <DropdownMenuItem>Binary Search Tree</DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

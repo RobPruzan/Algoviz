@@ -1,3 +1,4 @@
+import { SelectedValidatorLens } from '@/lib/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { boolean } from 'zod';
 
@@ -17,6 +18,7 @@ type InitialState = {
   mode: Modes;
   appliedToWholeApp: boolean;
   validation: NodeValidation[];
+  selectedAlgorithm: string | null;
 };
 const initialState: InitialState = {
   visualization: [],
@@ -25,11 +27,15 @@ const initialState: InitialState = {
   mode: 'visualizer',
   appliedToWholeApp: false,
   validation: [],
+  selectedAlgorithm: null,
 };
 const codeExecSlice = createSlice({
   name: 'dfs',
   initialState,
   reducers: {
+    setSelectedAlgorithm: (state, action: PayloadAction<string | null>) => {
+      state.selectedAlgorithm = action.payload;
+    },
     setVisited: (
       state,
       action: PayloadAction<InitialState['visualization']>

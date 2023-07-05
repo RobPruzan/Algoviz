@@ -19,7 +19,6 @@ import Resizable from '../Resizeable';
 import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 import { useTheme } from 'next-themes';
 type Props = {
-  selectedAlgorithm: string | undefined;
   setUserAlgorithm: React.Dispatch<
     React.SetStateAction<Pick<Algorithm, 'code' | 'description' | 'title'>>
   >;
@@ -29,15 +28,14 @@ type Props = {
   selectedValidatorLens: SelectedValidatorLens | null;
 };
 
-const CodeExecution = ({
-  selectedAlgorithm,
-  setUserAlgorithm,
-  selectedValidatorLens,
-  setSelectedValidatorLens,
-}: Props) => {
+const CodeExecution = ({ setUserAlgorithm }: Props) => {
   const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
     '40%'
+  );
+
+  const selectedAlgorithm = useAppSelector(
+    (store) => store.codeExec.selectedAlgorithm
   );
 
   const {

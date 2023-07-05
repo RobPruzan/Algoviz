@@ -64,13 +64,10 @@ const Playground = ({ playground }: Props) => {
         </div>
 
         <div className="w-[25%] h-full flex flex-col items-end">
-          <div
-            onClick={(e) => e.preventDefault()}
-            className="h-1/5 w-1/2 flex justify-end"
-          >
+          <div className="h-1/5 w-1/2 flex justify-end">
             <Dialog open={openDelete} onOpenChange={setOpenDelete}>
               <DialogTrigger onClick={() => console.log('dete')} asChild>
-                <Button variant={'ghost'}>
+                <Button onClick={(e) => e.preventDefault()} variant={'ghost'}>
                   <Trash />
                 </Button>
               </DialogTrigger>
@@ -102,7 +99,11 @@ const Playground = ({ playground }: Props) => {
 
             <Dialog open={openEdit} onOpenChange={setOpenEdit}>
               <DialogTrigger asChild>
-                <Button size={'icon'} variant={'ghost'}>
+                <Button
+                  onClick={(e) => e.preventDefault()}
+                  size={'icon'}
+                  variant={'ghost'}
+                >
                   <Edit className="mx-2" />
                 </Button>
               </DialogTrigger>

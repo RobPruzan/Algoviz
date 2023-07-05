@@ -5,17 +5,16 @@ import { z } from 'zod';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
 export async function POST(request: Request) {
-  const url = new URL(request.url);
-  const type = url?.searchParams.get('type') ?? 'visualizer';
   const algoSchema = z.object({
     code: z.string(),
     title: z.string(),
     description: z.string(),
+    type: z.string(),
   });
   const json = await request.json();
 
   console.log('incoming json woo', json);
-  const { code, title, description } = algoSchema.parse(json);
+  const { code, title, description, type } = algoSchema.parse(json);
   const session = await getServerSession(authOptions);
   if (!session?.user)
     return NextResponse.json({
