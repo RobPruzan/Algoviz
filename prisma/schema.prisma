@@ -70,6 +70,7 @@ model Algorithm {
   title       String
   description String
   code        String
+  type        String   @default("visualizer")
 }
 
 // model Circle {

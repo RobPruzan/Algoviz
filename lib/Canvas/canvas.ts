@@ -510,7 +510,8 @@ export const getLineAttachedToNodeReciever = <T extends 'one' | 'two'>({
 }): (Edge & { nodeConnectedSide: T }) | undefined => {
   switch (nodeConnectedSide) {
     case 'one':
-      const connectedToNodeOneContainer = attachableLines.findLast((line) =>
+      // #TODO findLast breaks it, why?
+      const connectedToNodeOneContainer = attachableLines.find((line) =>
         activeCircle.nodeReceiver.attachedIds.some(
           (id) => id === line.attachNodeOne.id
         )
@@ -524,7 +525,7 @@ export const getLineAttachedToNodeReciever = <T extends 'one' | 'two'>({
 
       break;
     case 'two':
-      const connectedToNodeTwoContainer = attachableLines.findLast((line) =>
+      const connectedToNodeTwoContainer = attachableLines.find((line) =>
         activeCircle.nodeReceiver.attachedIds.some(
           (id) => id === line.attachNodeTwo.id
         )

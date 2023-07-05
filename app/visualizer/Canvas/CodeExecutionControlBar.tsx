@@ -231,10 +231,10 @@ const CodeExecutionControlBar = ({
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button
-              className="w-[90px] flex items-center justify-center h-[30px]   font-bold"
+              className="w-[100px] flex items-center justify-center h-[30px]   font-bold"
               variant="outline"
             >
-              Save
+              Save As
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -266,6 +266,7 @@ const CodeExecutionControlBar = ({
             <DialogFooter>
               <Button
                 onClick={async () => {
+                  // i need to clean up this logic, and also invalidate the validators in the validators part of the canvas control bar
                   await saveAlgorithmMutation.mutateAsync(userAlgorithm);
                   setOpen(false);
                   getAlgorithmsQuery.refetch();

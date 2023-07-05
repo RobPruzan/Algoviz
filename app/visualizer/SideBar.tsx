@@ -33,7 +33,7 @@ import { Editor } from '@monaco-editor/react';
 const SideBar = () => {
   const { sideBarState, setSideBarState } = useContext(SideBarContext);
   const { attachableLines, circles } = useAppSelector((store) => store.canvas);
-  const { visitedPointer } = useAppSelector((store) => store.dfs);
+
   const dispatch = useAppDispatch();
   return (
     <div className=" h-full flex">

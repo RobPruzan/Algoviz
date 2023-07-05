@@ -49,13 +49,6 @@ const CodeExecution = ({
 
   const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
 
-  // const selectedAttachableLines = attachableLines.filter((line) =>
-  //   // not a set because of redux :(
-  //   validatorLensContainer
-  //     .find((lens) => lens.id === selectedValidatorLens?.id)
-  //     ?.selectedIds.includes(line.id)
-  // );
-  console.log(validatorLensContainer.flatMap((lens) => lens.selectedIds));
   const selectedAttachableLines = attachableLines.filter((line) =>
     validatorLensContainer.some((lens) => lens.selectedIds.includes(line.id))
   );

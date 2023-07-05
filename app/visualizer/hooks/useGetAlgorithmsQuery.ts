@@ -13,6 +13,7 @@ export const useGetAlgorithmsQuery = () =>
         code: z.string(),
         description: z.string(),
         createdAt: z.string(),
+        type: z.string(),
       });
       const res = (
         await axios.get(`${process.env.NEXT_PUBLIC_API_ROUTE}/algo/getall`)
