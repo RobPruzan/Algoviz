@@ -34,7 +34,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          'min-h-screen bg-background overflow-hidden font-sans antialiased ',
+          'min-h-screen bg-background  font-sans antialiased ',
           fontSans.variable
         )}
       >
@@ -60,9 +60,7 @@ export default function RootLayout({
                   <div className="w-2/6  " />
 
                   <div className="w-2/5 flex justify-end items-center">
-                    {/* <div className="mx-2 min-w-fit"> */}
                     <ShareableLink />
-                    {/* </div> */}
                     <div className="mx-2">
                       <ModeToggle />
                     </div>
@@ -71,7 +69,6 @@ export default function RootLayout({
                     </div>
                   </div>
                 </nav>
-                {/* <Navbar /> */}
 
                 {children}
               </ThemeProvider>

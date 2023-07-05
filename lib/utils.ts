@@ -83,9 +83,17 @@ export const serializedPlaygroundSchema = z.object({
   zoomAmount: z.number(),
 });
 
+export const minimalPlaygroundSchema = z.object({
+  id: z.number(),
+  createdAt: z.string(),
+  userId: z.string(),
+  name: z.string(),
+});
+
 export const serializedPlaygroundsSchema = z.object({
   playgrounds: z.array(serializedPlaygroundSchema),
 });
+
 export const getPlaygrounds = async (): Promise<
   {
     userId: string;
@@ -98,7 +106,9 @@ export const getPlaygrounds = async (): Promise<
   );
   const json = await res.json();
 
-  const parsedJson = serializedPlaygroundsSchema.parse(json);
+  const parsedJson = z
+    .object({ playgrounds: z.array(minimalPlaygroundSchema) })
+    .parse(json);
 
   return parsedJson.playgrounds;
 };

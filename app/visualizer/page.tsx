@@ -126,7 +126,7 @@ const page = async ({ searchParams }: Props) => {
     : {};
   const pattern = await getCases(body);
   return (
-    <div className="h-screen w-screen flex items-display ">
+    <div className="h-screen w-screen flex items-display overflow-y-hidden ">
       <div className="h-[95%] w-full  ">
         <Content>
           <ContentWrapper shapes={pattern.data} />

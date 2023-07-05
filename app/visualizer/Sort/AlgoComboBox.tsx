@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { Check, ChevronsUpDown } from 'lucide-react';
 
@@ -25,8 +23,10 @@ import {
   SideBarContextState,
 } from '@/lib/types';
 import { Algorithm } from '@prisma/client';
+import { twMerge } from 'tailwind-merge';
 
 type Props = {
+  className?: string;
   value: string | undefined;
   setValue: React.Dispatch<SetStateAction<string | undefined>>;
   defaultPlaceholder: string;
@@ -42,6 +42,7 @@ export function AlgoComboBox({
   value,
   defaultPlaceholder,
   algorithms,
+  className,
 }: Props) {
   const [open, setOpen] = useState(false);
   return (
@@ -51,7 +52,10 @@ export function AlgoComboBox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[125px]   h-[30px] justify-between font-bold"
+          className={twMerge(
+            'w-[125px] h-[30px] justify-between font-bold',
+            className
+          )}
         >
           {(value
             ? algorithms.find((a) => a.id === value)?.title

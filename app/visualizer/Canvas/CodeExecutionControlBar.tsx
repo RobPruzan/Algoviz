@@ -92,111 +92,52 @@ const CodeExecutionControlBar = ({
             </Button>
             {/* </Button> */}
           </PopoverTrigger>
-          <PopoverContent className="px-0">
-            {/* {getAlgorithmsQuery.isLoading ? (
-              <AlgoComboBox
-                algorithms={[]}
-                defaultPlaceholder="Loading"
-                setValue={() => undefined}
-                value={undefined}
-              />
-            ) : (
-              <AlgoComboBox
-                algorithms={getAlgorithmsQuery.data ?? []}
-                defaultPlaceholder="Algorithm"
-                value={selectedAlgorithm}
-                setValue={(d) => {
-                  setSelectedAlgorithm(d);
-                }}
-              />
-            )} */}
-            <Tabs
-              defaultValue="input"
-              className=" flex py-1 justify-evenly items-center  w-full border-b"
-              onValueChange={(value) =>
-                isValueMode(value) && dispatch(CodeExecActions.setMode(value))
-              }
-            >
-              <TabsList className="w-full dark:bg-primary   flex justify-evenly items-center">
-                <TabsTrigger
-                  className={`w-2/5 ${
-                    execMode === 'visualizer'
-                      ? 'border-2 rounded-md   '
-                      : 'border-2 rounded-md border-secondary'
-                  }`}
-                  value="visualizer"
-                >
-                  Visualizer
-                </TabsTrigger>
-                <TabsTrigger
-                  className={`w-2/5 ${
-                    execMode === 'validator'
-                      ? 'border-2 rounded-md '
-                      : 'border-2 rounded-md border-secondary'
-                  }`}
-                  value="validator"
-                >
-                  Validator
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            {/* goal here is to allow to create different types of programs based on the selection
-              - can select input type
-              - can select color scheme
-              - can select output type (i may prefer if this is done programmatically)
-              - will do this after the mouse thingy
-            */}
-            {/* {console.log('fuck', appliedToWholeApp) ;return 'fdsaf'} */}
-            {match(execMode)
-              .with('visualizer', () => (
-                <div className="flex flex-col p-3 ">
-                  {getAlgorithmsQuery.isLoading ? (
-                    <AlgoComboBox
-                      algorithms={[]}
-                      defaultPlaceholder="Loading"
-                      setValue={() => undefined}
-                      value={undefined}
-                    />
-                  ) : (
-                    <AlgoComboBox
-                      algorithms={getAlgorithmsQuery.data ?? []}
-                      defaultPlaceholder="Algorithm"
-                      value={selectedAlgorithm}
-                      setValue={(d) => {
-                        setSelectedAlgorithm(d);
-                      }}
-                    />
-                  )}
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      onCheckedChange={(val) => {
-                        dispatch(CodeExecActions.setApplyAlgoToWholeApp(val));
-                        console.log(val);
-                      }}
-                      checked={appliedToWholeApp}
-                      className=" border-2 data-[state=unchecked]:bg-secondary data-[state=unchecked]:border-gray-800  data-[state=checked]:bg-foreground data-[state=checked]:border-gray-100"
-                      // className={twCond([
-                      //   {
-                      //     cond: appliedToWholeApp,
-                      //     className: 'bg-white',
-                      //   },
-                      //   {
-                      //     cond: !appliedToWholeApp,
-                      //     className:
-                      //       ' data-[state=unchecked]:bg-input[data-state=unchecked]',
-                      //   },
-                      // ])}
-                      id="whole-canvas"
-                    />
-                    <Label htmlFor="whole-canvas">
-                      Apply to all canvas items
-                    </Label>
-                  </div>
-                </div>
-              ))
-              .with('validator', () => <>val</>)
-              .exhaustive()}
+          <PopoverContent className="pt-0">
+            <div className="flex flex-col  items-start justify-evenly px-1 h-40 ">
+              <p className="text-lg font-bold w-full text-center">Options</p>
+              {getAlgorithmsQuery.isLoading ? (
+                <AlgoComboBox
+                  className="w-[150px]"
+                  algorithms={[]}
+                  defaultPlaceholder="Loading"
+                  setValue={() => undefined}
+                  value={undefined}
+                />
+              ) : (
+                <AlgoComboBox
+                  className="w-[150px]"
+                  algorithms={getAlgorithmsQuery.data ?? []}
+                  defaultPlaceholder="Algorithm"
+                  value={selectedAlgorithm}
+                  setValue={(d) => {
+                    setSelectedAlgorithm(d);
+                  }}
+                />
+              )}
+              <div className="flex items-center space-x-2">
+                <Switch
+                  onCheckedChange={(val) => {
+                    dispatch(CodeExecActions.setApplyAlgoToWholeApp(val));
+                    console.log(val);
+                  }}
+                  checked={appliedToWholeApp}
+                  className=" border-2 data-[state=unchecked]:bg-secondary data-[state=unchecked]:border-gray-800  data-[state=checked]:bg-foreground data-[state=checked]:border-gray-100"
+                  // className={twCond([
+                  //   {
+                  //     cond: appliedToWholeApp,
+                  //     className: 'bg-white',
+                  //   },
+                  //   {
+                  //     cond: !appliedToWholeApp,
+                  //     className:
+                  //       ' data-[state=unchecked]:bg-input[data-state=unchecked]',
+                  //   },
+                  // ])}
+                  id="whole-canvas"
+                />
+                <Label htmlFor="whole-canvas">Apply to all canvas items</Label>
+              </div>
+            </div>
 
             {/* main option is what type do you want a validator or a visualizer
                 need to tell the user the difference between the two

@@ -22,6 +22,7 @@ import {
   ArrowDown10Icon,
   ArrowDownWideNarrow,
   ArrowRight,
+  CarrotIcon,
   ChevronDown,
   CircleDot,
   Eraser,
@@ -275,8 +276,9 @@ const CanvasControlBar = ({
       </Button>
 
       <DropdownMenu>
-        <DropdownMenuTrigger className="border-2 rounded-md text-sm p-2">
+        <DropdownMenuTrigger className="border-2 w-32 flex items-center justify-evenly font-bold rounded-md text-sm p-2">
           Validators
+          <ChevronDown size={20} />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem onClick={handleAddValidatorLens}>

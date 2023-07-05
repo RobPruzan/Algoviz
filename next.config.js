@@ -1,16 +1,18 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  experimental: {
-    appDir: true,
-    // serverActions: true,
-    // turbo: {}
-    // esmExternals: 'loose', // required to make Konva & react-konva work
-  },
+const isTauriBuild = process.env.IS_TAURI_BUILD;
 
-  // webpack: (config) => {
-  //   // config.externals = [...config.externals, { canvas: 'canvas' }]; // required to make Konva & react-konva work
-  //   return config;
-  // },
-};
+const nextConfig =
+  isTauriBuild === 'true'
+    ? {
+        experimental: {
+          appDir: true,
+        },
+        output: 'export',
+      }
+    : {
+        experimental: {
+          appDir: true,
+        },
+      };
 
 module.exports = nextConfig;

@@ -48,7 +48,6 @@ export class SocketIO {
   }
 
   joinPlayground(playgroundID: string) {
-    console.log('is the user emitting a join playground request', playgroundID);
     this.socket?.emit('join playground', playgroundID);
   }
   addActionListener(cb: OnCB) {
