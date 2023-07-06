@@ -46,31 +46,33 @@ export default function RootLayout({
                 defaultTheme="system"
                 enableSystem
               >
-                {/* temporary padding */}
-                <nav className="w-screen pt-[10px] h-[15%] flex justify-end items-center px-[30px] ">
-                  <div className="w-3/6 flex justify-start items-center ">
-                    <Link href="/">
-                      <Button className="mr-2" variant="outline">
-                        Home
-                      </Button>
-                    </Link>
-                    <PlaygroundsButton />
-                  </div>
-
-                  <div className="w-2/6  " />
-
-                  <div className="w-2/5 flex justify-end items-center">
-                    <ShareableLink />
-                    <div className="mx-2">
-                      <ModeToggle />
+                <div className="h-screen w-screen flex flex-col items-center justify-evenly">
+                  {/* temporary padding */}
+                  <nav className="w-screen pt-[10px]  h-[5%] flex justify-end items-center px-[25px] ">
+                    <div className="w-3/6 flex justify-start items-center ">
+                      <Link href="/">
+                        <Button className="mr-2" variant="outline">
+                          Home
+                        </Button>
+                      </Link>
+                      <PlaygroundsButton />
                     </div>
-                    <div className="ml-2">
-                      <SignInButton />
-                    </div>
-                  </div>
-                </nav>
 
-                {children}
+                    <div className="w-2/6  " />
+
+                    <div className="w-2/5 flex justify-end items-center">
+                      <ShareableLink />
+                      <div className="mx-2">
+                        <ModeToggle />
+                      </div>
+                      <div className="ml-2">
+                        <SignInButton />
+                      </div>
+                    </div>
+                  </nav>
+
+                  {children}
+                </div>
               </ThemeProvider>
             </ReduxProvider>
           </QueryProvider>

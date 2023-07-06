@@ -26,7 +26,7 @@ type Props = (
 const Resizable = (props: Props) => {
   const [resizing, setResizing] = useState(false);
   const parentDivRef = useRef<HTMLDivElement | null>(null);
-  const padding = 30;
+  const padding = 25;
   const resizeBarSize = 12;
 
   useEffect(() => {
