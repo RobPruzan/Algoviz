@@ -55,8 +55,6 @@ const CodeExecutionControlBar = ({
     (store) => store.codeExec.selectedAlgorithm
   );
 
-  console.log('fucking bitch', selectedAlgorithm);
-
   const dispatch = useAppDispatch();
 
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
