@@ -94,15 +94,29 @@ const CodeExecutionControlBar = ({
   const isValidatorLens = currentAlgorithm?.type === 'validator';
 
   useEffect(() => {
-    console.log('running effect', isValidatorLens, currentAlgorithm);
+    // console.log('running effect', isValidatorLens, currentAlgorithm);
     // if (currentAlgorithm.code) {
-    console.log('mutating');
-    codeMutation.mutate({
-      code: currentAlgorithm?.code ?? '',
-      type: AlgoType.Validator,
+    // console.log('mutating');
+    console.log('in the effect', validatorLensContainer);
+    validatorLensContainer.forEach((lens) => {
+      console.log('potential lens', lens);
+      if (lens.selectedIds.length > 0) {
+        const lensAlgo = getAlgorithmsQuery.data?.find(
+          (d) => d.id === lens.algoId
+        );
+        console.log('mi lens algo', lensAlgo);
+        if (lensAlgo) {
+          codeMutation.mutate({
+            code: lensAlgo.code,
+            type: AlgoType.Validator,
+          });
+        }
+      }
     });
     // }
   }, [ids]);
+
+  // }, [ids]);
 
   return (
     <div className="w-full max-h-[7%] min-h-[50px]">
