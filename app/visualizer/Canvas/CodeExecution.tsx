@@ -18,6 +18,7 @@ import Resizable from '../Resizeable';
 
 import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 import { useTheme } from 'next-themes';
+import { useCodeMutation } from '../hooks/useCodeMutation';
 type Props = {
   setUserAlgorithm: React.Dispatch<
     React.SetStateAction<Pick<Algorithm, 'code' | 'description' | 'title'>>
@@ -26,9 +27,10 @@ type Props = {
     React.SetStateAction<SelectedValidatorLens | null>
   >;
   selectedValidatorLens: SelectedValidatorLens | null;
+  codeMutation: ReturnType<typeof useCodeMutation>;
 };
 
-const CodeExecution = ({ setUserAlgorithm }: Props) => {
+const CodeExecution = ({ setUserAlgorithm, codeMutation }: Props) => {
   const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
     '40%'
@@ -48,11 +50,14 @@ const CodeExecution = ({ setUserAlgorithm }: Props) => {
   const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
 
   const selectedAttachableLines = attachableLines.filter((line) =>
-    validatorLensContainer.some((lens) => lens.selectedIds.includes(line.id))
+    // not a set because of redux :(
+    selectedGeometryInfo?.selectedIds.includes(line.id)
   );
   const selectedCircles = circles.filter((circle) =>
-    validatorLensContainer.some((lens) => lens.selectedIds.includes(circle.id))
+    selectedGeometryInfo?.selectedIds.includes(circle.id)
   );
+  console.log('selectedCircles', selectedCircles);
+
   const themeInfo = useTheme();
 
   const adjacencyList: Record<string, string[]> = [
@@ -63,6 +68,8 @@ const CodeExecution = ({ setUserAlgorithm }: Props) => {
   ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
     return { ...prev, [id]: neighbors };
   }, {});
+
+  console.log('adj list', adjacencyList);
 
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
 
@@ -195,7 +202,24 @@ const CodeExecution = ({ setUserAlgorithm }: Props) => {
                     ))}
                   </>
                 ))
-                .with('output', () => <div> da output :p</div>)
+                .with('output', () => (
+                  <div>
+                    {codeMutation.data?.logs.map((log) => (
+                      <div
+                        key={JSON.stringify(log)}
+                        className="flex items-center justify-start "
+                      >
+                        <div className="text-sm">{JSON.stringify(log)}</div>
+                      </div>
+                    ))}
+
+                    <div>
+                      {codeMutation.data?.type === 'Validator' ||
+                        (codeMutation.data?.type === 'Visualizer' &&
+                          JSON.stringify(codeMutation.data.exitValue))}
+                    </div>
+                  </div>
+                ))
                 .run()}
             </div>
           </div>

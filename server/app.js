@@ -8,8 +8,8 @@ app.use(express.json());
 
 app.post('/exec', (req, res) => {
   const { code, globalVar, type } = req.body;
-  console.log('incoming code', globalVar);
-  console.log('incoming val', req.body);
+  // console.log('incoming code', globalVar);
+  // console.log('incoming val', req.body);
   const jsCode = ts.transpileModule(
     code + `JSON.stringify({exitValue: algorithm(globalVar), logs);`,
     {
@@ -35,7 +35,7 @@ app.post('/exec', (req, res) => {
     logs,
     console: {
       log: function (...args) {
-        sandbox.logs.push(args);
+        sandbox.logs.push(...args);
       },
     },
   };
@@ -53,6 +53,7 @@ app.post('/exec', (req, res) => {
     return res.status(400).send({ error: error.toString() });
   }
   // console.log('returning result:', result);
+  console.log('the result', result);
   return res.send({ result });
 });
 module.exports.handler = serverless(app);

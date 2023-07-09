@@ -20,6 +20,7 @@ import { useDispatch } from 'react-redux';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppSelector } from '@/redux/store';
 import { match } from 'ts-pattern';
+import { useCodeMutation } from './hooks/useCodeMutation';
 type Props = {
   shapes: {
     circles: Prisma.JsonValue;
@@ -46,6 +47,8 @@ const ContentWrapper = ({ shapes }: Props) => {
     description: '',
     title: '',
   });
+
+  const codeMutation = useCodeMutation();
 
   useEffect(() => {
     // #TODO need to do zod validation
@@ -104,9 +107,12 @@ const ContentWrapper = ({ shapes }: Props) => {
         <div className="w-full h-full border-2 border-secondary">
           <CodeExecutionControlBar
             userAlgorithm={userAlgorithm}
+            codeMutation={codeMutation}
+            userAlgorithm={userAlgorithm}
             setUserAlgorithm={setUserAlgorithm}
           />
           <CodeExecution
+            codeMutation={codeMutation}
             selectedValidatorLens={selectedValidatorLens}
             setSelectedValidatorLens={setSelectedValidatorLens}
             setUserAlgorithm={setUserAlgorithm}

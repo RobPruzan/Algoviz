@@ -65,7 +65,7 @@ export const useCodeMutation = () => {
             result: z.object({
               type: z.literal('Visualizer'),
               exitValue: z.array(z.array(z.string())),
-              logs: z.array(z.array(z.unknown())),
+              logs: z.array(z.unknown()),
             }),
           }),
         }),
@@ -74,7 +74,18 @@ export const useCodeMutation = () => {
             result: z.object({
               type: z.literal('Validator'),
               exitValue: z.boolean(),
-              logs: z.array(z.array(z.unknown())),
+              logs: z.array(z.unknown()),
+            }),
+          }),
+        }),
+        z.object({
+          // type: z.literal('error'),
+          // error: z.string(),
+          data: z.object({
+            result: z.object({
+              type: z.literal('error'),
+              error: z.string(),
+              logs: z.array(z.unknown()),
             }),
           }),
         }),
@@ -88,7 +99,7 @@ export const useCodeMutation = () => {
         data: { result: { ...res.data.data.result, type } },
       });
 
-      return { ...parsed.data.result };
+      return parsed.data.result;
     },
     onError: (err) => {
       console.error('wah wah', err);
@@ -101,6 +112,16 @@ export const useCodeMutation = () => {
         })
         .with({ type: AlgoType.Visualizer }, ({ exitValue }) => {
           dispatch(CodeExecActions.setVisitedVisualization(exitValue));
+        })
+        .with({ type: 'error' }, (errorInfo) => {
+          // dispatch(CodeExecActions.setError(error));
+          dispatch(
+            CodeExecActions.setError({
+              logs: errorInfo.logs.map((log) => JSON.stringify(log)),
+              message: errorInfo.error,
+            })
+          );
+          console.log('error', errorInfo);
         })
         .otherwise((_) => console.log('no match'));
 

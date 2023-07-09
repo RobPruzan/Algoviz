@@ -35,15 +35,17 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/components/ui/use-toast';
 
 type Props = {
-  userAlgorithm: Pick<Algorithm, 'title' | 'code' | 'description'>;
+  userAlgorithm: Pick<Algorithm, 'title' | 'code' | 'description' | 'type'>;
   setUserAlgorithm: React.Dispatch<
     React.SetStateAction<Pick<Algorithm, 'code' | 'description' | 'title'>>
   >;
+  codeMutation: ReturnType<typeof useCodeMutation>;
 };
 
 const CodeExecutionControlBar = ({
   setUserAlgorithm,
   userAlgorithm,
+  codeMutation,
 }: Props) => {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<AlgoType>(AlgoType.Visualizer);
@@ -60,15 +62,18 @@ const CodeExecutionControlBar = ({
 
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
 
-  const codeMutation = useCodeMutation();
+  // const codeMutation = useCodeMutation();
 
   const saveAlgorithmMutation = useSaveAlgorithmMutation();
 
   const { toast } = useToast();
 
-  const currentAlgorithm = getAlgorithmsQuery.data?.find(
-    (d) => d.id === selectedAlgorithm
-  );
+  const currentAlgorithm =
+    userAlgorithm ??
+    getAlgorithmsQuery.data?.find((d) => d.id === selectedAlgorithm);
+  useEffect(() => {
+    console.log(currentAlgorithm);
+  }, [currentAlgorithm]);
   const {
     attachableLines,
     circles,
@@ -88,18 +93,10 @@ const CodeExecutionControlBar = ({
     .concat(selectedCircles.map((circle) => circle.id))
     .join(',');
 
-  // const appliedToWholeApp = useAppSelector(
-  //   (store) => store.codeExec.appliedToWholeApp
-  // );
   const isValidatorLens = currentAlgorithm?.type === 'validator';
 
   useEffect(() => {
-    // console.log('running effect', isValidatorLens, currentAlgorithm);
-    // if (currentAlgorithm.code) {
-    // console.log('mutating');
-    console.log('in the effect', validatorLensContainer);
     validatorLensContainer.forEach((lens) => {
-      console.log('potential lens', lens);
       if (lens.selectedIds.length > 0) {
         const lensAlgo = getAlgorithmsQuery.data?.find(
           (d) => d.id === lens.algoId
@@ -113,10 +110,7 @@ const CodeExecutionControlBar = ({
         }
       }
     });
-    // }
   }, [ids]);
-
-  // }, [ids]);
 
   return (
     <div className="w-full max-h-[7%] min-h-[50px]">
@@ -202,7 +196,7 @@ const CodeExecutionControlBar = ({
           variant="outline"
           className="w-[90px]  flex items-center justify-center h-[30px]   font-bold"
         >
-          Execute
+          Debug
         </Button>
         <Button
           onClick={(e) => {

@@ -20,6 +20,10 @@ type InitialState = {
   appliedToWholeApp: boolean;
   validation: NodeValidation[] | boolean;
   selectedAlgorithm: string | null;
+  error: {
+    message: string;
+    logs: string[];
+  } | null;
 };
 const initialState: InitialState = {
   visualization: [],
@@ -29,11 +33,16 @@ const initialState: InitialState = {
   appliedToWholeApp: false,
   validation: [],
   selectedAlgorithm: null,
+  error: null,
 };
 const codeExecSlice = createSlice({
   name: 'dfs',
   initialState,
   reducers: {
+    setError: (state, action: PayloadAction<InitialState['error']>) => {
+      state.error = action.payload;
+    },
+
     setSelectedAlgorithm: (state, action: PayloadAction<string | null>) => {
       state.selectedAlgorithm = action.payload;
     },
