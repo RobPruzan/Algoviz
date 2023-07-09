@@ -60,6 +60,7 @@ const Resizable = (props: Props) => {
     };
 
     const mouseUpHandler = () => {
+      // console.log('done');
       setResizing(false);
     };
 
@@ -67,10 +68,12 @@ const Resizable = (props: Props) => {
     document.addEventListener('mouseup', mouseUpHandler);
 
     return () => {
+      console.log('done');
       document.removeEventListener('mousemove', mouseMoveHandler);
       document.removeEventListener('mouseup', mouseUpHandler);
     };
-  }, [props, resizing]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resizing]);
 
   useEffect(() => {
     const handleResize = () => {

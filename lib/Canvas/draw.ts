@@ -26,7 +26,7 @@ export const drawNodes = ({
   selectedCircleID: string | null;
   selectedIds: Array<string> | undefined;
   visualizationNodes: string[];
-  validationNodes: NodeValidation[] | boolean;
+  validationNodes: (NodeValidation[] | boolean) | null;
   theme: string;
 }) => {
   ctx.save();
@@ -45,42 +45,26 @@ export const drawNodes = ({
     if (visualizationNodes.includes(node.id)) {
       ctx.fillStyle = 'green';
     }
-
-    // match({typeof: typeof validationNodes, nodes: validationNodes})
-    //   .with({typeof: 'boolean'}, ({nodes}) => {
-    //     if (nodes) {
-    //       ctx.fillStyle = 'green';
-    //     } else {
-    //       ctx.fillStyle === 'red';
-    //     }
-    //   })
-    //   .with('object', () => {
-    //     if (validationNodes.length > 0) {
-    //       if (validationNodes.find((vNode) => vNode.id === node.id)?.valid) {
-    //         ctx.fillStyle = 'green';
-    //       } else {
-    //   })
-    //   .otherwise();
-
     if (selectedIds?.includes(node.id)) {
-      console.log('oy', validationNodes);
-
       switch (typeof validationNodes) {
         case 'boolean':
-          console.log('oy', validationNodes);
-          // console.log(node.id, selectedIds);
-          if (validationNodes) {
-            ctx.fillStyle = 'green';
+          if (!validationNodes) {
+            ctx.fillStyle = 'red';
           } else {
-            ctx.fillStyle === 'red';
+            ctx.fillStyle = 'green';
+            ctx.fillText(
+              'valid',
+              node.center[0] - 10,
+              node.center[1] - node.radius - 10
+            );
           }
           break;
         case 'object':
-          if (validationNodes.length > 0) {
-            // console.log(
-            //   'is val',
-            //   validationNodes.find((vNode) => vNode.id === node.id)?.valid
-            // );
+          if (validationNodes && validationNodes.length > 0) {
+            console.log(
+              'is val',
+              validationNodes.find((vNode) => vNode.id === node.id)?.valid
+            );
             if (validationNodes.find((vNode) => vNode.id === node.id)?.valid) {
               ctx.fillStyle = 'green';
             } else {
@@ -92,24 +76,6 @@ export const drawNodes = ({
           break;
       }
     }
-    // else {
-    //   // console.log(selectedIds, node.id);
-    // }
-
-    // if (typeof validationNodes === 'boolean') {
-    //   if (validationNodes) {
-    //     ctx.fillStyle = 'green';
-    //   } else {
-    //     ctx.fillStyle === 'red';
-    //   }
-    // }
-    // if (validationNodes.length > 0) {
-    //   if (validationNodes.find((vNode) => vNode.id === node.id)?.valid) {
-    //     ctx.fillStyle = 'green';
-    //   } else {
-    //     ctx.fillStyle === 'red';
-    //   }
-    // }
 
     ctx.fill();
     if (selectedCircleID === node.id || selectedIds?.includes(node.id)) {

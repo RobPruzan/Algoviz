@@ -28,7 +28,11 @@ import {
 } from '@/components/ui/popover';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { match } from 'ts-pattern';
-import { getSelectedItems, twCond } from '@/lib/utils';
+import {
+  getSelectedItems,
+  getValidatorLensSelectedIds,
+  twCond,
+} from '@/lib/utils';
 import { AlgoComboBox } from '../Sort/AlgoComboBox';
 import { AlgoType, SelectedValidatorLens } from '@/lib/types';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -87,10 +91,12 @@ const CodeExecutionControlBar = ({
     selectedGeometryInfo,
   });
 
-  const ids = selectedAttachableLines
-    .map((line) => line.id)
-    .concat(selectedCircles.map((circle) => circle.id))
-    .join(',');
+  const selectedIds = getValidatorLensSelectedIds({
+    attachableLines,
+    circles,
+    validatorLensContainer,
+  }).join(',');
+  console.log('selected atatchable ');
 
   const isValidatorLens = currentAlgorithm?.type === 'validator';
 
@@ -106,10 +112,14 @@ const CodeExecutionControlBar = ({
             code: lensAlgo.code,
             type: AlgoType.Validator,
           });
+        } else {
+          console.log('i aint dispatching that', lensAlgo);
         }
+      } else {
+        console.log('fucker', lens.selectedIds);
       }
     });
-  }, [ids]);
+  }, [selectedIds]);
 
   return (
     <div className="w-full max-h-[7%] min-h-[50px]">

@@ -18,7 +18,7 @@ type InitialState = {
   isApplyingAlgorithm: boolean;
   mode: Modes;
   appliedToWholeApp: boolean;
-  validation: NodeValidation[] | boolean;
+  validation: (NodeValidation[] | boolean) | null;
   selectedAlgorithm: string | null;
   error: {
     message: string;
@@ -31,7 +31,7 @@ const initialState: InitialState = {
   isApplyingAlgorithm: false,
   mode: 'visualizer',
   appliedToWholeApp: false,
-  validation: [],
+  validation: null,
   selectedAlgorithm: null,
   error: null,
 };

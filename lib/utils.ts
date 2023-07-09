@@ -191,3 +191,32 @@ export const getSelectedItems = ({
     selectedCircles,
   };
 };
+
+export const getValidatorLensSelectedIds = ({
+  attachableLines,
+  circles,
+  validatorLensContainer,
+}: {
+  attachableLines: Edge[];
+  circles: CircleReceiver[];
+  validatorLensContainer: ValidatorLensInfo[];
+}) => {
+  const selectedIds = attachableLines
+    .filter((line) =>
+      validatorLensContainer.some((lens) => lens.selectedIds.includes(line.id))
+    )
+    .map((line) => line.id)
+    .flat()
+    .concat(
+      circles
+        .filter((circle) =>
+          validatorLensContainer.some((lens) =>
+            lens.selectedIds.includes(circle.id)
+          )
+        )
+        .map((circle) => circle.id)
+        .flat()
+    );
+
+  return selectedIds;
+};
