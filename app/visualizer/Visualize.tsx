@@ -23,6 +23,7 @@ import {
 import { useAppSelector } from '@/redux/store';
 import { SideBarContext } from '@/context/SideBarContext';
 import { useDepthFirstSearch } from '@/hooks/useDepthFirstSearch';
+import { getSelectedItems } from '@/lib/utils';
 type Props = {
   setSelectedValidatorLens: React.Dispatch<
     React.SetStateAction<SelectedValidatorLens | null>
@@ -46,12 +47,11 @@ const Visualize = ({
   const selectedGeometryInfo = useAppSelector(
     (store) => store.canvas.selectedGeometryInfo
   );
-  const selectedAttachableLines = attachableLines.filter((line) =>
-    selectedGeometryInfo?.selectedIds.includes(line.id)
-  );
-  const selectedCircles = circles.filter((circle) =>
-    selectedGeometryInfo?.selectedIds.includes(circle.id)
-  );
+  const { selectedAttachableLines, selectedCircles } = getSelectedItems({
+    attachableLines,
+    circles,
+    selectedGeometryInfo,
+  });
 
   const adjacencyList = Graph.getAdjacencyList({
     edges: selectedAttachableLines,

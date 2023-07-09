@@ -36,7 +36,7 @@ import {
   CommandInput,
   CommandItem,
 } from '@/components/ui/command';
-import { algorithmsInfo, cn } from '@/lib/utils';
+import { algorithmsInfo, cn, getSelectedItems } from '@/lib/utils';
 import { useCanvasMouseDown } from '../hooks/useCanvasMouseDown';
 import { useCanvasContextMenu } from '../hooks/useCanvasContextMenu';
 import { useCanvasMouseMove } from '../hooks/useCanvasMouseMove';
@@ -99,9 +99,12 @@ const CanvasDisplay = ({
     useState<SelectedAttachableLine | null>(null);
 
   // const [selected]
-  const { visualization, visualizationPointer, validation } = useAppSelector(
-    (store) => store.codeExec
-  );
+  const { visualization, visualizationPointer, validation, error } =
+    useAppSelector((store) => store.codeExec);
+  console.log('validation', validation);
+  if (error) {
+    console.error('error', error);
+  }
   const isContextMenuActiveRef = useRef(false);
 
   const visualizationNodes = visualization.at(visualizationPointer);
@@ -160,12 +163,28 @@ const CanvasDisplay = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.data?.user, userID, session.status]);
 
-  const selectedAttachableLines = attachableLines.filter((line) =>
-    validatorLensContainer.some((lens) => lens.selectedIds.includes(line.id))
-  );
-  const selectedCircles = circles.filter((circle) =>
-    validatorLensContainer.some((lens) => lens.selectedIds.includes(circle.id))
-  );
+  const { selectedAttachableLines, selectedCircles } = getSelectedItems({
+    attachableLines,
+    circles,
+    selectedGeometryInfo,
+  });
+
+  const selectedIds = attachableLines
+    .filter((line) =>
+      validatorLensContainer.some((lens) => lens.selectedIds.includes(line.id))
+    )
+    .map((line) => line.id)
+    .flat()
+    .concat(
+      circles
+        .filter((circle) =>
+          validatorLensContainer.some((lens) =>
+            lens.selectedIds.includes(circle.id)
+          )
+        )
+        .map((circle) => circle.id)
+        .flat()
+    );
 
   const adjacencyList: Record<string, string[]> = [
     ...Graph.getAdjacencyList({
@@ -175,8 +194,6 @@ const CanvasDisplay = ({
   ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
     return { ...prev, [id]: neighbors };
   }, {});
-
-  const selectedIds = Object.values(adjacencyList).flat();
 
   useClearCanvasState(meta);
 
@@ -371,8 +388,9 @@ const CanvasDisplay = ({
               }}
               className={`
               outline-none 
+              
               ${selectedControlBarAction === 'pencil' ? 'cursor-crosshair' : ''}
-         overflow-hidden
+         
                 `}
               ref={canvasRef}
               onMouseDown={handleMouseDown}

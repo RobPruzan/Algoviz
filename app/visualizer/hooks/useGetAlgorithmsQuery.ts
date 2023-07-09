@@ -19,7 +19,7 @@ export const useGetAlgorithmsQuery = () =>
         await axios.get(`${process.env.NEXT_PUBLIC_API_ROUTE}/algo/getall`)
       ).data;
 
-      console.log('res', res);
+      // console.log('res', res);
 
       return z.array(algorithmSchema).parse(res);
     },

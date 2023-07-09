@@ -6,6 +6,7 @@ import { z } from 'zod';
 import * as Graph from '@/lib/graph';
 import { AlgoType } from '@/lib/types';
 import { P, match } from 'ts-pattern';
+import { getSelectedItems } from '@/lib/utils';
 
 export const useCodeMutation = () => {
   const dispatch = useAppDispatch();
@@ -15,13 +16,11 @@ export const useCodeMutation = () => {
     selectedGeometryInfo,
     validatorLensContainer,
   } = useAppSelector((store) => store.canvas);
-  const selectedAttachableLines = attachableLines.filter((line) =>
-    // not a set because of redux :(
-    selectedGeometryInfo?.selectedIds.includes(line.id)
-  );
-  const selectedCircles = circles.filter((circle) =>
-    selectedGeometryInfo?.selectedIds.includes(circle.id)
-  );
+  const { selectedAttachableLines, selectedCircles } = getSelectedItems({
+    attachableLines,
+    circles,
+    selectedGeometryInfo,
+  });
 
   const selectedAttachableLinesThroughLens = attachableLines.filter((line) =>
     validatorLensContainer.some((lens) => lens.selectedIds.includes(line.id))
@@ -108,6 +107,7 @@ export const useCodeMutation = () => {
       console.log('returned data', data);
       match(data)
         .with({ type: AlgoType.Validator }, ({ exitValue }) => {
+          console.log('da exit value', exitValue);
           dispatch(CodeExecActions.setValidationVisualization(exitValue));
         })
         .with({ type: AlgoType.Visualizer }, ({ exitValue }) => {

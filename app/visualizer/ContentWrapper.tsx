@@ -1,5 +1,6 @@
 'use client';
 import {
+  AlgoType,
   CircleReceiver,
   Edge,
   Percentage,
@@ -41,11 +42,12 @@ const ContentWrapper = ({ shapes }: Props) => {
   );
   const dispatch = useDispatch();
   const [userAlgorithm, setUserAlgorithm] = useState<
-    Pick<Algorithm, 'code' | 'description' | 'title'>
+    Pick<Algorithm, 'code' | 'description' | 'title' | 'type'>
   >({
     code: DEFAULT_VISUALIZATION_CODE,
     description: '',
     title: '',
+    type: AlgoType.Visualizer,
   });
 
   const codeMutation = useCodeMutation();
@@ -108,7 +110,6 @@ const ContentWrapper = ({ shapes }: Props) => {
           <CodeExecutionControlBar
             userAlgorithm={userAlgorithm}
             codeMutation={codeMutation}
-            userAlgorithm={userAlgorithm}
             setUserAlgorithm={setUserAlgorithm}
           />
           <CodeExecution

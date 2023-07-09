@@ -63,9 +63,12 @@ export const drawNodes = ({
     //   .otherwise();
 
     if (selectedIds?.includes(node.id)) {
+      console.log('oy', validationNodes);
+
       switch (typeof validationNodes) {
         case 'boolean':
-          console.log(node.id, selectedIds);
+          console.log('oy', validationNodes);
+          // console.log(node.id, selectedIds);
           if (validationNodes) {
             ctx.fillStyle = 'green';
           } else {
@@ -74,6 +77,10 @@ export const drawNodes = ({
           break;
         case 'object':
           if (validationNodes.length > 0) {
+            // console.log(
+            //   'is val',
+            //   validationNodes.find((vNode) => vNode.id === node.id)?.valid
+            // );
             if (validationNodes.find((vNode) => vNode.id === node.id)?.valid) {
               ctx.fillStyle = 'green';
             } else {

@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/popover';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { match } from 'ts-pattern';
-import { twCond } from '@/lib/utils';
+import { getSelectedItems, twCond } from '@/lib/utils';
 import { AlgoComboBox } from '../Sort/AlgoComboBox';
 import { AlgoType, SelectedValidatorLens } from '@/lib/types';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -37,7 +37,9 @@ import { useToast } from '@/components/ui/use-toast';
 type Props = {
   userAlgorithm: Pick<Algorithm, 'title' | 'code' | 'description' | 'type'>;
   setUserAlgorithm: React.Dispatch<
-    React.SetStateAction<Pick<Algorithm, 'code' | 'description' | 'title'>>
+    React.SetStateAction<
+      Pick<Algorithm, 'code' | 'description' | 'title' | 'type'>
+    >
   >;
   codeMutation: ReturnType<typeof useCodeMutation>;
 };
@@ -71,9 +73,7 @@ const CodeExecutionControlBar = ({
   const currentAlgorithm =
     userAlgorithm ??
     getAlgorithmsQuery.data?.find((d) => d.id === selectedAlgorithm);
-  useEffect(() => {
-    console.log(currentAlgorithm);
-  }, [currentAlgorithm]);
+
   const {
     attachableLines,
     circles,
@@ -81,12 +81,11 @@ const CodeExecutionControlBar = ({
     validatorLensContainer,
   } = useAppSelector((store) => store.canvas);
 
-  const selectedAttachableLines = attachableLines.filter((line) =>
-    validatorLensContainer.some((lens) => lens.selectedIds.includes(line.id))
-  );
-  const selectedCircles = circles.filter((circle) =>
-    validatorLensContainer.some((lens) => lens.selectedIds.includes(circle.id))
-  );
+  const { selectedAttachableLines, selectedCircles } = getSelectedItems({
+    attachableLines,
+    circles,
+    selectedGeometryInfo,
+  });
 
   const ids = selectedAttachableLines
     .map((line) => line.id)
@@ -101,7 +100,7 @@ const CodeExecutionControlBar = ({
         const lensAlgo = getAlgorithmsQuery.data?.find(
           (d) => d.id === lens.algoId
         );
-        console.log('mi lens algo', lensAlgo);
+        // console.log('mi lens algo', lensAlgo);
         if (lensAlgo) {
           codeMutation.mutate({
             code: lensAlgo.code,

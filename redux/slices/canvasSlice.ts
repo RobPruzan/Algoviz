@@ -188,7 +188,6 @@ const canvasSlice = createSlice({
       side: 'bottom-left' | 'bottom-right' | 'top-right' | 'top-left';
       mousePos: [number, number];
     }>((state, action) => {
-      console.log('incoming side', action.payload.side);
       const lens = state.validatorLensContainer.find(
         (lens) => lens.id === action.payload.lens.id
       );

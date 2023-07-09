@@ -11,6 +11,7 @@ import { Percentage, SelectedValidatorLens } from '@/lib/types';
 import {
   DEFAULT_VALIDATOR_CODE,
   DEFAULT_VISUALIZATION_CODE,
+  getSelectedItems,
 } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Algorithm } from '@prisma/client';
@@ -21,7 +22,9 @@ import { useTheme } from 'next-themes';
 import { useCodeMutation } from '../hooks/useCodeMutation';
 type Props = {
   setUserAlgorithm: React.Dispatch<
-    React.SetStateAction<Pick<Algorithm, 'code' | 'description' | 'title'>>
+    React.SetStateAction<
+      Pick<Algorithm, 'code' | 'description' | 'title' | 'type'>
+    >
   >;
   setSelectedValidatorLens: React.Dispatch<
     React.SetStateAction<SelectedValidatorLens | null>
@@ -49,14 +52,18 @@ const CodeExecution = ({ setUserAlgorithm, codeMutation }: Props) => {
 
   const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
 
-  const selectedAttachableLines = attachableLines.filter((line) =>
-    // not a set because of redux :(
-    selectedGeometryInfo?.selectedIds.includes(line.id)
-  );
-  const selectedCircles = circles.filter((circle) =>
-    selectedGeometryInfo?.selectedIds.includes(circle.id)
-  );
-  console.log('selectedCircles', selectedCircles);
+  // const selectedAttachableLines = attachableLines.filter((line) =>
+  //   // not a set because of redux :(
+  //   selectedGeometryInfo?.selectedIds.includes(line.id)
+  // );
+  // const selectedCircles = circles.filter((circle) =>
+  //   selectedGeometryInfo?.selectedIds.includes(circle.id)
+  // );
+  const { selectedAttachableLines, selectedCircles } = getSelectedItems({
+    attachableLines,
+    circles,
+    selectedGeometryInfo,
+  });
 
   const themeInfo = useTheme();
 
@@ -68,8 +75,6 @@ const CodeExecution = ({ setUserAlgorithm, codeMutation }: Props) => {
   ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
     return { ...prev, [id]: neighbors };
   }, {});
-
-  console.log('adj list', adjacencyList);
 
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
 

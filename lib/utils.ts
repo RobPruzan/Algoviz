@@ -7,6 +7,7 @@ import {
   HistoryNode,
   IO,
   NodeMetadata,
+  SelectedGeometryInfo,
   SerializedPlayground,
 } from './types';
 import { z } from 'zod';
@@ -165,5 +166,28 @@ export const getValidatorLensResizeCirclesCenter = (
     bottomLeft,
     bottomRight,
     RESIZE_CIRCLE_RADIUS,
+  };
+};
+
+export const getSelectedItems = ({
+  attachableLines,
+  circles,
+  selectedGeometryInfo,
+}: {
+  attachableLines: Edge[];
+  circles: CircleReceiver[];
+  selectedGeometryInfo: SelectedGeometryInfo | null;
+}) => {
+  const selectedAttachableLines = attachableLines.filter((line) =>
+    // not a set because of redux :(
+    selectedGeometryInfo?.selectedIds.includes(line.id)
+  );
+  const selectedCircles = circles.filter((circle) =>
+    selectedGeometryInfo?.selectedIds.includes(circle.id)
+  );
+
+  return {
+    selectedAttachableLines,
+    selectedCircles,
   };
 };
