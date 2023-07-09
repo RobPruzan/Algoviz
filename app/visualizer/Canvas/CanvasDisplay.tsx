@@ -13,6 +13,7 @@ import {
 import { isStringAlgorithm } from '../Sort/AlgoComboBox';
 import React, { useRef, useState, useEffect, useContext } from 'react';
 import * as Draw from '@/lib/Canvas/draw';
+import * as Graph from '@/lib/graph';
 
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
@@ -51,6 +52,7 @@ import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { CollaborationActions } from '@/redux/slices/colloborationState';
 import { match } from 'ts-pattern';
+import { CodeExecActions } from '@/redux/slices/codeExecSlice';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
   canvasWrapperRef: React.RefObject<HTMLDivElement>;
@@ -107,7 +109,9 @@ const CanvasDisplay = ({
   const session = useSession();
   const playgroundID = searchParams.get('playground-id');
   const userID = session.data?.user.id ?? notSignedInUserId;
-
+  const selectedAlgorithm = useAppSelector(
+    (store) => store.codeExec.selectedAlgorithm
+  );
   const meta: Meta = { playgroundID, userID };
   const cursorImgRef = useRef<HTMLImageElement | null>(null);
 
@@ -155,6 +159,24 @@ const CanvasDisplay = ({
     dispatch(CollaborationActions.addUser(item, meta));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.data?.user, userID, session.status]);
+
+  const selectedAttachableLines = attachableLines.filter((line) =>
+    validatorLensContainer.some((lens) => lens.selectedIds.includes(line.id))
+  );
+  const selectedCircles = circles.filter((circle) =>
+    validatorLensContainer.some((lens) => lens.selectedIds.includes(circle.id))
+  );
+
+  const adjacencyList: Record<string, string[]> = [
+    ...Graph.getAdjacencyList({
+      edges: selectedAttachableLines,
+      vertices: selectedCircles,
+    }).entries(),
+  ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
+    return { ...prev, [id]: neighbors };
+  }, {});
+
+  const selectedIds = Object.values(adjacencyList).flat();
 
   useClearCanvasState(meta);
 
@@ -210,7 +232,6 @@ const CanvasDisplay = ({
 
   useCanvasWheel({
     canvasRef,
-
     meta,
   });
 
@@ -249,7 +270,7 @@ const CanvasDisplay = ({
 
     // ctx.crea;
 
-    // this is so hacky and i need to fix this
+    // this is so hacky and i need to fix thsi
     // because multiple ids of an obj can be selected, we can only say multiple items are selected if its greater than 3 ids, this can change if new geome try is added
     const thresholdForMultipleItemsSelected = 3;
     if (
@@ -280,7 +301,7 @@ const CanvasDisplay = ({
       ctx,
       nodes: circles,
       selectedCircleID,
-      selectedIds: selectedGeometryInfo?.selectedIds,
+      selectedIds,
       visualizationNodes: visualizationNodes ?? [],
       theme: themeInfo.theme ?? 'dark',
       validationNodes: validation,
@@ -381,6 +402,48 @@ const CanvasDisplay = ({
 
                   setSelectedCircleID(null);
                 }
+
+                if (selectedAttachableLine) {
+                  if (playgroundID) {
+                    dispatch(
+                      CanvasActions.deleteAttachableLine(
+                        selectedAttachableLine,
+                        {
+                          playgroundID,
+                          userID,
+                        }
+                      )
+                    );
+                  } else {
+                    dispatch(
+                      CanvasActions.deleteAttachableLine(selectedAttachableLine)
+                    );
+                  }
+
+                  setSelectedAttachableLine(null);
+                }
+
+                if (selectedValidatorLens) {
+                  if (playgroundID) {
+                    dispatch(
+                      CanvasActions.deleteValidatorLens(
+                        { validatorLensId: selectedValidatorLens.id },
+                        {
+                          playgroundID,
+                          userID,
+                        }
+                      )
+                    );
+                  } else {
+                    dispatch(
+                      CanvasActions.deleteValidatorLens({
+                        validatorLensId: selectedValidatorLens.id,
+                      })
+                    );
+                  }
+
+                  setSelectedValidatorLens(null);
+                }
               }}
               inset
             >
@@ -389,6 +452,25 @@ const CanvasDisplay = ({
             <ContextMenuItem onClick={handleFullyConnect} inset>
               Fully Connect Nodes
             </ContextMenuItem>
+            {selectedValidatorLens && (
+              <ContextMenuItem
+                onClick={() => {
+                  console.log(selectedAlgorithm);
+                  const validatorLens = validatorLensContainer.find(
+                    (validatorLens) =>
+                      validatorLens.id === selectedValidatorLens.id
+                  );
+                  if (!validatorLens) return;
+                  dispatch(
+                    CodeExecActions.setSelectedAlgorithm(validatorLens.algoId)
+                  );
+                  setSelectedValidatorLens(null);
+                }}
+                inset
+              >
+                Show code
+              </ContextMenuItem>
+            )}
 
             <ContextMenuSub>
               <ContextMenuSubTrigger inset>Algorithms</ContextMenuSubTrigger>

@@ -29,6 +29,7 @@ import { match } from 'ts-pattern';
 export type Shift = { shift: [number, number] };
 export type ValidatorLensInfo = {
   id: string;
+  algoId: string;
   rect: {
     topLeft: [number, number];
     bottomRight: [number, number];
@@ -77,6 +78,19 @@ const canvasSlice = createSlice({
   initialState,
   reducers: {
     resetState: withCanvasMeta<undefined>(() => initialState),
+    deleteAttachableLine: withCanvasMeta<{ id: string }>((state, action) => {
+      state.attachableLines = state.attachableLines.filter(
+        (line) => line.id !== action.payload.id
+      );
+    }),
+    deleteValidatorLens: withCanvasMeta<{ validatorLensId: string }>(
+      (state, action) => {
+        state.validatorLensContainer = state.validatorLensContainer.filter(
+          (lens) => lens.id !== action.payload.validatorLensId
+        );
+      }
+    ),
+
     setValidatorLensSelectedIds: withCanvasMeta<{ validatorLensId: string }>(
       (state, action) => {
         const selectedValidatorLens = state.validatorLensContainer.find(

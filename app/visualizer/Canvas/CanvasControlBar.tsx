@@ -198,16 +198,6 @@ const CanvasControlBar = ({
       circles: [...circles, newCircle],
       zoomAmount: creationZoomFactor,
     });
-    // if (playgroundID) {
-    //   Utils.sendCreate(
-    //     {
-    //       roomID: playgroundID,
-    //       type: 'circleReciever',
-    //       state: newCircle,
-    //     },
-    //     socketRef
-    //   );
-    // }
 
     dispatch(CanvasActions.addCircle(newCircle, meta));
     dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
@@ -215,7 +205,8 @@ const CanvasControlBar = ({
 
   const handleAddValidatorLens = (id: string) => {
     const newValidatorLens: ValidatorLensInfo = {
-      id,
+      id: crypto.randomUUID(),
+      algoId: id,
       code: null,
       rect: {
         bottomRight: [Math.random() * 400, Math.random() * 400],
@@ -299,8 +290,6 @@ const CanvasControlBar = ({
                   className="w-full"
                   onClick={() => {
                     handleAddValidatorLens(algo.id);
-                    // dispatch(CodeExecActions.setSelectedAlgorithm(algo.id));
-                    // setItemChecked(algo.id);
                   }}
                   // textValue={algo.id}
                   // onClick={e => e.}

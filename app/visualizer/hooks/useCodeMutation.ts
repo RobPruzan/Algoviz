@@ -4,6 +4,8 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { z } from 'zod';
 import * as Graph from '@/lib/graph';
+import { AlgoType } from '@/lib/types';
+import { P, match } from 'ts-pattern';
 
 export const useCodeMutation = () => {
   const dispatch = useAppDispatch();
@@ -37,33 +39,72 @@ export const useCodeMutation = () => {
     return { ...prev, [id]: neighbors };
   }, {});
   const codeMutation = useMutation({
-    mutationFn: async (code: string) => {
+    mutationFn: async ({ code, type }: { code: string; type: AlgoType }) => {
       console.group('mutating', adjacencyList);
       const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
       if (!url) Promise.reject();
+
       const res = await axios.post(url, {
         code,
         globalVar: adjacencyList,
       });
-      console.log('da resss', res.data);
-      const dataSchema = z.object({
-        data: z.object({
-          result: z.object({
-            exitValue: z.array(z.array(z.string())),
-            logs: z.array(z.array(z.unknown())),
+
+      // const dataSchema = z.object({
+      //   data: z.object({
+      //     result: z.object({
+      //       exitValue: z.union([z.array(z.array(z.string())), z.boolean() ]),
+
+      //       logs: z.array(z.array(z.unknown())),
+      //     }),
+      //   }),
+      // });
+      // tagged union, if type is validator, its array of array of strings, if visualizer, its boolean
+      const dataSchema = z.union([
+        z.object({
+          data: z.object({
+            result: z.object({
+              type: z.literal('Visualizer'),
+              exitValue: z.array(z.array(z.string())),
+              logs: z.array(z.array(z.unknown())),
+            }),
           }),
         }),
-      });
-      const parsed = dataSchema.parse(res.data);
+        z.object({
+          data: z.object({
+            result: z.object({
+              type: z.literal('Validator'),
+              exitValue: z.boolean(),
+              logs: z.array(z.array(z.unknown())),
+            }),
+          }),
+        }),
+      ]);
 
-      return parsed.data.result;
+      console.log('buh buh buuuuuu', {
+        data: { result: { ...res.data.data.result, type } },
+      });
+
+      const parsed = dataSchema.parse({
+        data: { result: { ...res.data.data.result, type } },
+      });
+
+      return { ...parsed.data.result };
     },
     onError: (err) => {
       console.error('wah wah', err);
     },
-    onSuccess: (data) => {
-      console.log('success', data);
-      dispatch(CodeExecActions.setVisited(data.exitValue));
+    onSuccess: (data, ctx) => {
+      console.log('returned data', data);
+      match(data)
+        .with({ type: AlgoType.Validator }, ({ exitValue }) => {
+          dispatch(CodeExecActions.setValidationVisualization(exitValue));
+        })
+        .with({ type: AlgoType.Visualizer }, ({ exitValue }) => {
+          dispatch(CodeExecActions.setVisitedVisualization(exitValue));
+        })
+        .otherwise((_) => console.log('no match'));
+
+      // dispatch(CodeExecActions.setVisitedVisualization(data.exitValue));
     },
   });
 

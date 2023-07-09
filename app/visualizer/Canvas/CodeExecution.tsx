@@ -4,7 +4,7 @@ import Editor from '@monaco-editor/react';
 
 import * as Graph from '@/lib/graph';
 // import * as DialogPrimitive from '@radix-ui/react-dialog';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { match } from 'ts-pattern';
 import { nightOwlTheme } from './theme';
 import { Percentage, SelectedValidatorLens } from '@/lib/types';
@@ -69,8 +69,10 @@ const CodeExecution = ({ setUserAlgorithm }: Props) => {
   const currentAlgorithm = getAlgorithmsQuery.data?.find(
     (d) => d.id === selectedAlgorithm
   );
+  // console.log('all algos', getAlgorithmsQuery.data);
 
   const execMode = useAppSelector((store) => store.codeExec.mode);
+  const isValidatorLens = currentAlgorithm?.type === 'validator';
   const defaultCode = match(execMode)
     .with('validator', () => DEFAULT_VALIDATOR_CODE)
     .with('visualizer', () => DEFAULT_VISUALIZATION_CODE)

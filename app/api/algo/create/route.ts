@@ -13,7 +13,6 @@ export async function POST(request: Request) {
   });
   const json = await request.json();
 
-  console.log('incoming json woo', json);
   const { code, title, description, type } = algoSchema.parse(json);
   const session = await getServerSession(authOptions);
   if (!session?.user)

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 
@@ -32,6 +32,7 @@ import { twCond } from '@/lib/utils';
 import { AlgoComboBox } from '../Sort/AlgoComboBox';
 import { AlgoType, SelectedValidatorLens } from '@/lib/types';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useToast } from '@/components/ui/use-toast';
 
 type Props = {
   userAlgorithm: Pick<Algorithm, 'title' | 'code' | 'description'>;
@@ -63,15 +64,46 @@ const CodeExecutionControlBar = ({
 
   const saveAlgorithmMutation = useSaveAlgorithmMutation();
 
+  const { toast } = useToast();
+
   const currentAlgorithm = getAlgorithmsQuery.data?.find(
     (d) => d.id === selectedAlgorithm
   );
+  const {
+    attachableLines,
+    circles,
+    selectedGeometryInfo,
+    validatorLensContainer,
+  } = useAppSelector((store) => store.canvas);
 
-  const appliedToWholeApp = useAppSelector(
-    (store) => store.codeExec.appliedToWholeApp
+  const selectedAttachableLines = attachableLines.filter((line) =>
+    validatorLensContainer.some((lens) => lens.selectedIds.includes(line.id))
+  );
+  const selectedCircles = circles.filter((circle) =>
+    validatorLensContainer.some((lens) => lens.selectedIds.includes(circle.id))
   );
 
-  console.log('gah', selectedAlgorithm);
+  const ids = selectedAttachableLines
+    .map((line) => line.id)
+    .concat(selectedCircles.map((circle) => circle.id))
+    .join(',');
+
+  // const appliedToWholeApp = useAppSelector(
+  //   (store) => store.codeExec.appliedToWholeApp
+  // );
+  const isValidatorLens = currentAlgorithm?.type === 'validator';
+
+  useEffect(() => {
+    console.log('running effect', isValidatorLens, currentAlgorithm);
+    // if (currentAlgorithm.code) {
+    console.log('mutating');
+    codeMutation.mutate({
+      code: currentAlgorithm?.code ?? '',
+      type: AlgoType.Validator,
+    });
+    // }
+  }, [ids]);
+
   return (
     <div className="w-full max-h-[7%] min-h-[50px]">
       <div className="  prevent-select overflow-x-scroll p-3 flex w-full border-secondary justify-evenly items-center border-b-2 ">
@@ -111,7 +143,7 @@ const CodeExecutionControlBar = ({
                   }
                 />
               )}
-              <div className="flex items-center space-x-2">
+              {/* <div className="flex items-center space-x-2">
                 <Switch
                   onCheckedChange={(val) => {
                     dispatch(CodeExecActions.setApplyAlgoToWholeApp(val));
@@ -122,7 +154,7 @@ const CodeExecutionControlBar = ({
                   id="whole-canvas"
                 />
                 <Label htmlFor="whole-canvas">Apply to all canvas items</Label>
-              </div>
+              </div> */}
             </div>
 
             {/* main option is what type do you want a validator or a visualizer
@@ -138,7 +170,19 @@ const CodeExecutionControlBar = ({
         <Button
           onClick={() => {
             if (currentAlgorithm?.code) {
-              codeMutation.mutate(currentAlgorithm.code);
+              codeMutation.mutate({
+                code: currentAlgorithm.code,
+                type:
+                  currentAlgorithm.type === AlgoType.Validator
+                    ? AlgoType.Validator
+                    : AlgoType.Visualizer,
+              });
+            } else {
+              toast({
+                title: 'No graph selected',
+                description:
+                  'You must have at least one node selected. You can select nodes by adding them, and then drag + mouse down',
+              });
             }
           }}
           variant="outline"
@@ -222,6 +266,7 @@ const CodeExecutionControlBar = ({
                     type,
                   });
                   setOpen(false);
+
                   getAlgorithmsQuery.refetch();
                 }}
                 variant="outline"

@@ -6,7 +6,7 @@ const Loading = () => {
   // this does run need a sensible loading state
   return (
     <div className=" text-6xl w-screen flex h-screen items-start justify-center px-[25px] py-[10px] ">
-      <div className="h-[97%] w-full flex  ">
+      <div className="h-[98%] w-full flex  ">
         <div className=" w-3/5 h-full rounded-none border-0 animate-pulse flex flex-col">
           <div className="border-2 h-[7%] w-full  border-b-0 rounded-none"></div>
           <div className="border-2 h-[93%] w-full  rounded-none flex items-center justify-center">

@@ -90,7 +90,6 @@ export const useCanvasMouseDown = ({
 
     match(activeItemInfo?.activeItem)
       .with({ type: 'bottom-left' }, ({ lens, type }) => {
-        console.log('got lens');
         // dispatch(CanvasActions.resizeValidatorLens({
         //   lens,
         //   mousePos

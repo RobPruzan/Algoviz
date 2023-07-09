@@ -62,7 +62,6 @@ export class SocketIO {
       switch (data.type) {
         case 'circleReciever':
           if (data.senderID !== userID) {
-            console.log('dispatching update');
             dispatch(CanvasActions.replaceCircle(data.state));
           }
         case 'edge':

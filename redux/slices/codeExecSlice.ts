@@ -13,11 +13,12 @@ export type NodeValidation = {
 
 type InitialState = {
   visualization: NodeID[][];
+
   visualizationPointer: number;
   isApplyingAlgorithm: boolean;
   mode: Modes;
   appliedToWholeApp: boolean;
-  validation: NodeValidation[];
+  validation: NodeValidation[] | boolean;
   selectedAlgorithm: string | null;
 };
 const initialState: InitialState = {
@@ -36,7 +37,14 @@ const codeExecSlice = createSlice({
     setSelectedAlgorithm: (state, action: PayloadAction<string | null>) => {
       state.selectedAlgorithm = action.payload;
     },
-    setVisited: (
+    setValidationVisualization: (
+      state,
+      action: PayloadAction<InitialState['validation']>
+    ) => {
+      state.validation = action.payload;
+    },
+
+    setVisitedVisualization: (
       state,
       action: PayloadAction<InitialState['visualization']>
     ) => {
@@ -66,7 +74,6 @@ const codeExecSlice = createSlice({
       state.mode = action.payload;
     },
     setApplyAlgoToWholeApp: (state, action: PayloadAction<boolean>) => {
-      console.log('man what');
       state.appliedToWholeApp = action.payload;
     },
 

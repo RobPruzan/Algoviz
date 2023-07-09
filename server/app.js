@@ -7,10 +7,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.post('/exec', (req, res) => {
-  const { code, globalVar } = req.body;
+  const { code, globalVar, type } = req.body;
   console.log('incoming code', globalVar);
+  console.log('incoming val', req.body);
   const jsCode = ts.transpileModule(
-    code + `JSON.stringify({exitValue: algorithm(globalVar), logs});`,
+    code + `JSON.stringify({exitValue: algorithm(globalVar), logs);`,
     {
       compilerOptions: {
         target: 'ES2020',
@@ -51,7 +52,7 @@ app.post('/exec', (req, res) => {
     console.error('failed:', error);
     return res.status(400).send({ error: error.toString() });
   }
-  console.log('returning result:', result);
+  // console.log('returning result:', result);
   return res.send({ result });
 });
 module.exports.handler = serverless(app);

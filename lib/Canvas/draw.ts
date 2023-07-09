@@ -10,6 +10,7 @@ import {
 import { NodeValidation } from '@/redux/slices/codeExecSlice';
 import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 import { RESIZE_CIRCLE_RADIUS } from '../utils';
+import { match } from 'ts-pattern';
 
 export const drawNodes = ({
   nodes,
@@ -25,7 +26,7 @@ export const drawNodes = ({
   selectedCircleID: string | null;
   selectedIds: Array<string> | undefined;
   visualizationNodes: string[];
-  validationNodes: NodeValidation[];
+  validationNodes: NodeValidation[] | boolean;
   theme: string;
 }) => {
   ctx.save();
@@ -44,13 +45,64 @@ export const drawNodes = ({
     if (visualizationNodes.includes(node.id)) {
       ctx.fillStyle = 'green';
     }
-    if (validationNodes.length > 0) {
-      if (validationNodes.find((vNode) => vNode.id === node.id)?.valid) {
-        ctx.fillStyle = 'green';
-      } else {
-        ctx.fillStyle === 'red';
+
+    // match({typeof: typeof validationNodes, nodes: validationNodes})
+    //   .with({typeof: 'boolean'}, ({nodes}) => {
+    //     if (nodes) {
+    //       ctx.fillStyle = 'green';
+    //     } else {
+    //       ctx.fillStyle === 'red';
+    //     }
+    //   })
+    //   .with('object', () => {
+    //     if (validationNodes.length > 0) {
+    //       if (validationNodes.find((vNode) => vNode.id === node.id)?.valid) {
+    //         ctx.fillStyle = 'green';
+    //       } else {
+    //   })
+    //   .otherwise();
+
+    if (selectedIds?.includes(node.id)) {
+      switch (typeof validationNodes) {
+        case 'boolean':
+          console.log(node.id, selectedIds);
+          if (validationNodes) {
+            ctx.fillStyle = 'green';
+          } else {
+            ctx.fillStyle === 'red';
+          }
+          break;
+        case 'object':
+          if (validationNodes.length > 0) {
+            if (validationNodes.find((vNode) => vNode.id === node.id)?.valid) {
+              ctx.fillStyle = 'green';
+            } else {
+              ctx.fillStyle === 'red';
+            }
+          }
+          break;
+        default:
+          break;
       }
     }
+    // else {
+    //   // console.log(selectedIds, node.id);
+    // }
+
+    // if (typeof validationNodes === 'boolean') {
+    //   if (validationNodes) {
+    //     ctx.fillStyle = 'green';
+    //   } else {
+    //     ctx.fillStyle === 'red';
+    //   }
+    // }
+    // if (validationNodes.length > 0) {
+    //   if (validationNodes.find((vNode) => vNode.id === node.id)?.valid) {
+    //     ctx.fillStyle = 'green';
+    //   } else {
+    //     ctx.fillStyle === 'red';
+    //   }
+    // }
 
     ctx.fill();
     if (selectedCircleID === node.id || selectedIds?.includes(node.id)) {
@@ -261,7 +313,7 @@ export const drawValidatorLens = ({
     if (selectedValidatorLens?.id === lens.id) {
       ctx.fillStyle = 'white';
     } else {
-      ctx.fillStyle = '#4D75FF';
+      ctx.fillStyle = '#F1EDED';
     }
     ctx.globalAlpha = 0.05;
     ctx.fill();
@@ -282,7 +334,7 @@ export const drawValidatorLens = ({
       2 * Math.PI,
       false
     );
-    ctx.fillStyle = 'blue';
+    ctx.fillStyle = '#c5c5c5';
     ctx.fill();
     ctx.closePath();
     ctx.beginPath();
@@ -294,7 +346,7 @@ export const drawValidatorLens = ({
       2 * Math.PI,
       false
     );
-    ctx.fillStyle = 'blue';
+    ctx.fillStyle = '#c5c5c5';
     ctx.fill();
     ctx.closePath();
     ctx.beginPath();
@@ -306,7 +358,7 @@ export const drawValidatorLens = ({
       2 * Math.PI,
       false
     );
-    ctx.fillStyle = 'blue';
+    ctx.fillStyle = '#c5c5c5';
     ctx.fill();
     ctx.closePath();
     ctx.beginPath();
@@ -318,7 +370,7 @@ export const drawValidatorLens = ({
       2 * Math.PI,
       false
     );
-    ctx.fillStyle = 'blue';
+    ctx.fillStyle = '#c5c5c5';
     ctx.fill();
     ctx.closePath();
     ctx.beginPath();
@@ -330,7 +382,7 @@ export const drawValidatorLens = ({
       2 * Math.PI,
       false
     );
-    ctx.fillStyle = 'blue';
+    ctx.fillStyle = '#c5c5c5';
     ctx.fill();
     ctx.closePath();
   });

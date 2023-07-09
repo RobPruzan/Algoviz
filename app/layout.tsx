@@ -17,6 +17,7 @@ import { Provider } from 'react-redux';
 import { store } from '@/redux/store';
 import ReduxProvider from './ReduxProvider';
 import PlaygroundsButton from './PlaygroundsButton';
+import { Toaster } from '@/components/ui/toaster';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -72,6 +73,7 @@ export default function RootLayout({
                   </nav>
 
                   {children}
+                  <Toaster />
                 </div>
               </ThemeProvider>
             </ReduxProvider>
