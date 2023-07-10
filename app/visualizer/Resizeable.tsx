@@ -53,8 +53,8 @@ const Resizable = (props: Props) => {
           newDiv1Height = Math.max(0, newDiv1Height);
           newDiv1Height = Math.min(parentDiv.offsetHeight, newDiv1Height);
           const newDiv2Width = parentDiv.offsetHeight - newDiv1Height;
-          props.setCanvasSize(newDiv1Height);
-          props.setCodeExecSize(newDiv2Width);
+          props.setCanvasSize(newDiv1Height - resizeBarSize / 2);
+          props.setCodeExecSize(newDiv2Width - resizeBarSize / 2);
         })
         .exhaustive();
     };
@@ -72,6 +72,8 @@ const Resizable = (props: Props) => {
       document.removeEventListener('mousemove', mouseMoveHandler);
       document.removeEventListener('mouseup', mouseUpHandler);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // make sure it only runs the useEffect for resizing changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resizing]);
 
@@ -149,7 +151,9 @@ const Resizable = (props: Props) => {
       <div
         className="flex items-center justify-center"
         style={{
-          width: props.codeExecSize ?? undefined,
+          // width: props.codeExecSize ?? undefined,
+          maxWidth: props.codeExecSize ?? undefined,
+          minWidth: props.codeExecSize ?? undefined,
         }}
       >
         {props.rightDiv}
@@ -169,7 +173,8 @@ const Resizable = (props: Props) => {
       <div
         style={{
           width: '100%',
-          height: props.canvasSize ?? undefined,
+          maxHeight: props.canvasSize ?? undefined,
+          minHeight: props.canvasSize ?? undefined,
         }}
       >
         {props.topDiv}
@@ -184,7 +189,9 @@ const Resizable = (props: Props) => {
       <div
         className="flex items-center justify-center flex-col"
         style={{
-          height: props.codeExecSize ?? undefined,
+          // height: props.codeExecSize ?? undefined,
+          maxHeight: props.codeExecSize ?? undefined,
+          minHeight: props.codeExecSize ?? undefined,
         }}
       >
         {props.bottomDiv}

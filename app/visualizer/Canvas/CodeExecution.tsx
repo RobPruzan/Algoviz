@@ -150,7 +150,7 @@ const CodeExecution = ({ setUserAlgorithm, codeMutation }: Props) => {
           </div>
         }
         bottomDiv={
-          <div className="h-full w-full  prevent-select flex flex-col justify-start overflow-x-scroll overflow-y-hidden items-center">
+          <div className="h-full w-full bg-green border-white border   prevent-select flex flex-col justify-start overflow-x-scroll overflow-y-hidden items-center">
             <Tabs
               value={tabValue}
               onValueChange={(v) =>
@@ -183,7 +183,7 @@ const CodeExecution = ({ setUserAlgorithm, codeMutation }: Props) => {
               </TabsList>
             </Tabs>
 
-            <div className="  pl-5 pt-3 w-full border-t-2  border-secondary flex flex-col items-start justify-start text-white  h-full: overflow-y-scroll">
+            <div className="  pl-5 pt-3 w-full border-t-2   border-secondary flex flex-col items-start justify-start text-white  h-full overflow-y-scroll">
               {match(tabValue)
                 .with('input', () => (
                   <>

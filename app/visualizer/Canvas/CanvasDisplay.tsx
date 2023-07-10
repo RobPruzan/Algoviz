@@ -58,6 +58,7 @@ import { useSession } from 'next-auth/react';
 import { CollaborationActions } from '@/redux/slices/colloborationState';
 import { match } from 'ts-pattern';
 import { CodeExecActions } from '@/redux/slices/codeExecSlice';
+import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
   canvasWrapperRef: React.RefObject<HTMLDivElement>;
@@ -188,6 +189,8 @@ const CanvasDisplay = ({
   ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
     return { ...prev, [id]: neighbors };
   }, {});
+
+  const algos = useGetAlgorithmsQuery();
 
   useClearCanvasState(meta);
 
@@ -323,6 +326,7 @@ const CanvasDisplay = ({
       theme: themeInfo.theme ?? 'dark',
       validatorLensContainer,
       selectedValidatorLens,
+      algorithms: algos.data ?? [],
     });
 
     // bug, not intrinsic to this procedure, is im setting some ctx state and really caring about implications for future draws

@@ -11,6 +11,7 @@ import { NodeValidation } from '@/redux/slices/codeExecSlice';
 import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 import { RESIZE_CIRCLE_RADIUS } from '../utils';
 import { match } from 'ts-pattern';
+import { useGetAlgorithmsQuery } from '@/app/visualizer/hooks/useGetAlgorithmsQuery';
 
 export const drawNodes = ({
   nodes,
@@ -219,12 +220,15 @@ export const drawValidatorLens = ({
   validatorLensContainer,
   selectedIds,
   selectedValidatorLens,
+  algos,
 }: {
   validatorLensContainer: ValidatorLensInfo[];
   ctx: CanvasRenderingContext2D;
   theme: string;
   selectedIds: string[] | undefined;
   selectedValidatorLens: SelectedValidatorLens | null;
+
+  algos: ReturnType<typeof useGetAlgorithmsQuery>['data'];
 }) => {
   validatorLensContainer.forEach((lens, index) => {
     const [leftX, topY] = lens.rect.topLeft;
@@ -278,6 +282,59 @@ export const drawValidatorLens = ({
     // |  |
     // ---
 
+    // // text above the top y, middle x rect is in the form of topleft, bottom right
+    // ctx.font = '20px Arial';
+
+    // // Define your rectangle corners
+    // let topLeft = lens.rect.topLeft;
+    // let bottomRight = lens.rect.bottomRight;
+
+    // // Calculate middle X of the rectangle
+    // let middleX = (topLeft[0] + bottomRight[0]) / 2;
+
+    // // Measure the text width
+    // let textWidth = ctx.measureText(text).width;
+
+    // // Calculate the position where the text should be drawn to be centered above the rectangle
+    // let textX = middleX - textWidth / 2;
+
+    // // Choose an appropriate offset to position the text above the rectangle,
+    // // here we arbitrarily chose 10 units above the top of the rectangle
+    // let textY = topLeft[1] - 10;
+
+    // // Draw the text
+    // ctx.fillText(text, textX, textY);
+
+    ctx.font = '20px Arial';
+
+    const text =
+      algos?.find((algo) => algo.id === lens.algoId)?.title || 'unknown';
+
+    // Assume we have the rectangle's corners as rect.lens.topLeft and rect.lens.bottomRight
+    const topLeft = lens.rect.topLeft;
+    const bottomRight = lens.rect.bottomRight;
+
+    // Calculate middle X of the rectangle
+    const middleX = (topLeft[0] + bottomRight[0]) / 2;
+
+    // Calculate top Y of the rectangle
+    const maxY = Math.min(topLeft[1], bottomRight[1]);
+
+    // Measure the text width
+    const textWidth = ctx.measureText(text).width;
+
+    // Calculate the position where the text should be drawn to be centered above the rectangle
+    const textX = middleX - textWidth / 2;
+
+    // Choose an appropriate offset to position the text above the rectangle,
+    // here we arbitrarily chose 10 units above the top of the rectangle
+    const textY = maxY - 10;
+
+    // Draw the text
+    ctx.fillText(text, textX, textY);
+
+    // Draw the text
+    ctx.fillText(text, textX, textY);
     ctx.lineWidth = 1;
 
     ctx.strokeStyle =
