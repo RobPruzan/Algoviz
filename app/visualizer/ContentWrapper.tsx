@@ -31,7 +31,7 @@ type Props = {
 };
 
 const ContentWrapper = ({ shapes }: Props) => {
-  const [canvasWidth, setCanvasWidth] = useState<number | Percentage>('60%');
+  const [canvasWidth, setCanvasWidth] = useState<number | Percentage>('59.2%');
   const [codeExecWidth, setCodeExecWidth] = useState<number | Percentage>(
     '40%'
   );

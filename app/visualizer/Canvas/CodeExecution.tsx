@@ -150,7 +150,7 @@ const CodeExecution = ({ setUserAlgorithm, codeMutation }: Props) => {
           </div>
         }
         bottomDiv={
-          <div className="h-full w-full bg-green border-white border   prevent-select flex flex-col justify-start overflow-x-scroll overflow-y-hidden items-center">
+          <div className="h-full w-full    prevent-select flex flex-col justify-start overflow-x-scroll overflow-y-hidden items-center">
             <Tabs
               value={tabValue}
               onValueChange={(v) =>

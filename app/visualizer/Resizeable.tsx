@@ -37,16 +37,15 @@ const Resizable = (props: Props) => {
       if (!parentDiv) return;
       match(props)
         .with({ type: 'horizontal' }, (props) => {
-          let newDiv1Width =
-            e.clientX - parentDiv.offsetLeft - (padding + resizeBarSize / 2); // subtract left padding
+          let newDiv1Width = e.clientX - parentDiv.offsetLeft - padding; // subtract left padding
 
           newDiv1Width = Math.max(0, newDiv1Width);
           newDiv1Width = Math.min(parentDiv.offsetWidth, newDiv1Width);
 
           const newDiv2Width = parentDiv.offsetWidth - newDiv1Width;
 
-          props.setCanvasSize(newDiv1Width);
-          props.setCodeExecSize(newDiv2Width);
+          props.setCanvasSize(newDiv1Width - resizeBarSize / 2);
+          props.setCodeExecSize(newDiv2Width - resizeBarSize / 2);
         })
         .with({ type: 'vertical' }, (props) => {
           let newDiv1Height = e.clientY - parentDiv.offsetTop;
@@ -128,14 +127,17 @@ const Resizable = (props: Props) => {
         display: 'flex',
         width: '100%',
         height: '100%',
-        padding: `${padding}px`,
-        paddingTop: '10px',
+        // padding: `${padding}px`,
+        // paddingTop: '10px',
       }}
+      className="prevent-select"
       ref={parentDivRef}
     >
       <div
         style={{
-          width: props.canvasSize ?? undefined,
+          // width: props.canvasSize ?? undefined,
+          maxWidth: props.canvasSize ?? undefined,
+          minWidth: props.canvasSize ?? undefined,
           height: '100%',
         }}
       >
@@ -145,13 +147,13 @@ const Resizable = (props: Props) => {
         style={{
           minWidth: resizeBarSize,
         }}
-        className={'cursor-col-resize   border-y-2 border-secondary'}
+        className={'cursor-col-resize border-y-2 border-secondary'}
         onMouseDown={() => setResizing(true)}
       />
       <div
         className="flex items-center justify-center"
         style={{
-          // width: props.codeExecSize ?? undefined,
+          width: props.codeExecSize ?? undefined,
           maxWidth: props.codeExecSize ?? undefined,
           minWidth: props.codeExecSize ?? undefined,
         }}

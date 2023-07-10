@@ -49,7 +49,7 @@ export default function RootLayout({
               >
                 <div className="h-screen w-screen flex flex-col items-center justify-evenly">
                   {/* temporary padding */}
-                  <nav className="w-screen pt-[10px]  h-[5%] flex justify-end items-center px-[25px] ">
+                  <nav className="w-screen pt-[10px] px-[25px] h-[5%] flex justify-end items-center  ">
                     <div className="w-3/6 flex justify-start items-center ">
                       <Link href="/">
                         <Button className="mr-2" variant="outline">
