@@ -360,6 +360,8 @@ const CanvasDisplay = ({
         pencilCoordinates,
       });
     }
+
+    Draw.drawTriangle({ ctx, edges: attachableLines });
   }, [
     circles,
     attachableLines,

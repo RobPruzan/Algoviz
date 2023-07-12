@@ -137,18 +137,18 @@ export const drawEdgeConnectors = ({
   ctx: CanvasRenderingContext2D;
 }) => {
   edges
-    .map((edge) => edge.attachNodeOne)
+    .map((edge) => ({ ...edge.attachNodeOne, directed: edge.directed }))
     .forEach((circle) => {
       ctx.beginPath();
       ctx.arc(
         Math.floor(circle.center[0]),
         Math.floor(circle.center[1]),
-        Math.floor(circle.radius),
+        Math.floor(circle.directed ? circle.radius / 5 : circle.radius),
         0,
         2 * Math.PI,
         false
       );
-      ctx.fillStyle = circle.color;
+      ctx.fillStyle = circle.directed ? '#D8DAE1' : circle.color;
       ctx.fill();
     });
   edges.forEach((edge) => {
@@ -601,3 +601,60 @@ export function getCursorPosition(
   const y = event.clientY - rect.top;
   return [x, y];
 }
+
+export const drawTriangle = ({
+  ctx,
+  edges,
+}: {
+  ctx: CanvasRenderingContext2D;
+  edges: Edge[];
+}) => {
+  // dummy data
+  const directedEdges = edges.filter((edge) => edge.directed);
+  directedEdges.forEach((edge) => {
+    const triangleBaseCenterPointCord = [edge.x1, edge.y1];
+    const triangleBaseLength = edge.width * 2.5;
+    const opposingSideCenterPointCord = [edge.x2, edge.y2];
+
+    let direction = [
+      opposingSideCenterPointCord[0] - triangleBaseCenterPointCord[0],
+      opposingSideCenterPointCord[1] - triangleBaseCenterPointCord[1],
+    ];
+
+    let length = Math.sqrt(
+      direction[0] * direction[0] + direction[1] * direction[1]
+    );
+    direction = [direction[0] / length, direction[1] / length];
+
+    // rotates the direction vector 90 degrees
+    let perpendicular = [-direction[1], direction[0]];
+
+    let halfBase = [
+      (perpendicular[0] * triangleBaseLength) / 2,
+      (perpendicular[1] * triangleBaseLength) / 2,
+    ];
+
+    let base1 = [
+      triangleBaseCenterPointCord[0] - halfBase[0],
+      triangleBaseCenterPointCord[1] - halfBase[1],
+    ];
+    let base2 = [
+      triangleBaseCenterPointCord[0] + halfBase[0],
+      triangleBaseCenterPointCord[1] + halfBase[1],
+    ];
+
+    let tip = [
+      triangleBaseCenterPointCord[0] - direction[0] * triangleBaseLength,
+      triangleBaseCenterPointCord[1] - direction[1] * triangleBaseLength,
+    ];
+
+    ctx.beginPath();
+    ctx.moveTo(base1[0], base1[1]);
+    ctx.lineTo(base2[0], base2[1]);
+    ctx.lineTo(tip[0], tip[1]);
+    ctx.closePath();
+    ctx.fillStyle = '#D8DAE1';
+    ctx.fill();
+    ctx.stroke();
+  });
+};

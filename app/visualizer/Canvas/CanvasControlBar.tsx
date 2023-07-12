@@ -46,6 +46,7 @@ import {
 } from '@/components/ui/hover-card';
 import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 import { CodeExecActions } from '@/redux/slices/codeExecSlice';
+import { DirectedEdgeIcon } from '@/components/icons/DirectedEdge';
 type Props = {
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
 
@@ -316,7 +317,7 @@ const CanvasControlBar = ({
         variant={'outline'}
         className="px-2 min-w-fit"
       >
-        <ArrowRight />
+        <DirectedEdgeIcon />
       </Button>
       <Button variant={'outline'} className="px-2">
         <Eraser />
