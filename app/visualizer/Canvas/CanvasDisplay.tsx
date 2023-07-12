@@ -105,8 +105,11 @@ const CanvasDisplay = ({
     useState<SelectedAttachableLine | null>(null);
 
   // const [selected]
-  const { visualization, visualizationPointer, validation, error } =
-    useAppSelector((store) => store.codeExec);
+  const { visualization, visualizationPointer, error } = useAppSelector(
+    (store) => store.codeExec
+  );
+
+  // const validatorLensContainer = useAppSelector(store => store.canvas.validatorLensContainer)
 
   if (error) {
     console.error('error', error);
@@ -318,7 +321,8 @@ const CanvasDisplay = ({
       selectedIds,
       visualizationNodes: visualizationNodes ?? [],
       theme: themeInfo.theme ?? 'dark',
-      validationNodes: validation,
+      // validationNodes: validation,
+      validatorLensContainer,
     });
     Draw.drawValidatorLens({
       ctx,
@@ -326,7 +330,7 @@ const CanvasDisplay = ({
       theme: themeInfo.theme ?? 'dark',
       validatorLensContainer,
       selectedValidatorLens,
-      algorithms: algos.data ?? [],
+      algos: algos.data ?? [],
     });
 
     // bug, not intrinsic to this procedure, is im setting some ctx state and really caring about implications for future draws
@@ -370,7 +374,7 @@ const CanvasDisplay = ({
     collabInfos,
     canvasWidth,
     userID,
-    validation,
+
     validatorLensContainer,
     selectedValidatorLens,
   ]);

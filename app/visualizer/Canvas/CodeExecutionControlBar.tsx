@@ -109,8 +109,12 @@ const CodeExecutionControlBar = ({
         // console.log('mi lens algo', lensAlgo);
         if (lensAlgo) {
           codeMutation.mutate({
-            code: lensAlgo.code,
+            // code: lensAlgo.code,
+            // algo: lensAlgo,
+            algoID: lensAlgo.id,
+            algo: lensAlgo,
             type: AlgoType.Validator,
+            lens,
           });
         } else {
           console.log('i aint dispatching that', lensAlgo);
@@ -186,13 +190,20 @@ const CodeExecutionControlBar = ({
 
         <Button
           onClick={() => {
-            if (currentAlgorithm?.code) {
+            if (
+              currentAlgorithm?.code &&
+              'id' in currentAlgorithm &&
+              typeof currentAlgorithm.id === 'string'
+            ) {
               codeMutation.mutate({
-                code: currentAlgorithm.code,
+                // code: currentAlgorithm.code,
                 type:
                   currentAlgorithm.type === AlgoType.Validator
                     ? AlgoType.Validator
                     : AlgoType.Visualizer,
+                // algo: currentAlgorithm,
+                algo: { code: currentAlgorithm.code },
+                algoID: currentAlgorithm.id,
               });
             } else {
               toast({

@@ -20,14 +20,14 @@ export const drawNodes = ({
   selectedIds,
   visualizationNodes,
   theme,
-  validationNodes,
+  validatorLensContainer,
 }: {
   nodes: CircleReceiver[];
   ctx: CanvasRenderingContext2D;
   selectedCircleID: string | null;
   selectedIds: Array<string> | undefined;
   visualizationNodes: string[];
-  validationNodes: (NodeValidation[] | boolean) | null;
+  validatorLensContainer: ValidatorLensInfo[];
   theme: string;
 }) => {
   ctx.save();
@@ -46,10 +46,13 @@ export const drawNodes = ({
     if (visualizationNodes.includes(node.id)) {
       ctx.fillStyle = 'green';
     }
+    const currentLens = validatorLensContainer.find((lens) =>
+      lens.selectedIds.includes(node.id)
+    );
     if (selectedIds?.includes(node.id)) {
-      switch (typeof validationNodes) {
+      switch (typeof currentLens?.result) {
         case 'boolean':
-          if (!validationNodes) {
+          if (!currentLens.result) {
             ctx.fillStyle = 'red';
           } else {
             ctx.fillStyle = 'green';
@@ -61,12 +64,14 @@ export const drawNodes = ({
           }
           break;
         case 'object':
-          if (validationNodes && validationNodes.length > 0) {
+          if (currentLens.result && currentLens.result.length > 0) {
             console.log(
               'is val',
-              validationNodes.find((vNode) => vNode.id === node.id)?.valid
+              currentLens.result.find((vNode) => vNode.id === node.id)?.valid
             );
-            if (validationNodes.find((vNode) => vNode.id === node.id)?.valid) {
+            if (
+              currentLens.result.find((vNode) => vNode.id === node.id)?.valid
+            ) {
               ctx.fillStyle = 'green';
             } else {
               ctx.fillStyle === 'red';
@@ -243,18 +248,6 @@ export const drawValidatorLens = ({
     // // |- |
     // // ----
 
-    // ctx.moveTo(Math.floor(leftX), Math.floor(topY));
-    // ctx.arc(
-    //   Math.floor(leftX),
-    //   Math.floor(topY),
-    //   Math.floor(resizeBoxLength),
-    //   0,
-    //   2 * Math.PI,
-    //   false
-    // );
-    // ctx.fillStyle = 'blue';
-    // ctx.fill();
-
     ctx.beginPath();
 
     // ----
@@ -330,12 +323,12 @@ export const drawValidatorLens = ({
     // here we arbitrarily chose 10 units above the top of the rectangle
     const textY = maxY - 10;
 
-    // Draw the text
-    ctx.fillText(text, textX, textY);
+    ctx.fillStyle =
+      theme === 'dark' ? 'white' : theme === 'light' ? 'black' : 'white';
 
-    // Draw the text
     ctx.fillText(text, textX, textY);
     ctx.lineWidth = 1;
+    // text color black
 
     ctx.strokeStyle =
       theme === 'light' ? '#ADD8E6' : theme === 'dark' ? 'white' : 'white';

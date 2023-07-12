@@ -4,9 +4,11 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { z } from 'zod';
 import * as Graph from '@/lib/graph';
-import { AlgoType } from '@/lib/types';
+import { AlgoType, ArrayItem } from '@/lib/types';
 import { P, match } from 'ts-pattern';
 import { getSelectedItems } from '@/lib/utils';
+import { useGetAlgorithmsQuery } from './useGetAlgorithmsQuery';
+import { CanvasActions, ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 
 export const useCodeMutation = () => {
   const dispatch = useAppDispatch();
@@ -21,7 +23,7 @@ export const useCodeMutation = () => {
     circles,
     selectedGeometryInfo,
   });
-
+  const getAlgorithmsQuery = useGetAlgorithmsQuery();
   const selectedAttachableLinesThroughLens = attachableLines.filter((line) =>
     validatorLensContainer.some((lens) => lens.selectedIds.includes(line.id))
   );
@@ -38,13 +40,26 @@ export const useCodeMutation = () => {
     return { ...prev, [id]: neighbors };
   }, {});
   const codeMutation = useMutation({
-    mutationFn: async ({ code, type }: { code: string; type: AlgoType }) => {
+    mutationFn: async ({
+      algo,
+      algoID,
+      type,
+      lens,
+    }: {
+      algo: Pick<
+        ArrayItem<ReturnType<typeof useGetAlgorithmsQuery>['data']>,
+        'code'
+      >;
+      algoID: string;
+      type: AlgoType;
+      lens?: ValidatorLensInfo;
+    }) => {
       console.group('mutating', adjacencyList);
       const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
       if (!url) Promise.reject();
 
       const res = await axios.post(url, {
-        code,
+        code: algo.code,
         globalVar: adjacencyList,
       });
 
@@ -104,11 +119,21 @@ export const useCodeMutation = () => {
       console.error('wah wah', err);
     },
     onSuccess: (data, ctx) => {
-      console.log('returned data', data);
+      console.log('returned data', data, ctx);
       match(data)
         .with({ type: AlgoType.Validator }, ({ exitValue }) => {
           console.log('da exit value', exitValue);
-          dispatch(CodeExecActions.setValidationVisualization(exitValue));
+          if (ctx.lens?.id) {
+            // this all fucking sucks and i cant think straight
+            // i need to remap all these actions so the state is in canvas
+            // then i need to map the result to each invidual lens
+            dispatch(
+              CanvasActions.setValidationVisualization({
+                id: ctx.lens.id,
+                result: exitValue,
+              })
+            );
+          }
         })
         .with({ type: AlgoType.Visualizer }, ({ exitValue }) => {
           dispatch(CodeExecActions.setVisitedVisualization(exitValue));

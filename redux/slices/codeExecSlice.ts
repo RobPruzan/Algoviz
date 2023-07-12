@@ -18,7 +18,7 @@ type InitialState = {
   isApplyingAlgorithm: boolean;
   mode: Modes;
   appliedToWholeApp: boolean;
-  validation: (NodeValidation[] | boolean) | null;
+  // validation: (NodeValidation[] | boolean) | null;
   selectedAlgorithm: string | null;
   error: {
     message: string;
@@ -31,7 +31,7 @@ const initialState: InitialState = {
   isApplyingAlgorithm: false,
   mode: 'visualizer',
   appliedToWholeApp: false,
-  validation: null,
+  // validation: null,
   selectedAlgorithm: null,
   error: null,
 };
@@ -46,12 +46,12 @@ const codeExecSlice = createSlice({
     setSelectedAlgorithm: (state, action: PayloadAction<string | null>) => {
       state.selectedAlgorithm = action.payload;
     },
-    setValidationVisualization: (
-      state,
-      action: PayloadAction<InitialState['validation']>
-    ) => {
-      state.validation = action.payload;
-    },
+    // setValidationVisualization: (
+    //   state,
+    //   action: PayloadAction<InitialState['validation']>
+    // ) => {
+    //   state.validation = action.payload;
+    // },
 
     setVisitedVisualization: (
       state,
@@ -84,10 +84,6 @@ const codeExecSlice = createSlice({
     },
     setApplyAlgoToWholeApp: (state, action: PayloadAction<boolean>) => {
       state.appliedToWholeApp = action.payload;
-    },
-
-    setAreNodesValid: (state, action: PayloadAction<NodeValidation[]>) => {
-      state.validation = action.payload;
     },
   },
 });

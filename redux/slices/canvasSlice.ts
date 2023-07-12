@@ -7,6 +7,7 @@ import {
   CircleReceiver,
   FirstParameter,
   PencilCoordinates,
+  CanvasControlBarActions,
 } from '@/lib/types';
 import { enableMapSet } from 'immer';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
@@ -15,6 +16,7 @@ import * as Draw from '@/lib/Canvas/draw';
 import { ImmutableQueue } from '@/lib/graph';
 import { withMeta } from '../store';
 import { match } from 'ts-pattern';
+import { NodeValidation } from './codeExecSlice';
 
 // this validatorLens will have code attached to it
 // it should probably extend the selectedGeomotryInfo
@@ -27,6 +29,7 @@ import { match } from 'ts-pattern';
 // this can just be a low opacity translation
 // but we would need th color of the node to fundamentally change (needs to be red in that area)
 export type Shift = { shift: [number, number] };
+
 export type ValidatorLensInfo = {
   id: string;
   algoId: string;
@@ -36,6 +39,7 @@ export type ValidatorLensInfo = {
   };
   code: string | null;
   selectedIds: string[];
+  result: (NodeValidation[] | boolean) | null;
   type: 'validator-lens';
 };
 
@@ -46,6 +50,10 @@ export type CanvasState = {
   validatorLensContainer: ValidatorLensInfo[];
   creationZoomFactor: number;
   pencilCoordinates: PencilCoordinates;
+  selectedAction: {
+    type: 'canvas-action';
+    actionType: CanvasControlBarActions | null;
+  };
 };
 
 const initialState: CanvasState = {
@@ -57,6 +65,10 @@ const initialState: CanvasState = {
   pencilCoordinates: {
     drawingCoordinates: [],
     drawnCoordinates: [],
+  },
+  selectedAction: {
+    actionType: null,
+    type: 'canvas-action',
   },
 };
 
@@ -77,7 +89,31 @@ const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    setValidationVisualization: (
+      state,
+      action: PayloadAction<Pick<ValidatorLensInfo, 'id' | 'result'>>
+    ) => {
+      // state.validation = action.payload;
+      const lens = state.validatorLensContainer.find(
+        (lens) => lens.id === action.payload.id
+      );
+      console.log(
+        'got the following action: ',
+        action.payload,
+        '|',
+        'and found the following lens: ',
+        lens
+      );
+      if (lens) {
+        lens.result = action.payload.result;
+      }
+    },
     resetState: withCanvasMeta<undefined>(() => initialState),
+    setSelectedAction: withCanvasMeta<CanvasState['selectedAction']>(
+      (state, action) => {
+        state.selectedAction = action.payload;
+      }
+    ),
     deleteAttachableLine: withCanvasMeta<{ id: string }>((state, action) => {
       state.attachableLines = state.attachableLines.filter(
         (line) => line.id !== action.payload.id

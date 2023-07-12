@@ -11,6 +11,7 @@ import {
 
 import {
   AlgoType,
+  CanvasControlBarActions,
   CircleReceiver,
   DirectedEdge,
   DrawTypes,
@@ -82,6 +83,15 @@ const CanvasControlBar = ({
   // move random spawn points to slight distribution around middle of canvas
   // or when I have time do so you select then click on the screen
   const handleAddUndirectedEdge = () => {
+    dispatch(
+      CanvasActions.setSelectedAction(
+        {
+          actionType: CanvasControlBarActions.UndirectedEdge,
+          type: 'canvas-action',
+        },
+        meta
+      )
+    );
     const [x1, y1] = [Math.random() * 400, Math.random() * 400];
     const newLine: UndirectedEdge = {
       id: crypto.randomUUID(),
@@ -130,6 +140,15 @@ const CanvasControlBar = ({
   };
 
   const handleAddDirectedEdge = () => {
+    dispatch(
+      CanvasActions.setSelectedAction(
+        {
+          actionType: CanvasControlBarActions.DirectedEdge,
+          type: 'canvas-action',
+        },
+        meta
+      )
+    );
     const [x1, y1] = [
       Math.random() * 400 * creationZoomFactor,
       Math.random() * 600 * creationZoomFactor,
@@ -168,6 +187,15 @@ const CanvasControlBar = ({
   };
 
   const handleAddCircle = () => {
+    dispatch(
+      CanvasActions.setSelectedAction(
+        {
+          actionType: CanvasControlBarActions.Node,
+          type: 'canvas-action',
+        },
+        meta
+      )
+    );
     const circleCenter: [number, number] = [
       Math.random() * 400,
       Math.random() * 400,
@@ -204,9 +232,19 @@ const CanvasControlBar = ({
   };
 
   const handleAddValidatorLens = (id: string) => {
+    dispatch(
+      CanvasActions.setSelectedAction(
+        {
+          actionType: CanvasControlBarActions.Validators,
+          type: 'canvas-action',
+        },
+        meta
+      )
+    );
     const newValidatorLens: ValidatorLensInfo = {
       id: crypto.randomUUID(),
       algoId: id,
+      result: null,
       code: null,
       rect: {
         bottomRight: [Math.random() * 400, Math.random() * 400],
@@ -256,9 +294,18 @@ const CanvasControlBar = ({
         <CircleDot />
       </Button>
       <Button
-        onClick={() =>
-          setSelectedControlBarAction((prev) => (prev ? null : 'pencil'))
-        }
+        onClick={() => {
+          dispatch(
+            CanvasActions.setSelectedAction(
+              {
+                actionType: CanvasControlBarActions.Pencil,
+                type: 'canvas-action',
+              },
+              meta
+            )
+          );
+          // setSelectedControlBarAction((prev) => (prev ? null : 'pencil'))
+        }}
         variant={'outline'}
         className="px-2"
       >

@@ -202,3 +202,15 @@ export enum AlgoType {
   Visualizer = 'Visualizer',
   Validator = 'Validator',
 }
+
+export enum CanvasControlBarActions {
+  Clear = 'Clear',
+  Node = 'Node',
+  UndirectedEdge = 'UndirectedEdge',
+  DirectedEdge = 'DirectedEdge',
+  Pencil = 'Pencil',
+  Validators = 'Validators',
+  Eraser = 'Eraser',
+}
+
+export type ArrayItem<T> = T extends (infer U)[] ? U : never;
