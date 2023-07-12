@@ -143,7 +143,7 @@ export const drawEdgeConnectors = ({
       ctx.arc(
         Math.floor(circle.center[0]),
         Math.floor(circle.center[1]),
-        Math.floor(circle.directed ? circle.radius / 5 : circle.radius),
+        Math.floor(circle.directed ? circle.radius / 3 : circle.radius),
         0,
         2 * Math.PI,
         false

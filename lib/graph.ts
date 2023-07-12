@@ -1,4 +1,4 @@
-import { CircleReceiver, DirectedEdge, UndirectedEdge } from './types';
+import { CircleReceiver, Edge, UndirectedEdge } from './types';
 
 export class ImmutableStack<T> {
   arr: Array<T>;
@@ -105,7 +105,7 @@ export const getAdjacencyList = ({
   edges,
 }: {
   vertices: CircleReceiver[];
-  edges: (UndirectedEdge | DirectedEdge)[];
+  edges: Edge[];
 }) => {
   // given vertices and attach node id
   // generate the adjacency list with the helper func
@@ -136,20 +136,23 @@ export const getAdjacencyList = ({
 
       // return;
     }
+    // if current is directed, attachNodeTwo is the catchall, node1 is the arrow
+    // any circle reciever that has an attachNodeOne (the arrow) should not be neighbors with the opposing node
+
     // Because we are looking for the opposite connector on the edge
     const opposingNode =
       containerEdge.attachNodeOne.id === id
         ? containerEdge.attachNodeTwo
         : containerEdge.attachNodeOne;
-
-    const neighbor =
-      !containerEdge.directed || opposingNode.type === 'node2'
-        ? vertices.find((v) =>
-            v.nodeReceiver.attachedIds.includes(opposingNode.id)
-          )
-        : 'directed';
-
-    if (neighbor && neighbor !== 'directed') {
+    // here we are saying that the current node is the arrow, and the opposing node is the circle
+    const isNeighborNotActuallyNeighbor =
+      containerEdge.directed && containerEdge.attachNodeOne.id === id;
+    // !containerEdge.directed
+    const neighbor = vertices.find((v) =>
+      v.nodeReceiver.attachedIds.includes(opposingNode.id)
+    );
+    // we want to only set a neighbor if the neighbor has a directed connection
+    if (neighbor && !isNeighborNotActuallyNeighbor) {
       idMap.set(id, neighbor.id);
     }
   });
@@ -161,6 +164,8 @@ export const getAdjacencyList = ({
         ...v.nodeReceiver,
         attachedIds: v.nodeReceiver.attachedIds.reduce<string[]>(
           (prev, curr) => {
+            // if (curr)
+            // if (v.)
             const newId = idMap.get(curr);
             if (newId) {
               return [...prev, newId];

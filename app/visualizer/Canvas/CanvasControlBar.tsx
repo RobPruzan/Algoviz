@@ -47,6 +47,7 @@ import {
 import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 import { CodeExecActions } from '@/redux/slices/codeExecSlice';
 import { DirectedEdgeIcon } from '@/components/icons/DirectedEdge';
+import { UndirectedEdgeIcon } from '@/components/icons/UndirectedEdge';
 type Props = {
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
 
@@ -264,35 +265,7 @@ const CanvasControlBar = ({
         variant={'outline'}
         className="px-2 mb-0"
       >
-        <XCircle />
-      </Button>
-      <Button
-        onClick={handleAddUndirectedEdge}
-        variant={'outline'}
-        className="px-2 mb-0"
-      >
-        {/* <RectangleHorizontal /> */}
-        <svg
-          width="53"
-          height="13"
-          viewBox="0 0 53 13"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle cx="6.25" cy="6.25" r="5.75" fill="white" stroke="black" />
-          <circle cx="46.25" cy="6.25" r="5.75" fill="white" stroke="black" />
-          <rect
-            x="12.5"
-            y="5.5"
-            width="28"
-            height="2"
-            fill="white"
-            stroke="black"
-          />
-        </svg>
-      </Button>
-      <Button onClick={handleAddCircle} variant={'outline'} className="px-2">
-        <CircleDot />
+        <XCircle className="fill-red-500" />
       </Button>
       <Button
         onClick={() => {
@@ -312,6 +285,19 @@ const CanvasControlBar = ({
       >
         <Pencil />
       </Button>
+
+      <Button variant={'outline'} className="px-2">
+        <Eraser />
+      </Button>
+      <Button
+        onClick={handleAddUndirectedEdge}
+        variant={'outline'}
+        className="px-2 mb-0"
+      >
+        {/* <RectangleHorizontal /> */}
+        <UndirectedEdgeIcon />
+      </Button>
+
       <Button
         onClick={handleAddDirectedEdge}
         variant={'outline'}
@@ -319,8 +305,8 @@ const CanvasControlBar = ({
       >
         <DirectedEdgeIcon />
       </Button>
-      <Button variant={'outline'} className="px-2">
-        <Eraser />
+      <Button onClick={handleAddCircle} variant={'outline'} className="px-2">
+        <CircleDot />
       </Button>
 
       <DropdownMenu>

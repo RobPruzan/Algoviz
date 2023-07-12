@@ -73,9 +73,9 @@ const CodeExecutionControlBar = ({
   const saveAlgorithmMutation = useSaveAlgorithmMutation();
 
   const { toast } = useToast();
-
+  // currently its nonsense and not definable till we have a proper attribute for it
   const currentAlgorithm =
-    userAlgorithm ??
+    { ...userAlgorithm, id: crypto.randomUUID() } ??
     getAlgorithmsQuery.data?.find((d) => d.id === selectedAlgorithm);
 
   const {
@@ -191,9 +191,10 @@ const CodeExecutionControlBar = ({
         <Button
           onClick={() => {
             if (
-              currentAlgorithm?.code &&
-              'id' in currentAlgorithm &&
-              typeof currentAlgorithm.id === 'string'
+              currentAlgorithm?.code
+              // &&
+              // 'id' in currentAlgorithm &&
+              // typeof currentAlgorithm.id === 'string'
             ) {
               codeMutation.mutate({
                 // code: currentAlgorithm.code,
