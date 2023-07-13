@@ -45,6 +45,8 @@ export const useCodeMutation = () => {
       algoID,
       type,
       lens,
+      endNode,
+      startNode,
     }: {
       algo: Pick<
         ArrayItem<ReturnType<typeof useGetAlgorithmsQuery>['data']>,
@@ -53,26 +55,19 @@ export const useCodeMutation = () => {
       algoID: string;
       type: AlgoType;
       lens?: ValidatorLensInfo;
+      startNode: string | null;
+      endNode: string | null;
     }) => {
-      console.group('mutating', adjacencyList);
       const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
       if (!url) Promise.reject();
-
+      console.log('sending tis out', startNode, endNode);
       const res = await axios.post(url, {
         code: algo.code,
         globalVar: adjacencyList,
+        startNode,
+        endNode,
       });
 
-      // const dataSchema = z.object({
-      //   data: z.object({
-      //     result: z.object({
-      //       exitValue: z.union([z.array(z.array(z.string())), z.boolean() ]),
-
-      //       logs: z.array(z.array(z.unknown())),
-      //     }),
-      //   }),
-      // });
-      // tagged union, if type is validator, its array of array of strings, if visualizer, its boolean
       const dataSchema = z.union([
         z.object({
           data: z.object({

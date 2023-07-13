@@ -86,7 +86,16 @@ const CodeExecution = ({
   const currentAlgorithm = getAlgorithmsQuery.data?.find(
     (d) => d.id === selectedAlgorithm
   );
+
+  // const code = userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE ? userAlgorithm.code ?? currentAlgorithm?.code: userAlgorithm.code;
   // console.log('all algos', getAlgorithmsQuery.data);
+
+  // const code = currentAlgorithm?.code ?? userAlgorithm.code;
+  const code =
+    userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE
+      ? userAlgorithm.code
+      : currentAlgorithm?.code ?? DEFAULT_VISUALIZATION_CODE;
+  // console.log('right tab code', code);
 
   const execMode = useAppSelector((store) => store.codeExec.mode);
   const isValidatorLens = currentAlgorithm?.type === 'validator';
@@ -133,7 +142,7 @@ const CodeExecution = ({
                     ? 'light'
                     : 'vs-dark'
                 }
-                value={currentAlgorithm?.code ?? userAlgorithm.code}
+                value={code}
                 // this doesn't make sense without edit functionality will do that next
                 onChange={(value) => {
                   if (value) {

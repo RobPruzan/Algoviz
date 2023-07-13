@@ -31,6 +31,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { match } from 'ts-pattern';
 import {
+  DEFAULT_VISUALIZATION_CODE,
   getSelectedItems,
   getValidatorLensSelectedIds,
   twCond,
@@ -89,7 +90,7 @@ const parseCode = ({
     );
   }
 
-  console.log(codeWithAddedParameters);
+  // console.log(codeWithAddedParameters);
 
   return codeWithAddedParameters;
 };
@@ -124,7 +125,7 @@ const parseCodeAndAddParameters = ({
   const startNodeText = !hasStartNode ? startNodeAnnotation : '';
   const endNodeText = !hasEndNode ? endNodeAnnotation : '';
 
-  console.log('hasStartNode', hasStartNode, 'hasEndNode', hasEndNode);
+  // console.log('hasStartNode', hasStartNode, 'hasEndNode', hasEndNode);
 
   while (pointer + 1 < code.length) {
     if (code[pointer] === ')' && code[pointer + 1] === ':') {
@@ -180,15 +181,20 @@ const CodeExecutionControlBar = ({
 
   const { toast } = useToast();
   // currently its nonsense and not definable till we have a proper attribute for it
-  const currentAlgorithm =
-    { ...userAlgorithm, id: crypto.randomUUID() } ??
-    getAlgorithmsQuery.data?.find((d) => d.id === selectedAlgorithm);
+  // const currentAlgorithm =
+  //   { ...userAlgorithm, id: crypto.randomUUID() } ??
+  //   getAlgorithmsQuery.data?.find((d) => d.id === selectedAlgorithm);
+  const currentAlgorithm = getAlgorithmsQuery.data?.find(
+    (d) => d.id === selectedAlgorithm
+  );
 
   const {
     attachableLines,
     circles,
     selectedGeometryInfo,
     validatorLensContainer,
+    endNode,
+    startNode,
   } = useAppSelector((store) => store.canvas);
 
   const { selectedAttachableLines, selectedCircles } = getSelectedItems({
@@ -205,6 +211,12 @@ const CodeExecutionControlBar = ({
 
   const isValidatorLens = currentAlgorithm?.type === 'validator';
 
+  // const code = userAlgorithm.code ?? currentAlgorithm?.code;
+  const code =
+    userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE
+      ? userAlgorithm.code
+      : currentAlgorithm?.code ?? DEFAULT_VISUALIZATION_CODE;
+
   useEffect(() => {
     validatorLensContainer.forEach((lens) => {
       if (lens.selectedIds.length > 0) {
@@ -220,6 +232,8 @@ const CodeExecutionControlBar = ({
             algo: lensAlgo,
             type: AlgoType.Validator,
             lens,
+            startNode,
+            endNode,
           });
         } else {
         }
@@ -278,7 +292,7 @@ const CodeExecutionControlBar = ({
                       setUserAlgorithm((prev) => ({
                         ...prev,
                         code: parseCode({
-                          code: prev.code,
+                          code,
                           passEndNode: codeExecParameters.passEndNode,
                           passStartNode: checkedState,
                         }),
@@ -308,7 +322,7 @@ const CodeExecutionControlBar = ({
                       setUserAlgorithm((prev) => ({
                         ...prev,
                         code: parseCode({
-                          code: prev.code,
+                          code,
                           passEndNode: checkedState,
                           passStartNode: codeExecParameters.passStartNode,
                         }),
@@ -370,6 +384,8 @@ const CodeExecutionControlBar = ({
                 // algo: currentAlgorithm,
                 algo: { code: currentAlgorithm.code },
                 algoID: currentAlgorithm.id,
+                endNode,
+                startNode,
               });
             } else {
               toast({

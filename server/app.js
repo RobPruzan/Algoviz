@@ -7,11 +7,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.post('/exec', (req, res) => {
-  const { code, globalVar, type } = req.body;
+  const { code, globalVar, startNode, endNode } = req.body;
+  console.log('incoming ', req.body);
   // console.log('incoming code', globalVar);
   // console.log('incoming val', req.body);
   const jsCode = ts.transpileModule(
-    code + `JSON.stringify({exitValue: algorithm(globalVar), logs);`,
+    code +
+      `JSON.stringify({exitValue: algorithm(globalVar, startNode, endNode), logs);`,
     {
       compilerOptions: {
         target: 'ES2020',
@@ -33,6 +35,8 @@ app.post('/exec', (req, res) => {
   const sandbox = {
     globalVar,
     logs,
+    startNode,
+    endNode,
     console: {
       log: function (...args) {
         sandbox.logs.push(...args);

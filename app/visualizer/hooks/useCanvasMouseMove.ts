@@ -164,231 +164,53 @@ export const useCanvasMouseMove = ({
                 meta
               )
             );
-            // console.log('the selected ids are', )
 
             break;
           case 'circle':
-            const activeCircle = circles.find(
-              (circle) => circle.id === selectedCircleID
-            );
-            if (!activeCircle) return;
-
-            const nodeOneConnectedLine = Canvas.getLineAttachedToNodeReciever({
-              attachableLines,
-              activeCircle,
-              nodeConnectedSide: 'one',
-            });
-            const nodeTwoConnectedLine = Canvas.getLineAttachedToNodeReciever({
-              attachableLines,
-              activeCircle,
-              nodeConnectedSide: 'two',
-            });
-            // this needs to be cleaned up
-            const newCircle: CircleReceiver = {
-              ...activeCircle,
-              center: [
-                activeCircle.nodeReceiver.center[0] - shift[0],
-                activeCircle.nodeReceiver.center[1] - shift[1],
-              ],
-              nodeReceiver: {
-                ...activeCircle.nodeReceiver,
-                center: [
-                  activeCircle.nodeReceiver.center[0] - shift[0],
-                  activeCircle.nodeReceiver.center[1] - shift[1],
-                ],
-              },
-            };
-            if (nodeOneConnectedLine) {
-              const newAttachedLine = Canvas.builtUpdatedAttachedLine({
-                circleReciever: newCircle,
-                currentLine: nodeOneConnectedLine,
-                nodeRecieverType: 'one',
-              });
-
+            selectedCircleID &&
               dispatch(
-                CanvasActions.replaceAttachableLine(newAttachedLine, meta)
+                CanvasActions.handleMoveCircle(
+                  { shift, selectedCircleID },
+                  meta
+                )
               );
-            }
-            if (nodeTwoConnectedLine) {
-              const newAttachedLine = Canvas.builtUpdatedAttachedLine({
-                circleReciever: newCircle,
-                currentLine: nodeTwoConnectedLine,
-                nodeRecieverType: 'two',
-              });
-              dispatch(
-                CanvasActions.replaceAttachableLine(newAttachedLine, meta)
-              );
-            }
-
-            dispatch(CanvasActions.replaceCircle(newCircle, meta));
 
             break;
           case 'line':
-            // why am i still normal shifting this??
-            const activeRect = attachableLines.find(
-              (rect) => rect.id === selectedAttachableLine?.id
-            );
-
-            if (!activeRect) return;
-
-            const newRect: Edge = {
-              ...activeRect,
-              x1: activeRect.x1 - shift[0],
-              y1: activeRect.y1 - shift[1],
-              x2: activeRect.x2 - shift[0],
-              y2: activeRect.y2 - shift[1],
-              attachNodeOne: {
-                ...activeRect.attachNodeOne,
-                connectedToId: null,
-                center: [activeRect.x1 - shift[0], activeRect.y1 - shift[1]],
-              },
-              attachNodeTwo: {
-                ...activeRect.attachNodeTwo,
-                connectedToId: null,
-                center: [activeRect.x2 - shift[0], activeRect.y2 - shift[1]],
-              },
-            };
-            const filteredCircles = circles.map((circle) => {
-              return {
-                ...circle,
-                nodeReceiver: {
-                  ...circle.nodeReceiver,
-                  attachedIds: circle.nodeReceiver.attachedIds.filter(
-                    (id) =>
-                      !(id === activeRect.attachNodeOne.id) &&
-                      !(id === activeRect.attachNodeTwo.id)
-                  ),
-                },
-              };
-            });
-
-            dispatch(CanvasActions.setCircles(filteredCircles, meta));
-            dispatch(CanvasActions.replaceAttachableLine(newRect, meta));
-            break;
+            selectedAttachableLine?.id &&
+              dispatch(
+                CanvasActions.handleMoveLine(
+                  {
+                    shift,
+                    selectedAttachableLineID: selectedAttachableLine.id,
+                  },
+                  meta
+                )
+              );
           case 'node1':
-            const activeRectContainingNodeOne = attachableLines.find(
-              (rect) => rect.attachNodeOne.id === selectedAttachableLine?.id
-            );
-            if (!activeRectContainingNodeOne) return;
-
-            const newRectContainingNodeOne: Edge = {
-              ...activeRectContainingNodeOne,
-              x1: mousePositionX,
-              y1: mousePositionY,
-              attachNodeOne: {
-                ...activeRectContainingNodeOne.attachNodeOne,
-                center: [mousePositionX, mousePositionY],
-              },
-            };
-
-            const intersectingCircleOne =
-              Canvas.findConnectorIntersectingConnector({
-                circle: activeRectContainingNodeOne.attachNodeOne,
-                circles: circles.map((c) => c.nodeReceiver),
-              });
-
-            if (intersectingCircleOne) {
-              newRectContainingNodeOne.x1 = intersectingCircleOne.center[0];
-              newRectContainingNodeOne.y1 = intersectingCircleOne.center[1];
-              newRectContainingNodeOne.attachNodeOne.center = [
-                newRectContainingNodeOne.x1,
-                newRectContainingNodeOne.y1,
-              ];
-
-              newRectContainingNodeOne.attachNodeOne.connectedToId =
-                intersectingCircleOne.id;
-
-              const newIntersectingCircleOne: NodeReceiver = {
-                ...intersectingCircleOne,
-                attachedIds: Canvas.concatIdUniquely(
-                  activeRectContainingNodeOne.attachNodeOne.id,
-                  intersectingCircleOne.attachedIds
-                ),
-              };
-              const nodeRecieverContainerOne = circles.find(
-                (c) => c.nodeReceiver.id === newIntersectingCircleOne.id
+            selectedAttachableLine?.id &&
+              dispatch(
+                CanvasActions.handleMoveNodeOne(
+                  {
+                    shift,
+                    selectedAttachableLineID: selectedAttachableLine.id,
+                    mousePos: [mousePositionX, mousePositionY],
+                  },
+                  meta
+                )
               );
-
-              nodeRecieverContainerOne &&
-                dispatch(
-                  CanvasActions.replaceCircle(
-                    {
-                      ...nodeRecieverContainerOne,
-                      nodeReceiver: newIntersectingCircleOne,
-                    },
-                    meta
-                  )
-                );
-            }
-
-            dispatch(
-              CanvasActions.replaceAttachableLine(
-                newRectContainingNodeOne,
-                meta
-              )
-            );
-            break;
           case 'node2':
-            const activeRectContainingNodeTwo = attachableLines.find(
-              (rect) => rect.attachNodeTwo.id === selectedAttachableLine?.id
-            );
-            if (!activeRectContainingNodeTwo) return;
-            const newRectContainingNodeTwo: Edge = {
-              ...activeRectContainingNodeTwo,
-              x2: mousePositionX,
-              y2: mousePositionY,
-              attachNodeTwo: {
-                ...activeRectContainingNodeTwo.attachNodeTwo,
-                center: [mousePositionX, mousePositionY],
-              },
-            };
-
-            const intersectingCircleTwo =
-              Canvas.findConnectorIntersectingConnector({
-                circle: activeRectContainingNodeTwo.attachNodeTwo,
-                circles: circles.map((c) => c.nodeReceiver),
-              });
-
-            if (intersectingCircleTwo) {
-              newRectContainingNodeTwo.x2 = intersectingCircleTwo.center[0];
-              newRectContainingNodeTwo.y2 = intersectingCircleTwo.center[1];
-              newRectContainingNodeTwo.attachNodeTwo.center = [
-                newRectContainingNodeTwo.x2,
-                newRectContainingNodeTwo.y2,
-              ];
-
-              newRectContainingNodeTwo.attachNodeTwo.connectedToId =
-                intersectingCircleTwo.id;
-
-              const newIntersectingCircleTwo: NodeReceiver = {
-                ...intersectingCircleTwo,
-                attachedIds: Canvas.concatIdUniquely(
-                  activeRectContainingNodeTwo.attachNodeTwo.id,
-                  intersectingCircleTwo.attachedIds
-                ),
-              };
-              const nodeConnectorContainerTwo = circles.find(
-                (c) => c.nodeReceiver.id === newIntersectingCircleTwo.id
+            selectedAttachableLine?.id &&
+              dispatch(
+                CanvasActions.handleMoveNodeTwo(
+                  {
+                    shift,
+                    selectedAttachableLineID: selectedAttachableLine.id,
+                    mousePos: [mousePositionX, mousePositionY],
+                  },
+                  meta
+                )
               );
-
-              nodeConnectorContainerTwo &&
-                dispatch(
-                  CanvasActions.replaceCircle(
-                    {
-                      ...nodeConnectorContainerTwo,
-                      nodeReceiver: newIntersectingCircleTwo,
-                    },
-                    meta
-                  )
-                );
-            }
-            dispatch(
-              CanvasActions.replaceAttachableLine(
-                newRectContainingNodeTwo,
-                meta
-              )
-            );
-            break;
           default:
             if (selectBox) {
               const adjustableCord: [number, number] = [
