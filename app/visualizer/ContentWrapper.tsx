@@ -117,6 +117,7 @@ const ContentWrapper = ({ shapes }: Props) => {
             selectedValidatorLens={selectedValidatorLens}
             setSelectedValidatorLens={setSelectedValidatorLens}
             setUserAlgorithm={setUserAlgorithm}
+            userAlgorithm={userAlgorithm}
           />
         </div>
       }

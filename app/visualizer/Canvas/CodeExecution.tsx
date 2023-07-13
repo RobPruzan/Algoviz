@@ -26,6 +26,7 @@ type Props = {
       Pick<Algorithm, 'code' | 'description' | 'title' | 'type'>
     >
   >;
+  userAlgorithm: Pick<Algorithm, 'code' | 'description' | 'title' | 'type'>;
   setSelectedValidatorLens: React.Dispatch<
     React.SetStateAction<SelectedValidatorLens | null>
   >;
@@ -33,7 +34,11 @@ type Props = {
   codeMutation: ReturnType<typeof useCodeMutation>;
 };
 
-const CodeExecution = ({ setUserAlgorithm, codeMutation }: Props) => {
+const CodeExecution = ({
+  setUserAlgorithm,
+  userAlgorithm,
+  codeMutation,
+}: Props) => {
   const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
     '40%'
@@ -128,7 +133,7 @@ const CodeExecution = ({ setUserAlgorithm, codeMutation }: Props) => {
                     ? 'light'
                     : 'vs-dark'
                 }
-                value={currentAlgorithm?.code ?? defaultCode}
+                value={currentAlgorithm?.code ?? userAlgorithm.code}
                 // this doesn't make sense without edit functionality will do that next
                 onChange={(value) => {
                   if (value) {

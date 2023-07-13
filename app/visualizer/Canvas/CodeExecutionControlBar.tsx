@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
+
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 
@@ -48,6 +50,105 @@ type Props = {
   codeMutation: ReturnType<typeof useCodeMutation>;
 };
 
+const startNodeAnnotation = ', startNode: NodeID';
+const endNodeAnnotation = ', endNode: NodeID';
+
+type CodeExecParameters = {
+  passStartNode: boolean;
+  passEndNode: boolean;
+};
+
+const parseCode = ({
+  code,
+  passEndNode,
+  passStartNode,
+}: CodeExecParameters & { code: string }) => {
+  let codeWithAddedParameters = parseCodeAndAddParameters({
+    code,
+    passEndNode,
+    passStartNode,
+  });
+
+  // const codeWithRemovedParameters = parseCodeAndRemoveParameters({
+  //   code: codeWithAddedParameters,
+  //   passEndNode,
+  //   passStartNode,
+  // });
+
+  if (!passStartNode) {
+    codeWithAddedParameters = codeWithAddedParameters.replace(
+      startNodeAnnotation,
+      ''
+    );
+  }
+
+  if (!passEndNode) {
+    codeWithAddedParameters = codeWithAddedParameters.replace(
+      endNodeAnnotation,
+      ''
+    );
+  }
+
+  console.log(codeWithAddedParameters);
+
+  return codeWithAddedParameters;
+};
+
+const parseCodeAndRemoveParameters = ({
+  code,
+  passEndNode,
+  passStartNode,
+}: CodeExecParameters & { code: string }) => {
+  if (!passStartNode) {
+    code.replace(startNodeAnnotation, '');
+  }
+
+  if (!passEndNode) {
+    code.replace(endNodeAnnotation, '');
+  }
+
+  return code;
+};
+
+const parseCodeAndAddParameters = ({
+  passEndNode,
+  passStartNode,
+  code,
+}: CodeExecParameters & { code: string }) => {
+  let newCode: string = '';
+  let pointer = 0;
+
+  const tokens = code.split(' ');
+  const hasStartNode = tokens.some((token) => token === 'startNode:');
+  const hasEndNode = tokens.some((token) => token === 'endNode:');
+  const startNodeText = !hasStartNode ? startNodeAnnotation : '';
+  const endNodeText = !hasEndNode ? endNodeAnnotation : '';
+
+  console.log('hasStartNode', hasStartNode, 'hasEndNode', hasEndNode);
+
+  while (pointer + 1 < code.length) {
+    if (code[pointer] === ')' && code[pointer + 1] === ':') {
+      if (passStartNode && passEndNode) {
+        newCode += startNodeText;
+        newCode += endNodeText;
+      } else if (passStartNode) {
+        newCode += startNodeText;
+      } else if (passEndNode) {
+        newCode += endNodeText;
+      }
+    }
+
+    newCode += code[pointer];
+    pointer++;
+
+    // while
+  }
+
+  newCode += code[pointer];
+
+  return newCode;
+};
+
 const CodeExecutionControlBar = ({
   setUserAlgorithm,
   userAlgorithm,
@@ -55,6 +156,11 @@ const CodeExecutionControlBar = ({
 }: Props) => {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<AlgoType>(AlgoType.Visualizer);
+  const [codeExecParameters, setCodeExecParameters] =
+    useState<CodeExecParameters>({
+      passStartNode: true,
+      passEndNode: true,
+    });
 
   const isApplyingAlgorithm = useAppSelector(
     (store) => store.codeExec.isApplyingAlgorithm
@@ -96,7 +202,6 @@ const CodeExecutionControlBar = ({
     circles,
     validatorLensContainer,
   }).join(',');
-  console.log('selected atatchable ');
 
   const isValidatorLens = currentAlgorithm?.type === 'validator';
 
@@ -117,12 +222,10 @@ const CodeExecutionControlBar = ({
             lens,
           });
         } else {
-          console.log('i aint dispatching that', lensAlgo);
         }
-      } else {
-        console.log('fucker', lens.selectedIds);
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedIds]);
 
   return (
@@ -164,6 +267,68 @@ const CodeExecutionControlBar = ({
                   }
                 />
               )}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  // value={codeExecParameters.passStartNode}
+                  // onChange={(e) => setCodeExecParameters}
+                  checked={codeExecParameters.passStartNode}
+                  onCheckedChange={(checkedState) =>
+                    typeof checkedState == 'boolean' &&
+                    setCodeExecParameters((prev) => {
+                      setUserAlgorithm((prev) => ({
+                        ...prev,
+                        code: parseCode({
+                          code: prev.code,
+                          passEndNode: codeExecParameters.passEndNode,
+                          passStartNode: checkedState,
+                        }),
+                      }));
+                      return {
+                        ...prev,
+                        passStartNode: checkedState,
+                      };
+                    })
+                  }
+                  id="start-node"
+                />
+                <label
+                  htmlFor="start-node"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Pass start node
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="end-node"
+                  checked={codeExecParameters.passEndNode}
+                  onCheckedChange={(checkedState) =>
+                    typeof checkedState == 'boolean' &&
+                    setCodeExecParameters((prev) => {
+                      setUserAlgorithm((prev) => ({
+                        ...prev,
+                        code: parseCode({
+                          code: prev.code,
+                          passEndNode: checkedState,
+                          passStartNode: codeExecParameters.passStartNode,
+                        }),
+                      }));
+                      return {
+                        ...prev,
+                        passEndNode: checkedState,
+                      };
+                    })
+                  }
+                />
+
+                <label
+                  htmlFor="end-node"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Pass end node
+                </label>
+              </div>
+
               {/* <div className="flex items-center space-x-2">
                 <Switch
                   onCheckedChange={(val) => {
