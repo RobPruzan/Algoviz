@@ -54,6 +54,8 @@ export type CanvasState = {
     type: 'canvas-action';
     actionType: CanvasControlBarActions | null;
   };
+  startNode: string | null;
+  endNode: string | null;
 };
 
 const initialState: CanvasState = {
@@ -70,6 +72,8 @@ const initialState: CanvasState = {
     actionType: null,
     type: 'canvas-action',
   },
+  endNode: null,
+  startNode: null,
 };
 
 export type Meta = {
@@ -89,6 +93,13 @@ const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    setStartNode: withCanvasMeta<string>((state, action) => {
+      state.startNode = action.payload;
+    }),
+    setEndNode: withCanvasMeta<string>((state, action) => {
+      state.endNode = action.payload;
+    }),
+
     setValidationVisualization: (
       state,
       action: PayloadAction<Pick<ValidatorLensInfo, 'id' | 'result'>>

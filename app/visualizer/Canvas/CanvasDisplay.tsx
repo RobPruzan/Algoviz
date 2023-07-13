@@ -81,12 +81,6 @@ const CanvasDisplay = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
-  // const [pencilCoordinates, setPencilCoordinates] = useState<PencilCoordinates>(
-  //   {
-  //     drawingCoordinates: [],
-  //     drawnCoordinates: [],
-  //   }
-  // );
   const selectedGeometryInfo = useAppSelector(
     (store) => store.canvas.selectedGeometryInfo
   );
@@ -97,19 +91,18 @@ const CanvasDisplay = ({
     circles,
     validatorLensContainer,
     pencilCoordinates,
+    creationZoomFactor, // need to make this updated on load of playground
+    endNode,
+    startNode,
   } = useAppSelector((store) => store.canvas);
   const { collabInfos } = useAppSelector((store) => store.collaborationState);
-  // console.log('real data', collabInfos);
   const isMouseDownRef = useRef(false);
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
 
-  // const [selected]
   const { visualization, visualizationPointer, error } = useAppSelector(
     (store) => store.codeExec
   );
-
-  // const validatorLensContainer = useAppSelector(store => store.canvas.validatorLensContainer)
 
   if (error) {
     console.error('error', error);
@@ -176,12 +169,6 @@ const CanvasDisplay = ({
     attachableLines,
     circles,
     selectedGeometryInfo,
-  });
-
-  const selectedIds = getValidatorLensSelectedIds({
-    attachableLines,
-    circles,
-    validatorLensContainer,
   });
 
   const adjacencyList: Record<string, string[]> = [
@@ -264,7 +251,11 @@ const CanvasDisplay = ({
     const ctx = canvas?.getContext('2d');
     if (!ctx) return;
     if (!canvas) return;
-
+    const selectedIds = getValidatorLensSelectedIds({
+      attachableLines,
+      circles,
+      validatorLensContainer,
+    });
     ctx.globalAlpha = 0.5; // Set the transparency
     Draw.optimizeCanvas({
       ctx,
@@ -323,6 +314,8 @@ const CanvasDisplay = ({
       theme: themeInfo.theme ?? 'dark',
       // validationNodes: validation,
       validatorLensContainer,
+      endNode,
+      startNode,
     });
     Draw.drawValidatorLens({
       ctx,
@@ -376,9 +369,11 @@ const CanvasDisplay = ({
     collabInfos,
     canvasWidth,
     userID,
-
+    algos.data,
     validatorLensContainer,
     selectedValidatorLens,
+    endNode,
+    startNode,
   ]);
 
   return (
@@ -493,6 +488,29 @@ const CanvasDisplay = ({
                 Show code
               </ContextMenuItem>
             )}
+
+            <ContextMenuItem
+              onClick={() => {
+                if (selectedCircleID) {
+                  dispatch(CanvasActions.setStartNode(selectedCircleID));
+                  setSelectedCircleID(null);
+                }
+              }}
+              inset
+            >
+              Set as starting node
+            </ContextMenuItem>
+            <ContextMenuItem
+              onClick={() => {
+                if (selectedCircleID) {
+                  dispatch(CanvasActions.setEndNode(selectedCircleID));
+                  setSelectedCircleID(null);
+                }
+              }}
+              inset
+            >
+              Set as ending node
+            </ContextMenuItem>
 
             <ContextMenuSub>
               <ContextMenuSubTrigger inset>Algorithms</ContextMenuSubTrigger>

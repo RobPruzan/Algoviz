@@ -20,6 +20,8 @@ export const drawNodes = ({
   selectedIds,
   visualizationNodes,
   theme,
+  endNode,
+  startNode,
   validatorLensContainer,
 }: {
   nodes: CircleReceiver[];
@@ -28,6 +30,8 @@ export const drawNodes = ({
   selectedIds: Array<string> | undefined;
   visualizationNodes: string[];
   validatorLensContainer: ValidatorLensInfo[];
+  endNode: string | null;
+  startNode: string | null;
   theme: string;
 }) => {
   ctx.save();
@@ -46,6 +50,15 @@ export const drawNodes = ({
     if (visualizationNodes.includes(node.id)) {
       ctx.fillStyle = 'green';
     }
+
+    if (node.id === startNode) {
+      ctx.fillStyle = 'blue';
+    }
+
+    if (node.id === endNode) {
+      ctx.fillStyle = 'red';
+    }
+
     const currentLens = validatorLensContainer.find((lens) =>
       lens.selectedIds.includes(node.id)
     );
