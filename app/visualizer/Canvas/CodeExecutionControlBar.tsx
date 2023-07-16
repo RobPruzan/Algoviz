@@ -90,8 +90,6 @@ const parseCode = ({
     );
   }
 
-  // console.log(codeWithAddedParameters);
-
   return codeWithAddedParameters;
 };
 
@@ -124,8 +122,6 @@ const parseCodeAndAddParameters = ({
   const hasEndNode = tokens.some((token) => token === 'endNode:');
   const startNodeText = !hasStartNode ? startNodeAnnotation : '';
   const endNodeText = !hasEndNode ? endNodeAnnotation : '';
-
-  // console.log('hasStartNode', hasStartNode, 'hasEndNode', hasEndNode);
 
   while (pointer + 1 < code.length) {
     if (code[pointer] === ')' && code[pointer + 1] === ':') {
@@ -223,7 +219,7 @@ const CodeExecutionControlBar = ({
         const lensAlgo = getAlgorithmsQuery.data?.find(
           (d) => d.id === lens.algoId
         );
-        // console.log('mi lens algo', lensAlgo);
+
         if (lensAlgo) {
           codeMutation.mutate({
             // code: lensAlgo.code,
@@ -347,7 +343,7 @@ const CodeExecutionControlBar = ({
                 <Switch
                   onCheckedChange={(val) => {
                     dispatch(CodeExecActions.setApplyAlgoToWholeApp(val));
-                    console.log(val);
+
                   }}
                   checked={appliedToWholeApp}
                   className=" border-2 data-[state=unchecked]:bg-secondary data-[state=unchecked]:border-gray-800  data-[state=checked]:bg-foreground data-[state=checked]:border-gray-100"

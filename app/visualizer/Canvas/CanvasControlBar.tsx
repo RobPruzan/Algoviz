@@ -64,8 +64,12 @@ const CanvasControlBar = ({
   notSignedInUserId,
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { circles, creationZoomFactor, attachableLines, cameraCoordinate } =
-    useAppSelector((store) => store.canvas);
+  const {
+    circles,
+    currentZoomFactor: creationZoomFactor,
+    attachableLines,
+    cameraCoordinate,
+  } = useAppSelector((store) => store.canvas);
   const [itemChecked, setItemChecked] = useState<null | string>(null);
   const searchParams = useSearchParams();
 
@@ -193,7 +197,7 @@ const CanvasControlBar = ({
       },
     };
 
-    dispatch(CanvasActions.addLine(newLine));
+    dispatch(CanvasActions.addLine(newLine, meta));
     dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
   };
 

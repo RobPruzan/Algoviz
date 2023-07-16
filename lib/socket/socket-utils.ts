@@ -14,20 +14,11 @@ export class SocketIO {
 
   constructor(url: string) {
     this.socket = null;
-    // if (typeof window !== 'undefined') {
-    //   console.log('client');
-    //   this.socket = io(url);
-    // } else {
-    //   console.log('servercode');
-
-    //   this.socket = null;
-    // }
   }
 
   getConnectedUsers(playgroundID: string) {
     return new Promise<(User | { id: string })[]>((resolve, reject) => {
       this.socket?.emit('get connected users', playgroundID, (users: []) => {
-        console.log('acknowleged users', users);
         resolve(users);
       });
     });
@@ -87,7 +78,6 @@ export class SocketIO {
       switch (data.type) {
         case 'circleReciever':
           if (data.senderID !== userID) {
-            // console.log('dispatching update');
             dispatch(CanvasActions.addCircle(data.state));
           }
         case 'edge':

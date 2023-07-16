@@ -13,7 +13,12 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-type Meta = { userID: string; playgroundID: string; fromServer?: boolean };
+type Meta = {
+  userID: string;
+  playgroundID: string;
+  fromServer?: boolean;
+  scaleFactor?: number;
+};
 type SocketAction = { type: string; payload: any } & { meta: Meta | undefined };
 
 type User = {
@@ -31,16 +36,11 @@ io.on('connect', (socket) => {
 
   // join room event
   socket.on('join playground', (playgroundID: string, user: User) => {
-    // console.log('User joined playground ' + playgroundID, playgroundUsers);
+
 
     // mainId = roomID;
     const usersInPlayground = playgroundUsers.get(playgroundID);
-    console.log(
-      'users in playground',
-      usersInPlayground,
-      'incoming user',
-      user
-    );
+
     if (usersInPlayground?.some((u) => u.id === user.id)) {
       return;
     }
@@ -51,7 +51,7 @@ io.on('connect', (socket) => {
       [...(usersInPlayground ?? []), user]
     );
 
-    console.log('users', playgroundUsers);
+
     socket.join(playgroundID);
   });
 
@@ -64,14 +64,14 @@ io.on('connect', (socket) => {
 
   socket.on('disconnect', () => {
     // playgroundUsers.set(mainId, (playgroundUsers.get(mainId) ?? 0) - 1);
-    console.log('users', playgroundUsers);
+
 
     console.log('user disconnected (-1)', new Date().getTime());
   });
 
   socket.on('get connected users', (playgroundID: string, acknowledgement) => {
     const usersInPlayground = playgroundUsers.get(playgroundID);
-    console.log('usersInPlayground', usersInPlayground);
+
 
     acknowledgement(usersInPlayground);
   });

@@ -70,7 +70,7 @@ const Playground = ({ playground, ...props }: Props) => {
         <div className="w-[25%] h-full flex flex-col items-end">
           <div className="h-1/5 w-1/2 flex justify-end">
             <Dialog open={openDelete} onOpenChange={setOpenDelete}>
-              <DialogTrigger onClick={() => console.log('dete')} asChild>
+              <DialogTrigger asChild>
                 <Button onClick={(e) => e.preventDefault()} variant={'ghost'}>
                   <Trash />
                 </Button>

@@ -120,7 +120,7 @@ export const useCanvasMouseMove = ({
             )
           );
           dispatch(CanvasActions.shiftLines({ shift }, meta));
-          dispatch(CanvasActions.shiftSelectBox({ shift }, meta));
+          dispatch(CanvasActions.shiftSelectBox({ shift }));
           previousMousePositionRef.current = [mousePositionX, mousePositionY];
           return;
         }
@@ -219,8 +219,6 @@ export const useCanvasMouseMove = ({
                 mousePositionX,
                 mousePositionY,
               ];
-              console.log('current p1', selectBox.p1);
-              console.log('new p2', adjustableCord);
 
               // simple check to make sure we have a select box first
               setSelectBox((prev) => {
@@ -231,10 +229,7 @@ export const useCanvasMouseMove = ({
                 });
 
                 dispatch(
-                  CanvasActions.setSelectedGeometryInfo(
-                    selectedGeometryInfo,
-                    meta
-                  )
+                  CanvasActions.setSelectedGeometryInfo(selectedGeometryInfo)
                 );
                 return prev?.p1 ? { ...prev, p2: adjustableCord } : null;
               });

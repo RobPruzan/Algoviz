@@ -60,7 +60,6 @@ export const useCodeMutation = () => {
     }) => {
       const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
       if (!url) Promise.reject();
-      console.log('sending tis out', startNode, endNode);
       const res = await axios.post(url, {
         code: algo.code,
         globalVar: adjacencyList,
@@ -100,10 +99,6 @@ export const useCodeMutation = () => {
         }),
       ]);
 
-      console.log('buh buh buuuuuu', {
-        data: { result: { ...res.data.data.result, type } },
-      });
-
       const parsed = dataSchema.parse({
         data: { result: { ...res.data.data.result, type } },
       });
@@ -114,10 +109,8 @@ export const useCodeMutation = () => {
       console.error('wah wah', err);
     },
     onSuccess: (data, ctx) => {
-      console.log('returned data', data, ctx);
       match(data)
         .with({ type: AlgoType.Validator }, ({ exitValue }) => {
-          console.log('da exit value', exitValue);
           if (ctx.lens?.id) {
             // this all fucking sucks and i cant think straight
             // i need to remap all these actions so the state is in canvas
@@ -141,7 +134,6 @@ export const useCodeMutation = () => {
               message: errorInfo.error,
             })
           );
-          console.log('error', errorInfo);
         })
         .otherwise((_) => console.log('no match'));
 

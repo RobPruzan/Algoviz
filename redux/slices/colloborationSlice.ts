@@ -36,14 +36,12 @@ export const collaborationStateReducer = createSlice({
     },
 
     addCollabInfo: withCollabMeta<CollabInfo>((state, action) => {
-      console.log('new colab info', action.payload);
       if (
         !state.collabInfos.some(
           (collabInfo) => collabInfo.user.id === action.payload.user.id
         )
       )
         state.collabInfos = [...state.collabInfos, action.payload];
-      // console.log('new state', state.collabInfos);
     }),
     addUser: withCollabMeta<NextUser | { id: string }>((state, action) => {
       let setUser = false;
@@ -54,8 +52,6 @@ export const collaborationStateReducer = createSlice({
           break;
         }
       }
-
-      console.log('set user', action.payload, setUser);
 
       if (!setUser) {
         state.collabInfos = [
@@ -69,15 +65,6 @@ export const collaborationStateReducer = createSlice({
     }),
 
     setUserMousePosition: withCollabMeta<CollabInfo>((state, action) => {
-      // console.log(
-      //   'huh',
-      //   // state.collabInfos
-      //   // 'yo dispatching usermouse pos', collabInfos,
-      //   state.collabInfos.find((c) => c.user.id === action.meta?.userID)
-      //     ?.mousePosition,
-      //   state.collabInfos.find((c) => c.user.id === action.meta?.userID)?.user
-      // );
-
       for (const info of state.collabInfos) {
         if (info.user.id === action.payload.user.id) {
           info.mousePosition = action.payload.mousePosition;

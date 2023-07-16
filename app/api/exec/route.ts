@@ -15,7 +15,6 @@ export async function POST(request: Request) {
   const { code, globalVar, startNode, endNode } = parsedJson;
 
   if (url) {
-    console.log('sending this out', { code, globalVar, startNode, endNode });
     const res = await fetch(url, {
       method: 'POST',
       headers: {

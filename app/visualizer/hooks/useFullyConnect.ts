@@ -5,8 +5,12 @@ import { Dispatch, SetStateAction } from 'react';
 import * as Graph from '@/lib/graph';
 
 export const useFullyConnect = (meta: Meta) => {
-  const { circles, creationZoomFactor, attachableLines, selectedGeometryInfo } =
-    useAppSelector((store) => store.canvas);
+  const {
+    circles,
+    currentZoomFactor: creationZoomFactor,
+    attachableLines,
+    selectedGeometryInfo,
+  } = useAppSelector((store) => store.canvas);
   const selectedAttachableLines = attachableLines.filter((line) =>
     selectedGeometryInfo?.selectedIds.includes(line.id)
   );

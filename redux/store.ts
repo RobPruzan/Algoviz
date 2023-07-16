@@ -33,7 +33,7 @@ export function withMeta<TPayload, TState>(
 }
 
 export const socketMiddleware =
-  (socket: SocketIO): Middleware<{}, any> =>
+  (socketManager: SocketIO): Middleware<{}, any> =>
   ({ dispatch, getState }) =>
   (next) =>
   (action: SocketAction & { meta: Meta | undefined }) => {
@@ -44,26 +44,35 @@ export const socketMiddleware =
     switch (action.type) {
       case 'socket/connect':
         if (action.meta?.playgroundID) {
-          socket.socket = io('http://localhost:8080');
-          socket.joinPlayground(action.meta.playgroundID, action.meta.user);
-          socket.addActionListener((socketAction: SocketAction) => {
-            // console.log('receving action');
-
+          socketManager.socket = io('http://localhost:8080');
+          socketManager.joinPlayground(
+            action.meta.playgroundID,
+            action.meta.user
+          );
+          socketManager.addActionListener((socketAction: SocketAction) => {
             if (socketAction.meta.userID !== action.meta.userID) {
               // note, performance is pretty good with circles, but awful with boxes, investigate
               dispatch(socketAction);
             }
           });
         }
+        socketManager.socket?.on('user joined', (user: { id: string }) => {
+          dispatch(
+            collaborationStateReducer.actions.addUser({
+              id: user.id,
+              name: 'user',
+            })
+          );
+        });
         break;
       case 'socket/disconnect':
         if (action.meta?.playgroundID) {
-          socket.disconnect();
+          socketManager.disconnect();
         }
 
       default:
         if (isSharedAction && action.meta && !action.meta.fromServer) {
-          socket.sendSocketAction(action);
+          socketManager.sendSocketAction(action);
         }
     }
 

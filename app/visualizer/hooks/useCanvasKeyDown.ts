@@ -22,8 +22,12 @@ import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
 export const useCanvasKeyDown = (meta: Meta) => {
   const dispatch = useAppDispatch();
   const [copied, setCopied] = useState<Array<string>>([]);
-  const { attachableLines, circles, creationZoomFactor, selectedGeometryInfo } =
-    useAppSelector((store) => store.canvas);
+  const {
+    attachableLines,
+    circles,
+    currentZoomFactor: creationZoomFactor,
+    selectedGeometryInfo,
+  } = useAppSelector((store) => store.canvas);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
     // e.preventDefault();

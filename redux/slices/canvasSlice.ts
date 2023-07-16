@@ -50,7 +50,7 @@ export type CanvasState = {
   attachableLines: Edge[];
   selectedGeometryInfo: SelectedGeometryInfo | null;
   validatorLensContainer: ValidatorLensInfo[];
-  creationZoomFactor: number;
+  currentZoomFactor: number;
   pencilCoordinates: PencilCoordinates;
   selectedAction: {
     type: 'canvas-action';
@@ -65,7 +65,7 @@ const initialState: CanvasState = {
   attachableLines: [],
   circles: [],
   validatorLensContainer: [],
-  creationZoomFactor: 1,
+  currentZoomFactor: 1,
   selectedGeometryInfo: null,
   pencilCoordinates: {
     drawingCoordinates: [],
@@ -85,6 +85,7 @@ export type Meta = {
   playgroundID: string | null;
   user: User | { id: string | null };
   fromServer?: boolean;
+  scaleFactor?: number;
 };
 
 type MetaParams<TPayload> = FirstParameter<
@@ -257,29 +258,32 @@ const canvasSlice = createSlice({
         (rect) => rect.id === action.payload.selectedAttachableLineID
       );
 
+      const shiftX = action.meta?.scaleFactor
+        ? (action.payload.shift[0] / action.meta?.scaleFactor) *
+          state.currentZoomFactor
+        : action.payload.shift[0];
+      const shiftY = action.meta?.scaleFactor
+        ? (action.payload.shift[1] / action.meta?.scaleFactor) *
+          state.currentZoomFactor
+        : action.payload.shift[1];
+
       if (!activeRect) return;
 
       const newRect: Edge = {
         ...activeRect,
-        x1: activeRect.x1 - action.payload.shift[0],
-        y1: activeRect.y1 - action.payload.shift[1],
-        x2: activeRect.x2 - action.payload.shift[0],
-        y2: activeRect.y2 - action.payload.shift[1],
+        x1: activeRect.x1 - shiftX,
+        y1: activeRect.y1 - shiftY,
+        x2: activeRect.x2 - shiftX,
+        y2: activeRect.y2 - shiftY,
         attachNodeOne: {
           ...activeRect.attachNodeOne,
           connectedToId: null,
-          center: [
-            activeRect.x1 - action.payload.shift[0],
-            activeRect.y1 - action.payload.shift[1],
-          ],
+          center: [activeRect.x1 - shiftX, activeRect.y1 - shiftY],
         },
         attachNodeTwo: {
           ...activeRect.attachNodeTwo,
           connectedToId: null,
-          center: [
-            activeRect.x2 - action.payload.shift[0],
-            activeRect.y2 - action.payload.shift[1],
-          ],
+          center: [activeRect.x2 - shiftX, activeRect.y2 - shiftY],
         },
       };
       const filteredCircles = state.circles.map((circle) => {
@@ -324,18 +328,39 @@ const canvasSlice = createSlice({
           activeCircle,
           nodeConnectedSide: 'two',
         });
+
+        const shiftX = action.meta?.fromServer
+          ? (action.payload.shift[0] / (action.meta?.scaleFactor ?? 1)) *
+            state.currentZoomFactor
+          : action.payload.shift[0];
+        // we cut the amount the user shifts our circle by how much they are zoomed in for
+        // then we cancel that out by how much we are curently zoomed
+        // if the user is 5x zoomed, their circle should have a 1/5th shift in our coordinate system (assuming we are 1x zoomed)
+        // but if we are also 5x zoomed, we expect a 1:1 shift, that's why divide by recieved meta zoom, multiply by our current zooms
+        const shiftY = action.meta?.fromServer
+          ? (action.payload.shift[1] / (action.meta?.scaleFactor ?? 1)) *
+            state.currentZoomFactor
+          : action.payload.shift[1];
+
+        console.log(
+          'shift factor',
+          action.meta?.scaleFactor,
+          'current client shiftfactor',
+          state.currentZoomFactor
+        );
+
         // this needs to be cleaned up
         const newCircle: CircleReceiver = {
           ...activeCircle,
           center: [
-            activeCircle.nodeReceiver.center[0] - action.payload.shift[0],
-            activeCircle.nodeReceiver.center[1] - action.payload.shift[1],
+            activeCircle.nodeReceiver.center[0] - shiftX,
+            activeCircle.nodeReceiver.center[1] - shiftY,
           ],
           nodeReceiver: {
             ...activeCircle.nodeReceiver,
             center: [
-              activeCircle.nodeReceiver.center[0] - action.payload.shift[0],
-              activeCircle.nodeReceiver.center[1] - action.payload.shift[1],
+              activeCircle.nodeReceiver.center[0] - shiftX,
+              activeCircle.nodeReceiver.center[1] - shiftY,
             ],
           },
         };
@@ -385,13 +410,7 @@ const canvasSlice = createSlice({
       const lens = state.validatorLensContainer.find(
         (lens) => lens.id === action.payload.id
       );
-      console.log(
-        'got the following action: ',
-        action.payload,
-        '|',
-        'and found the following lens: ',
-        lens
-      );
+
       if (lens) {
         lens.result = action.payload.result;
       }
@@ -456,17 +475,20 @@ const canvasSlice = createSlice({
     }),
     panPencilCoordinates: withCanvasMeta<{ pan: [number, number] }>(
       (state, action) => {
+        const shiftX = action.meta?.scaleFactor
+          ? action.payload.pan[0] / action.meta.scaleFactor
+          : 0;
+        const shiftY = action.meta?.scaleFactor
+          ? action.payload.pan[1] / action.meta.scaleFactor
+          : 0;
         state.pencilCoordinates.drawingCoordinates =
           state.pencilCoordinates.drawingCoordinates.map((cord) => [
-            cord[0] - action.payload.pan[0],
-            cord[1] - action.payload.pan[1],
+            cord[0] - shiftX,
+            cord[1] - shiftY,
           ]);
         state.pencilCoordinates.drawnCoordinates =
           state.pencilCoordinates.drawnCoordinates.map((continuousCords) =>
-            continuousCords.map((cord) => [
-              cord[0] - action.payload.pan[0],
-              cord[1] - action.payload.pan[1],
-            ])
+            continuousCords.map((cord) => [cord[0] - shiftX, cord[1] - shiftY])
           );
       }
     ),
@@ -616,7 +638,7 @@ const canvasSlice = createSlice({
       state.circles = [];
     }),
     updateCreationZoomFactor: (state, action: PayloadAction<number>) => {
-      state.creationZoomFactor *= action.payload;
+      state.currentZoomFactor *= action.payload;
     },
     deleteCircle: withCanvasMeta<string>(
       (state, action: PayloadAction<string>) => {
@@ -802,16 +824,14 @@ const canvasSlice = createSlice({
       }
     }),
 
-    shiftSelectBox: withCanvasMeta<Shift>(
-      (state, action: PayloadAction<Shift>) => {
-        if (state.selectedGeometryInfo) {
-          state.selectedGeometryInfo = Canvas.shiftSelectBox({
-            selectedGeometryInfo: state.selectedGeometryInfo,
-            shift: action.payload.shift,
-          });
-        }
+    shiftSelectBox: (state, action: PayloadAction<Shift>) => {
+      if (state.selectedGeometryInfo) {
+        state.selectedGeometryInfo = Canvas.shiftSelectBox({
+          selectedGeometryInfo: state.selectedGeometryInfo,
+          shift: action.payload.shift,
+        });
       }
-    ),
+    },
     // shiftValidatorLens: withCanvasMeta<Shift & { validatorLensId: string }>(
     //   (state, action) => {
     //     state.validatorLensContainer.find((lens, index) => {
@@ -835,11 +855,12 @@ const canvasSlice = createSlice({
       });
     }),
 
-    setSelectedGeometryInfo: withCanvasMeta<
-      CanvasState['selectedGeometryInfo']
-    >((state, action: PayloadAction<CanvasState['selectedGeometryInfo']>) => {
+    setSelectedGeometryInfo: (
+      state,
+      action: PayloadAction<CanvasState['selectedGeometryInfo']>
+    ) => {
       state.selectedGeometryInfo = action.payload;
-    }),
+    },
     zoomMaxPoints: (
       state,
       action: PayloadAction<{ center: [number, number]; zoomAmount: number }>
@@ -877,25 +898,21 @@ const canvasSlice = createSlice({
         ];
       }
     },
-    mapSelectedIds: withCanvasMeta<(id: string) => string>(
-      (state, action: PayloadAction<(id: string) => string>) => {
-        const cb = action.payload;
-        if (state.selectedGeometryInfo) {
-          state.selectedGeometryInfo.selectedIds =
-            state.selectedGeometryInfo.selectedIds.map(cb);
-        }
+    mapSelectedIds: (state, action: PayloadAction<(id: string) => string>) => {
+      const cb = action.payload;
+      if (state.selectedGeometryInfo) {
+        state.selectedGeometryInfo.selectedIds =
+          state.selectedGeometryInfo.selectedIds.map(cb);
       }
-    ),
-    addSelectedIds: withCanvasMeta<string[]>(
-      (state, action: PayloadAction<string[]>) => {
-        if (state.selectedGeometryInfo) {
-          state.selectedGeometryInfo.selectedIds = [
-            ...state.selectedGeometryInfo.selectedIds,
-            ...action.payload,
-          ];
-        }
+    },
+    addSelectedIds: (state, action: PayloadAction<string[]>) => {
+      if (state.selectedGeometryInfo) {
+        state.selectedGeometryInfo.selectedIds = [
+          ...state.selectedGeometryInfo.selectedIds,
+          ...action.payload,
+        ];
       }
-    ),
+    },
   },
 });
 

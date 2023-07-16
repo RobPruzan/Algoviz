@@ -12,7 +12,7 @@ import { io } from 'socket.io-client';
 //     socketRef.current = io(process.env.SOCKET_SERVER_URL);
 
 //     // socketRef.current.on('chat message', (message) => {
-//     //   console.log('da massge');
+
 //     //   setMessages((messages) => [...messages, JSON.stringify(message)]);
 //     // });
 

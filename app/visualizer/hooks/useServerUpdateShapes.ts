@@ -5,9 +5,11 @@ import { useAppSelector } from '@/redux/store';
 import { useSearchParams } from 'next/navigation';
 
 export const useServerUpdateShapes = () => {
-  const { attachableLines, circles, creationZoomFactor } = useAppSelector(
-    (store) => store.canvas
-  );
+  const {
+    attachableLines,
+    circles,
+    currentZoomFactor: creationZoomFactor,
+  } = useAppSelector((store) => store.canvas);
   const debouncedCircles = useDebounce(circles, 500);
   const debouncedLines = useDebounce(attachableLines, 500);
   const searchParams = useSearchParams();

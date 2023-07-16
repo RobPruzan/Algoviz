@@ -22,10 +22,6 @@ export const useSaveAlgorithmMutation = () =>
         type,
       });
     },
-    onError: (e) => {
-      console.log('fuck', e);
-    },
-    onSuccess: (s) => {
-      console.log('woo it worked');
-    },
+    onError: (e) => {},
+    onSuccess: (s) => {},
   });

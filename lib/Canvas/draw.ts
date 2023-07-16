@@ -78,10 +78,6 @@ export const drawNodes = ({
           break;
         case 'object':
           if (currentLens.result && currentLens.result.length > 0) {
-            console.log(
-              'is val',
-              currentLens.result.find((vNode) => vNode.id === node.id)?.valid
-            );
             if (
               currentLens.result.find((vNode) => vNode.id === node.id)?.valid
             ) {
@@ -97,7 +93,6 @@ export const drawNodes = ({
     }
 
     ctx.fill();
-    console.log('selectedCircleID', selectedCircleID, node.id, selectedIDs);
     if (selectedCircleID === node.id || selectedIDs?.includes(node.id)) {
       ctx.lineWidth = 1;
       ctx.strokeStyle = 'white';

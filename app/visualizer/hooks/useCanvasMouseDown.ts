@@ -156,7 +156,6 @@ export const useCanvasMouseDown = ({
           event.nativeEvent.offsetY - cameraCoordinate[1],
         ];
 
-        console.log('initial coordinates', initialMouseCoordinate);
         setSelectBox({
           p1: initialMouseCoordinate,
           p2: initialMouseCoordinate,

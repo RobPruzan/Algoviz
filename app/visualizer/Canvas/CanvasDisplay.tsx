@@ -92,7 +92,7 @@ const CanvasDisplay = ({
     circles,
     validatorLensContainer,
     pencilCoordinates,
-    creationZoomFactor, // need to make this updated on load of playground
+    currentZoomFactor: creationZoomFactor, // need to make this updated on load of playground
     endNode,
     startNode,
     cameraCoordinate,
@@ -124,6 +124,7 @@ const CanvasDisplay = ({
     playgroundID,
     userID,
     user: session.data?.user || { id: userID },
+    scaleFactor: creationZoomFactor,
   };
   const cursorImgRef = useRef<HTMLImageElement | null>(null);
 
@@ -133,6 +134,7 @@ const CanvasDisplay = ({
   ] = useState<SelectedValidatorLensResizeCircle | null>(null);
 
   useEffect(() => {
+    // putting a condition here of session.status === 'loading' still breaks even with the updated cleanup logic
     if (!playgroundID) return;
     dispatch({
       type: 'socket/connect',
@@ -140,6 +142,7 @@ const CanvasDisplay = ({
     });
     // need to understand the problem with waiting for the session to load :/
     return () => {
+      if (!playgroundID) return;
       dispatch({
         type: 'socket/disconnect',
         meta,
@@ -154,7 +157,6 @@ const CanvasDisplay = ({
 
     // if (!cursorImgRef.current) return;
     img.onload = function () {
-      // console.log('LOADINGIGIG');
       cursorImgRef.current = img;
     };
   }, []);
@@ -262,7 +264,6 @@ const CanvasDisplay = ({
 
   useCanvasWheel({
     canvasRef,
-    meta,
   });
 
   useApplyAlgorithm();
