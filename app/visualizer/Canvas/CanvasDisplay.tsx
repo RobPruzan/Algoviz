@@ -55,10 +55,11 @@ import { useClearCanvasState } from '../hooks/useClearCanvasState';
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { CollaborationActions } from '@/redux/slices/colloborationState';
+import { CollaborationActions } from '@/redux/slices/colloborationSlice';
 import { match } from 'ts-pattern';
 import { CodeExecActions } from '@/redux/slices/codeExecSlice';
 import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
+import { socket } from '@/lib/socket/socket-utils';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
   canvasWrapperRef: React.RefObject<HTMLDivElement>;
@@ -112,12 +113,17 @@ const CanvasDisplay = ({
   const visualizationNodes = visualization.at(visualizationPointer);
   const searchParams = useSearchParams();
   const session = useSession();
+  session.data?.user;
   const playgroundID = searchParams.get('playground-id');
   const userID = session.data?.user.id ?? notSignedInUserId;
   const selectedAlgorithm = useAppSelector(
     (store) => store.codeExec.selectedAlgorithm
   );
-  const meta: Meta = { playgroundID, userID };
+  const meta: Meta = {
+    playgroundID,
+    userID,
+    user: session.data?.user || { id: userID },
+  };
   const cursorImgRef = useRef<HTMLImageElement | null>(null);
 
   const [
@@ -154,16 +160,26 @@ const CanvasDisplay = ({
 
   useEffect(() => {
     if (session.status === 'loading') return;
-    const item: FirstParameter<typeof CollaborationActions.addUser> = {
+    const item: FirstParameter<typeof CollaborationActions.addCollabInfo> = {
       user: {
         ...session.data?.user,
         id: userID,
       },
       mousePosition: [0, 0],
     };
-    dispatch(CollaborationActions.addUser(item, meta));
+    dispatch(CollaborationActions.addCollabInfo(item, meta));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session.data?.user, userID, session.status]);
+  }, [session.data?.user, userID, session.status, dispatch]);
+
+  useEffect(() => {
+    if (playgroundID) {
+      socket.getConnectedUsers(playgroundID).then((users) => {
+        users.forEach((user) =>
+          dispatch(CollaborationActions.addUser(user, meta))
+        );
+      });
+    }
+  }, [playgroundID]);
 
   const { selectedAttachableLines, selectedCircles } = getSelectedItems({
     attachableLines,
@@ -408,10 +424,7 @@ const CanvasDisplay = ({
                 if (selectedCircleID) {
                   if (playgroundID) {
                     dispatch(
-                      CanvasActions.deleteCircle(selectedCircleID, {
-                        playgroundID,
-                        userID,
-                      })
+                      CanvasActions.deleteCircle(selectedCircleID, meta)
                     );
                   } else {
                     dispatch(CanvasActions.deleteCircle(selectedCircleID));
@@ -425,10 +438,7 @@ const CanvasDisplay = ({
                     dispatch(
                       CanvasActions.deleteAttachableLine(
                         selectedAttachableLine,
-                        {
-                          playgroundID,
-                          userID,
-                        }
+                        meta
                       )
                     );
                   } else {
@@ -445,10 +455,7 @@ const CanvasDisplay = ({
                     dispatch(
                       CanvasActions.deleteValidatorLens(
                         { validatorLensId: selectedValidatorLens.id },
-                        {
-                          playgroundID,
-                          userID,
-                        }
+                        meta
                       )
                     );
                   } else {

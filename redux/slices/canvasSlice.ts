@@ -18,6 +18,7 @@ import { ImmutableQueue } from '@/lib/graph';
 import { withMeta } from '../store';
 import { match } from 'ts-pattern';
 import { NodeValidation } from './codeExecSlice';
+import { User } from 'next-auth';
 
 // this validatorLens will have code attached to it
 // it should probably extend the selectedGeomotryInfo
@@ -80,6 +81,7 @@ const initialState: CanvasState = {
 export type Meta = {
   userID: string;
   playgroundID: string | null;
+  user: User | { id: string };
   fromServer?: boolean;
 };
 

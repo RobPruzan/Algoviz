@@ -1,5 +1,6 @@
 import { FirstParameter } from '@/lib/types';
 import { User } from '@prisma/client';
+import { User as NextUser } from 'next-auth';
 import { createSlice } from '@reduxjs/toolkit';
 import { withMeta } from '../store';
 import { useSession } from 'next-auth/react';
@@ -30,7 +31,7 @@ export const collaborationStateReducer = createSlice({
   initialState,
   name: 'collaborationState',
   reducers: {
-    addUser: withCollabMeta<CollabInfo>((state, action) => {
+    addCollabInfo: withCollabMeta<CollabInfo>((state, action) => {
       if (
         !state.collabInfos.some(
           (collabInfo) => collabInfo.user.id === action.payload.user.id
@@ -39,6 +40,29 @@ export const collaborationStateReducer = createSlice({
         state.collabInfos = [...state.collabInfos, action.payload];
       // console.log('new state', state.collabInfos);
     }),
+    addUser: withCollabMeta<NextUser | { id: string }>((state, action) => {
+      let setUser = false;
+      for (const info of state.collabInfos) {
+        if (info.user.id === action.payload.id) {
+          setUser = true;
+          info.user = action.payload;
+          break;
+        }
+      }
+
+      // if (!setUser) {
+      //   state.collabInfos = [
+      //     ...state.collabInfos,
+      //     {
+      //       mousePosition: [0, 0],
+      //       user: payloadIsUser(action.payload)
+      //         ? action.payload
+      //         : { id: 'anonymous' },
+      //     },
+      //   ];
+      // }
+    }),
+
     setUserMousePosition: withCollabMeta<CollabInfo>((state, action) => {
       // console.log(
       //   'huh',

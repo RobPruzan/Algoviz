@@ -57,13 +57,6 @@ const CodeExecution = ({
 
   const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
 
-  // const selectedAttachableLines = attachableLines.filter((line) =>
-  //   // not a set because of redux :(
-  //   selectedGeometryInfo?.selectedIds.includes(line.id)
-  // );
-  // const selectedCircles = circles.filter((circle) =>
-  //   selectedGeometryInfo?.selectedIds.includes(circle.id)
-  // );
   const { selectedAttachableLines, selectedCircles } = getSelectedItems({
     attachableLines,
     circles,
@@ -87,15 +80,19 @@ const CodeExecution = ({
     (d) => d.id === selectedAlgorithm
   );
 
-  // const code = userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE ? userAlgorithm.code ?? currentAlgorithm?.code: userAlgorithm.code;
-  // console.log('all algos', getAlgorithmsQuery.data);
-
-  // const code = currentAlgorithm?.code ?? userAlgorithm.code;
+  // const code =
+  //   userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE
+  //     ? userAlgorithm.code
+  //     : currentAlgorithm?.code ?? DEFAULT_VISUALIZATION_CODE;
+  // const codeIsDefault = userAlgorithm.code === DEFAULT_VISUALIZATION_CODE;
+  // if u have a selected algo, that always takes priority
+  // if you have code written over the selected algo, that should be swapped in
   const code =
-    userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE
+    userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE &&
+    userAlgorithm.code !== currentAlgorithm?.code
       ? userAlgorithm.code
       : currentAlgorithm?.code ?? DEFAULT_VISUALIZATION_CODE;
-  // console.log('right tab code', code);
+  console.log('right tab code', code);
 
   const execMode = useAppSelector((store) => store.codeExec.mode);
   const isValidatorLens = currentAlgorithm?.type === 'validator';

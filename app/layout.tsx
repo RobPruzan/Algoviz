@@ -18,6 +18,7 @@ import { store } from '@/redux/store';
 import ReduxProvider from './ReduxProvider';
 import PlaygroundsButton from './PlaygroundsButton';
 import { Toaster } from '@/components/ui/toaster';
+import ConnectedUsers from './ConnectedUsers';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -62,6 +63,9 @@ export default function RootLayout({
                     <div className="w-2/6  " />
 
                     <div className="w-2/5 flex justify-end items-center">
+                      <div className="mr-2">
+                        <ConnectedUsers />
+                      </div>
                       <ShareableLink />
                       <div className="mx-2">
                         <ModeToggle />

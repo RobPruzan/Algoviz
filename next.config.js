@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const isTauriBuild = process.env.IS_TAURI_BUILD;
 
-const nextConfig =
+const baseNextConfig =
   isTauriBuild === 'true'
     ? {
         experimental: {
@@ -14,5 +14,12 @@ const nextConfig =
           appDir: true,
         },
       };
+
+const nextConfig = {
+  ...baseNextConfig,
+  images: {
+    domains: ['lh3.googleusercontent.com'],
+  },
+};
 
 module.exports = nextConfig;

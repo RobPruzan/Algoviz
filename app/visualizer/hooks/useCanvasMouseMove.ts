@@ -23,7 +23,7 @@ import {
   Meta,
   ValidatorLensInfo,
 } from '@/redux/slices/canvasSlice';
-import { CollaborationActions } from '@/redux/slices/colloborationState';
+import { CollaborationActions } from '@/redux/slices/colloborationSlice';
 type UseCanvasMouseMoveProps = {
   isMouseDownRef: MutableRefObject<boolean>;
   selectBox: SelectBox | null;

@@ -4,6 +4,8 @@ import { io } from 'socket.io-client';
 import { CircleReceiver, Edge, IO, SocketAction, UntypedData } from '../types';
 import { useAppDispatch } from '@/redux/store';
 import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
+import { User } from 'next-auth';
+
 type SecondParam<T> = T extends (arg1: any, arg2: infer P) => any ? P : T;
 type OnCB = SecondParam<ReturnType<typeof io>['on']>;
 
@@ -20,6 +22,15 @@ export class SocketIO {
 
     //   this.socket = null;
     // }
+  }
+
+  getConnectedUsers(playgroundID: string) {
+    return new Promise<(User | { id: string })[]>((resolve, reject) => {
+      this.socket?.emit('get connected users', playgroundID, (users: []) => {
+        console.log('acknowleged users');
+        resolve(users);
+      });
+    });
   }
 
   sendUpdate(
@@ -47,7 +58,7 @@ export class SocketIO {
     this.socket?.emit('create', state);
   }
 
-  joinPlayground(playgroundID: string) {
+  joinPlayground(playgroundID: string, user: User | { id: string }) {
     this.socket?.emit('join playground', playgroundID);
   }
   addActionListener(cb: OnCB) {

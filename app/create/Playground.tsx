@@ -1,3 +1,4 @@
+'use client';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -6,7 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ky from 'ky';
 import { Edit, Loader, LoaderIcon, Trash } from 'lucide-react';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { ComponentProps, useState } from 'react';
 import { json } from 'stream/consumers';
 import { z } from 'zod';
 import {
@@ -25,9 +26,9 @@ type Props = {
     id: number;
     name: string;
   };
-};
+} & ComponentProps<typeof Card>;
 
-const Playground = ({ playground }: Props) => {
+const Playground = ({ playground, ...props }: Props) => {
   const queryClient = useQueryClient();
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -58,7 +59,10 @@ const Playground = ({ playground }: Props) => {
 
   return (
     <Link href={`/visualizer?playground-id=${playground.id}`}>
-      <Card className="w-72 h-64  flex items-center justify-center hover:bg-secondary cursor:pointer">
+      <Card
+        {...props}
+        className="w-72 h-64  flex items-center justify-center hover:bg-secondary cursor:pointer"
+      >
         <div className="w-[75%] h-full flex items-start justify-start ">
           <p className="m-5 font-bold text-2xl"> {playground.name}</p>
         </div>

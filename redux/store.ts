@@ -12,12 +12,12 @@ import {
 } from 'react-redux';
 import { dfsReducer } from './slices/dfsSlice';
 import { codeExecReducer } from './slices/codeExecSlice';
-import { SocketIO, socket } from '@/lib/socket/utils';
+import { SocketIO, socket } from '@/lib/socket/socket-utils';
 import { SocketAction, UntypedData } from '@/lib/types';
 import {
   collaborationReducer,
   collaborationStateReducer,
-} from './slices/colloborationState';
+} from './slices/colloborationSlice';
 import { io } from 'socket.io-client';
 
 export function withMeta<TPayload, TState>(
@@ -45,7 +45,7 @@ export const socketMiddleware =
       case 'socket/connect':
         if (action.meta?.playgroundID) {
           socket.socket = io('http://localhost:8080');
-          socket.joinPlayground(action.meta.playgroundID);
+          socket.joinPlayground(action.meta.playgroundID, action.meta.user);
           socket.addActionListener((socketAction: SocketAction) => {
             // console.log('receving action');
 
