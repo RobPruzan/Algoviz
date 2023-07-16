@@ -1,3 +1,4 @@
+import { get } from 'http';
 import { CircleReceiver, Edge, UndirectedEdge } from './types';
 
 export class ImmutableStack<T> {
@@ -181,3 +182,14 @@ export const getAdjacencyList = ({
 
   return buildNaiveAdjacencyList(correctVerticesList);
 };
+
+// const getFilteredAdjacencyList = () => {
+//   const adjacencyList: Record<string, string[]> = [
+//     ...Graph.getAdjacencyList({
+//       edges: selectedAttachableLines,
+//       vertices: selectedCircles,
+//     }).entries(),
+//   ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
+//     return { ...prev, [id]: neighbors };
+//   }, {});
+// }

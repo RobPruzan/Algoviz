@@ -17,7 +17,7 @@ export const drawNodes = ({
   nodes,
   ctx,
   selectedCircleID,
-  selectedIds,
+  selectedIDs: selectedIDs,
   visualizationNodes,
   theme,
   endNode,
@@ -27,7 +27,7 @@ export const drawNodes = ({
   nodes: CircleReceiver[];
   ctx: CanvasRenderingContext2D;
   selectedCircleID: string | null;
-  selectedIds: Array<string> | undefined;
+  selectedIDs: Array<string> | undefined;
   visualizationNodes: string[];
   validatorLensContainer: ValidatorLensInfo[];
   endNode: string | null;
@@ -62,7 +62,7 @@ export const drawNodes = ({
     const currentLens = validatorLensContainer.find((lens) =>
       lens.selectedIds.includes(node.id)
     );
-    if (selectedIds?.includes(node.id)) {
+    if (selectedIDs?.includes(node.id)) {
       switch (typeof currentLens?.result) {
         case 'boolean':
           if (!currentLens.result) {
@@ -97,7 +97,8 @@ export const drawNodes = ({
     }
 
     ctx.fill();
-    if (selectedCircleID === node.id || selectedIds?.includes(node.id)) {
+    console.log('selectedCircleID', selectedCircleID, node.id, selectedIDs);
+    if (selectedCircleID === node.id || selectedIDs?.includes(node.id)) {
       ctx.lineWidth = 1;
       ctx.strokeStyle = 'white';
       ctx.stroke();
@@ -504,12 +505,14 @@ export const drawBox = ({
 //   canvas.style.height = `${rect.height}px`;
 //   ctx.clearRect(0, 0, canvas.width, canvas.height);
 // };
-export const optimizeCanvas = ({
+export const updateCanvasEnvironment = ({
   canvas,
   ctx,
+  cameraPosition,
 }: {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
+  cameraPosition: { x: number; y: number };
 }) => {
   const dpr = window.devicePixelRatio;
   const rect = canvas.getBoundingClientRect();
@@ -518,9 +521,18 @@ export const optimizeCanvas = ({
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
 
+  // Scale the context to ensure correct drawing operations
+  ctx.scale(dpr, dpr);
+
+  // Translate the origin to the camera position
+  ctx.translate(cameraPosition.x, cameraPosition.y);
+
   // Set the "drawn" size of the canvas
   canvas.style.width = `${rect.width}px`;
   canvas.style.height = `${rect.height}px`;
+
+  // Clear the canvas, taking into account the new origin
+  ctx.clearRect(-cameraPosition.x, -cameraPosition.y, rect.width, rect.height);
 };
 
 export const drawPencil = ({
@@ -623,13 +635,14 @@ export function mouseCenteredZoom(
 
 export function getCursorPosition(
   event: WheelEvent,
-  canvasRef: RefObject<HTMLCanvasElement>
+  canvasRef: RefObject<HTMLCanvasElement>,
+  cameraCord: [number, number]
 ): [number, number] {
   const canvas = canvasRef.current;
   if (!canvas) return [0, 0];
   const rect = canvas.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+  const x = event.clientX - rect.left - cameraCord[0];
+  const y = event.clientY - rect.top - cameraCord[1];
   return [x, y];
 }
 

@@ -62,7 +62,7 @@ export default function RootLayout({
 
                     <div className="w-2/6  " />
 
-                    <div className="w-2/5 flex justify-end items-center">
+                    <div className="w-[60%] flex justify-end items-center">
                       <div className="mr-2">
                         <ConnectedUsers />
                       </div>

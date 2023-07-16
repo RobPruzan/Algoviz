@@ -152,18 +152,14 @@ export const useCanvasMouseDown = ({
 
         // this is just mouse down, so it begins the render of the select box
         const initialMouseCoordinate: [number, number] = [
-          event.nativeEvent.offsetX,
-          event.nativeEvent.offsetY,
+          event.nativeEvent.offsetX - cameraCoordinate[0],
+          event.nativeEvent.offsetY - cameraCoordinate[1],
         ];
+
+        console.log('initial coordinates', initialMouseCoordinate);
         setSelectBox({
-          p1: [
-            initialMouseCoordinate[0] - cameraCoordinate[0],
-            initialMouseCoordinate[1] - cameraCoordinate[0],
-          ],
-          p2: [
-            initialMouseCoordinate[0] - cameraCoordinate[0],
-            initialMouseCoordinate[1] - cameraCoordinate[0],
-          ],
+          p1: initialMouseCoordinate,
+          p2: initialMouseCoordinate,
           type: 'selectBox',
         });
       });

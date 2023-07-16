@@ -238,7 +238,7 @@ const CanvasDisplay = ({
     selectedAttachableLine,
     selectedCircleID,
     selectedControlBarAction,
-
+    cameraCoordinate,
     setSelectBox,
     meta,
     selectedValidatorLens,
@@ -279,35 +279,45 @@ const CanvasDisplay = ({
     if (!canvas) return;
 
     // 1. Clear the canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 2. Reset the transformation matrix
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // // 2. Reset the transformation matrix
+    // ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-    // 3. Apply the translation
-    ctx.translate(cameraCoordinate[0], cameraCoordinate[1]);
+    // // 3. Apply the translation
+    // ctx.translate(cameraCoordinate[0], cameraCoordinate[1]);
 
-    Draw.optimizeCanvas({
+    Draw.updateCanvasEnvironment({
       ctx,
       canvas,
+      cameraPosition: {
+        x: cameraCoordinate[0],
+        y: cameraCoordinate[1],
+      },
     });
 
-    const dpr = window.devicePixelRatio;
-    ctx.scale(dpr, dpr);
+    // const dpr = window.devicePixelRatio;
+    // ctx.scale(dpr, dpr);
 
-    // 1. Clear the canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // // 1. Clear the canvas
+    // ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 2. Reset the transformation matrix
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // // 2. Reset the transformation matrix
+    // ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-    // 3. Apply the translation
-    ctx.translate(cameraCoordinate[0], cameraCoordinate[1]);
-    const selectedIds = getValidatorLensSelectedIds({
-      attachableLines,
-      circles,
-      validatorLensContainer,
-    });
+    // // 3. Apply the translation
+    // ctx.translate(cameraCoordinate[0], cameraCoordinate[1]);
+
+    const selectedIDs = Object.keys(
+      [
+        ...Graph.getAdjacencyList({
+          edges: selectedAttachableLines,
+          vertices: selectedCircles,
+        }).entries(),
+      ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
+        return { ...prev, [id]: neighbors };
+      }, {})
+    );
     const val = cursorImgRef.current;
     val &&
       collabInfos.forEach((info) => {
@@ -355,7 +365,7 @@ const CanvasDisplay = ({
       ctx,
       nodes: circles,
       selectedCircleID,
-      selectedIds,
+      selectedIDs,
       visualizationNodes: visualizationNodes ?? [],
       theme: themeInfo.theme ?? 'dark',
       // validationNodes: validation,

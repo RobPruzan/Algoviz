@@ -35,6 +35,7 @@ type UseCanvasMouseMoveProps = {
   meta: Meta;
   selectedValidatorLens: SelectedValidatorLens | null;
   selectedResizeValidatorLensCircle: SelectedValidatorLensResizeCircle | null;
+  cameraCoordinate: [number, number];
 };
 
 export const useCanvasMouseMove = ({
@@ -47,6 +48,7 @@ export const useCanvasMouseMove = ({
   meta,
   selectedValidatorLens,
   selectedResizeValidatorLensCircle,
+  cameraCoordinate,
 }: UseCanvasMouseMoveProps) => {
   const {
     attachableLines,
@@ -63,8 +65,8 @@ export const useCanvasMouseMove = ({
   const dispatch = useAppDispatch();
 
   const handleMouseMove = (event: MouseEvent<HTMLCanvasElement>) => {
-    const mousePositionX = event.nativeEvent.offsetX;
-    const mousePositionY = event.nativeEvent.offsetY;
+    const mousePositionX = event.nativeEvent.offsetX - cameraCoordinate[0];
+    const mousePositionY = event.nativeEvent.offsetY - cameraCoordinate[1];
     dispatch(
       CollaborationActions.setUserMousePosition(
         {
@@ -103,8 +105,8 @@ export const useCanvasMouseMove = ({
         ];
 
         const shift: [number, number] = [
-          prevPos[0] - event.nativeEvent.offsetX,
-          prevPos[1] - event.nativeEvent.offsetY,
+          prevPos[0] - mousePositionX,
+          prevPos[1] - mousePositionY,
         ];
         // this should be a case obviously just doing this for quick measures
         if (isSelectBoxSet && isMouseDownRef.current) {
@@ -214,9 +216,11 @@ export const useCanvasMouseMove = ({
           default:
             if (selectBox) {
               const adjustableCord: [number, number] = [
-                event.nativeEvent.offsetX,
-                event.nativeEvent.offsetY,
+                mousePositionX,
+                mousePositionY,
               ];
+              console.log('current p1', selectBox.p1);
+              console.log('new p2', adjustableCord);
 
               // simple check to make sure we have a select box first
               setSelectBox((prev) => {
@@ -237,10 +241,7 @@ export const useCanvasMouseMove = ({
             }
             break;
         }
-        previousMousePositionRef.current = [
-          event.nativeEvent.offsetX,
-          event.nativeEvent.offsetY,
-        ];
+        previousMousePositionRef.current = [mousePositionX, mousePositionY];
         dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
       });
   };

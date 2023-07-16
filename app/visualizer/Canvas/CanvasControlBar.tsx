@@ -64,9 +64,8 @@ const CanvasControlBar = ({
   notSignedInUserId,
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { circles, creationZoomFactor, attachableLines } = useAppSelector(
-    (store) => store.canvas
-  );
+  const { circles, creationZoomFactor, attachableLines, cameraCoordinate } =
+    useAppSelector((store) => store.canvas);
   const [itemChecked, setItemChecked] = useState<null | string>(null);
   const searchParams = useSearchParams();
 
@@ -101,7 +100,10 @@ const CanvasControlBar = ({
         meta
       )
     );
-    const [x1, y1] = [Math.random() * 400, Math.random() * 400];
+    const [x1, y1] = [
+      creationZoomFactor * Math.random() * 400 - cameraCoordinate[0],
+      creationZoomFactor * Math.random() * 400 - cameraCoordinate[1],
+    ];
     const newLine: UndirectedEdge = {
       id: crypto.randomUUID(),
 
@@ -159,8 +161,8 @@ const CanvasControlBar = ({
       )
     );
     const [x1, y1] = [
-      Math.random() * 400 * creationZoomFactor,
-      Math.random() * 600 * creationZoomFactor,
+      Math.random() * 400 * creationZoomFactor - cameraCoordinate[0],
+      Math.random() * 600 * creationZoomFactor - cameraCoordinate[1],
     ];
     const newLine: DirectedEdge = {
       // gotta change this iz so weird
@@ -206,8 +208,8 @@ const CanvasControlBar = ({
       )
     );
     const circleCenter: [number, number] = [
-      Math.random() * 400,
-      Math.random() * 400,
+      Math.random() * 400 * creationZoomFactor - cameraCoordinate[0],
+      Math.random() * 400 * creationZoomFactor - cameraCoordinate[1],
     ];
     const circleRadius = 50;
     const newNodeConnector: CircleReceiver['nodeReceiver'] = {
@@ -256,8 +258,14 @@ const CanvasControlBar = ({
       result: null,
       code: null,
       rect: {
-        bottomRight: [Math.random() * 400, Math.random() * 400],
-        topLeft: [Math.random() * 400, Math.random() * 400],
+        bottomRight: [
+          creationZoomFactor * Math.random() * 400 - cameraCoordinate[0],
+          creationZoomFactor * Math.random() * 400 - cameraCoordinate[1],
+        ],
+        topLeft: [
+          creationZoomFactor * Math.random() * 400 - cameraCoordinate[0],
+          creationZoomFactor * Math.random() * 400 - cameraCoordinate[1],
+        ],
       },
       selectedIds: [],
       type: 'validator-lens',

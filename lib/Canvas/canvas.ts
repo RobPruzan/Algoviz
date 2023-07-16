@@ -37,18 +37,20 @@ const getActiveLensResizeCircle = ({
   canvasRef,
   event,
   validatorLensContainer,
+  cameraCoordinate,
 }: {
   event: MouseEvent<HTMLCanvasElement>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   validatorLensContainer: ValidatorLensInfo[];
+  cameraCoordinate: [number, number];
 }) => {
   // getValidatorLensResizeCirclesCenter
   const canvas = canvasRef.current;
   if (!canvas) return;
   const rect = canvas.getBoundingClientRect();
 
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+  const x = event.clientX - rect.left - cameraCoordinate[0];
+  const y = event.clientY - rect.top - cameraCoordinate[1];
   // // validatorLensContainer.find((lens) => {
   // const { bottomLeft, bottomRight, topLeft, topRight, RESIZE_CIRCLE_RADIUS } =
   //   Utils.getValidatorLensResizeCirclesCenter(lens);
@@ -151,15 +153,7 @@ export const getActiveCircle = ({
   const x = event.clientX - rect.left - cameraCoordinate[0];
   const y = event.clientY - rect.top - cameraCoordinate[1];
   // too tired to figure this out but just need a simpel translation somewhere
-  console.log('----------------');
-  console.log('shifted:', x, y);
-  console.log(
-    'not shifted:',
-    event.clientX - rect.left,
-    event.clientY - rect.top
-  );
-  console.log('circles:', circles);
-  console.log('---------------------');
+
   const activeCircle = circles.find((circle) =>
     isPointInCircle(x, y, circle.center[0], circle.center[1], circle.radius)
   );
@@ -366,17 +360,18 @@ export const getActiveValidatorLens = ({
   canvasRef,
   event,
   validatorLensContainer,
+  cameraCoordinate,
 }: {
   event: MouseEvent<HTMLCanvasElement>;
-
+  cameraCoordinate: [number, number];
   canvasRef: React.RefObject<HTMLCanvasElement>;
   validatorLensContainer: ValidatorLensInfo[];
 }) => {
   const canvas = canvasRef.current;
   if (!canvas) return;
   const rect = canvas.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+  const x = event.clientX - rect.left - cameraCoordinate[0];
+  const y = event.clientY - rect.top - cameraCoordinate[1];
   // taking the reverse because we want the most recently added rectangle to be ontop  (so the last item in the list)
   // but alose be the first ite selected (top of thel ist when searching)
   const activeLineIndex = validatorLensContainer.findLastIndex((lens) =>
@@ -392,17 +387,18 @@ export const getActiveLine = ({
   event,
   canvasRef,
   lines,
+  cameraCoordinate,
 }: {
   event: MouseEvent<HTMLCanvasElement>;
-
+  cameraCoordinate: [number, number];
   canvasRef: React.RefObject<HTMLCanvasElement>;
   lines: Rect[];
 }) => {
   const canvas = canvasRef.current;
   if (!canvas) return;
   const rect = canvas.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+  const x = event.clientX - rect.left - cameraCoordinate[0];
+  const y = event.clientY - rect.top - cameraCoordinate[1];
 
   const activeLine = lines.find((line) =>
     // isPointInline(x, y, line.center, line.width, line.length)
@@ -613,18 +609,21 @@ export const getMouseDownActiveItem = ({
     canvasRef,
     event,
     lines: attachableLines,
+    cameraCoordinate,
   });
 
   const activeValidatorLensId = getActiveValidatorLens({
     canvasRef,
     event,
     validatorLensContainer,
+    cameraCoordinate,
   });
 
   const activeValidatorLensResizeCircle = getActiveLensResizeCircle({
     canvasRef,
     event,
     validatorLensContainer,
+    cameraCoordinate,
   });
 
   const activeSelectableNodeOneId = getActiveCircle({

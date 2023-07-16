@@ -31,7 +31,8 @@ export const useCanvasWheel = ({ meta, canvasRef }: UseCanvasWheel) => {
         dispatch(CanvasActions.updateCreationZoomFactor(zoomAmount));
         const center: [number, number] = Draw.getCursorPosition(
           event,
-          canvasRef
+          canvasRef,
+          cameraCoordinate
         );
 
         dispatch(CanvasActions.setValidatorLensContainer);
@@ -42,7 +43,7 @@ export const useCanvasWheel = ({ meta, canvasRef }: UseCanvasWheel) => {
             circles.map((circle) => ({
               ...circle,
               center: Draw.zoomCircle(
-                circle.center,
+                [circle.center[0], circle.center[1]],
                 circle.radius,
                 center,
                 zoomAmount
@@ -74,7 +75,7 @@ export const useCanvasWheel = ({ meta, canvasRef }: UseCanvasWheel) => {
         );
         dispatch(
           CanvasActions.zoomValidatorLens({
-            center,
+            center: cameraCoordinate,
             zoomAmount,
           })
         );
@@ -139,7 +140,7 @@ export const useCanvasWheel = ({ meta, canvasRef }: UseCanvasWheel) => {
         );
         dispatch(
           CanvasActions.zoomMaxPoints({
-            center,
+            center: cameraCoordinate,
             zoomAmount,
           })
         );
@@ -154,7 +155,12 @@ export const useCanvasWheel = ({ meta, canvasRef }: UseCanvasWheel) => {
         //     )
         //   ),
         // }));
-        dispatch(CanvasActions.zoomPencilCoordinates({ center, zoomAmount }));
+        dispatch(
+          CanvasActions.zoomPencilCoordinates({
+            center: cameraCoordinate,
+            zoomAmount,
+          })
+        );
       } else {
         const newOffsetX = event.deltaX * 0.5;
         const newOffsetY = event.deltaY * 0.5;

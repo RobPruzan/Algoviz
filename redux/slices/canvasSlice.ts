@@ -583,10 +583,13 @@ const canvasSlice = createSlice({
         state.validatorLensContainer = action.payload;
       }
     ),
-    zoomValidatorLens: withCanvasMeta<{
-      zoomAmount: number;
-      center: [number, number];
-    }>((state, action) => {
+    zoomValidatorLens: (
+      state,
+      action: PayloadAction<{
+        zoomAmount: number;
+        center: [number, number];
+      }>
+    ) => {
       state.validatorLensContainer.forEach((lens, index) => {
         state.validatorLensContainer[index].rect.bottomRight =
           Draw.mouseCenteredZoom(
@@ -601,7 +604,7 @@ const canvasSlice = createSlice({
             action.payload.zoomAmount
           );
       });
-    }),
+    },
     setLines: withCanvasMeta<Edge[]>((state, action) => {
       action.meta?.playgroundID;
       state.attachableLines = action.payload;

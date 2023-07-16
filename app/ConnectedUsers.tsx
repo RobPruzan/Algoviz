@@ -17,12 +17,11 @@ const ConnectedUsers = () => {
   if (!(pathname === '/visualizer')) return null;
 
   return (
-    <div className="flex  items-center justify-center overflow-y-scroll ">
+    <div className="flex  items-center justify-center overflow-y-scroll border-2 h-[40px]  rounded-md px-2">
       {collabInfoState.map((collab, index) =>
         index > 3 ? null : index > 2 ? (
-          <div className="text-sm" key={collab.id}>
-            {' '}
-            and {usersAboveThree} more...
+          <div className=" w-1/4 text-sm" key={collab.id}>
+            and {usersAboveThree} more
           </div>
         ) : (
           <div key={collab.id}>
@@ -33,7 +32,6 @@ const ConnectedUsers = () => {
                 width={25}
                 height={25}
               />
-              hello
             </div>
           </div>
         )
