@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react';
 type CollabInfo = {
   mousePosition: [number, number];
   user: {
-    id: string;
+    id: string | null;
   } & Omit<Partial<User>, 'id'>;
 };
 
@@ -31,7 +31,12 @@ export const collaborationStateReducer = createSlice({
   initialState,
   name: 'collaborationState',
   reducers: {
+    cleanupCollabInfo: (state) => {
+      state.collabInfos = [];
+    },
+
     addCollabInfo: withCollabMeta<CollabInfo>((state, action) => {
+      console.log('new colab info', action.payload);
       if (
         !state.collabInfos.some(
           (collabInfo) => collabInfo.user.id === action.payload.user.id
@@ -50,17 +55,17 @@ export const collaborationStateReducer = createSlice({
         }
       }
 
-      // if (!setUser) {
-      //   state.collabInfos = [
-      //     ...state.collabInfos,
-      //     {
-      //       mousePosition: [0, 0],
-      //       user: payloadIsUser(action.payload)
-      //         ? action.payload
-      //         : { id: 'anonymous' },
-      //     },
-      //   ];
-      // }
+      console.log('set user', action.payload, setUser);
+
+      if (!setUser) {
+        state.collabInfos = [
+          ...state.collabInfos,
+          {
+            mousePosition: [0, 0],
+            user: action.payload,
+          },
+        ];
+      }
     }),
 
     setUserMousePosition: withCollabMeta<CollabInfo>((state, action) => {

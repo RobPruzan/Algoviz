@@ -138,17 +138,28 @@ export const getActiveCircle = ({
   event,
   canvasRef,
   circles,
+  cameraCoordinate,
 }: {
   event: MouseEvent<HTMLCanvasElement>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   circles: (CircleConnector | CircleReceiver | NodeConnector)[];
+  cameraCoordinate: [number, number];
 }) => {
   const canvas = canvasRef.current;
   if (!canvas) return;
   const rect = canvas.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-
+  const x = event.clientX - rect.left - cameraCoordinate[0];
+  const y = event.clientY - rect.top - cameraCoordinate[1];
+  // too tired to figure this out but just need a simpel translation somewhere
+  console.log('----------------');
+  console.log('shifted:', x, y);
+  console.log(
+    'not shifted:',
+    event.clientX - rect.left,
+    event.clientY - rect.top
+  );
+  console.log('circles:', circles);
+  console.log('---------------------');
   const activeCircle = circles.find((circle) =>
     isPointInCircle(x, y, circle.center[0], circle.center[1], circle.radius)
   );
@@ -581,6 +592,7 @@ export const getMouseDownActiveItem = ({
   selectBox,
   selectedControlBarAction,
   validatorLensContainer,
+  cameraCoordinate,
 }: {
   circles: CircleReceiver[];
   attachableLines: Edge[];
@@ -589,11 +601,13 @@ export const getMouseDownActiveItem = ({
   selectBox: SelectBox | null;
   selectedControlBarAction: 'pencil' | null;
   validatorLensContainer: ValidatorLensInfo[];
+  cameraCoordinate: [number, number];
 }) => {
   const activeCircleId = getActiveCircle({
     circles,
     event,
     canvasRef,
+    cameraCoordinate,
   });
   const activeRectID = getActiveLine({
     canvasRef,
@@ -617,12 +631,14 @@ export const getMouseDownActiveItem = ({
     canvasRef,
     event,
     circles: attachableLines.map((line) => line.attachNodeOne),
+    cameraCoordinate,
   });
 
   const activeSelectableNodeTwoId = getActiveCircle({
     canvasRef,
     event,
     circles: attachableLines.map((line) => line.attachNodeTwo),
+    cameraCoordinate,
   });
 
   if (

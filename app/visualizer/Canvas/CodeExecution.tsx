@@ -92,7 +92,7 @@ const CodeExecution = ({
     userAlgorithm.code !== currentAlgorithm?.code
       ? userAlgorithm.code
       : currentAlgorithm?.code ?? DEFAULT_VISUALIZATION_CODE;
-  console.log('right tab code', code);
+  // console.log('right tab code', code);
 
   const execMode = useAppSelector((store) => store.codeExec.mode);
   const isValidatorLens = currentAlgorithm?.type === 'validator';

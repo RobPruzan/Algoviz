@@ -55,6 +55,7 @@ export const useCanvasMouseDown = ({
     circles,
     selectedGeometryInfo,
     validatorLensContainer,
+    cameraCoordinate,
   } = useAppSelector((store) => store.canvas);
   const dispatch = useAppDispatch();
   const isSelectBoxSet =
@@ -72,12 +73,16 @@ export const useCanvasMouseDown = ({
       selectBox,
       selectedControlBarAction,
       validatorLensContainer,
+      cameraCoordinate,
     });
 
     if (
       isSelectBoxSet &&
       !Canvas.isPointInRectangle(
-        [event.nativeEvent.offsetX, event.nativeEvent.offsetY],
+        [
+          event.nativeEvent.offsetX - cameraCoordinate[0],
+          event.nativeEvent.offsetY - cameraCoordinate[1],
+        ],
         selectedGeometryInfo.maxPoints.closestToOrigin,
         selectedGeometryInfo.maxPoints.furthestFromOrigin
       )
@@ -151,8 +156,14 @@ export const useCanvasMouseDown = ({
           event.nativeEvent.offsetY,
         ];
         setSelectBox({
-          p1: initialMouseCoordinate,
-          p2: initialMouseCoordinate,
+          p1: [
+            initialMouseCoordinate[0] - cameraCoordinate[0],
+            initialMouseCoordinate[1] - cameraCoordinate[0],
+          ],
+          p2: [
+            initialMouseCoordinate[0] - cameraCoordinate[0],
+            initialMouseCoordinate[1] - cameraCoordinate[0],
+          ],
           type: 'selectBox',
         });
       });

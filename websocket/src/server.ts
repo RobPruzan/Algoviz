@@ -31,14 +31,26 @@ io.on('connect', (socket) => {
 
   // join room event
   socket.on('join playground', (playgroundID: string, user: User) => {
-    const clientsInRoom = io.sockets.adapter.rooms.get(playgroundID);
-    console.log('User joined playground ' + playgroundID, clientsInRoom);
+    // console.log('User joined playground ' + playgroundID, playgroundUsers);
+
     // mainId = roomID;
+    const usersInPlayground = playgroundUsers.get(playgroundID);
+    console.log(
+      'users in playground',
+      usersInPlayground,
+      'incoming user',
+      user
+    );
+    if (usersInPlayground?.some((u) => u.id === user.id)) {
+      return;
+    }
+
     playgroundUsers.set(
       playgroundID,
       // (playgroundUsers.get(playgroundID) ?? 0) + 1
-      [...playgroundUsers.get(playgroundID), user]
+      [...(usersInPlayground ?? []), user]
     );
+
     console.log('users', playgroundUsers);
     socket.join(playgroundID);
   });

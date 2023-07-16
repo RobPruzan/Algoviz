@@ -9,6 +9,7 @@ type CanvasContextMenuParams = {
   setSelectedCircleID: Dispatch<SetStateAction<string | null>>;
   meta: Meta;
   isContextMenuActiveRef: React.MutableRefObject<boolean>;
+  cameraCoordinate: [number, number];
 };
 
 export const useCanvasContextMenu = ({
@@ -16,6 +17,7 @@ export const useCanvasContextMenu = ({
   meta,
   setSelectedCircleID,
   isContextMenuActiveRef,
+  cameraCoordinate,
 }: CanvasContextMenuParams) => {
   const circles = useAppSelector((store) => store.canvas.circles);
   const dispatch = useAppDispatch();
@@ -27,6 +29,7 @@ export const useCanvasContextMenu = ({
       circles,
       event,
       canvasRef,
+      cameraCoordinate,
     });
 
     const activeCircle = circles.find((circle) => circle.id === activeCircleId);

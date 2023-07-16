@@ -18,7 +18,9 @@ export const useCanvasWheel = ({ meta, canvasRef }: UseCanvasWheel) => {
   const offsetX = useRef(0);
   const offsetY = useRef(0);
   const dispatch = useAppDispatch();
-  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
+  const { attachableLines, circles, cameraCoordinate } = useAppSelector(
+    (store) => store.canvas
+  );
   const handleWheel = useCallback(
     (event: WheelEvent) => {
       event.preventDefault();
@@ -160,84 +162,85 @@ export const useCanvasWheel = ({ meta, canvasRef }: UseCanvasWheel) => {
         offsetX.current = newOffsetX;
         offsetY.current = newOffsetY;
         const shift: [number, number] = [newOffsetX, newOffsetY];
-        // should make a helper function for translations totallllyyy
-        // i have helper functions just need to start using them
-        // like this is literally just a shift why im i writing this
-        // if this was rust i can make this look silky smooth with shift just being a trait you impl ;()
-        dispatch(CanvasActions.shiftValidatorLensContainer({ shift }));
-        dispatch(
-          CanvasActions.setCircles(
-            circles.map((circle) => ({
-              ...circle,
-              center: [
-                circle.center[0] - newOffsetX,
-                circle.center[1] - newOffsetY,
-              ],
-              nodeReceiver: {
-                ...circle.nodeReceiver,
-                center: [
-                  circle.nodeReceiver.center[0] - newOffsetX,
-                  circle.nodeReceiver.center[1] - newOffsetY,
-                ],
-              },
-            }))
-          )
-        );
-        dispatch(
-          CanvasActions.setLines(
-            attachableLines.map((line) => ({
-              ...line,
-              x1: line.x1 - newOffsetX,
-              x2: line.x2 - newOffsetX,
-              y1: line.y1 - newOffsetY,
-              y2: line.y2 - newOffsetY,
-              attachNodeOne: {
-                ...line.attachNodeOne,
-                center: [
-                  line.attachNodeOne.center[0] - newOffsetX,
-                  line.attachNodeOne.center[1] - newOffsetY,
-                ],
-              },
-              attachNodeTwo: {
-                ...line.attachNodeTwo,
-                center: [
-                  line.attachNodeTwo.center[0] - newOffsetX,
-                  line.attachNodeTwo.center[1] - newOffsetY,
-                ],
-              },
-            }))
-          )
-        );
-        dispatch(
-          CanvasActions.panMaxPoints({
-            pan: [newOffsetX, newOffsetY],
-          })
-        );
-        // setPencilCoordinates((prev) => ({
-        //   ...prev,
-        //   drawingCoordinates: prev.drawingCoordinates.map((cord) => [
-        //     cord[0] - newOffsetX,
-        //     cord[1] - newOffsetY,
-        //   ]),
-        //   drawnCoordinates: prev.drawnCoordinates.map((continuousCords) =>
-        //     continuousCords.map((cord) => [
-        //       cord[0] - newOffsetX,
-        //       cord[1] - newOffsetY,
-        //     ])
-        //   ),
-        // }));
-        dispatch(
-          CanvasActions.panPencilCoordinates(
-            {
-              pan: [newOffsetX, newOffsetY],
-            },
-            meta
-          )
-        );
+        // now instead we just shift the camera
+
+        dispatch(CanvasActions.shiftCamera({ shift }));
+        console.log('circles for example', circles);
+        // console.log('cameraCoordinate', cameraCoordinate);
+        // dispatch(CanvasActions.shiftValidatorLensContainer({ shift }));
+        // dispatch(
+        //   CanvasActions.setCircles(
+        //     circles.map((circle) => ({
+        //       ...circle,
+        //       center: [
+        //         circle.center[0] - newOffsetX,
+        //         circle.center[1] - newOffsetY,
+        //       ],
+        //       nodeReceiver: {
+        //         ...circle.nodeReceiver,
+        //         center: [
+        //           circle.nodeReceiver.center[0] - newOffsetX,
+        //           circle.nodeReceiver.center[1] - newOffsetY,
+        //         ],
+        //       },
+        //     }))
+        //   )
+        // );
+        // dispatch(
+        //   CanvasActions.setLines(
+        //     attachableLines.map((line) => ({
+        //       ...line,
+        //       x1: line.x1 - newOffsetX,
+        //       x2: line.x2 - newOffsetX,
+        //       y1: line.y1 - newOffsetY,
+        //       y2: line.y2 - newOffsetY,
+        //       attachNodeOne: {
+        //         ...line.attachNodeOne,
+        //         center: [
+        //           line.attachNodeOne.center[0] - newOffsetX,
+        //           line.attachNodeOne.center[1] - newOffsetY,
+        //         ],
+        //       },
+        //       attachNodeTwo: {
+        //         ...line.attachNodeTwo,
+        //         center: [
+        //           line.attachNodeTwo.center[0] - newOffsetX,
+        //           line.attachNodeTwo.center[1] - newOffsetY,
+        //         ],
+        //       },
+        //     }))
+        //   )
+        // );
+        // dispatch(
+        //   CanvasActions.panMaxPoints({
+        //     pan: [newOffsetX, newOffsetY],
+        //   })
+        // );
+        // // setPencilCoordinates((prev) => ({
+        // //   ...prev,
+        // //   drawingCoordinates: prev.drawingCoordinates.map((cord) => [
+        // //     cord[0] - newOffsetX,
+        // //     cord[1] - newOffsetY,
+        // //   ]),
+        // //   drawnCoordinates: prev.drawnCoordinates.map((continuousCords) =>
+        // //     continuousCords.map((cord) => [
+        // //       cord[0] - newOffsetX,
+        // //       cord[1] - newOffsetY,
+        // //     ])
+        // //   ),
+        // // }));
+        // dispatch(
+        //   CanvasActions.panPencilCoordinates(
+        //     {
+        //       pan: [newOffsetX, newOffsetY],
+        //     },
+        //     meta
+        //   )
+        // );
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [attachableLines, canvasRef, circles]
+    [attachableLines, canvasRef, circles, cameraCoordinate]
   );
   useEffect(() => {
     const canvas = canvasRef.current;

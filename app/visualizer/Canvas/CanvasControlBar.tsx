@@ -18,7 +18,11 @@ import {
   IO,
   UndirectedEdge,
 } from '@/lib/types';
-import { CanvasActions, ValidatorLensInfo } from '@/redux/slices/canvasSlice';
+import {
+  CanvasActions,
+  Meta,
+  ValidatorLensInfo,
+} from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import {
   ArrowDown,
@@ -77,9 +81,12 @@ const CanvasControlBar = ({
 
   const selectedValidator: null | string = null;
 
-  const meta = {
+  const meta: Meta = {
     userID: session.data?.user.id ?? notSignedInUserId,
     playgroundID,
+    user: {
+      id: session.data?.user.id ?? notSignedInUserId,
+    },
   };
   // fix all these hard coded numbers and random spawn points
   // move random spawn points to slight distribution around middle of canvas

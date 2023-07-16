@@ -58,6 +58,7 @@ export type CanvasState = {
   };
   startNode: string | null;
   endNode: string | null;
+  cameraCoordinate: [number, number];
 };
 
 const initialState: CanvasState = {
@@ -76,12 +77,13 @@ const initialState: CanvasState = {
   },
   endNode: null,
   startNode: null,
+  cameraCoordinate: [0, 0],
 };
 
 export type Meta = {
-  userID: string;
+  userID: string | null;
   playgroundID: string | null;
-  user: User | { id: string };
+  user: User | { id: string | null };
   fromServer?: boolean;
 };
 
@@ -91,11 +93,35 @@ type MetaParams<TPayload> = FirstParameter<
 
 const withCanvasMeta = <TPayload>(args: MetaParams<TPayload>) =>
   withMeta<TPayload, CanvasState>(args);
+// i think having a true center offset would be ideal if rewriting
+// u wouldn't have to update any state when moving, just update true center
+// then render based off of the positions coordinates, adjusted for true center
+// its not a crazy tough computation to shift stuff around, so it's fine (probably pales in comparison to the draw)
 
+// to implement this now, we can have a true coordinate attached to the collaboration state. Then just shift the coordinates based on that
+// but that doesn't work cause on the user side all objects look the same
+// may actually need to reimplement the zooming with true placement
+// true placement is actually just camera position, then the camera position is just origin
+// but what's the definitive reason we can't just place the coordintes there and have no camera
+// we would have no actual camera tracking where we are
+// we we can do is actually have one camera origin point
+// we then set the drawing coordinates to actually where it is in the canvas state (the coordinate, then translated for camera)
+// the draw is then going to be taking the camera (current origin)
+// then i can do that simple translate to do this to set that as origin
+// any problems with this?
+//
 const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    shiftCamera: (state, action: PayloadAction<Shift>) => {
+      const [dx, dy] = action.payload.shift;
+
+      state.cameraCoordinate = [
+        state.cameraCoordinate[0] - dx,
+        state.cameraCoordinate[1] - dy,
+      ];
+    },
     handleMoveNodeTwo: withCanvasMeta<
       Shift & { selectedAttachableLineID: string; mousePos: [number, number] }
     >((state, action) => {

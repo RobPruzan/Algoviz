@@ -27,7 +27,7 @@ export class SocketIO {
   getConnectedUsers(playgroundID: string) {
     return new Promise<(User | { id: string })[]>((resolve, reject) => {
       this.socket?.emit('get connected users', playgroundID, (users: []) => {
-        console.log('acknowleged users');
+        console.log('acknowleged users', users);
         resolve(users);
       });
     });
@@ -58,8 +58,8 @@ export class SocketIO {
     this.socket?.emit('create', state);
   }
 
-  joinPlayground(playgroundID: string, user: User | { id: string }) {
-    this.socket?.emit('join playground', playgroundID);
+  joinPlayground(playgroundID: string, user: User | { id: string | null }) {
+    this.socket?.emit('join playground', playgroundID, user);
   }
   addActionListener(cb: OnCB) {
     this.socket?.on('action', cb);

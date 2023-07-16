@@ -95,6 +95,7 @@ const CanvasDisplay = ({
     creationZoomFactor, // need to make this updated on load of playground
     endNode,
     startNode,
+    cameraCoordinate,
   } = useAppSelector((store) => store.canvas);
   const { collabInfos } = useAppSelector((store) => store.collaborationState);
   const isMouseDownRef = useRef(false);
@@ -137,7 +138,7 @@ const CanvasDisplay = ({
       type: 'socket/connect',
       meta,
     });
-
+    // need to understand the problem with waiting for the session to load :/
     return () => {
       dispatch({
         type: 'socket/disconnect',
@@ -168,6 +169,10 @@ const CanvasDisplay = ({
       mousePosition: [0, 0],
     };
     dispatch(CollaborationActions.addCollabInfo(item, meta));
+
+    return () => {
+      dispatch(CollaborationActions.cleanupCollabInfo());
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.data?.user, userID, session.status, dispatch]);
 
@@ -179,7 +184,11 @@ const CanvasDisplay = ({
         );
       });
     }
-  }, [playgroundID]);
+    return () => {
+      dispatch(CollaborationActions.cleanupCollabInfo());
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, playgroundID, session.status]);
 
   const { selectedAttachableLines, selectedCircles } = getSelectedItems({
     attachableLines,
@@ -220,6 +229,7 @@ const CanvasDisplay = ({
     canvasRef,
     setSelectedCircleID,
     isContextMenuActiveRef,
+    cameraCoordinate,
   });
 
   const handleMouseMove = useCanvasMouseMove({
@@ -267,17 +277,37 @@ const CanvasDisplay = ({
     const ctx = canvas?.getContext('2d');
     if (!ctx) return;
     if (!canvas) return;
-    const selectedIds = getValidatorLensSelectedIds({
-      attachableLines,
-      circles,
-      validatorLensContainer,
-    });
-    ctx.globalAlpha = 0.5; // Set the transparency
+
+    // 1. Clear the canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 2. Reset the transformation matrix
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    // 3. Apply the translation
+    ctx.translate(cameraCoordinate[0], cameraCoordinate[1]);
+
     Draw.optimizeCanvas({
       ctx,
       canvas,
     });
 
+    const dpr = window.devicePixelRatio;
+    ctx.scale(dpr, dpr);
+
+    // 1. Clear the canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 2. Reset the transformation matrix
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    // 3. Apply the translation
+    ctx.translate(cameraCoordinate[0], cameraCoordinate[1]);
+    const selectedIds = getValidatorLensSelectedIds({
+      attachableLines,
+      circles,
+      validatorLensContainer,
+    });
     const val = cursorImgRef.current;
     val &&
       collabInfos.forEach((info) => {
@@ -390,6 +420,7 @@ const CanvasDisplay = ({
     selectedValidatorLens,
     endNode,
     startNode,
+    cameraCoordinate,
   ]);
 
   return (
@@ -479,7 +510,6 @@ const CanvasDisplay = ({
             {selectedValidatorLens && (
               <ContextMenuItem
                 onClick={() => {
-                  console.log(selectedAlgorithm);
                   const validatorLens = validatorLensContainer.find(
                     (validatorLens) =>
                       validatorLens.id === selectedValidatorLens.id

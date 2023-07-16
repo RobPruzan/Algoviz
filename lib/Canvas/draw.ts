@@ -482,6 +482,28 @@ export const drawBox = ({
   ctx.stroke();
 };
 
+// export const optimizeCanvas = ({
+//   canvas,
+//   ctx,
+// }: {
+//   canvas: HTMLCanvasElement;
+//   ctx: CanvasRenderingContext2D;
+// }) => {
+//   const dpr = window.devicePixelRatio;
+//   const rect = canvas.getBoundingClientRect();
+
+//   // Set the "actual" size of the canvas
+//   canvas.width = rect.width * dpr;
+//   canvas.height = rect.height * dpr;
+
+//   // Scale the context to ensure correct drawing operations
+//   ctx.scale(dpr, dpr);
+
+//   // Set the "drawn" size of the canvas
+//   canvas.style.width = `${rect.width}px`;
+//   canvas.style.height = `${rect.height}px`;
+//   ctx.clearRect(0, 0, canvas.width, canvas.height);
+// };
 export const optimizeCanvas = ({
   canvas,
   ctx,
@@ -496,13 +518,9 @@ export const optimizeCanvas = ({
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
 
-  // Scale the context to ensure correct drawing operations
-  ctx.scale(dpr, dpr);
-
   // Set the "drawn" size of the canvas
   canvas.style.width = `${rect.width}px`;
   canvas.style.height = `${rect.height}px`;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
 };
 
 export const drawPencil = ({
