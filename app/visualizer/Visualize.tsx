@@ -63,7 +63,7 @@ const Visualize = ({
     // temporary until select is implemented
     startingNode: [...adjacencyList.keys()].at(0) ?? '',
   });
-  const notSignedInUserIdRef = useRef(crypto.randomUUID());
+
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -73,7 +73,6 @@ const Visualize = ({
           <SortControlBar algorithm={sideBarState.algorithm} />
         ) : (
           <CanvasControlBar
-            notSignedInUserId={notSignedInUserIdRef.current}
             setSelectedControlBarAction={setSelectedControlBarAction}
           />
         )}
@@ -90,7 +89,6 @@ const Visualize = ({
             selectedValidatorLens={selectedValidatorLens}
             setSelectedValidatorLens={setSelectedValidatorLens}
             canvasWrapperRef={canvasWrapperRef}
-            notSignedInUserId={notSignedInUserIdRef.current}
             canvasWidth={canvasWidth}
             selectedControlBarAction={selectedControlBarAction}
             // setSelectedControlBarAction={setSelectedControlBarAction}

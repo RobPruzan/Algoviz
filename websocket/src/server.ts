@@ -27,6 +27,13 @@ type User = {
   email?: string | null;
   image?: string | null;
 };
+// should code split to get the type from next
+type ObjectState = {
+  circles: any;
+  attachableLines: any;
+  validatorLensContainer: any;
+  pencilCoordinates: any;
+};
 
 const playgroundUsers = new Map<string, (User | { id: string })[]>();
 // let mainId = '';
@@ -35,25 +42,30 @@ io.on('connect', (socket) => {
   console.log('a user connected (+1)', new Date().getUTCDay());
 
   // join room event
-  socket.on('join playground', (playgroundID: string, user: User) => {
+  socket.on(
+    'join playground',
+    (playgroundID: string, user: User, acknowledgement) => {
+      // mainId = roomID;
+      const before_UsersInPlayground = playgroundUsers.get(playgroundID);
 
+      if (before_UsersInPlayground?.some((u) => u.id === user.id)) {
+        return;
+      }
 
-    // mainId = roomID;
-    const usersInPlayground = playgroundUsers.get(playgroundID);
+      playgroundUsers.set(
+        playgroundID,
+        // (playgroundUsers.get(playgroundID) ?? 0) + 1
+        [...(before_UsersInPlayground ?? []), user]
+      );
 
-    if (usersInPlayground?.some((u) => u.id === user.id)) {
-      return;
+      socket.join(playgroundID);
+      const after_UsersInPlayground = playgroundUsers.get(playgroundID);
+      console.log('calling ack with users: ', after_UsersInPlayground);
+
+      acknowledgement(after_UsersInPlayground);
+      // socket.emit('user joined', user);
     }
-
-    playgroundUsers.set(
-      playgroundID,
-      // (playgroundUsers.get(playgroundID) ?? 0) + 1
-      [...(usersInPlayground ?? []), user]
-    );
-
-
-    socket.join(playgroundID);
-  });
+  );
 
   socket.on('action', (data: SocketAction) => {
     // const clientsInRoom = io.sockets.adapter.rooms.get(data.meta.playgroundID);
@@ -65,13 +77,15 @@ io.on('connect', (socket) => {
   socket.on('disconnect', () => {
     // playgroundUsers.set(mainId, (playgroundUsers.get(mainId) ?? 0) - 1);
 
-
     console.log('user disconnected (-1)', new Date().getTime());
+  });
+
+  socket.on('synchronize', (state: ObjectState) => {
+    console.log('synchronize');
   });
 
   socket.on('get connected users', (playgroundID: string, acknowledgement) => {
     const usersInPlayground = playgroundUsers.get(playgroundID);
-
 
     acknowledgement(usersInPlayground);
   });

@@ -15,7 +15,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import * as Canvas from '@/lib/Canvas/canvas';
 import * as Draw from '@/lib/Canvas/draw';
 import { ImmutableQueue } from '@/lib/graph';
-import { withMeta } from '../store';
+import { store, withMeta } from '../store';
 import { match } from 'ts-pattern';
 import { NodeValidation } from './codeExecSlice';
 import { User } from 'next-auth';
@@ -59,6 +59,7 @@ export type CanvasState = {
   startNode: string | null;
   endNode: string | null;
   cameraCoordinate: [number, number];
+  notSignedInUserID: string;
 };
 
 const initialState: CanvasState = {
@@ -78,7 +79,13 @@ const initialState: CanvasState = {
   endNode: null,
   startNode: null,
   cameraCoordinate: [0, 0],
+  notSignedInUserID: crypto.randomUUID(),
 };
+
+export type ObjectState = Pick<
+  CanvasState,
+  'attachableLines' | 'circles' | 'pencilCoordinates' | 'validatorLensContainer'
+>;
 
 export type Meta = {
   userID: string | null;
@@ -341,13 +348,6 @@ const canvasSlice = createSlice({
           ? (action.payload.shift[1] / (action.meta?.scaleFactor ?? 1)) *
             state.currentZoomFactor
           : action.payload.shift[1];
-
-        console.log(
-          'shift factor',
-          action.meta?.scaleFactor,
-          'current client shiftfactor',
-          state.currentZoomFactor
-        );
 
         // this needs to be cleaned up
         const newCircle: CircleReceiver = {

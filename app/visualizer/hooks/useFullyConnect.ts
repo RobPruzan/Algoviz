@@ -97,10 +97,11 @@ export const useFullyConnect = (meta: Meta) => {
         visited.add(storeCircleA.id + storeCircleB.id);
         visited.add(storeCircleB.id + storeCircleA.id);
         dispatch(
-          CanvasActions.addSelectedIds(
-            [newLine.id, newLine.attachNodeOne.id, newLine.attachNodeTwo.id],
-            meta
-          )
+          CanvasActions.addSelectedIds([
+            newLine.id,
+            newLine.attachNodeOne.id,
+            newLine.attachNodeTwo.id,
+          ])
         );
       }
     }

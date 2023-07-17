@@ -50,7 +50,12 @@ export class SocketIO {
   }
 
   joinPlayground(playgroundID: string, user: User | { id: string | null }) {
-    this.socket?.emit('join playground', playgroundID, user);
+    // this.socket?.emit('join playground', playgroundID, user);
+    return new Promise<(User | { id: string })[]>((resolve, reject) => {
+      this.socket?.emit('join playground', playgroundID, user, (users: []) => {
+        resolve(users);
+      });
+    });
   }
   addActionListener(cb: OnCB) {
     this.socket?.on('action', cb);

@@ -60,10 +60,11 @@ import { match } from 'ts-pattern';
 import { CodeExecActions } from '@/redux/slices/codeExecSlice';
 import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 import { socket } from '@/lib/socket/socket-utils';
+import { useMeta } from '@/hooks/useMeta';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
   canvasWrapperRef: React.RefObject<HTMLDivElement>;
-  notSignedInUserId: string;
+
   canvasWidth: number | `${string}%`;
   setSelectedValidatorLens: React.Dispatch<
     React.SetStateAction<SelectedValidatorLens | null>
@@ -75,11 +76,14 @@ const CanvasDisplay = ({
   selectedControlBarAction,
   canvasWrapperRef,
   selectedValidatorLens,
-  notSignedInUserId,
+
   canvasWidth,
   setSelectedValidatorLens,
 }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const notSignedInUserID = useAppSelector(
+    (store) => store.canvas.notSignedInUserID
+  );
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
   const selectedGeometryInfo = useAppSelector(
@@ -92,7 +96,7 @@ const CanvasDisplay = ({
     circles,
     validatorLensContainer,
     pencilCoordinates,
-    currentZoomFactor: creationZoomFactor, // need to make this updated on load of playground
+    currentZoomFactor, // need to make this updated on load of playground
     endNode,
     startNode,
     cameraCoordinate,
@@ -116,40 +120,17 @@ const CanvasDisplay = ({
   const session = useSession();
   session.data?.user;
   const playgroundID = searchParams.get('playground-id');
-  const userID = session.data?.user.id ?? notSignedInUserId;
+  const userID = session.data?.user.id ?? notSignedInUserID;
   const selectedAlgorithm = useAppSelector(
     (store) => store.codeExec.selectedAlgorithm
   );
-  const meta: Meta = {
-    playgroundID,
-    userID,
-    user: session.data?.user || { id: userID },
-    scaleFactor: creationZoomFactor,
-  };
+  const meta = useMeta();
   const cursorImgRef = useRef<HTMLImageElement | null>(null);
 
   const [
     selectedResizeValidatorLensCircle,
     setSelectedResizeValidatorLensCircle,
   ] = useState<SelectedValidatorLensResizeCircle | null>(null);
-
-  useEffect(() => {
-    // putting a condition here of session.status === 'loading' still breaks even with the updated cleanup logic
-    if (!playgroundID) return;
-    dispatch({
-      type: 'socket/connect',
-      meta,
-    });
-    // need to understand the problem with waiting for the session to load :/
-    return () => {
-      if (!playgroundID) return;
-      dispatch({
-        type: 'socket/disconnect',
-        meta,
-      });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playgroundID]);
 
   useEffect(() => {
     const img = new Image(20, 20);
@@ -172,25 +153,15 @@ const CanvasDisplay = ({
     };
     dispatch(CollaborationActions.addCollabInfo(item, meta));
 
-    return () => {
-      dispatch(CollaborationActions.cleanupCollabInfo());
-    };
+    // return () => {
+    //   dispatch(CollaborationActions.cleanupCollabInfo());
+    // };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.data?.user, userID, session.status, dispatch]);
 
   useEffect(() => {
-    if (playgroundID) {
-      socket.getConnectedUsers(playgroundID).then((users) => {
-        users.forEach((user) =>
-          dispatch(CollaborationActions.addUser(user, meta))
-        );
-      });
-    }
-    return () => {
-      dispatch(CollaborationActions.cleanupCollabInfo());
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, playgroundID, session.status]);
+    console.log('state woo');
+  }, []);
 
   const { selectedAttachableLines, selectedCircles } = getSelectedItems({
     attachableLines,

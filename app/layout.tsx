@@ -60,7 +60,7 @@ export default function RootLayout({
                       <PlaygroundsButton />
                     </div>
 
-                    <div className="w-2/6  " />
+                    <div className="w-2/6 " />
 
                     <div className="w-[60%] flex justify-end items-center">
                       <div className="mr-2">

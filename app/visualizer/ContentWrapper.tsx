@@ -22,6 +22,7 @@ import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppSelector } from '@/redux/store';
 import { match } from 'ts-pattern';
 import { useCodeMutation } from './hooks/useCodeMutation';
+import { CollaborationActions } from '@/redux/slices/colloborationSlice';
 type Props = {
   shapes: {
     circles: Prisma.JsonValue;
@@ -66,7 +67,15 @@ const ContentWrapper = ({ shapes }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(
+    () => () => {
+      dispatch(CollaborationActions.cleanupCollabInfo());
+    },
+    [dispatch]
+  );
+
   useEffect(() => {
+    // for desktop app custom hoom next commit
     const rx = /INPUT|SELECT|TEXTAREA/i;
 
     const keyDownHandler = (e: any) => {

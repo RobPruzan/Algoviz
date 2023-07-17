@@ -9,6 +9,7 @@ import { P, match } from 'ts-pattern';
 import { getSelectedItems } from '@/lib/utils';
 import { useGetAlgorithmsQuery } from './useGetAlgorithmsQuery';
 import { CanvasActions, ValidatorLensInfo } from '@/redux/slices/canvasSlice';
+import { useMeta } from '@/hooks/useMeta';
 
 export const useCodeMutation = () => {
   const dispatch = useAppDispatch();
@@ -30,6 +31,8 @@ export const useCodeMutation = () => {
   const selectedCirclesThroughLens = circles.filter((circle) =>
     validatorLensContainer.some((lens) => lens.selectedIds.includes(circle.id))
   );
+
+  // const { meta } = useMeta(notSignedInUserId);
 
   const adjacencyList: Record<string, string[]> = [
     ...Graph.getAdjacencyList({
@@ -87,8 +90,6 @@ export const useCodeMutation = () => {
           }),
         }),
         z.object({
-          // type: z.literal('error'),
-          // error: z.string(),
           data: z.object({
             result: z.object({
               type: z.literal('error'),

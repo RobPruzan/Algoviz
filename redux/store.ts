@@ -15,10 +15,12 @@ import { codeExecReducer } from './slices/codeExecSlice';
 import { SocketIO, socket } from '@/lib/socket/socket-utils';
 import { SocketAction, UntypedData } from '@/lib/types';
 import {
+  CollaborationActions,
   collaborationReducer,
   collaborationStateReducer,
 } from './slices/colloborationSlice';
 import { io } from 'socket.io-client';
+import { type User } from 'next-auth';
 
 export function withMeta<TPayload, TState>(
   reducer: (
@@ -43,12 +45,18 @@ export const socketMiddleware =
 
     switch (action.type) {
       case 'socket/connect':
+        console.log('recieve connect', action.meta);
         if (action.meta?.playgroundID) {
-          socketManager.socket = io('http://localhost:8080');
-          socketManager.joinPlayground(
-            action.meta.playgroundID,
-            action.meta.user
-          );
+          console.log('connecting to playground', action.meta.playgroundID);
+          socketManager.socket = io(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL);
+          socketManager
+            .joinPlayground(action.meta.playgroundID, action.meta.user)
+            .then((users) => {
+              console.log('RESOLVING USERS, and acking', users);
+              users.forEach((user) =>
+                dispatch(CollaborationActions.addUser(user))
+              );
+            });
           socketManager.addActionListener((socketAction: SocketAction) => {
             if (socketAction.meta.userID !== action.meta.userID) {
               // note, performance is pretty good with circles, but awful with boxes, investigate
@@ -56,13 +64,8 @@ export const socketMiddleware =
             }
           });
         }
-        socketManager.socket?.on('user joined', (user: { id: string }) => {
-          dispatch(
-            collaborationStateReducer.actions.addUser({
-              id: user.id,
-              name: 'user',
-            })
-          );
+        socketManager.socket?.on('user joined', (user: User) => {
+          dispatch(collaborationStateReducer.actions.addUser(user));
         });
         break;
       case 'socket/disconnect':
@@ -86,6 +89,7 @@ export const store = configureStore({
     // other state can be shared between clients, but this state is specifically for supporting collaboration
     collaborationState: collaborationReducer,
   },
+
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(socketMiddleware(socket)),
 });

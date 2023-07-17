@@ -9,7 +9,7 @@ app.use(express.json());
 app.post('/exec', (req, res) => {
   const { code, globalVar, startNode, endNode } = req.body;
   console.log('incoming ', req.body);
-  // console.log('incoming code', globalVar);
+  console.log('incoming code', globalVar);
   // console.log('incoming val', req.body);
   const jsCode = ts.transpileModule(
     code +

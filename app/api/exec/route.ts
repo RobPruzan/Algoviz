@@ -7,8 +7,8 @@ export async function POST(request: Request) {
   const codeSchema = z.object({
     code: z.string(),
     globalVar: globalVarSchema,
-    startNode: z.string(),
-    endNode: z.string(),
+    startNode: z.string().nullish(),
+    endNode: z.string().nullish(),
   });
   const json = await request.json();
   const parsedJson = codeSchema.parse(json);
@@ -23,6 +23,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({ code, globalVar, startNode, endNode }),
     });
     const data = await res.json();
+
     return NextResponse.json({ data });
   } else {
     return NextResponse.json({

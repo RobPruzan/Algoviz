@@ -32,6 +32,7 @@ export const collaborationStateReducer = createSlice({
   name: 'collaborationState',
   reducers: {
     cleanupCollabInfo: (state) => {
+      console.log('clean up state');
       state.collabInfos = [];
     },
 

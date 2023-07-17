@@ -54,15 +54,9 @@ import { DirectedEdgeIcon } from '@/components/icons/DirectedEdge';
 import { UndirectedEdgeIcon } from '@/components/icons/UndirectedEdge';
 type Props = {
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
-
-  notSignedInUserId: string;
 };
 
-const CanvasControlBar = ({
-  setSelectedControlBarAction,
-
-  notSignedInUserId,
-}: Props) => {
+const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
   const dispatch = useAppDispatch();
   const {
     circles,
@@ -72,6 +66,9 @@ const CanvasControlBar = ({
   } = useAppSelector((store) => store.canvas);
   const [itemChecked, setItemChecked] = useState<null | string>(null);
   const searchParams = useSearchParams();
+  const notSignedInUserID = useAppSelector(
+    (store) => store.canvas.notSignedInUserID
+  );
 
   const shapeUpdateMutation = useShapeUpdateMutation();
   const validShapeUpdateMutation = (
@@ -85,10 +82,10 @@ const CanvasControlBar = ({
   const selectedValidator: null | string = null;
 
   const meta: Meta = {
-    userID: session.data?.user.id ?? notSignedInUserId,
+    userID: session.data?.user.id ?? notSignedInUserID,
     playgroundID,
     user: {
-      id: session.data?.user.id ?? notSignedInUserId,
+      id: session.data?.user.id ?? notSignedInUserID,
     },
   };
   // fix all these hard coded numbers and random spawn points
