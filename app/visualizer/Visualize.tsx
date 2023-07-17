@@ -65,6 +65,8 @@ const Visualize = ({
   });
 
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
+  const width = canvasWrapperRef.current?.offsetWidth;
+  const height = canvasWrapperRef.current?.offsetHeight;
 
   return (
     <div className={`flex w-full flex-col h-full items-center justify-start `}>
@@ -89,7 +91,8 @@ const Visualize = ({
             selectedValidatorLens={selectedValidatorLens}
             setSelectedValidatorLens={setSelectedValidatorLens}
             canvasWrapperRef={canvasWrapperRef}
-            canvasWidth={canvasWidth}
+            canvasWidth={width ?? 1000}
+            canvasHeight={height ?? 1000}
             selectedControlBarAction={selectedControlBarAction}
             // setSelectedControlBarAction={setSelectedControlBarAction}
             // handleDfs={handleDfs}

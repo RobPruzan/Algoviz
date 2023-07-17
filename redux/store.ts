@@ -4,7 +4,12 @@ import {
   PayloadAction,
   configureStore,
 } from '@reduxjs/toolkit';
-import { CanvasActions, Meta, canvasReducer } from './slices/canvasSlice';
+import {
+  CanvasActions,
+  Meta,
+  ObjectState,
+  canvasReducer,
+} from './slices/canvasSlice';
 import {
   useDispatch,
   useSelector,
@@ -12,7 +17,7 @@ import {
 } from 'react-redux';
 import { dfsReducer } from './slices/dfsSlice';
 import { codeExecReducer } from './slices/codeExecSlice';
-import { SocketIO, socket } from '@/lib/socket/socket-utils';
+import { SocketIO, socketManager } from '@/lib/socket/socket-utils';
 import { SocketAction, UntypedData } from '@/lib/types';
 import {
   CollaborationActions,
@@ -36,7 +41,13 @@ export function withMeta<TPayload, TState>(
 
 export const socketMiddleware =
   (socketManager: SocketIO): Middleware<{}, any> =>
-  ({ dispatch, getState }) =>
+  ({
+    dispatch,
+    getState,
+  }: {
+    dispatch: typeof store.dispatch;
+    getState: typeof store.getState;
+  }) =>
   (next) =>
   (action: SocketAction & { meta: Meta | undefined }) => {
     const isSharedAction =
@@ -56,6 +67,9 @@ export const socketMiddleware =
               users.forEach((user) =>
                 dispatch(CollaborationActions.addUser(user))
               );
+            })
+            .catch((err) => {
+              console.log('ERROR adding user', err);
             });
           socketManager.addActionListener((socketAction: SocketAction) => {
             if (socketAction.meta.userID !== action.meta.userID) {
@@ -66,7 +80,44 @@ export const socketMiddleware =
         }
         socketManager.socket?.on('user joined', (user: User) => {
           dispatch(collaborationStateReducer.actions.addUser(user));
+          // user meta is a closure over the original connect dispatch at page mount
+          console.log('USER JOINED NEED TO DO STUFF');
+          if (
+            action.meta.playgroundID &&
+            getState().collaborationState.ownerID === action.meta.userID
+          ) {
+            const objectState: ObjectState = getState().canvas;
+
+            console.log('emFUCKINGITTING', objectState);
+            socketManager.emitSynchronizeObjectState(
+              objectState,
+              getState().canvas.cameraCoordinate,
+              getState().canvas.currentZoomFactor,
+              action.meta.playgroundID
+            );
+          }
         });
+        socketManager.socket?.on(
+          'synchronize',
+          (
+            state: ObjectState,
+            cameraCoordinate: [number, number],
+            zoomFactor: number
+          ) => {
+            console.log('synchronizing', state);
+
+            console.log('the real center is', action.meta.realCoordinateCenter);
+            action.meta.realCoordinateCenter &&
+              dispatch(
+                CanvasActions.synchronizeObjectState({
+                  state,
+                  cameraCoordinate,
+                  realCoordinateCenter: action.meta.realCoordinateCenter,
+                  zoomFactor,
+                })
+              );
+          }
+        );
         break;
       case 'socket/disconnect':
         if (action.meta?.playgroundID) {
@@ -91,7 +142,7 @@ export const store = configureStore({
   },
 
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(socketMiddleware(socket)),
+    getDefaultMiddleware().concat(socketMiddleware(socketManager)),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

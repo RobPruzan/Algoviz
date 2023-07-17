@@ -4,6 +4,7 @@ import {
   CircleReceiver,
   Edge,
   Percentage,
+  PickedPlayground,
   SelectedGeometryInfo,
   SelectedValidatorLens,
 } from '@/lib/types';
@@ -23,15 +24,12 @@ import { useAppSelector } from '@/redux/store';
 import { match } from 'ts-pattern';
 import { useCodeMutation } from './hooks/useCodeMutation';
 import { CollaborationActions } from '@/redux/slices/colloborationSlice';
+import { useMeta } from '@/hooks/useMeta';
 type Props = {
-  shapes: {
-    circles: Prisma.JsonValue;
-    lines: Prisma.JsonValue;
-    pencil: Prisma.JsonValue;
-  } | null;
+  data: PickedPlayground | null;
 };
 
-const ContentWrapper = ({ shapes }: Props) => {
+const ContentWrapper = ({ data }: Props) => {
   const [canvasWidth, setCanvasWidth] = useState<number | Percentage>('59.2%');
   const [codeExecWidth, setCodeExecWidth] = useState<number | Percentage>(
     '40%'
@@ -53,16 +51,26 @@ const ContentWrapper = ({ shapes }: Props) => {
 
   const codeMutation = useCodeMutation();
 
+  const meta = useMeta();
+
   useEffect(() => {
     // #TODO need to do zod validation
-    const circles = shapes?.circles as CircleReceiver[] | undefined;
-    const lines = shapes?.lines as Edge[] | undefined;
+    if (!data) return;
+    const circles = data.circles as CircleReceiver[] | undefined;
+    const lines = data.lines as Edge[] | undefined;
     if (circles && circles.length > 0) {
       dispatch(CanvasActions.setCircles(circles));
     }
     if (lines && lines.length > 0) {
       dispatch(CanvasActions.setLines(lines));
     }
+
+    dispatch(
+      CollaborationActions.setPlaygroundOwner({ owner: data.userId }, meta)
+    );
+    () => {
+      dispatch(CollaborationActions.clearOwner()), meta;
+    };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

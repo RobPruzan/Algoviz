@@ -14,6 +14,7 @@ type CollabInfo = {
 
 type CollaborationState = {
   collabInfos: CollabInfo[];
+  ownerID: string | null;
 };
 
 type MetaParams<TPayload> = FirstParameter<
@@ -25,18 +26,26 @@ const withCollabMeta = <TPayload>(args: MetaParams<TPayload>) =>
 
 const initialState: CollaborationState = {
   collabInfos: [],
+  ownerID: null,
 };
 
 export const collaborationStateReducer = createSlice({
   initialState,
   name: 'collaborationState',
   reducers: {
+    clearOwner: (state) => {
+      state.ownerID = null;
+    },
+    setPlaygroundOwner: withCollabMeta<{ owner: string }>((state, action) => {
+      state.ownerID = action.payload.owner;
+    }),
     cleanupCollabInfo: (state) => {
       console.log('clean up state');
       state.collabInfos = [];
     },
 
     addCollabInfo: withCollabMeta<CollabInfo>((state, action) => {
+      console.log('def adding collab info');
       if (
         !state.collabInfos.some(
           (collabInfo) => collabInfo.user.id === action.payload.user.id
@@ -45,6 +54,7 @@ export const collaborationStateReducer = createSlice({
         state.collabInfos = [...state.collabInfos, action.payload];
     }),
     addUser: withCollabMeta<NextUser | { id: string }>((state, action) => {
+      console.log('ADDING USER RNNNN');
       let setUser = false;
       for (const info of state.collabInfos) {
         if (info.user.id === action.payload.id) {

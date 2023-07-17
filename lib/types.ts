@@ -214,3 +214,9 @@ export enum CanvasControlBarActions {
 }
 
 export type ArrayItem<T> = T extends (infer U)[] ? U : never;
+
+export type PickedPlayground = Pick<
+  Playground,
+  'id' | 'circles' | 'lines' | 'pencil' | 'userId'
+>;
+let test = {} as PickedPlayground;

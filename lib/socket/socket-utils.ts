@@ -1,10 +1,9 @@
-'use client';
-
+// may need
 import { io } from 'socket.io-client';
 import { CircleReceiver, Edge, IO, SocketAction, UntypedData } from '../types';
 import { useAppDispatch } from '@/redux/store';
-import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
-import { User } from 'next-auth';
+import { CanvasActions, Meta, ObjectState } from '@/redux/slices/canvasSlice';
+import { type User } from 'next-auth';
 
 type SecondParam<T> = T extends (arg1: any, arg2: infer P) => any ? P : T;
 type OnCB = SecondParam<ReturnType<typeof io>['on']>;
@@ -23,6 +22,31 @@ export class SocketIO {
       });
     });
   }
+
+  emitSynchronizeObjectState(
+    state: ObjectState,
+    cameraCoordinate: [number, number],
+    zoomFactor: number,
+    playgroundID: string
+  ) {
+    this.socket?.emit(
+      'synchronize',
+      state,
+      cameraCoordinate,
+      zoomFactor,
+      playgroundID
+    );
+  }
+
+  // handleSynchronizeObjectState() {
+  //   this.socket?.on(
+  //     'synchronize',
+  //     (state: ObjectState, dispatch: ReturnType<typeof useAppDispatch>) => {
+  //       console.log('synchronize', state);
+  //       dispatch(CanvasActions.synchronizeObjectState(state));
+  //     }
+  //   );
+  // }
 
   sendUpdate(
     state:
@@ -52,6 +76,7 @@ export class SocketIO {
   joinPlayground(playgroundID: string, user: User | { id: string | null }) {
     // this.socket?.emit('join playground', playgroundID, user);
     return new Promise<(User | { id: string })[]>((resolve, reject) => {
+      console.log('EMITTING JOIN PLAYGROUND');
       this.socket?.emit('join playground', playgroundID, user, (users: []) => {
         resolve(users);
       });
@@ -94,4 +119,4 @@ export class SocketIO {
 }
 
 // #TODO make this an env var
-export const socket = new SocketIO('http://localhost:8080');
+export const socketManager = new SocketIO('http://localhost:8080');

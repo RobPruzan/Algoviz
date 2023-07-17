@@ -93,6 +93,7 @@ export type Meta = {
   user: User | { id: string | null };
   fromServer?: boolean;
   scaleFactor?: number;
+  realCoordinateCenter?: [number, number];
 };
 
 type MetaParams<TPayload> = FirstParameter<
@@ -122,6 +123,154 @@ const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    synchronizeObjectState: (
+      state,
+      action: PayloadAction<{
+        state: ObjectState;
+        cameraCoordinate: [number, number];
+        realCoordinateCenter: [number, number];
+        zoomFactor: number;
+      }>
+    ) => {
+      const {
+        attachableLines,
+        circles,
+        // pencil coordinates is horribly broken gotta fix
+        pencilCoordinates,
+        validatorLensContainer,
+      } = action.payload.state;
+      const center = action.payload.realCoordinateCenter;
+      const zoomAmount = state.currentZoomFactor / action.payload.zoomFactor;
+      // its broken fix later need to have pools of dis :(
+
+      console.log('action camera cord', action.payload.cameraCoordinate);
+      console.log('state camera cord', [...state.cameraCoordinate]);
+
+      state.attachableLines = attachableLines.map((line) => {
+        const shiftedLine = Canvas.shiftLine({
+          line,
+          shift: [
+            // probably need to work on the shifting, refer to the google doc, not sure if this makes sense too tired rn
+            action.payload.cameraCoordinate[0] + state.cameraCoordinate[0],
+            action.payload.cameraCoordinate[1] + state.cameraCoordinate[1],
+          ],
+        });
+
+        const zoomedLine: Edge = {
+          ...line,
+          x1: Draw.mouseCenteredZoom([line.x1, line.y1], center, zoomAmount)[0],
+          x2: Draw.mouseCenteredZoom([line.x2, line.y2], center, zoomAmount)[0],
+          y1: Draw.mouseCenteredZoom([line.x1, line.y1], center, zoomAmount)[1],
+          y2: Draw.mouseCenteredZoom([line.x2, line.y2], center, zoomAmount)[1],
+          width: line.width * zoomAmount,
+
+          attachNodeOne: {
+            ...line.attachNodeOne,
+            center: Draw.zoomCircle(
+              line.attachNodeOne.center,
+              line.attachNodeOne.radius,
+              center,
+              zoomAmount
+            )[0],
+            radius: Draw.zoomCircle(
+              line.attachNodeOne.center,
+              line.attachNodeOne.radius,
+              center,
+              zoomAmount
+            )[1],
+          },
+          attachNodeTwo: {
+            ...line.attachNodeTwo,
+            center: Draw.zoomCircle(
+              line.attachNodeTwo.center,
+              line.attachNodeTwo.radius,
+              center,
+              zoomAmount
+            )[0],
+            radius: Draw.zoomCircle(
+              line.attachNodeTwo.center,
+              line.attachNodeTwo.radius,
+              center,
+              zoomAmount
+            )[1],
+          },
+        };
+
+        return zoomedLine;
+      });
+      state.circles = circles.map((circle) => {
+        const shiftedCircle = Canvas.shiftCircle({
+          circle,
+          shift: [
+            action.payload.cameraCoordinate[0],
+            action.payload.cameraCoordinate[1],
+          ],
+        });
+
+        const zoomedCircle: CircleReceiver = {
+          ...circle,
+          center: Draw.zoomCircle(
+            [circle.center[0], circle.center[1]],
+            circle.radius,
+            center,
+            zoomAmount
+          )[0],
+          nodeReceiver: {
+            ...circle.nodeReceiver,
+            center: Draw.zoomCircle(
+              circle.nodeReceiver.center,
+              circle.nodeReceiver.radius,
+              center,
+              zoomAmount
+            )[0],
+            radius: Draw.zoomCircle(
+              circle.nodeReceiver.center,
+              circle.nodeReceiver.radius,
+              center,
+              zoomAmount
+            )[1],
+          },
+          radius: Draw.zoomCircle(
+            circle.center,
+            circle.radius,
+            center,
+            zoomAmount
+          )[1],
+        };
+        // just need to mess with the panning or the center of zoom. Otherwise its good i think
+        // return shiftedCircle;
+        return zoomedCircle;
+      });
+      state.pencilCoordinates = {
+        drawingCoordinates: pencilCoordinates.drawingCoordinates.map(
+          (drawing) => [
+            drawing[0] -
+              action.payload.cameraCoordinate[0] +
+              state.cameraCoordinate[0],
+            drawing[1] -
+              action.payload.cameraCoordinate[1] +
+              state.cameraCoordinate[1],
+          ]
+        ),
+        drawnCoordinates: pencilCoordinates.drawnCoordinates.map((drawn) =>
+          drawn.map((cord) => [
+            cord[0] -
+              action.payload.cameraCoordinate[0] +
+              state.cameraCoordinate[0],
+            cord[1] -
+              action.payload.cameraCoordinate[1] +
+              state.cameraCoordinate[1],
+          ])
+        ),
+      };
+      state.validatorLensContainer = validatorLensContainer.map(
+        (validatorLens) =>
+          Canvas.shiftValidatorLens({
+            validatorLens,
+            shift: action.payload.cameraCoordinate,
+          })
+      );
+    },
     shiftCamera: (state, action: PayloadAction<Shift>) => {
       const [dx, dy] = action.payload.shift;
 

@@ -44,11 +44,14 @@ io.on('connect', (socket) => {
   // join room event
   socket.on(
     'join playground',
+
     (playgroundID: string, user: User, acknowledgement) => {
+      console.log('LITERALLY FUCKING JOINING');
       // mainId = roomID;
       const before_UsersInPlayground = playgroundUsers.get(playgroundID);
 
       if (before_UsersInPlayground?.some((u) => u.id === user.id)) {
+        console.log('go die');
         return;
       }
 
@@ -60,10 +63,10 @@ io.on('connect', (socket) => {
 
       socket.join(playgroundID);
       const after_UsersInPlayground = playgroundUsers.get(playgroundID);
-      console.log('calling ack with users: ', after_UsersInPlayground);
+      // console.log('calling ack with users: ', after_UsersInPlayground);
 
       acknowledgement(after_UsersInPlayground);
-      // socket.emit('user joined', user);
+      socket.emit('user joined playground', user);
     }
   );
 
@@ -71,6 +74,7 @@ io.on('connect', (socket) => {
     // const clientsInRoom = io.sockets.adapter.rooms.get(data.meta.playgroundID);
     // console.log('Current users in the room:', Array.from(clientsInRoom ?? []));
     data.meta.fromServer = true;
+    // kinda confused to have action as 2 separate handlers should change
     socket.broadcast.to(data.meta.playgroundID).emit('action', data);
   });
 
@@ -80,9 +84,20 @@ io.on('connect', (socket) => {
     console.log('user disconnected (-1)', new Date().getTime());
   });
 
-  socket.on('synchronize', (state: ObjectState) => {
-    console.log('synchronize');
-  });
+  socket.on(
+    'synchronize',
+    (
+      state: ObjectState,
+      cameraCoordinate: [number, number],
+      zoomFactor: number,
+      playgroundID: string
+    ) => {
+      console.log('synchronize yayayyay', cameraCoordinate, playgroundID);
+      socket.broadcast
+        .to(playgroundID)
+        .emit('synchronize', state, cameraCoordinate, zoomFactor);
+    }
+  );
 
   socket.on('get connected users', (playgroundID: string, acknowledgement) => {
     const usersInPlayground = playgroundUsers.get(playgroundID);

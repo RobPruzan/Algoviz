@@ -13,6 +13,9 @@ export async function GET(request: NextRequest) {
       msg: 'Must be signed in',
       status: 401,
     });
+  const url = new URLSearchParams(request.url);
+
+  const singlePlayground = url.get('single');
 
   const playgrounds = await prisma.playground.findMany({
     where: {

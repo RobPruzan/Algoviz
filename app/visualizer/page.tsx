@@ -10,7 +10,7 @@ import { useSearchParams } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { store } from '@/redux/store';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
-import { CircleReceiver, Edge, Prettify } from '@/lib/types';
+import { CircleReceiver, Edge, PickedPlayground, Prettify } from '@/lib/types';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]/route';
 import { z } from 'zod';
@@ -19,7 +19,7 @@ import { NextRequest } from 'next/server';
 const jwt = require('jsonwebtoken');
 
 export const metadata = {};
-type PickedPlayground = Pick<Playground, 'id' | 'circles' | 'lines' | 'pencil'>;
+
 type Discriminate =
   | { type: 'NO_VERIFICATION_NEEDED'; data: null }
   | {
@@ -63,6 +63,7 @@ const getCases = async ({
             circles: true,
             lines: true,
             pencil: true,
+            userId: true,
           },
         }),
       } as const)
@@ -77,6 +78,7 @@ const getCases = async ({
             circles: true,
             lines: true,
             pencil: true,
+            userId: true,
           },
         }),
       } as const);
@@ -124,12 +126,14 @@ const page = async ({ searchParams }: Props) => {
     : playgroundID
     ? { playgroundID: +playgroundID }
     : {};
+
   const pattern = await getCases(body);
+
   return (
     <div className=" w-screen h-[95%] flex items-display overflow-y-hidden ">
       <div className="h-full w-full py-[10px] px-[25px] flex items-center justify-center">
         <Content>
-          <ContentWrapper shapes={pattern.data} />
+          <ContentWrapper data={pattern.data} />
         </Content>
       </div>
     </div>

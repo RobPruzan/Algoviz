@@ -3,10 +3,11 @@ import { useAppDispatch, useAppSelector } from '@/redux/store';
 import React, { useEffect } from 'react';
 import Image from 'next/image';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { socket } from '@/lib/socket/socket-utils';
+import { socketManager } from '@/lib/socket/socket-utils';
 import { CollaborationActions } from '@/redux/slices/colloborationSlice';
 import { useSession } from 'next-auth/react';
 import { useMeta } from '@/hooks/useMeta';
+import { ObjectState } from '@/redux/slices/canvasSlice';
 
 const ConnectedUsers = () => {
   const collabInfoState = useAppSelector((store) =>
@@ -17,43 +18,39 @@ const ConnectedUsers = () => {
   const dispatch = useAppDispatch();
   const session = useSession();
   const meta = useMeta();
-
+  const ownerID = useAppSelector((store) => store.collaborationState.ownerID);
+  const canvas = useAppSelector((store) => store.canvas);
+  const cameraCoordinate = useAppSelector(
+    (store) => store.canvas.cameraCoordinate
+  );
   useEffect(() => {
     if (playgroundID && session.status !== 'loading') {
       console.log('run');
-      socket.getConnectedUsers(playgroundID).then((users) => {
+      socketManager.getConnectedUsers(playgroundID).then((users) => {
         console.log('returned users: ', users);
         users.forEach((user) => dispatch(CollaborationActions.addUser(user)));
       });
     } else {
       console.log('not running bitch');
     }
+
+    if (playgroundID && ownerID === session.data?.user.id) {
+      const objectState: ObjectState = canvas;
+
+      console.log('emFUCKINGITTING', objectState);
+      socketManager.emitSynchronizeObjectState(
+        objectState,
+        cameraCoordinate,
+        playgroundID
+      );
+    }
     // return () => {
     //   console.log('cleanup');
     //   dispatch(CollaborationActions.cleanupCollabInfo());
     // };
-  }, [dispatch, playgroundID, session.status]);
+  }, [dispatch, ownerID, playgroundID, session.data?.user.id, session.status]);
 
-  useEffect(() => {
-    // putting a condition here of session.status === 'loading' still breaks even with the updated cleanup logic
-    console.log('running the connect effect, pgID', playgroundID);
-    if (!playgroundID) return;
-    console.log('dispatching connect');
-    dispatch({
-      type: 'socket/connect',
-      meta,
-    });
-    // need to understand the problem with waiting for the session to load :/
-    return () => {
-      if (!playgroundID) return;
-      console.log('disconeccting');
-      dispatch({
-        type: 'socket/disconnect',
-        meta,
-      });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playgroundID]);
+  useEffect(() => {}, []);
 
   const totalUsers = collabInfoState.length;
   const usersAboveThree = totalUsers - 3;

@@ -9,6 +9,7 @@ import {
   FirstParameter,
   SelectedValidatorLens,
   SelectedValidatorLensResizeCircle,
+  Percentage,
 } from '@/lib/types';
 import { isStringAlgorithm } from '../Sort/AlgoComboBox';
 import React, { useRef, useState, useEffect, useContext } from 'react';
@@ -16,7 +17,7 @@ import * as Draw from '@/lib/Canvas/draw';
 import * as Graph from '@/lib/graph';
 
 import { useAppDispatch, useAppSelector } from '@/redux/store';
-import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
+import { CanvasActions, Meta, ObjectState } from '@/redux/slices/canvasSlice';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -59,13 +60,15 @@ import { CollaborationActions } from '@/redux/slices/colloborationSlice';
 import { match } from 'ts-pattern';
 import { CodeExecActions } from '@/redux/slices/codeExecSlice';
 import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
-import { socket } from '@/lib/socket/socket-utils';
+import { socketManager } from '@/lib/socket/socket-utils';
 import { useMeta } from '@/hooks/useMeta';
+import { useInterval } from '@/hooks/useInterval';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
   canvasWrapperRef: React.RefObject<HTMLDivElement>;
 
-  canvasWidth: number | `${string}%`;
+  canvasWidth: number;
+  canvasHeight: number;
   setSelectedValidatorLens: React.Dispatch<
     React.SetStateAction<SelectedValidatorLens | null>
   >;
@@ -76,7 +79,7 @@ const CanvasDisplay = ({
   selectedControlBarAction,
   canvasWrapperRef,
   selectedValidatorLens,
-
+  canvasHeight,
   canvasWidth,
   setSelectedValidatorLens,
 }: Props) => {
@@ -101,7 +104,9 @@ const CanvasDisplay = ({
     startNode,
     cameraCoordinate,
   } = useAppSelector((store) => store.canvas);
-  const { collabInfos } = useAppSelector((store) => store.collaborationState);
+  const { collabInfos, ownerID } = useAppSelector(
+    (store) => store.collaborationState
+  );
   const isMouseDownRef = useRef(false);
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
@@ -124,8 +129,42 @@ const CanvasDisplay = ({
   const selectedAlgorithm = useAppSelector(
     (store) => store.codeExec.selectedAlgorithm
   );
-  const meta = useMeta();
+
+  const baseMeta = useMeta();
+  const meta: Meta = {
+    ...baseMeta,
+    realCoordinateCenter: [
+      cameraCoordinate[0] + canvasWidth / 2,
+      cameraCoordinate[1] + canvasHeight / 2,
+    ],
+  };
   const cursorImgRef = useRef<HTMLImageElement | null>(null);
+  useEffect(() => {
+    // putting a condition here of session.status === 'loading' still breaks even with the updated cleanup logic
+    console.log('running the connect effect, pgID', playgroundID);
+    if (!playgroundID) return;
+    console.log('dispatching connect');
+    dispatch({
+      type: 'socket/connect',
+      meta,
+    });
+    // need to understand the problem with waiting for the session to load :/
+    return () => {
+      if (!playgroundID) return;
+      console.log('disconeccting');
+      dispatch({
+        type: 'socket/disconnect',
+        meta,
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playgroundID]);
+  const objects: ObjectState = {
+    circles,
+    attachableLines,
+    validatorLensContainer,
+    pencilCoordinates,
+  };
 
   const [
     selectedResizeValidatorLensCircle,
@@ -141,7 +180,7 @@ const CanvasDisplay = ({
       cursorImgRef.current = img;
     };
   }, []);
-
+  console.log('current zoom factor', currentZoomFactor);
   useEffect(() => {
     if (session.status === 'loading') return;
     const item: FirstParameter<typeof CollaborationActions.addCollabInfo> = {
@@ -159,9 +198,15 @@ const CanvasDisplay = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.data?.user, userID, session.status, dispatch]);
 
-  useEffect(() => {
-    console.log('state woo');
-  }, []);
+  useInterval(() => {
+    if (ownerID !== userID || !playgroundID) return;
+    socketManager.emitSynchronizeObjectState(
+      objects,
+      cameraCoordinate,
+      currentZoomFactor,
+      playgroundID
+    );
+  }, 10000);
 
   const { selectedAttachableLines, selectedCircles } = getSelectedItems({
     attachableLines,
@@ -411,6 +456,10 @@ const CanvasDisplay = ({
         <ContextMenu>
           <ContextMenuTrigger>
             <canvas
+              style={{
+                width: canvasWidth,
+                height: canvasHeight,
+              }}
               onMouseLeave={() => {
                 isMouseDownRef.current = false;
               }}
@@ -427,8 +476,8 @@ const CanvasDisplay = ({
               onContextMenu={handleContextMenu}
               onMouseUp={handleMouseUp}
               onKeyDown={handleKeyDown}
-              width={1000}
-              height={1000}
+              width={canvasWidth}
+              height={canvasHeight}
             />
           </ContextMenuTrigger>
           <ContextMenuContent className="w-64">
