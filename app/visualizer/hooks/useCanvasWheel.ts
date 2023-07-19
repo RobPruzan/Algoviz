@@ -73,7 +73,7 @@ export const useCanvasWheel = ({ canvasRef }: UseCanvasWheel) => {
         );
         dispatch(
           CanvasActions.zoomValidatorLens({
-            center: cameraCoordinate,
+            center,
             zoomAmount,
           })
         );
@@ -138,14 +138,14 @@ export const useCanvasWheel = ({ canvasRef }: UseCanvasWheel) => {
         );
         dispatch(
           CanvasActions.zoomMaxPoints({
-            center: cameraCoordinate,
+            center: center,
             zoomAmount,
           })
         );
 
         dispatch(
           CanvasActions.zoomPencilCoordinates({
-            center: cameraCoordinate,
+            center: center,
             zoomAmount,
           })
         );
