@@ -56,14 +56,11 @@ export const socketMiddleware =
 
     switch (action.type) {
       case 'socket/connect':
-        console.log('recieve connect', action.meta);
         if (action.meta?.playgroundID) {
-          console.log('connecting to playground', action.meta.playgroundID);
           socketManager.socket = io(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL);
           socketManager
             .joinPlayground(action.meta.playgroundID, action.meta.user)
             .then((users) => {
-              console.log('RESOLVING USERS, and acking', users);
               users.forEach((user) =>
                 dispatch(CollaborationActions.addUser(user))
               );
@@ -81,14 +78,13 @@ export const socketMiddleware =
         socketManager.socket?.on('user joined', (user: User) => {
           dispatch(collaborationStateReducer.actions.addUser(user));
           // user meta is a closure over the original connect dispatch at page mount
-          console.log('USER JOINED NEED TO DO STUFF');
+
           if (
             action.meta.playgroundID &&
             getState().collaborationState.ownerID === action.meta.userID
           ) {
             const objectState: ObjectState = getState().canvas;
 
-            console.log('emFUCKINGITTING', objectState);
             socketManager.emitSynchronizeObjectState(
               objectState,
               getState().canvas.cameraCoordinate,
@@ -104,9 +100,6 @@ export const socketMiddleware =
             cameraCoordinate: [number, number],
             zoomFactor: number
           ) => {
-            console.log('synchronizing', state);
-
-            console.log('the real center is', action.meta.realCoordinateCenter);
             action.meta.realCoordinateCenter &&
               dispatch(
                 CanvasActions.synchronizeObjectState({

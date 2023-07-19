@@ -40,12 +40,10 @@ export const collaborationStateReducer = createSlice({
       state.ownerID = action.payload.owner;
     }),
     cleanupCollabInfo: (state) => {
-      console.log('clean up state');
       state.collabInfos = [];
     },
 
     addCollabInfo: withCollabMeta<CollabInfo>((state, action) => {
-      console.log('def adding collab info');
       if (
         !state.collabInfos.some(
           (collabInfo) => collabInfo.user.id === action.payload.user.id
@@ -54,7 +52,6 @@ export const collaborationStateReducer = createSlice({
         state.collabInfos = [...state.collabInfos, action.payload];
     }),
     addUser: withCollabMeta<NextUser | { id: string }>((state, action) => {
-      console.log('ADDING USER RNNNN');
       let setUser = false;
       for (const info of state.collabInfos) {
         if (info.user.id === action.payload.id) {

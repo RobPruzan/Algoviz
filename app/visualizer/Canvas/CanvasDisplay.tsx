@@ -180,7 +180,7 @@ const CanvasDisplay = ({
       cursorImgRef.current = img;
     };
   }, []);
-  console.log('current zoom factor', currentZoomFactor);
+
   useEffect(() => {
     if (session.status === 'loading') return;
     const item: FirstParameter<typeof CollaborationActions.addCollabInfo> = {
@@ -206,7 +206,7 @@ const CanvasDisplay = ({
       currentZoomFactor,
       playgroundID
     );
-  }, 10000);
+  }, 5000);
 
   const { selectedAttachableLines, selectedCircles } = getSelectedItems({
     attachableLines,

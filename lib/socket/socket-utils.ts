@@ -76,7 +76,6 @@ export class SocketIO {
   joinPlayground(playgroundID: string, user: User | { id: string | null }) {
     // this.socket?.emit('join playground', playgroundID, user);
     return new Promise<(User | { id: string })[]>((resolve, reject) => {
-      console.log('EMITTING JOIN PLAYGROUND');
       this.socket?.emit('join playground', playgroundID, user, (users: []) => {
         resolve(users);
       });

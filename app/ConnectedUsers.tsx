@@ -23,24 +23,21 @@ const ConnectedUsers = () => {
   const cameraCoordinate = useAppSelector(
     (store) => store.canvas.cameraCoordinate
   );
+  const zoomFactor = useAppSelector((store) => store.canvas.currentZoomFactor);
   useEffect(() => {
     if (playgroundID && session.status !== 'loading') {
-      console.log('run');
       socketManager.getConnectedUsers(playgroundID).then((users) => {
-        console.log('returned users: ', users);
         users.forEach((user) => dispatch(CollaborationActions.addUser(user)));
       });
-    } else {
-      console.log('not running bitch');
     }
 
     if (playgroundID && ownerID === session.data?.user.id) {
       const objectState: ObjectState = canvas;
 
-      console.log('emFUCKINGITTING', objectState);
       socketManager.emitSynchronizeObjectState(
         objectState,
         cameraCoordinate,
+        zoomFactor,
         playgroundID
       );
     }
@@ -48,7 +45,7 @@ const ConnectedUsers = () => {
     //   console.log('cleanup');
     //   dispatch(CollaborationActions.cleanupCollabInfo());
     // };
-  }, [dispatch, ownerID, playgroundID, session.data?.user.id, session.status]);
+  }, [collabInfoState.length]);
 
   useEffect(() => {}, []);
 
