@@ -173,35 +173,7 @@ const canvasSlice = createSlice({
           state.circles.push(circle);
         }
       });
-      // state.pencilCoordinates = {
-      //   drawingCoordinates: pencilCoordinates.drawingCoordinates.map(
-      //     (drawing) => [
-      //       drawing[0] -
-      //         action.payload.cameraCoordinate[0] +
-      //         state.cameraCoordinate[0],
-      //       drawing[1] -
-      //         action.payload.cameraCoordinate[1] +
-      //         state.cameraCoordinate[1],
-      //     ]
-      //   ),
-      //   drawnCoordinates: pencilCoordinates.drawnCoordinates.map((drawn) =>
-      //     drawn.map((cord) => [
-      //       cord[0] -
-      //         action.payload.cameraCoordinate[0] +
-      //         state.cameraCoordinate[0],
-      //       cord[1] -
-      //         action.payload.cameraCoordinate[1] +
-      //         state.cameraCoordinate[1],
-      //     ])
-      //   ),
-      // };
-      // state.validatorLensContainer = validatorLensContainer.map(
-      //   (validatorLens) =>
-      //     Canvas.shiftValidatorLens({
-      //       validatorLens,
-      //       shift: action.payload.cameraCoordinate,
-      //     })
-      // );
+
       const validatorLensMap = Object.fromEntries(
         validatorLensContainer.map((validatorLens) => [
           validatorLens.id,
@@ -212,6 +184,12 @@ const canvasSlice = createSlice({
       state.validatorLensContainer = state.validatorLensContainer.filter(
         (validatorLens) => validatorLensMap[validatorLens.id]
       );
+
+      state.validatorLensContainer.forEach((lens) => {
+        if (!validatorLensMap[lens.id]) {
+          state.validatorLensContainer.push(lens);
+        }
+      });
     },
     shiftCamera: (state, action: PayloadAction<Shift>) => {
       const [dx, dy] = action.payload.shift;
@@ -530,6 +508,9 @@ const canvasSlice = createSlice({
         const selectedValidatorLens = state.validatorLensContainer.find(
           (lens) => lens.id === action.payload.validatorLensId
         );
+        console.log('selected validator inside of the state', [
+          ...(selectedValidatorLens?.selectedIds ?? []),
+        ]);
         if (!selectedValidatorLens?.selectedIds) return;
         // selectedValidatorLens.selectedIds
         const selectedGeometry = Canvas.getSelectedGeometry({

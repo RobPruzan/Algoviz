@@ -107,6 +107,11 @@ const CanvasDisplay = ({
   const { collabInfos, ownerID } = useAppSelector(
     (store) => store.collaborationState
   );
+
+  console.log(
+    'validator lens container',
+    validatorLensContainer.flatMap((vl) => vl.selectedIds)
+  );
   const isMouseDownRef = useRef(false);
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
@@ -120,7 +125,6 @@ const CanvasDisplay = ({
   }
   const isContextMenuActiveRef = useRef(false);
 
-  const visualizationNodes = visualization.at(visualizationPointer);
   const searchParams = useSearchParams();
   const session = useSession();
   session.data?.user;
@@ -290,6 +294,8 @@ const CanvasDisplay = ({
   const themeInfo = useTheme();
   // don't mutate anything or query/disable them if the playground is is undefined (unless they are joining a playground)
   useEffect(() => {
+    const visualizationNodes = visualization.at(visualizationPointer);
+
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!ctx) return;
@@ -437,7 +443,6 @@ const CanvasDisplay = ({
     selectedGeometryInfo?.selectedIds,
     selectedGeometryInfo?.maxPoints,
     pencilCoordinates,
-    visualizationNodes,
     themeInfo.theme,
     collabInfos,
     canvasWidth,
@@ -448,6 +453,11 @@ const CanvasDisplay = ({
     endNode,
     startNode,
     cameraCoordinate,
+    canvasHeight,
+    selectedAttachableLines,
+    selectedCircles,
+    visualization,
+    visualizationPointer,
   ]);
 
   return (

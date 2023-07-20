@@ -45,6 +45,7 @@ const ConnectedUsers = () => {
     //   console.log('cleanup');
     //   dispatch(CollaborationActions.cleanupCollabInfo());
     // };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collabInfoState.length]);
 
   useEffect(() => {}, []);
@@ -71,7 +72,6 @@ const ConnectedUsers = () => {
                 width={25}
                 height={25}
               />
-              {collab.name ?? 'anon'}
             </div>
           </div>
         )

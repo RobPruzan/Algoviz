@@ -100,15 +100,16 @@ export const socketMiddleware =
             cameraCoordinate: [number, number],
             zoomFactor: number
           ) => {
-            action.meta.realCoordinateCenter &&
-              dispatch(
-                CanvasActions.synchronizeObjectState({
-                  state,
-                  cameraCoordinate,
-                  realCoordinateCenter: action.meta.realCoordinateCenter,
-                  zoomFactor,
-                })
-              );
+            if (action.meta)
+              action.meta.realCoordinateCenter &&
+                dispatch(
+                  CanvasActions.synchronizeObjectState({
+                    state,
+                    cameraCoordinate,
+                    realCoordinateCenter: action.meta.realCoordinateCenter,
+                    zoomFactor,
+                  })
+                );
           }
         );
         break;

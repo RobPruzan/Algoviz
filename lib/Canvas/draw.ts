@@ -62,35 +62,33 @@ export const drawNodes = ({
     const currentLens = validatorLensContainer.find((lens) =>
       lens.selectedIds.includes(node.id)
     );
-    if (selectedIDs?.includes(node.id)) {
-      switch (typeof currentLens?.result) {
-        case 'boolean':
-          if (!currentLens.result) {
-            ctx.fillStyle = 'red';
-          } else {
+    // if (selectedIDs?.includes(node.id)) {
+    switch (typeof currentLens?.result) {
+      case 'boolean':
+        if (!currentLens.result) {
+          ctx.fillStyle = 'red';
+        } else {
+          ctx.fillStyle = 'green';
+          ctx.fillText(
+            'valid',
+            node.center[0] - 10,
+            node.center[1] - node.radius - 10
+          );
+        }
+        break;
+      case 'object':
+        if (currentLens.result && currentLens.result.length > 0) {
+          if (currentLens.result.find((vNode) => vNode.id === node.id)?.valid) {
             ctx.fillStyle = 'green';
-            ctx.fillText(
-              'valid',
-              node.center[0] - 10,
-              node.center[1] - node.radius - 10
-            );
+          } else {
+            ctx.fillStyle === 'red';
           }
-          break;
-        case 'object':
-          if (currentLens.result && currentLens.result.length > 0) {
-            if (
-              currentLens.result.find((vNode) => vNode.id === node.id)?.valid
-            ) {
-              ctx.fillStyle = 'green';
-            } else {
-              ctx.fillStyle === 'red';
-            }
-          }
-          break;
-        default:
-          break;
-      }
+        }
+        break;
+      default:
+        break;
     }
+    // }
 
     ctx.fill();
     if (selectedCircleID === node.id || selectedIDs?.includes(node.id)) {
