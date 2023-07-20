@@ -52,6 +52,7 @@ import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 import { CodeExecActions } from '@/redux/slices/codeExecSlice';
 import { DirectedEdgeIcon } from '@/components/icons/DirectedEdge';
 import { UndirectedEdgeIcon } from '@/components/icons/UndirectedEdge';
+import { BINARY_SEARCH_TREE } from '@/lib/presets/binary-search-tree';
 type Props = {
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
 };
@@ -69,7 +70,12 @@ const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
   const notSignedInUserID = useAppSelector(
     (store) => store.canvas.notSignedInUserID
   );
+  const canvasPicked = useAppSelector((store) => ({
+    attachableLines: store.canvas.attachableLines,
+    circles: store.canvas.circles,
+  }));
 
+  console.log(canvasPicked);
   const shapeUpdateMutation = useShapeUpdateMutation();
   const validShapeUpdateMutation = (
     ...args: Parameters<typeof shapeUpdateMutation.mutate>
@@ -88,6 +94,8 @@ const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
       id: session.data?.user.id ?? notSignedInUserID,
     },
   };
+
+  console.log();
   // fix all these hard coded numbers and random spawn points
   // move random spawn points to slight distribution around middle of canvas
   // or when I have time do so you select then click on the screen
@@ -283,7 +291,7 @@ const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
       >
         <XCircle className="fill-red-500" />
       </Button>
-      <Button
+      {/* <Button
         onClick={() => {
           dispatch(
             CanvasActions.setSelectedAction(
@@ -304,7 +312,7 @@ const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
 
       <Button variant={'outline'} className="px-2">
         <Eraser />
-      </Button>
+      </Button> */}
       <Button
         onClick={handleAddUndirectedEdge}
         variant={'outline'}
@@ -341,23 +349,37 @@ const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
                   onClick={() => {
                     handleAddValidatorLens(algo.id);
                   }}
-                  // textValue={algo.id}
-                  // onClick={e => e.}
                 >
                   {algo.title}
-                  {/* <DropdownMenuCheckboxItem
-                    className="w-fit p-0 mx-2"
-                    checked={itemChecked === algo.id}
-                  /> */}
                 </DropdownMenuItem>
               </div>
             ) : null
           )}
-          {/* <DropdownMenuItem onClick={handleAddValidatorLens}>
-            Red Black Tree
-          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-          <DropdownMenuItem>Binary Search Tree</DropdownMenuItem> */}
+      <DropdownMenu>
+        <DropdownMenuTrigger className="border-2 w-32 flex items-center justify-evenly font-bold rounded-md text-sm p-2">
+          Presets
+          <ChevronDown size={20} />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {[BINARY_SEARCH_TREE].map((preset) => (
+            <div
+              key={preset.type}
+              className="flex items-center justify-end p-0 "
+            >
+              <DropdownMenuItem
+                className="w-full"
+                onClick={() => {
+                  // add meta later
+                  dispatch(CanvasActions.addPreset(preset));
+                }}
+              >
+                {preset.type}
+              </DropdownMenuItem>
+            </div>
+          ))}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

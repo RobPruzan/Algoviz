@@ -208,10 +208,14 @@ const CodeExecutionControlBar = ({
   const isValidatorLens = currentAlgorithm?.type === 'validator';
 
   // const code = userAlgorithm.code ?? currentAlgorithm?.code;
-  const code =
+  const codeInfo =
     userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE
-      ? userAlgorithm.code
-      : currentAlgorithm?.code ?? DEFAULT_VISUALIZATION_CODE;
+      ? { ...userAlgorithm, id: null }
+      : currentAlgorithm ?? {
+          code: DEFAULT_VISUALIZATION_CODE,
+          type: AlgoType.Visualizer,
+          id: null,
+        };
 
   useEffect(() => {
     validatorLensContainer.forEach((lens) => {
@@ -224,7 +228,7 @@ const CodeExecutionControlBar = ({
           codeMutation.mutate({
             // code: lensAlgo.code,
             // algo: lensAlgo,
-            algoID: lensAlgo.id,
+
             algo: lensAlgo,
             type: AlgoType.Validator,
             lens,
@@ -288,7 +292,7 @@ const CodeExecutionControlBar = ({
                       setUserAlgorithm((prev) => ({
                         ...prev,
                         code: parseCode({
-                          code,
+                          code: codeInfo.code,
                           passEndNode: codeExecParameters.passEndNode,
                           passStartNode: checkedState,
                         }),
@@ -318,7 +322,7 @@ const CodeExecutionControlBar = ({
                       setUserAlgorithm((prev) => ({
                         ...prev,
                         code: parseCode({
-                          code,
+                          code: codeInfo.code,
                           passEndNode: checkedState,
                           passStartNode: codeExecParameters.passStartNode,
                         }),
@@ -365,8 +369,15 @@ const CodeExecutionControlBar = ({
 
         <Button
           onClick={() => {
+            if (!codeInfo) {
+              toast({
+                title: `You haven't written any code yet`,
+                description: 'Lets write some code first',
+              });
+              return;
+            }
             if (
-              currentAlgorithm?.code
+              !selectedIds
               // &&
               // 'id' in currentAlgorithm &&
               // typeof currentAlgorithm.id === 'string'
@@ -374,12 +385,12 @@ const CodeExecutionControlBar = ({
               codeMutation.mutate({
                 // code: currentAlgorithm.code,
                 type:
-                  currentAlgorithm.type === AlgoType.Validator
+                  codeInfo.type === AlgoType.Validator
                     ? AlgoType.Validator
                     : AlgoType.Visualizer,
                 // algo: currentAlgorithm,
-                algo: { code: currentAlgorithm.code },
-                algoID: currentAlgorithm.id,
+                algo: { code: codeInfo.code },
+
                 endNode,
                 startNode,
               });

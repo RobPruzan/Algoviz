@@ -12,7 +12,7 @@ export type NodeValidation = {
 };
 
 type InitialState = {
-  visualization: NodeID[][];
+  visualization: NodeID[][] | null | undefined;
 
   visualizationPointer: number;
   isApplyingAlgorithm: boolean;
@@ -60,7 +60,7 @@ const codeExecSlice = createSlice({
       state.visualization = action.payload;
     },
     incrementVisualizationPointer: (state) => {
-      if (state.visualizationPointer < state.visualization.length) {
+      if (state.visualizationPointer < (state.visualization?.length ?? 0)) {
         state.visualizationPointer++;
       }
     },

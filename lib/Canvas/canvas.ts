@@ -3,7 +3,6 @@ import {
   Edge,
   CircleConnector,
   CircleReceiver,
-  LineNodeTaggedUnion,
   NodeConnector,
   NodeReceiver,
   Rect,
@@ -514,7 +513,7 @@ export const getLineAttachedToNodeReciever = <T extends 'one' | 'two'>({
   attachableLines: Edge[];
   activeCircle: CircleReceiver;
   nodeConnectedSide: T;
-}): (Edge & { nodeConnectedSide: T }) | undefined => {
+}): (Edge & { nodeConnectedSide: 'one' | 'two' }) | undefined => {
   switch (nodeConnectedSide) {
     case 'one':
       // #TODO findLast breaks it, why?
@@ -523,6 +522,7 @@ export const getLineAttachedToNodeReciever = <T extends 'one' | 'two'>({
           (id) => id === line.attachNodeOne.id
         )
       );
+
       if (connectedToNodeOneContainer) {
         return {
           nodeConnectedSide,
@@ -1030,3 +1030,7 @@ export const shiftValidatorLens = ({
     ],
   },
 });
+
+// export const mouseToCord = (mouse: [number, number]) => {
+
+// }

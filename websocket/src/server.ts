@@ -46,12 +46,10 @@ io.on('connect', (socket) => {
     'join playground',
 
     (playgroundID: string, user: User, acknowledgement) => {
-      console.log('LITERALLY FUCKING JOINING');
       // mainId = roomID;
       const before_UsersInPlayground = playgroundUsers.get(playgroundID);
 
       if (before_UsersInPlayground?.some((u) => u.id === user.id)) {
-        console.log('go die');
         return;
       }
 
@@ -92,7 +90,6 @@ io.on('connect', (socket) => {
       zoomFactor: number,
       playgroundID: string
     ) => {
-      console.log('synchronize yayayyay', cameraCoordinate, playgroundID);
       socket.broadcast
         .to(playgroundID)
         .emit('synchronize', state, cameraCoordinate, zoomFactor);

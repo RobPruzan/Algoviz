@@ -122,20 +122,23 @@ export type Rect = {
 export type UndirectedEdge = Rect & {
   attachNodeOne: NodeConnector;
   attachNodeTwo: NodeConnector;
+  nodeConnectedSide?: 'one' | 'two';
+
   directed: false;
 };
 
 export type DirectedEdge = Rect & {
   attachNodeOne: NodeConnector;
   attachNodeTwo: NodeConnector;
+  nodeConnectedSide?: 'one' | 'two';
   directed: true;
 };
 
 export type Edge = UndirectedEdge | DirectedEdge;
 
-export type LineNodeTaggedUnion =
-  | (UndirectedEdge & { nodeConnectedSide: 'one' })
-  | (UndirectedEdge & { nodeConnectedSide: 'two' });
+// export type LineNodeTaggedUnion =
+//   | (UndirectedEdge & { nodeConnectedSide: 'one' })
+//   | (UndirectedEdge & { nodeConnectedSide: 'two' });
 
 export type AlgorithmMetadata = {
   active: boolean;

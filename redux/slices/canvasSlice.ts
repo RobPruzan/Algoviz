@@ -19,6 +19,7 @@ import { store, withMeta } from '../store';
 import { match } from 'ts-pattern';
 import { NodeValidation } from './codeExecSlice';
 import { User } from 'next-auth';
+import { Payload } from '@prisma/client/runtime';
 
 // this validatorLens will have code attached to it
 // it should probably extend the selectedGeomotryInfo
@@ -41,7 +42,7 @@ export type ValidatorLensInfo = {
   };
   code: string | null;
   selectedIds: string[];
-  result: (NodeValidation[] | boolean) | null;
+  result: (NodeValidation[] | boolean) | null | undefined;
   type: 'validator-lens';
 };
 
@@ -123,6 +124,17 @@ const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    addPreset: (
+      state,
+      action: PayloadAction<{
+        circles: CircleReceiver[];
+        attachableLines: Edge[];
+        type: string;
+      }>
+    ) => {
+      state.attachableLines.push(...action.payload.attachableLines);
+      state.circles.push(...action.payload.circles);
+    },
     synchronizeObjectState: (
       state,
       action: PayloadAction<{
@@ -508,9 +520,7 @@ const canvasSlice = createSlice({
         const selectedValidatorLens = state.validatorLensContainer.find(
           (lens) => lens.id === action.payload.validatorLensId
         );
-        console.log('selected validator inside of the state', [
-          ...(selectedValidatorLens?.selectedIds ?? []),
-        ]);
+
         if (!selectedValidatorLens?.selectedIds) return;
         // selectedValidatorLens.selectedIds
         const selectedGeometry = Canvas.getSelectedGeometry({

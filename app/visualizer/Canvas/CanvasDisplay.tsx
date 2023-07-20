@@ -108,10 +108,6 @@ const CanvasDisplay = ({
     (store) => store.collaborationState
   );
 
-  console.log(
-    'validator lens container',
-    validatorLensContainer.flatMap((vl) => vl.selectedIds)
-  );
   const isMouseDownRef = useRef(false);
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
@@ -145,9 +141,9 @@ const CanvasDisplay = ({
   const cursorImgRef = useRef<HTMLImageElement | null>(null);
   useEffect(() => {
     // putting a condition here of session.status === 'loading' still breaks even with the updated cleanup logic
-    console.log('running the connect effect, pgID', playgroundID);
+
     if (!playgroundID) return;
-    console.log('dispatching connect');
+
     dispatch({
       type: 'socket/connect',
       meta,
@@ -294,7 +290,7 @@ const CanvasDisplay = ({
   const themeInfo = useTheme();
   // don't mutate anything or query/disable them if the playground is is undefined (unless they are joining a playground)
   useEffect(() => {
-    const visualizationNodes = visualization.at(visualizationPointer);
+    const visualizationNodes = visualization?.at(visualizationPointer);
 
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');

@@ -45,7 +45,7 @@ export const useCodeMutation = () => {
   const codeMutation = useMutation({
     mutationFn: async ({
       algo,
-      algoID,
+
       type,
       lens,
       endNode,
@@ -55,7 +55,7 @@ export const useCodeMutation = () => {
         ArrayItem<ReturnType<typeof useGetAlgorithmsQuery>['data']>,
         'code'
       >;
-      algoID: string;
+
       type: AlgoType;
       lens?: ValidatorLensInfo;
       startNode: string | null;
@@ -75,7 +75,7 @@ export const useCodeMutation = () => {
           data: z.object({
             result: z.object({
               type: z.literal('Visualizer'),
-              exitValue: z.array(z.array(z.string())),
+              exitValue: z.array(z.array(z.string())).nullish(),
               logs: z.array(z.unknown()),
             }),
           }),
@@ -84,7 +84,7 @@ export const useCodeMutation = () => {
           data: z.object({
             result: z.object({
               type: z.literal('Validator'),
-              exitValue: z.boolean(),
+              exitValue: z.boolean().nullish(),
               logs: z.array(z.unknown()),
             }),
           }),
