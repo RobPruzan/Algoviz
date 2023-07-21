@@ -11,7 +11,7 @@ export const useApplyAlgorithm = () => {
   const dispatch = useAppDispatch();
   useInterval(
     () => {
-      if (visualizationPointer < visualization.length) {
+      if (visualizationPointer < (visualization?.length ?? 0)) {
         dispatch(CodeExecActions.incrementVisualizationPointer());
       } else {
         dispatch(CodeExecActions.resetVisitedPointer());
