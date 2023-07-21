@@ -67,7 +67,7 @@ const initialState: CanvasState = {
   attachableLines: [],
   circles: [],
   validatorLensContainer: [],
-  currentZoomFactor: 1,
+  currentZoomFactor: 0.75,
   selectedGeometryInfo: null,
   pencilCoordinates: {
     drawingCoordinates: [],
@@ -130,8 +130,12 @@ const canvasSlice = createSlice({
         circles: CircleReceiver[];
         attachableLines: Edge[];
         type: string;
+        realCenter: [number, number];
       }>
     ) => {
+      // const zoomedAttachableLines = action.payload.attachableLines.map(line => {
+      //   const zoomedLine = Draw.zooj
+      // })
       state.attachableLines.push(...action.payload.attachableLines);
       state.circles.push(...action.payload.circles);
     },

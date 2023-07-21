@@ -8,7 +8,7 @@ app.use(cors());
 const server = require('http').createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL,
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -103,7 +103,7 @@ io.on('connect', (socket) => {
   });
 });
 
-const port = 8080;
+const port = process.env.PORT || 8080;
 server.listen(port, () => {
   console.log(`listening on *:${port}`, new Date().getTime());
 });
