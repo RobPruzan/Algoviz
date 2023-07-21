@@ -8,9 +8,9 @@ app.use(cors());
 const server = require('http').createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL,
+    origin: '*',
     methods: ['GET', 'POST'],
-    credentials: true,
+    // credentials: true,
   },
 });
 type Meta = {
@@ -106,4 +106,8 @@ io.on('connect', (socket) => {
 const port = process.env.PORT || 8080;
 server.listen(port, () => {
   console.log(`listening on *:${port}`, new Date().getTime());
+});
+
+app.get('/json', (req, res) => {
+  res.json({ 'Choo Choo': 'Welcome to your Express app 🚅' });
 });
