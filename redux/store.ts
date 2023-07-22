@@ -138,7 +138,8 @@ const undoableCanvasReducer = undoable(
   {
     limit: 100,
     filter: (action, state) => {
-      console.log('action', action);
+      if (action.type.split('/')[0] != 'canvas') return false;
+
       const debounceReducerNames = [
         'handleMoveCircle',
         'setPencilDrawingCoordinates',
@@ -153,14 +154,15 @@ const undoableCanvasReducer = undoable(
         'staticLensSetValidatorLensIds',
         'setSelectedGeometryInfo',
         'update',
+        'setSelectedAction',
       ];
-      const debouncedCollabNames = ['setUserMousePosition'];
+      // const debouncedCollabNames = ['setUserMousePosition'];
       const debouncedActionTypes = debounceReducerNames.map(
         (name) => `canvas/${name}`
       );
-      const debouncedActionCollabNames = debouncedCollabNames.map(
-        (name) => `collaborationState/${name}`
-      );
+      // const debouncedActionCollabNames = debouncedCollabNames.map(
+      //   (name) => `collaborationState/${name}`
+      // );
       console.log(
         'actions',
         action,
@@ -169,8 +171,8 @@ const undoableCanvasReducer = undoable(
       );
 
       if (
-        debouncedActionTypes.includes(action.type) ||
-        debouncedActionCollabNames.includes(action.type)
+        debouncedActionTypes.includes(action.type)
+        // debouncedActionCollabNames.includes(action.type)
       )
         return false;
       // console.log(Date.now(), state.lastUpdate, Date.now() - state.lastUpdate);

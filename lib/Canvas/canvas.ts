@@ -1031,6 +1031,33 @@ export const shiftValidatorLens = ({
   },
 });
 
-// export const mouseToCord = (mouse: [number, number]) => {
+export const mouseToCord = ({
+  camera,
+  canvasDim,
+  mouse,
+  zoomFactor,
+}: {
+  mouse: [number, number];
+  camera: [number, number];
+  zoomFactor: number;
+  canvasDim: [number, number];
+}) => {
+  const [width, height] = canvasDim;
+  const [originX, originY] = camera;
+  // needs to be some percentage based/ transform based on the zoom factor
+  // we should get a box and work with that
+  //   If i have the mouse -> coordinate correctly translated, it should work correctly
+  //   when im zoomed in, i should have a less distance moved mouse coordinate
+  //   this means moving 1 unit should be a smaller unit in the actual coordinate space, but the item should still track the mouse
+  //   it will track the mouse cause then a smaller move will be represented in coordiante space, but it will look equivelent since we’re zoomed in
 
-// }
+  // how big is his window
+  // in terms of percentages, where is he on his window
+  // by default not moving anything everything is as it is (no op)
+
+  // real window and virtual window
+  // virtual == real at first
+
+  // zooming makes virtual window smaller, but how do you know where you are in the virtual window
+  // i guess camera can give you an indication of that
+};

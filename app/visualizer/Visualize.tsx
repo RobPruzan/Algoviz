@@ -30,6 +30,7 @@ import { Button } from '@/components/ui/button';
 import { useDispatch } from 'react-redux';
 import { CanvasActions, canvasReducer } from '@/redux/slices/canvasSlice';
 import { ActionCreators } from 'redux-undo';
+import AlgoHistorySlider from './Sort/AlgoHistorySlider';
 type Props = {
   setSelectedValidatorLens: React.Dispatch<
     React.SetStateAction<SelectedValidatorLens | null>
@@ -112,32 +113,6 @@ const Visualize = ({
             />
           </>
         )}
-      </div>
-      <div
-        className={`w-full flex items-center justify-evenly  min-h-[40px] max-h-[40px] border-2  border-t-0 border-secondary `}
-      >
-        <SpeedSlider
-          onValueChange={(value) => {
-            dispatch(ActionCreators.undo());
-          }}
-          className="w-[85%]"
-        />
-        <Button
-          onClick={() => {
-            dispatch(ActionCreators.undo());
-          }}
-          variant={'ghost'}
-        >
-          <Undo />
-        </Button>
-        <Button
-          onClick={() => {
-            dispatch(ActionCreators.redo());
-          }}
-          variant={'ghost'}
-        >
-          <RedoIcon />
-        </Button>
       </div>
     </div>
   );
