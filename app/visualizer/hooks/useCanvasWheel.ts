@@ -18,7 +18,7 @@ export const useCanvasWheel = ({ canvasRef }: UseCanvasWheel) => {
   const offsetY = useRef(0);
   const dispatch = useAppDispatch();
   const { attachableLines, circles, cameraCoordinate } = useAppSelector(
-    (store) => store.canvas
+    (store) => store.canvas.present
   );
   const handleWheel = useCallback(
     (event: WheelEvent) => {

@@ -19,11 +19,13 @@ const ConnectedUsers = () => {
   const session = useSession();
   const meta = useMeta();
   const ownerID = useAppSelector((store) => store.collaborationState.ownerID);
-  const canvas = useAppSelector((store) => store.canvas);
+  const canvas = useAppSelector((store) => store.canvas.present);
   const cameraCoordinate = useAppSelector(
-    (store) => store.canvas.cameraCoordinate
+    (store) => store.canvas.present.cameraCoordinate
   );
-  const zoomFactor = useAppSelector((store) => store.canvas.currentZoomFactor);
+  const zoomFactor = useAppSelector(
+    (store) => store.canvas.present.currentZoomFactor
+  );
   useEffect(() => {
     if (playgroundID && session.status !== 'loading') {
       socketManager.getConnectedUsers(playgroundID).then((users) => {

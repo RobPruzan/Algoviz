@@ -50,7 +50,7 @@ export const useHandleMouseUp = ({
   meta,
 }: CanvasMouseUPParams) => {
   const { attachableLines, circles, validatorLensContainer } = useAppSelector(
-    (store) => store.canvas
+    (store) => store.canvas.present
   );
 
   const dispatch = useDispatch();

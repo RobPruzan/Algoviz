@@ -116,11 +116,13 @@ const ContentWrapper = ({ data }: Props) => {
       setCodeExecSize={setCodeExecWidth}
       type="horizontal"
       leftDiv={
-        <Visualize
-          selectedValidatorLens={selectedValidatorLens}
-          setSelectedValidatorLens={setSelectedValidatorLens}
-          canvasWidth={canvasWidth}
-        />
+        <>
+          <Visualize
+            selectedValidatorLens={selectedValidatorLens}
+            setSelectedValidatorLens={setSelectedValidatorLens}
+            canvasWidth={canvasWidth}
+          />
+        </>
       }
       rightDiv={
         <div className="w-full h-full border-2 border-secondary">

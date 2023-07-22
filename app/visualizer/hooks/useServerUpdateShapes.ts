@@ -9,7 +9,7 @@ export const useServerUpdateShapes = () => {
     attachableLines,
     circles,
     currentZoomFactor: creationZoomFactor,
-  } = useAppSelector((store) => store.canvas);
+  } = useAppSelector((store) => store.canvas.present);
   const debouncedCircles = useDebounce(circles, 500);
   const debouncedLines = useDebounce(attachableLines, 500);
   const searchParams = useSearchParams();

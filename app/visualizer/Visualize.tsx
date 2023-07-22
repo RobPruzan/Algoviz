@@ -24,6 +24,12 @@ import { useAppSelector } from '@/redux/store';
 import { SideBarContext } from '@/context/SideBarContext';
 import { useDepthFirstSearch } from '@/hooks/useDepthFirstSearch';
 import { getSelectedItems } from '@/lib/utils';
+import { SpeedSlider } from './Sort/SpeedSlider';
+import { RedoIcon, Undo } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useDispatch } from 'react-redux';
+import { CanvasActions, canvasReducer } from '@/redux/slices/canvasSlice';
+import { ActionCreators } from 'redux-undo';
 type Props = {
   setSelectedValidatorLens: React.Dispatch<
     React.SetStateAction<SelectedValidatorLens | null>
@@ -31,21 +37,29 @@ type Props = {
   selectedValidatorLens: SelectedValidatorLens | null;
   canvasWidth: number | Percentage;
 };
+
 const Visualize = ({
   canvasWidth,
   selectedValidatorLens,
   setSelectedValidatorLens,
 }: Props) => {
   const { sideBarState } = useContext(SideBarContext);
-  // const { show } = useAppSelector((store) => store.canvas.variableInspector);
-  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
+  const canvasPastStateLength = useAppSelector(
+    (store) => store.canvas.past.length
+  );
+
+  const dispatch = useDispatch();
+  // const { show } = useAppSelector((store) => store.canvas.present.variableInspector);
+  const { attachableLines, circles } = useAppSelector(
+    (store) => store.canvas.present
+  );
   const [selectedControlBarAction, setSelectedControlBarAction] =
     useState<DrawTypes | null>(null);
   // if i were to redo this, i would just set the selected ids in state
   // const [selectedGeometryInfo, setSelectedGeometryInfo] =
   //   useState<SelectedGeometryInfo | null>(null);
   const selectedGeometryInfo = useAppSelector(
-    (store) => store.canvas.selectedGeometryInfo
+    (store) => store.canvas.present.selectedGeometryInfo
   );
   const { selectedAttachableLines, selectedCircles } = getSelectedItems({
     attachableLines,
@@ -87,17 +101,43 @@ const Visualize = ({
         {sideBarState.display === 'nodes' ? (
           <SortDisplay algorithm={sideBarState.algorithm} />
         ) : (
-          <CanvasDisplay
-            selectedValidatorLens={selectedValidatorLens}
-            setSelectedValidatorLens={setSelectedValidatorLens}
-            canvasWrapperRef={canvasWrapperRef}
-            canvasWidth={width ?? 1000}
-            canvasHeight={height ?? 1000}
-            selectedControlBarAction={selectedControlBarAction}
-            // setSelectedControlBarAction={setSelectedControlBarAction}
-            // handleDfs={handleDfs}
-          />
+          <>
+            <CanvasDisplay
+              selectedValidatorLens={selectedValidatorLens}
+              setSelectedValidatorLens={setSelectedValidatorLens}
+              canvasWrapperRef={canvasWrapperRef}
+              canvasWidth={width ?? 1000}
+              canvasHeight={height ?? 1000}
+              selectedControlBarAction={selectedControlBarAction}
+            />
+          </>
         )}
+      </div>
+      <div
+        className={`w-full flex items-center justify-evenly  min-h-[40px] max-h-[40px] border-2  border-t-0 border-secondary `}
+      >
+        <SpeedSlider
+          onValueChange={(value) => {
+            dispatch(ActionCreators.undo());
+          }}
+          className="w-[85%]"
+        />
+        <Button
+          onClick={() => {
+            dispatch(ActionCreators.undo());
+          }}
+          variant={'ghost'}
+        >
+          <Undo />
+        </Button>
+        <Button
+          onClick={() => {
+            dispatch(ActionCreators.redo());
+          }}
+          variant={'ghost'}
+        >
+          <RedoIcon />
+        </Button>
       </div>
     </div>
   );

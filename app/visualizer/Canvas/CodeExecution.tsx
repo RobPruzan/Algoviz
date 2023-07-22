@@ -53,7 +53,7 @@ const CodeExecution = ({
     circles,
     selectedGeometryInfo,
     validatorLensContainer,
-  } = useAppSelector((store) => store.canvas);
+  } = useAppSelector((store) => store.canvas.present);
 
   const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
 

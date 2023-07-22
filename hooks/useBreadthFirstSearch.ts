@@ -21,7 +21,7 @@ export const useBreadthFirstSearch = ({
   const visitedRef = useRef(new ImmutableSet<string>([]));
 
   const dispatch = useDispatch();
-  const { circles } = useAppSelector((store) => store.canvas);
+  const { circles } = useAppSelector((store) => store.canvas.present);
   const bfs = () => {
     // ('starting bfs, the adj list is', adjacencyList);
     // the adjaceny list is broken because the string array represents node connectors on the edges, not other nodes, need to fix this later

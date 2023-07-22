@@ -27,7 +27,7 @@ export const useCanvasKeyDown = (meta: Meta) => {
     circles,
     currentZoomFactor: creationZoomFactor,
     selectedGeometryInfo,
-  } = useAppSelector((store) => store.canvas);
+  } = useAppSelector((store) => store.canvas.present);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
     // e.preventDefault();

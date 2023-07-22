@@ -18,7 +18,7 @@ export const useCodeMutation = () => {
     circles,
     selectedGeometryInfo,
     validatorLensContainer,
-  } = useAppSelector((store) => store.canvas);
+  } = useAppSelector((store) => store.canvas.present);
   const { selectedAttachableLines, selectedCircles } = getSelectedItems({
     attachableLines,
     circles,

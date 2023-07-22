@@ -56,7 +56,7 @@ export const useCanvasMouseDown = ({
     selectedGeometryInfo,
     validatorLensContainer,
     cameraCoordinate,
-  } = useAppSelector((store) => store.canvas);
+  } = useAppSelector((store) => store.canvas.present);
   const dispatch = useAppDispatch();
   const isSelectBoxSet =
     selectBox === null &&

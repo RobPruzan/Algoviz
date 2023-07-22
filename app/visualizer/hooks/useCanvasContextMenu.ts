@@ -19,7 +19,7 @@ export const useCanvasContextMenu = ({
   isContextMenuActiveRef,
   cameraCoordinate,
 }: CanvasContextMenuParams) => {
-  const circles = useAppSelector((store) => store.canvas.circles);
+  const circles = useAppSelector((store) => store.canvas.present.circles);
   const dispatch = useAppDispatch();
   const handleContextMenu = (
     event: MouseEvent<HTMLCanvasElement, globalThis.MouseEvent>

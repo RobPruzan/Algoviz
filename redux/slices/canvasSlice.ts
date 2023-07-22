@@ -20,6 +20,7 @@ import { match } from 'ts-pattern';
 import { NodeValidation } from './codeExecSlice';
 import { User } from 'next-auth';
 import { Payload } from '@prisma/client/runtime';
+import undoable from 'redux-undo';
 
 // this validatorLens will have code attached to it
 // it should probably extend the selectedGeomotryInfo
@@ -61,6 +62,7 @@ export type CanvasState = {
   endNode: string | null;
   cameraCoordinate: [number, number];
   notSignedInUserID: string;
+  lastUpdate: number;
 };
 
 const initialState: CanvasState = {
@@ -81,6 +83,7 @@ const initialState: CanvasState = {
   startNode: null,
   cameraCoordinate: [0, 0],
   notSignedInUserID: crypto.randomUUID(),
+  lastUpdate: Date.now(),
 };
 
 export type ObjectState = Pick<
@@ -103,34 +106,21 @@ type MetaParams<TPayload> = FirstParameter<
 
 const withCanvasMeta = <TPayload>(args: MetaParams<TPayload>) =>
   withMeta<TPayload, CanvasState>(args);
-// i think having a true center offset would be ideal if rewriting
-// u wouldn't have to update any state when moving, just update true center
-// then render based off of the positions coordinates, adjusted for true center
-// its not a crazy tough computation to shift stuff around, so it's fine (probably pales in comparison to the draw)
 
-// to implement this now, we can have a true coordinate attached to the collaboration state. Then just shift the coordinates based on that
-// but that doesn't work cause on the user side all objects look the same
-// may actually need to reimplement the zooming with true placement
-// true placement is actually just camera position, then the camera position is just origin
-// but what's the definitive reason we can't just place the coordintes there and have no camera
-// we would have no actual camera tracking where we are
-// we we can do is actually have one camera origin point
-// we then set the drawing coordinates to actually where it is in the canvas state (the coordinate, then translated for camera)
-// the draw is then going to be taking the camera (current origin)
-// then i can do that simple translate to do this to set that as origin
-// any problems with this?
-//
 const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    update: (state) => {
+      state.lastUpdate = Date.now();
+    },
     addPreset: (
       state,
       action: PayloadAction<{
         circles: CircleReceiver[];
         attachableLines: Edge[];
         type: string;
-        realCenter: [number, number];
+        // realCenter: [number, number];
       }>
     ) => {
       // const zoomedAttachableLines = action.payload.attachableLines.map(line => {

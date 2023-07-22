@@ -131,7 +131,7 @@ const page = async ({ searchParams }: Props) => {
 
   return (
     <div className=" w-screen h-[95%] flex items-display overflow-y-hidden ">
-      <div className="h-full w-full py-[10px] px-[25px] flex items-center justify-center">
+      <div className="h-full w-full py-[10px] px-[25px] flex flex-col items-center justify-center">
         <Content>
           <ContentWrapper data={pattern.data} />
         </Content>

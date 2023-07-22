@@ -55,7 +55,7 @@ export const useCanvasMouseMove = ({
     circles,
     selectedGeometryInfo,
     validatorLensContainer,
-  } = useAppSelector((store) => store.canvas);
+  } = useAppSelector((store) => store.canvas.present);
 
   const previousMousePositionRef = useRef<[number, number]>();
   const isSelectBoxSet =
@@ -110,6 +110,8 @@ export const useCanvasMouseMove = ({
         ];
         // this should be a case obviously just doing this for quick measures
         if (isSelectBoxSet && isMouseDownRef.current) {
+          // dispatch(CanvasActions.update());
+
           dispatch(
             CanvasActions.shiftCircles(
               {
@@ -121,6 +123,7 @@ export const useCanvasMouseMove = ({
           );
           dispatch(CanvasActions.shiftLines({ shift }, meta));
           dispatch(CanvasActions.shiftSelectBox({ shift }));
+          dispatch(CanvasActions.update());
           previousMousePositionRef.current = [mousePositionX, mousePositionY];
           return;
         }
@@ -148,7 +151,7 @@ export const useCanvasMouseMove = ({
                 meta
               )
             );
-
+            dispatch(CanvasActions.update());
           case 'validator-lens':
             const activeLens = validatorLensContainer.find(
               (lens) => lens.id === selectedValidatorLens?.id
@@ -166,7 +169,7 @@ export const useCanvasMouseMove = ({
                 meta
               )
             );
-
+            dispatch(CanvasActions.update());
             break;
           case 'circle':
             selectedCircleID &&
@@ -176,7 +179,7 @@ export const useCanvasMouseMove = ({
                   meta
                 )
               );
-
+            dispatch(CanvasActions.update());
             break;
           case 'line':
             selectedAttachableLine?.id &&
@@ -189,6 +192,8 @@ export const useCanvasMouseMove = ({
                   meta
                 )
               );
+            dispatch(CanvasActions.update());
+            break;
           case 'node1':
             selectedAttachableLine?.id &&
               dispatch(
@@ -201,6 +206,8 @@ export const useCanvasMouseMove = ({
                   meta
                 )
               );
+            dispatch(CanvasActions.update());
+            break;
           case 'node2':
             selectedAttachableLine?.id &&
               dispatch(
@@ -213,6 +220,8 @@ export const useCanvasMouseMove = ({
                   meta
                 )
               );
+            dispatch(CanvasActions.update());
+            break;
           default:
             if (selectBox) {
               const adjustableCord: [number, number] = [
@@ -231,6 +240,7 @@ export const useCanvasMouseMove = ({
                 dispatch(
                   CanvasActions.setSelectedGeometryInfo(selectedGeometryInfo)
                 );
+                dispatch(CanvasActions.update());
                 return prev?.p1 ? { ...prev, p2: adjustableCord } : null;
               });
             }
@@ -238,6 +248,7 @@ export const useCanvasMouseMove = ({
         }
         previousMousePositionRef.current = [mousePositionX, mousePositionY];
         dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
+        dispatch(CanvasActions.update());
       });
   };
 

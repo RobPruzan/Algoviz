@@ -191,7 +191,7 @@ const CodeExecutionControlBar = ({
     validatorLensContainer,
     endNode,
     startNode,
-  } = useAppSelector((store) => store.canvas);
+  } = useAppSelector((store) => store.canvas.present);
 
   const { selectedAttachableLines, selectedCircles } = getSelectedItems({
     attachableLines,

@@ -10,7 +10,7 @@ export const useFullyConnect = (meta: Meta) => {
     currentZoomFactor: creationZoomFactor,
     attachableLines,
     selectedGeometryInfo,
-  } = useAppSelector((store) => store.canvas);
+  } = useAppSelector((store) => store.canvas.present);
   const selectedAttachableLines = attachableLines.filter((line) =>
     selectedGeometryInfo?.selectedIds.includes(line.id)
   );

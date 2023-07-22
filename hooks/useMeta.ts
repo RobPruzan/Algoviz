@@ -8,10 +8,10 @@ export const useMeta = () => {
   const playgroundID = searchParams.get('playground-id');
   const session = useSession();
   const currentZoomFactor = useAppSelector(
-    (store) => store.canvas.currentZoomFactor
+    (store) => store.canvas.present.currentZoomFactor
   );
   const notSignedInUserID = useAppSelector(
-    (store) => store.canvas.notSignedInUserID
+    (store) => store.canvas.present.notSignedInUserID
   );
 
   const userID = session.data?.user.id ?? notSignedInUserID;

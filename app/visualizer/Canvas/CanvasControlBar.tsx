@@ -64,18 +64,17 @@ const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
     currentZoomFactor: creationZoomFactor,
     attachableLines,
     cameraCoordinate,
-  } = useAppSelector((store) => store.canvas);
+  } = useAppSelector((store) => store.canvas.present);
   const [itemChecked, setItemChecked] = useState<null | string>(null);
   const searchParams = useSearchParams();
   const notSignedInUserID = useAppSelector(
-    (store) => store.canvas.notSignedInUserID
+    (store) => store.canvas.present.notSignedInUserID
   );
   const canvasPicked = useAppSelector((store) => ({
-    attachableLines: store.canvas.attachableLines,
-    circles: store.canvas.circles,
+    attachableLines: store.canvas.present.attachableLines,
+    circles: store.canvas.present.circles,
   }));
 
-  console.log(canvasPicked);
   const shapeUpdateMutation = useShapeUpdateMutation();
   const validShapeUpdateMutation = (
     ...args: Parameters<typeof shapeUpdateMutation.mutate>
@@ -95,7 +94,6 @@ const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
     },
   };
 
-  console.log();
   // fix all these hard coded numbers and random spawn points
   // move random spawn points to slight distribution around middle of canvas
   // or when I have time do so you select then click on the screen

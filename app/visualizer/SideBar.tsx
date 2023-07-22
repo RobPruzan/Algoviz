@@ -32,7 +32,9 @@ import {
 import { Editor } from '@monaco-editor/react';
 const SideBar = () => {
   const { sideBarState, setSideBarState } = useContext(SideBarContext);
-  const { attachableLines, circles } = useAppSelector((store) => store.canvas);
+  const { attachableLines, circles } = useAppSelector(
+    (store) => store.canvas.present
+  );
 
   const dispatch = useAppDispatch();
   return (

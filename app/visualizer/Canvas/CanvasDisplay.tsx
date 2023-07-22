@@ -85,12 +85,12 @@ const CanvasDisplay = ({
 }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const notSignedInUserID = useAppSelector(
-    (store) => store.canvas.notSignedInUserID
+    (store) => store.canvas.present.notSignedInUserID
   );
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
   const selectedGeometryInfo = useAppSelector(
-    (store) => store.canvas.selectedGeometryInfo
+    (store) => store.canvas.present.selectedGeometryInfo
   );
   const { sideBarState, setSideBarState } = useContext(SideBarContext);
   const dispatch = useAppDispatch();
@@ -103,7 +103,7 @@ const CanvasDisplay = ({
     endNode,
     startNode,
     cameraCoordinate,
-  } = useAppSelector((store) => store.canvas);
+  } = useAppSelector((store) => store.canvas.present);
   const { collabInfos, ownerID } = useAppSelector(
     (store) => store.collaborationState
   );

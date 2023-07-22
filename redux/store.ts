@@ -26,6 +26,7 @@ import {
 } from './slices/colloborationSlice';
 import { io } from 'socket.io-client';
 import { type User } from 'next-auth';
+import undoable from 'redux-undo';
 
 export function withMeta<TPayload, TState>(
   reducer: (
@@ -83,12 +84,12 @@ export const socketMiddleware =
             action.meta.playgroundID &&
             getState().collaborationState.ownerID === action.meta.userID
           ) {
-            const objectState: ObjectState = getState().canvas;
+            const objectState: ObjectState = getState().canvas.present;
 
             socketManager.emitSynchronizeObjectState(
               objectState,
-              getState().canvas.cameraCoordinate,
-              getState().canvas.currentZoomFactor,
+              getState().canvas.present.cameraCoordinate,
+              getState().canvas.present.currentZoomFactor,
               action.meta.playgroundID
             );
           }
@@ -119,17 +120,68 @@ export const socketMiddleware =
         }
 
       default:
-        if (isSharedAction && action.meta && !action.meta.fromServer) {
+        if (
+          isSharedAction &&
+          action.meta &&
+          !action.meta.fromServer &&
+          !(action.type === 'canvas/update')
+        ) {
           socketManager.sendSocketAction(action);
         }
     }
 
     return next(action);
   };
+const undoableCanvasReducer = undoable(
+  canvasReducer,
+  // NEEDS FILTER TO DEBOUNCE UPDATING CORDS
+  {
+    limit: 100,
+    filter: (action, state) => {
+      console.log('action', action);
+      const debounceReducerNames = [
+        'handleMoveCircle',
+        'setPencilDrawingCoordinates',
+        'shiftLines',
+        'shiftSelectBox',
+        'resizeValidatorLens',
+        'setValidatorLensSelectedIds',
+        'shiftValidatorLens',
+        'handleMoveLine',
+        'handleMoveNodeOne',
+        'handleMoveNodeTwo',
+        'staticLensSetValidatorLensIds',
+        'setSelectedGeometryInfo',
+        'update',
+      ];
+      const debouncedCollabNames = ['setUserMousePosition'];
+      const debouncedActionTypes = debounceReducerNames.map(
+        (name) => `canvas/${name}`
+      );
+      const debouncedActionCollabNames = debouncedCollabNames.map(
+        (name) => `collaborationState/${name}`
+      );
+      console.log(
+        'actions',
+        action,
+        debouncedActionTypes.includes(action.type),
+        Date.now() - state.lastUpdate
+      );
 
+      if (
+        debouncedActionTypes.includes(action.type) ||
+        debouncedActionCollabNames.includes(action.type)
+      )
+        return false;
+      // console.log(Date.now(), state.lastUpdate, Date.now() - state.lastUpdate);
+      // return Date.now() - state.lastUpdate > 300;
+      return true;
+    },
+  }
+);
 export const store = configureStore({
   reducer: {
-    canvas: canvasReducer,
+    canvas: undoableCanvasReducer,
     codeExec: codeExecReducer,
     // other state can be shared between clients, but this state is specifically for supporting collaboration
     collaborationState: collaborationReducer,
