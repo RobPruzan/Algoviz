@@ -414,7 +414,8 @@ const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
       </div>
 
       <AlgoHistorySlider
-        show={(visualization?.length ?? 0) > 0 || showAlgoHistorySlider}
+        // or true for debug remove this
+        show={(visualization?.length ?? 0) > 0 || showAlgoHistorySlider || true}
       />
     </>
   );

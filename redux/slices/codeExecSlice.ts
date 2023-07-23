@@ -36,9 +36,18 @@ const initialState: InitialState = {
   error: null,
 };
 const codeExecSlice = createSlice({
-  name: 'dfs',
+  name: 'codeExec',
   initialState,
   reducers: {
+    setVisualizationPointer: (state, action: PayloadAction<number>) => {
+      if (
+        action.payload >= 0 &&
+        action.payload <= (state.visualization?.length ?? 0)
+      ) {
+        state.visualizationPointer = action.payload;
+      }
+    },
+
     setError: (state, action: PayloadAction<InitialState['error']>) => {
       state.error = action.payload;
     },
@@ -46,12 +55,6 @@ const codeExecSlice = createSlice({
     setSelectedAlgorithm: (state, action: PayloadAction<string | null>) => {
       state.selectedAlgorithm = action.payload;
     },
-    // setValidationVisualization: (
-    //   state,
-    //   action: PayloadAction<InitialState['validation']>
-    // ) => {
-    //   state.validation = action.payload;
-    // },
 
     setVisitedVisualization: (
       state,
