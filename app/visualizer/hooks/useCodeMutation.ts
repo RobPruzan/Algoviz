@@ -11,7 +11,7 @@ import { useGetAlgorithmsQuery } from './useGetAlgorithmsQuery';
 import { CanvasActions, ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 import { useMeta } from '@/hooks/useMeta';
 
-export const useCodeMutation = () => {
+export const useCodeMutation = (onError?: (error: unknown) => any) => {
   const dispatch = useAppDispatch();
   const {
     attachableLines,
@@ -24,7 +24,7 @@ export const useCodeMutation = () => {
     circles,
     selectedGeometryInfo,
   });
-  const getAlgorithmsQuery = useGetAlgorithmsQuery();
+
   const selectedAttachableLinesThroughLens = attachableLines.filter((line) =>
     validatorLensContainer.some((lens) => lens.selectedIds.includes(line.id))
   );
@@ -43,6 +43,10 @@ export const useCodeMutation = () => {
     return { ...prev, [id]: neighbors };
   }, {});
   const codeMutation = useMutation({
+    onError: (error) => {
+      console.log('fuck me ass', error);
+      onError?.(error);
+    },
     mutationFn: async ({
       algo,
 
@@ -63,12 +67,18 @@ export const useCodeMutation = () => {
     }) => {
       const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
       if (!url) Promise.reject();
+      console.log('sending');
+
+      console.log('THORIWNG EOPJFRTOILSJF');
+      // Promise.reject();
       const res = await axios.post(url, {
         code: algo.code,
         globalVar: adjacencyList,
         startNode,
         endNode,
       });
+
+      console.log('CODE RES', res);
 
       const dataSchema = z.union([
         z.object({
@@ -99,16 +109,24 @@ export const useCodeMutation = () => {
           }),
         }),
       ]);
+      console.log('whats getting parsed', res.data.data.error);
+      if (res.data.data.error) {
+        console.log('hola', res.data);
+        const parsed = dataSchema.parse({
+          data: { result: { ...res.data.data } },
+        });
 
+        return parsed.data.result;
+      }
       const parsed = dataSchema.parse({
         data: { result: { ...res.data.data.result, type } },
       });
 
       return parsed.data.result;
     },
-    onError: (err) => {
-      console.error('wah wah', err);
-    },
+    // onError: (err) => {
+    //   console.error('wah wah', err);
+    // },
     onSuccess: (data, ctx) => {
       match(data)
         .with({ type: AlgoType.Validator }, ({ exitValue }) => {
@@ -128,6 +146,7 @@ export const useCodeMutation = () => {
           dispatch(CodeExecActions.setVisitedVisualization(exitValue));
         })
         .with({ type: 'error' }, (errorInfo) => {
+          console.log('matching error');
           // dispatch(CodeExecActions.setError(error));
           dispatch(
             CodeExecActions.setError({

@@ -57,7 +57,9 @@ export const socketMiddleware =
 
     switch (action.type) {
       case 'socket/connect':
+        console.log('connecting wahhhh');
         if (action.meta?.playgroundID) {
+          console.log('should be joining!');
           socketManager.socket = io(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL);
           socketManager
             .joinPlayground(action.meta.playgroundID, action.meta.user)
@@ -70,6 +72,7 @@ export const socketMiddleware =
               console.log('ERROR adding user', err);
             });
           socketManager.addActionListener((socketAction: SocketAction) => {
+            console.log('fdlskjf');
             if (socketAction.meta.userID !== action.meta.userID) {
               // note, performance is pretty good with circles, but awful with boxes, investigate
               dispatch(socketAction);
@@ -163,12 +166,6 @@ const undoableCanvasReducer = undoable(
       // const debouncedActionCollabNames = debouncedCollabNames.map(
       //   (name) => `collaborationState/${name}`
       // );
-      console.log(
-        'actions',
-        action,
-        debouncedActionTypes.includes(action.type),
-        Date.now() - state.lastUpdate
-      );
 
       if (
         debouncedActionTypes.includes(action.type)

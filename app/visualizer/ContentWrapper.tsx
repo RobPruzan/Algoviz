@@ -25,6 +25,7 @@ import { match } from 'ts-pattern';
 import { useCodeMutation } from './hooks/useCodeMutation';
 import { CollaborationActions } from '@/redux/slices/colloborationSlice';
 import { useMeta } from '@/hooks/useMeta';
+import { useToast } from '@/components/ui/use-toast';
 type Props = {
   data: PickedPlayground | null;
 };
@@ -49,7 +50,15 @@ const ContentWrapper = ({ data }: Props) => {
     type: AlgoType.Visualizer,
   });
 
-  const codeMutation = useCodeMutation();
+  const { toast } = useToast();
+  const [autoSelectAll, setAutoSelectAll] = useState(false);
+
+  const codeMutation = useCodeMutation((error) => {
+    toast({
+      title: 'Error',
+      description: JSON.stringify(error),
+    });
+  });
 
   const meta = useMeta();
 
@@ -127,11 +136,14 @@ const ContentWrapper = ({ data }: Props) => {
       rightDiv={
         <div className="w-full h-full border-2 border-secondary">
           <CodeExecutionControlBar
+            autoSelectAll={autoSelectAll}
+            setAutoSelectAll={setAutoSelectAll}
             userAlgorithm={userAlgorithm}
             codeMutation={codeMutation}
             setUserAlgorithm={setUserAlgorithm}
           />
           <CodeExecution
+            autoSelectAll={autoSelectAll}
             codeMutation={codeMutation}
             selectedValidatorLens={selectedValidatorLens}
             setSelectedValidatorLens={setSelectedValidatorLens}

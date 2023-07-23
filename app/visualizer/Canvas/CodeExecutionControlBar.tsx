@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 
 import { Button } from '@/components/ui/button';
@@ -52,6 +52,8 @@ type Props = {
     >
   >;
   codeMutation: ReturnType<typeof useCodeMutation>;
+  autoSelectAll: boolean;
+  setAutoSelectAll: Dispatch<SetStateAction<boolean>>;
 };
 
 const startNodeAnnotation = ', startNode: NodeID';
@@ -72,12 +74,6 @@ const parseCode = ({
     passEndNode,
     passStartNode,
   });
-
-  // const codeWithRemovedParameters = parseCodeAndRemoveParameters({
-  //   code: codeWithAddedParameters,
-  //   passEndNode,
-  //   passStartNode,
-  // });
 
   if (!passStartNode) {
     codeWithAddedParameters = codeWithAddedParameters.replace(
@@ -137,10 +133,12 @@ const CodeExecutionControlBar = ({
   setUserAlgorithm,
   userAlgorithm,
   codeMutation,
+  autoSelectAll,
+  setAutoSelectAll,
 }: Props) => {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<AlgoType>(AlgoType.Visualizer);
-  const [showAlgoHistorySlider, setShowAlgoHistorySlider] = useState(false);
+
   const [codeExecParameters, setCodeExecParameters] =
     useState<CodeExecParameters>({
       passStartNode: true,
@@ -164,10 +162,7 @@ const CodeExecutionControlBar = ({
   const saveAlgorithmMutation = useSaveAlgorithmMutation();
 
   const { toast } = useToast();
-  // currently its nonsense and not definable till we have a proper attribute for it
-  // const currentAlgorithm =
-  //   { ...userAlgorithm, id: crypto.randomUUID() } ??
-  //   getAlgorithmsQuery.data?.find((d) => d.id === selectedAlgorithm);
+
   const currentAlgorithm = getAlgorithmsQuery.data?.find(
     (d) => d.id === selectedAlgorithm
   );
@@ -180,12 +175,6 @@ const CodeExecutionControlBar = ({
     endNode,
     startNode,
   } = useAppSelector((store) => store.canvas.present);
-
-  // const { selectedAttachableLines, selectedCircles } = getSelectedItems({
-  //   attachableLines,
-  //   circles,
-  //   selectedGeometryInfo,
-  // });
 
   const visualization = useAppSelector((store) => store.codeExec.visualization);
   const results = validatorLensContainer.map((lens) => lens.result);
@@ -232,7 +221,7 @@ const CodeExecutionControlBar = ({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedIds]);
-  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <>
       <div className="w-full max-h-[7%] min-h-[50px]">
@@ -253,25 +242,28 @@ const CodeExecutionControlBar = ({
             <PopoverContent className="pt-0">
               <div className="flex flex-col  items-start justify-evenly px-1 h-40 ">
                 <p className="text-lg font-bold w-full text-center">Options</p>
-                {getAlgorithmsQuery.isLoading ? (
-                  <AlgoComboBox
-                    className="w-[150px]"
-                    algorithms={[]}
-                    defaultPlaceholder="Loading"
-                    setValue={() => null}
-                    value={null}
-                  />
-                ) : (
-                  <AlgoComboBox
-                    className="w-[150px]"
-                    algorithms={getAlgorithmsQuery.data ?? []}
-                    defaultPlaceholder="Algorithm"
-                    value={selectedAlgorithm}
-                    setValue={(value) =>
-                      dispatch(CodeExecActions.setSelectedAlgorithm(value))
-                    }
-                  />
-                )}
+                <div className="flex items-center space-x-2">
+                  {getAlgorithmsQuery.isLoading ? (
+                    <AlgoComboBox
+                      className="w-[150px]"
+                      algorithms={[]}
+                      defaultPlaceholder="Loading"
+                      setValue={() => null}
+                      value={null}
+                    />
+                  ) : (
+                    <AlgoComboBox
+                      className="w-[150px]"
+                      algorithms={getAlgorithmsQuery.data ?? []}
+                      defaultPlaceholder="Algorithm"
+                      value={selectedAlgorithm}
+                      setValue={(value) =>
+                        dispatch(CodeExecActions.setSelectedAlgorithm(value))
+                      }
+                    />
+                  )}
+                </div>
+
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     // value={codeExecParameters.passStartNode}
@@ -333,10 +325,24 @@ const CodeExecutionControlBar = ({
                     Pass end node
                   </label>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={autoSelectAll}
+                    onCheckedChange={(v) => {
+                      v !== 'indeterminate' && setAutoSelectAll(v);
+                    }}
+                    id="auto-select-all"
+                  />
+                  <label
+                    id="auto-select-all"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Auto-select all nodes
+                  </label>
+                </div>
               </div>
             </PopoverContent>
           </Popover>
-
           <Button
             onClick={() => {
               if (!codeInfo) {
@@ -371,7 +377,13 @@ const CodeExecutionControlBar = ({
             Debug
           </Button>
           <Button
-            onClick={(e) => {
+            onClick={async (e) => {
+              await codeMutation.mutateAsync({
+                type: AlgoType.Visualizer,
+                algo: { code: codeInfo.code },
+                endNode,
+                startNode,
+              });
               dispatch(CodeExecActions.toggleIsApplyingAlgorithm());
             }}
             variant="outline"

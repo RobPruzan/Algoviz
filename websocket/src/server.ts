@@ -40,7 +40,7 @@ const playgroundUsers = new Map<string, (User | { id: string })[]>();
 
 io.on('connect', (socket) => {
   console.log('a user connected (+1)', new Date().getUTCDay());
-
+  console.log('pg users', playgroundUsers);
   // join room event
   socket.on(
     'join playground',
@@ -69,6 +69,7 @@ io.on('connect', (socket) => {
   );
 
   socket.on('action', (data: SocketAction) => {
+    console.log('sending to clients in room', playgroundUsers);
     // const clientsInRoom = io.sockets.adapter.rooms.get(data.meta.playgroundID);
     // console.log('Current users in the room:', Array.from(clientsInRoom ?? []));
     data.meta.fromServer = true;
@@ -106,8 +107,4 @@ io.on('connect', (socket) => {
 const port = process.env.PORT || 8080;
 server.listen(port, () => {
   console.log(`listening on *:${port}`, new Date().getTime());
-});
-
-app.get('/json', (req, res) => {
-  res.json({ 'Choo Choo': 'Welcome to your Express app 🚅' });
 });

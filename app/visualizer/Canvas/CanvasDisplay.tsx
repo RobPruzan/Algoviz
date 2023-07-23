@@ -125,10 +125,13 @@ const CanvasDisplay = ({
   const session = useSession();
   session.data?.user;
   const playgroundID = searchParams.get('playground-id');
+
   const userID = session.data?.user.id ?? notSignedInUserID;
   const selectedAlgorithm = useAppSelector(
     (store) => store.codeExec.selectedAlgorithm
   );
+
+  const isInitialized = !!playgroundID && session.status !== 'loading';
 
   const baseMeta = useMeta();
   const meta: Meta = {
@@ -138,11 +141,12 @@ const CanvasDisplay = ({
       cameraCoordinate[1] + canvasHeight / 2,
     ],
   };
+
   const cursorImgRef = useRef<HTMLImageElement | null>(null);
   useEffect(() => {
     // putting a condition here of session.status === 'loading' still breaks even with the updated cleanup logic
 
-    if (!playgroundID) return;
+    if (!isInitialized) return;
 
     dispatch({
       type: 'socket/connect',
@@ -150,7 +154,7 @@ const CanvasDisplay = ({
     });
     // need to understand the problem with waiting for the session to load :/
     return () => {
-      if (!playgroundID) return;
+      if (!isInitialized) return;
       console.log('disconeccting');
       dispatch({
         type: 'socket/disconnect',
@@ -158,7 +162,7 @@ const CanvasDisplay = ({
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playgroundID]);
+  }, [isInitialized]);
   const objects: ObjectState = {
     circles,
     attachableLines,
@@ -341,13 +345,13 @@ const CanvasDisplay = ({
     val &&
       collabInfos.forEach((info) => {
         if (info.user.id !== userID) {
-          ctx.drawImage(
-            val,
-            info.mousePosition[0],
-            info.mousePosition[1],
-            20,
-            20
-          );
+          // ctx.drawImage(
+          //   val,
+          //   info.mousePosition[0],
+          //   info.mousePosition[1],
+          //   20,
+          //   20
+          // );
         }
       });
 

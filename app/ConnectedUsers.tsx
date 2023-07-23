@@ -50,8 +50,6 @@ const ConnectedUsers = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collabInfoState.length]);
 
-  useEffect(() => {}, []);
-
   const totalUsers = collabInfoState.length;
   const usersAboveThree = totalUsers - 3;
   // const isAboveThreeUsers = usersAboveThree > 0;

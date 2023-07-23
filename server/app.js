@@ -53,11 +53,19 @@ app.post('/exec', (req, res) => {
     // {exitValue: any, logs: str[]}
     result = JSON.parse(vm.run(jsCode));
   } catch (error) {
-    console.error('failed:', error);
-    return res.status(400).send({ error: error.toString() });
+    console.error('fuck:', error);
+
+    // res.sendStatus(400);
+    // res.header.statusCode = 400;
+    return res.send({
+      error: error.toString(),
+      type: 'error',
+      logs: logs ?? [],
+    });
   }
   // console.log('returning result:', result);
   console.log('the result', result);
+
   return res.send({ result });
 });
 module.exports.handler = serverless(app);

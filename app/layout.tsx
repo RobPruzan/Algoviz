@@ -52,11 +52,10 @@ export default function RootLayout({
                   {/* temporary padding */}
                   <nav className="w-screen pt-[10px] px-[25px] h-[5%] flex justify-end items-center  ">
                     <div className="w-3/6 flex justify-start items-center ">
-                      <Link href="/">
-                        <Button className="mr-2" variant="outline">
-                          Home
-                        </Button>
-                      </Link>
+                      <Button className="mr-2" variant="outline">
+                        <Link href="/">Home</Link>
+                      </Button>
+
                       <PlaygroundsButton />
                     </div>
 

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -13,22 +14,25 @@ export async function POST(request: Request) {
   const json = await request.json();
   const parsedJson = codeSchema.parse(json);
   const { code, globalVar, startNode, endNode } = parsedJson;
+  try {
+    if (url) {
+      const res = await axios.post(url, {
+        code,
+        globalVar,
+        startNode,
+        endNode,
+      });
+      const data = res.data;
 
-  if (url) {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ code, globalVar, startNode, endNode }),
-    });
-    const data = await res.json();
-
-    return NextResponse.json({ data });
-  } else {
-    return NextResponse.json({
-      msg: 'could not find server exec url',
-      status: 400,
-    });
+      return NextResponse.json({ data });
+    } else {
+      return NextResponse.json({
+        msg: 'could not find server exec url',
+        status: 400,
+      });
+    }
+  } catch (error) {
+    console.log('ahh', error);
+    return NextResponse.json(null, { status: 400 });
   }
 }

@@ -20,6 +20,11 @@ import Resizable from '../Resizeable';
 import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 import { useTheme } from 'next-themes';
 import { useCodeMutation } from '../hooks/useCodeMutation';
+import { Switch } from '@/components/ui/switch';
+import { Check } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+
 type Props = {
   setUserAlgorithm: React.Dispatch<
     React.SetStateAction<
@@ -32,12 +37,14 @@ type Props = {
   >;
   selectedValidatorLens: SelectedValidatorLens | null;
   codeMutation: ReturnType<typeof useCodeMutation>;
+  autoSelectAll: boolean;
 };
 
 const CodeExecution = ({
   setUserAlgorithm,
   userAlgorithm,
   codeMutation,
+  autoSelectAll,
 }: Props) => {
   const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
@@ -67,8 +74,8 @@ const CodeExecution = ({
 
   const adjacencyList: Record<string, string[]> = [
     ...Graph.getAdjacencyList({
-      edges: selectedAttachableLines,
-      vertices: selectedCircles,
+      edges: autoSelectAll ? attachableLines : selectedAttachableLines,
+      vertices: autoSelectAll ? circles : selectedCircles,
     }).entries(),
   ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
     return { ...prev, [id]: neighbors };
@@ -80,13 +87,6 @@ const CodeExecution = ({
     (d) => d.id === selectedAlgorithm
   );
 
-  // const code =
-  //   userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE
-  //     ? userAlgorithm.code
-  //     : currentAlgorithm?.code ?? DEFAULT_VISUALIZATION_CODE;
-  // const codeIsDefault = userAlgorithm.code === DEFAULT_VISUALIZATION_CODE;
-  // if u have a selected algo, that always takes priority
-  // if you have code written over the selected algo, that should be swapped in
   const code =
     userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE &&
     userAlgorithm.code !== currentAlgorithm?.code
@@ -198,9 +198,12 @@ const CodeExecution = ({
                 .with('input', () => (
                   <>
                     {Object.entries(adjacencyList).length === 0 && (
-                      <div className="w-full h-full flex items-start font-bold text-xl justify-center text-gray-500">
-                        No graph selected in playground
-                      </div>
+                      <>
+                        <div className="w-full  h-full flex-col flex items-center font-bold text-xl justify-start text-gray-500">
+                          <p>No graph selected in playground</p>
+                          <div className="flex  justify-evenly w-1/3"></div>
+                        </div>
+                      </>
                     )}
                     {Object.entries(adjacencyList).map(([k, v]) => (
                       <div className="flex text-2xl" key={k}>
