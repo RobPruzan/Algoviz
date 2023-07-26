@@ -32,7 +32,7 @@ const PageWrapper = async (props: Props) => {
   const dehydratedState = dehydrate(queryClient);
   return (
     <div className="flex  items-center justify-center  h-full overflow-y-scroll">
-      <div className="w-[90%] h-full flex md:justify-start md:items-start flex-wrap space-y-5 space-x-5 items-center justify-center">
+      <div className="w-[90%] max-h-full mb-auto flex md:justify-start md:items-start flex-wrap space-y-5 space-x-5 items-center justify-center">
         <CreatePlayground />
         <Hydrate state={dehydratedState}>
           <Playgrounds />

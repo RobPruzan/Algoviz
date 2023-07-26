@@ -146,7 +146,7 @@ const CanvasDisplay = ({
   useEffect(() => {
     // putting a condition here of session.status === 'loading' still breaks even with the updated cleanup logic
 
-    if (!isInitialized) return;
+    if (!playgroundID) return;
 
     dispatch({
       type: 'socket/connect',
@@ -154,7 +154,7 @@ const CanvasDisplay = ({
     });
     // need to understand the problem with waiting for the session to load :/
     return () => {
-      if (!isInitialized) return;
+      if (!playgroundID) return;
       console.log('disconeccting');
       dispatch({
         type: 'socket/disconnect',
@@ -162,7 +162,7 @@ const CanvasDisplay = ({
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isInitialized]);
+  }, [playgroundID]);
   const objects: ObjectState = {
     circles,
     attachableLines,

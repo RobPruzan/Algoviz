@@ -3,9 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { z } from 'zod';
 import { authOptions } from '../../auth/[...nextauth]/route';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user)
     return NextResponse.json({

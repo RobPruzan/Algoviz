@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server';
 
 const jwt = require('jsonwebtoken');
 
-// This could be an environment variable
 const jwtSecret = process.env.NEXTAUTH_SECRET;
 
 function generateRoomUrl(roomId: string, permission: string) {

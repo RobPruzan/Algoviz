@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import axios from 'axios';
 type Props = {
   playground: {
     userId: string;
@@ -32,17 +33,20 @@ const Playground = ({ playground, ...props }: Props) => {
   const queryClient = useQueryClient();
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-
+  const [newPlaygroundName, setNewPlaygroundName] = useState<string>();
+  const [hoveringActionButton, setHoveringActionButton] = useState(false);
   const deletePlaygroundMutation = useMutation({
     mutationFn: async (playgroundId: number) => {
-      await queryClient.cancelQueries({ queryKey: ['todos'] });
-      const json = await ky
-        .post(`${process.env.NEXT_PUBLIC_API_ROUTE}/playground/delete`, {
-          json: {
+      console.log('deleting playground', playgroundId);
+      const json = (
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_ROUTE}/playground/delete`,
+          {
             id: playgroundId,
-          },
-        })
-        .json();
+          }
+        )
+      ).data;
+      console.log('da json', json);
       const jsonSchema = z.object({
         playgroundId: z.number(),
       });
@@ -55,23 +59,87 @@ const Playground = ({ playground, ...props }: Props) => {
           playgrounds?.filter((playground) => playground.id !== data)
       );
     },
+    onError: (e) => {
+      console.log('goo ga', e);
+    },
+  });
+
+  const editPlaygroundMutation = useMutation({
+    mutationFn: async ({
+      name,
+      playgroundId,
+    }: {
+      playgroundId: number;
+      name: string;
+    }) => {
+      const playground = (
+        await axios.put(
+          `${process.env.NEXT_PUBLIC_API_ROUTE}/playground/edit`,
+          {
+            id: playgroundId,
+            name,
+          }
+        )
+      ).data;
+
+      console.log('responded json', playground);
+
+      const playgroundSchema = z.object({
+        id: z.number(),
+        name: z.string(),
+      });
+
+      return playgroundSchema.parse(playground);
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData<SerializedPlayground[]>(
+        ['getPlaygrounds'],
+        (playgrounds) =>
+          playgrounds?.map((playground) => {
+            if (playground.id === data.id) {
+              return { ...playground, ...data };
+            }
+            return playground;
+          })
+      );
+    },
   });
 
   return (
     <Link href={`/visualizer?playground-id=${playground.id}`}>
       <Card
         {...props}
-        className="w-72 h-64  flex items-center justify-center hover:bg-secondary cursor:pointer"
+        className={`w-72 h-64  flex items-center justify-center ${
+          hoveringActionButton ? '' : 'hover:bg-secondary'
+        }  cursor:pointer`}
       >
         <div className="w-[75%] h-full flex items-start justify-start ">
           <p className="m-5 font-bold text-2xl"> {playground.name}</p>
         </div>
 
         <div className="w-[25%] h-full flex flex-col items-end">
-          <div className="h-1/5 w-1/2 flex justify-end">
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            className="h-1/5 w-1/2 flex justify-end"
+          >
             <Dialog open={openDelete} onOpenChange={setOpenDelete}>
               <DialogTrigger asChild>
-                <Button onClick={(e) => e.preventDefault()} variant={'ghost'}>
+                <Button
+                  onMouseLeave={() => {
+                    setHoveringActionButton(false);
+                  }}
+                  onMouseEnter={() => {
+                    setHoveringActionButton(true);
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setOpenDelete(true);
+                  }}
+                  variant={'ghost'}
+                >
                   <Trash />
                 </Button>
               </DialogTrigger>
@@ -84,9 +152,11 @@ const Playground = ({ playground, ...props }: Props) => {
 
                 <DialogFooter>
                   <Button
-                    onClick={async () => {
+                    onClick={async (e) => {
+                      // e.stopPropagation();
                       await deletePlaygroundMutation.mutateAsync(playground.id);
                       queryClient.invalidateQueries(['getPlaygrounds']);
+                      setOpenDelete(false);
                     }}
                     variant="outline"
                     type="submit"
@@ -104,7 +174,15 @@ const Playground = ({ playground, ...props }: Props) => {
             <Dialog open={openEdit} onOpenChange={setOpenEdit}>
               <DialogTrigger asChild>
                 <Button
-                  onClick={(e) => e.preventDefault()}
+                  onMouseLeave={() => {
+                    setHoveringActionButton(false);
+                  }}
+                  onMouseEnter={() => {
+                    setHoveringActionButton(true);
+                  }}
+                  onClick={() => {
+                    setOpenEdit(true);
+                  }}
                   size={'icon'}
                   variant={'ghost'}
                 >
@@ -126,15 +204,36 @@ const Playground = ({ playground, ...props }: Props) => {
                     Name
                   </Label>
                   <Input
-                    value={playground.name}
+                    onChange={(e) => {
+                      setNewPlaygroundName(e.target.value);
+                    }}
+                    value={newPlaygroundName ?? playground.name}
                     id="name"
                     className="col-span-3"
                   />
                 </div>
 
                 <DialogFooter>
-                  <Button variant="outline" type="submit">
-                    Confirm Edit
+                  <Button
+                    onClick={async () => {
+                      if (!newPlaygroundName) return;
+                      await editPlaygroundMutation.mutateAsync({
+                        playgroundId: playground.id,
+                        name: newPlaygroundName,
+                      });
+                      setNewPlaygroundName(undefined);
+                      setOpenEdit(false);
+                    }}
+                    variant="outline"
+                    type="submit"
+                  >
+                    {editPlaygroundMutation.isLoading ? (
+                      <>
+                        <LoaderIcon className="animate-spin" />
+                      </>
+                    ) : (
+                      <>Confirm Edit</>
+                    )}
                   </Button>
                 </DialogFooter>
               </DialogContent>
