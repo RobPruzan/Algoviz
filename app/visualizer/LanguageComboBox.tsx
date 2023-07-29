@@ -24,10 +24,10 @@ type Props = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   value: Languages;
-  setValue: Dispatch<SetStateAction<Languages>>;
+  onSelect?: ((value: Languages) => void) | undefined;
 };
 
-export function LanguageComboBox({ open, setOpen, setValue, value }: Props) {
+export function LanguageComboBox({ open, setOpen, onSelect, value }: Props) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -35,15 +35,15 @@ export function LanguageComboBox({ open, setOpen, setValue, value }: Props) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[150px] h-[30px] justify-between font-bold"
+          className="w-[120px] h-[30px] justify-between font-bold"
         >
           {value
             ? languages.find((language) => language.value === value)?.label
-            : 'Select language...'}
+            : 'Language'}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[175px] p-0">
         <Command>
           <CommandInput placeholder="Search language..." />
           <CommandEmpty>No language found.</CommandEmpty>
@@ -51,14 +51,7 @@ export function LanguageComboBox({ open, setOpen, setValue, value }: Props) {
             {languages.map((language) => (
               <CommandItem
                 key={language.value}
-                onSelect={(currentValue) => {
-                  setValue(
-                    currentValue === value
-                      ? ('' as Languages)
-                      : (currentValue as Languages)
-                  );
-                  setOpen(false);
-                }}
+                onSelect={(sel) => onSelect?.(sel as Languages)}
               >
                 <Check
                   className={cn(

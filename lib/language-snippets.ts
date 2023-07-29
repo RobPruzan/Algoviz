@@ -12,18 +12,7 @@ export const languages = [
     value: 'java',
     label: 'Java',
   },
-  {
-    value: 'c',
-    label: 'C',
-  },
-  {
-    value: 'c++',
-    label: 'C++',
-  },
-  {
-    value: 'ruby',
-    label: 'Ruby',
-  },
+
   {
     value: 'rust',
     label: 'Rust',
@@ -35,8 +24,11 @@ export const languages = [
 ] as const;
 
 export type Languages = (typeof languages)[number]['value'];
-export const python = `
-from typing import List, Dict
+
+export type LanguageSnippets = { [Key in Languages]: string };
+
+export const languageSnippets: LanguageSnippets = {
+  python: `from typing import List, Dict
 
 NodeID = str  # uuid representing a node
 AdjacencyList = Dict[NodeID, List[NodeID]]
@@ -46,9 +38,8 @@ Visualization = List[VisitedIDs]
 def algorithm(adjList: AdjacencyList) -> Visualization:
     # your code here
     pass
-`;
-export const javascript = `
-// NodeID: string (uuid representing a node)
+  `,
+  javascript: `// NodeID: string (uuid representing a node)
 // AdjacencyList: Object with NodeID keys and array of NodeID values
 // VisitedIDs: array of NodeID
 // Visualization: array of VisitedIDs
@@ -58,10 +49,9 @@ function algorithm(adjList) {
 
     // your code here
 }
-`;
 
-export const java = `
-import java.util.*;
+  `,
+  java: `import java.util.*;
 
 public class Main {
     // Using String for NodeID as it represents a uuid
@@ -72,58 +62,9 @@ public class Main {
         return null;
     }
 }
-`;
+  `,
 
-export const c = `
-#include <stdio.h>
-
-// NodeID: char array (string, uuid representing a node)
-// AdjacencyList: array of NodeID pointers
-// VisitedIDs: array of NodeID
-// Visualization: array of VisitedIDs
-
-void algorithm(char *adjList[]) {
-    // adjList: AdjacencyList
-
-    // your code here
-}
-`;
-
-export const cpp = `
-#include <string>
-#include <vector>
-#include <map>
-
-// NodeID: string (uuid representing a node)
-// AdjacencyList: map with NodeID keys and vector of NodeID values
-// VisitedIDs: vector of NodeID
-// Visualization: vector of VisitedIDs
-
-typedef std::string NodeID;
-typedef std::map<NodeID, std::vector<NodeID>> AdjacencyList;
-typedef std::vector<NodeID> VisitedIDs;
-typedef std::vector<VisitedIDs> Visualization;
-
-Visualization algorithm(AdjacencyList adjList) {
-    // your code here
-}
-`;
-
-export const ruby = `
-# NodeID: String (uuid representing a node)
-# AdjacencyList: Hash with NodeID keys and Array of NodeID values
-# VisitedIDs: Array of NodeID
-# Visualization: Array of VisitedIDs
-
-def algorithm(adjList)
-  # adjList: AdjacencyList
-
-  # your code here
-end
-`;
-
-export const rust = `
-use std::collections::HashMap;
+  rust: `use std::collections::HashMap;
 
 // NodeID: String (uuid representing a node)
 // AdjacencyList: HashMap with NodeID keys and Vec of NodeID values
@@ -139,10 +80,8 @@ fn algorithm(adj_list: AdjacencyList) -> Visualization {
     // your code here
     Vec::new()
 }
-`;
-
-export const go = `
-package main
+  `,
+  go: `package main
 
 // NodeID: string (uuid representing a node)
 // AdjacencyList: map with NodeID keys and slice of NodeID values
@@ -158,4 +97,6 @@ func algorithm(adjList AdjacencyList) Visualization {
     // your code here
     return nil
 }
-`;
+  `,
+  Select: '',
+};

@@ -5,7 +5,14 @@ import Editor from '@monaco-editor/react';
 
 import * as Graph from '@/lib/graph';
 // import * as DialogPrimitive from '@radix-ui/react-dialog';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, {
+  Dispatch,
+  ElementRef,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { match } from 'ts-pattern';
 import { nightOwlTheme } from './theme';
 import { Percentage, SelectedValidatorLens } from '@/lib/types';
@@ -62,6 +69,11 @@ const CodeExecution = ({
     '40%'
   );
 
+  const ioPanelRef = useRef<ElementRef<'div'>>(null);
+
+  const width = ioPanelRef.current?.offsetWidth;
+  const height = ioPanelRef.current?.offsetHeight;
+
   const selectedAlgorithm = useAppSelector(
     (store) => store.codeExec.selectedAlgorithm
   );
@@ -114,7 +126,7 @@ const CodeExecution = ({
   // const idx = 2;
 
   return (
-    <div className="w-full h-[93%]">
+    <div style={{ height: 'calc(100% - 60px)' }} className="w-full ">
       <Resizable
         canvasSize={editorHeight}
         codeExecSize={outputHeight}

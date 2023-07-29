@@ -41,10 +41,10 @@ import { AlgoType, SelectedValidatorLens } from '@/lib/types';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/components/ui/use-toast';
 import AlgoHistorySlider from '../Sort/AlgoHistorySlider';
-import { ChevronDown } from 'lucide-react';
+import { Bug, ChevronDown, Pause, Play, Save, SaveAll } from 'lucide-react';
 import { ChevronUp } from 'lucide-react';
 import { LanguageComboBox } from '../LanguageComboBox';
-import { Languages } from '@/lib/language-snippets';
+import { Languages, languageSnippets } from '@/lib/language-snippets';
 
 type Props = {
   userAlgorithm: Pick<Algorithm, 'title' | 'code' | 'description' | 'type'>;
@@ -234,8 +234,8 @@ const CodeExecutionControlBar = ({
 
   return (
     <>
-      <div className="w-full max-h-[7%] min-h-[50px]">
-        <div className="  prevent-select overflow-x-scroll p-3 flex w-full border-secondary justify-evenly items-center border-b-2 ">
+      <div className="w-full  ">
+        <div className="  prevent-select h-[60px] overflow-x-scroll p-3 flex w-full border-secondary justify-evenly items-center border-b-2 ">
           <Popover>
             <PopoverTrigger
               asChild
@@ -273,13 +273,6 @@ const CodeExecutionControlBar = ({
                     />
                   )}
                 </div>
-
-                <LanguageComboBox
-                  open={openLanguageComboBox}
-                  setOpen={setOpenLanguageComboBox}
-                  setValue={setLanguage}
-                  value={language}
-                />
 
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -360,6 +353,32 @@ const CodeExecutionControlBar = ({
               </div>
             </PopoverContent>
           </Popover>
+          <LanguageComboBox
+            open={openLanguageComboBox}
+            setOpen={setOpenLanguageComboBox}
+            // setValue={(val) => {
+            // setUserAlgorithm((prev) => ({
+            //   ...prev,
+            //   code: languageSnippets[val],
+            // }));
+            // setLanguage(val);
+            // }}
+            onSelect={(currentValue) => {
+              setLanguage(
+                currentValue === language
+                  ? ('' as Languages)
+                  : (currentValue as Languages)
+              );
+              setOpenLanguageComboBox(false);
+
+              setUserAlgorithm((prev) => ({
+                ...prev,
+                code: languageSnippets[currentValue],
+              }));
+              setLanguage(currentValue);
+            }}
+            value={language}
+          />
           <Button
             onClick={() => {
               if (!codeInfo) {
@@ -390,9 +409,9 @@ const CodeExecutionControlBar = ({
               }
             }}
             variant="outline"
-            className="w-[90px]  flex items-center justify-center h-[30px]   font-bold"
+            className="w-fit  flex items-center justify-center h-[30px]   font-bold"
           >
-            Debug
+            <Bug />
           </Button>
           <Button
             onClick={async (e) => {
@@ -406,17 +425,23 @@ const CodeExecutionControlBar = ({
               dispatch(CodeExecActions.toggleIsApplyingAlgorithm());
             }}
             variant="outline"
-            className="w-[90px] flex items-center justify-center h-[30px]   font-bold"
+            className="w-fit flex items-center justify-center h-[30px]   font-bold"
           >
-            {isApplyingAlgorithm ? 'Pause' : 'Apply'}
+            {/* {isApplyingAlgorithm ? 'Pause' : 'Apply'} */}
+            {/* icon version */}
+            {isApplyingAlgorithm ? (
+              <Pause className="w-[20px] h-[20px]" />
+            ) : (
+              <Play className="w-[20px] h-[20px]" />
+            )}
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button
-                className="w-[100px] flex items-center justify-center h-[30px]   font-bold"
+                className="w-fit flex items-center justify-center h-[30px]   font-bold"
                 variant="outline"
               >
-                Save As
+                <Save />
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
