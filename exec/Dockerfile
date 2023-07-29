@@ -23,7 +23,7 @@ RUN pip install --no-cache-dir flask
 COPY . /usr/src/app
 RUN chown -R myuser:myuser /usr/src/app
 ENV PYTHONUNBUFFERED=1
-EXPOSE 8080
+EXPOSE 6969
 
 # Switch to the new user
 USER myuser

@@ -10,18 +10,20 @@ parse_var = "\P"
 
 
 def parse_output(out: str):
-    pre = [""]
-    post = [""]
+    try:
+        pre = [""]
+        post = [""]
 
-    for idx in range(out):
-        if idx == len(out):
-            return
-        if out[idx : idx + 2] == parse_var:
-            pre[0] = out[:idx]
-            post[0] = out[idx + 2 :]
-
-            return out[idx + 2 :]
-    return pre[0], post[0]
+        for idx in range(len(out)):
+            if idx == len(out):
+                return
+            if out[idx : idx + 2] == parse_var:
+                pre[0] = out[:idx]
+                post[0] = out[idx + 2 :]
+                return pre[0], post[0]
+        return pre[0], post[0][1:-1]
+    except Exception as e:
+        return "", ""
 
 
 languages = {
@@ -29,7 +31,11 @@ languages = {
         "interpreter": "python3",
         "extension": ".py",
         "env_code": 'import os, json\nadjacencyList = json.loads(os.getenv("ADJACENCY_LIST", "[]"))\n',
-        "call_code": "\n" + parse_var + "print(json.dumps(adjacencyList))",
+        "call_code": "\nout = json.dumps(algorithm(adjacencyList))"
+        + "\n"
+        + f"print('{parse_var}')"
+        + "\n"
+        + "print(json.dumps(out))",
     },
     "javascript": {
         "interpreter": "node",
@@ -71,22 +77,10 @@ def add_cors_headers(response):
     return response
 
 
-# @app.route("/run", methods=["OPTIONS"])
-# def cors():
-#     request.headers["Access-Control-Allow-Origin"] = "*"
-#     request.headers["Access-Control-Allow-Headers"] = "*"
-#     request.headers["Access-Control-Allow-Methods"] = "*"
-#     request.status = 200
-#     return {
-#         "msg": "added cors",
-#     }
-
-
 @app.route("/run", methods=["POST", "OPTIONS"])
 def run_code():
     if request.method == "OPTIONS":
         return make_response(("Allowed", 204))
-    print("runnin code")
     data = request.get_json()
     lang = data.get("lang")
     code = data.get("code")
@@ -95,15 +89,14 @@ def run_code():
     # print(data, lang, code, env)
 
     if lang not in languages:
-        print("unfortunate")
         return jsonify({"error": "Unsupported language"}), 400
 
     # Generate a random name for the file
     filename = "/tmp/code" + str(uuid.uuid4()) + languages[lang]["extension"]
 
     with open(filename, "w") as file:
-        file.write(languages[lang]["env_code"] + code)
-    print("wrote file")
+        file.write(languages[lang]["env_code"] + code + languages[lang]["call_code"])
+
     try:
         interpreter = languages[lang]["interpreter"]
         if lang in ["c", "c++", "rust"]:
@@ -119,10 +112,8 @@ def run_code():
                 f"java -cp /tmp {os.path.splitext(os.path.basename(filename))[0]}"
             )
         else:
-            # For interpreted languages, we can run directly
             run_command = f"{interpreter} {filename}"
 
-        # Run the code, with a 5-second timeout
         print("the code", code)
         result = subprocess.run(
             shlex.split(run_command),
@@ -134,24 +125,21 @@ def run_code():
         stdout = result.stdout.decode()
         stderr = result.stderr.decode()
         output = stdout if not stderr else stderr
-        print("thedecoded result", output)
-        print("any error", result.stderr.decode())
-        # need a parse point, everything before will be logs
     except Exception as e:
         output = str(e)
-    # print(
-    #     f"output ->{output}<-",
-    # )
-    # return jsonify({"output": output})
-    output, logs = parse_output(output)
+    logs, out = parse_output(output)
+
+    out = json.loads(out) if out else ""
+
     logs = logs if logs else ""
-    output = json.loads(output) if output else ""
+
+    print("out and logs", out, logs)
 
     if stderr:
-        return jsonify({"output": output, "logs": logs, "type": "error"})
+        return jsonify({"output": out, "logs": logs, "type": "error"})
 
-    return jsonify({"output": output, "logs": logs})
+    return jsonify({"output": out, "logs": logs})
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=6969, debug=True)

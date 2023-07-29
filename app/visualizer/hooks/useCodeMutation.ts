@@ -88,12 +88,12 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
 
       const dataSchema = z.union([
         z.object({
-          output: z.array(z.string()),
+          output: z.array(z.array(z.string())),
           logs: z.string(),
           type: z.literal('Visualizer'),
         }),
         z.object({
-          output: z.array(z.string()),
+          output: z.boolean(),
           logs: z.string(),
           type: z.literal('Validator'),
         }),
@@ -135,21 +135,22 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
                 id: ctx.lens.id,
                 // need to make sure at some point when i run code for validator i store a boolean
                 // so i can index it here :3
-                result: output['validator'],
+                result: output,
               })
             );
           }
         })
         .with({ type: AlgoType.Visualizer }, ({ output, logs }) => {
-          dispatch(CodeExecActions.setVisitedVisualization(exitValue));
+          dispatch(CodeExecActions.setVisitedVisualization());
         })
         .with({ type: 'error' }, (errorInfo) => {
           console.log('matching error');
           // dispatch(CodeExecActions.setError(error));
           dispatch(
             CodeExecActions.setError({
-              logs: errorInfo.logs.map((log) => JSON.stringify(log)),
-              message: errorInfo.error,
+              logs: errorInfo.output.map((log) => JSON.stringify(log)),
+              // fix dis
+              message: errorInfo.output.join(' '),
             })
           );
         })
