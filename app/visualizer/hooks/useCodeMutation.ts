@@ -79,8 +79,8 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         // needs to be json guh
         env: {
           ADJACENCY_LIST: JSON.stringify(adjacencyList),
-          START_NODE: startNode,
-          END_NODE: endNode,
+          // START_NODE: startNode,
+          // END_NODE: endNode,
         },
       });
 
@@ -88,54 +88,44 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
 
       const dataSchema = z.union([
         z.object({
-          data: z.object({
-            result: z.object({
-              type: z.literal('Visualizer'),
-              exitValue: z.array(z.array(z.string())).nullish(),
-              logs: z.array(z.unknown()),
-            }),
-          }),
+          output: z.array(z.string()),
+          logs: z.string(),
+          type: z.literal('Visualizer'),
         }),
         z.object({
-          data: z.object({
-            result: z.object({
-              type: z.literal('Validator'),
-              exitValue: z.boolean().nullish(),
-              logs: z.array(z.unknown()),
-            }),
-          }),
+          output: z.array(z.string()),
+          logs: z.string(),
+          type: z.literal('Validator'),
         }),
         z.object({
-          data: z.object({
-            result: z.object({
-              type: z.literal('error'),
-              error: z.string(),
-              logs: z.array(z.unknown()),
-            }),
-          }),
+          output: z.array(z.string()),
+          type: z.literal('error'),
         }),
       ]);
+
+      const outputWithType = { type, ...res.data };
+      const parsedOutput = dataSchema.parse(outputWithType);
       console.log('whats getting parsed', res.data.data.error);
-      if (res.data.data.error) {
-        console.log('hola', res.data);
-        const parsed = dataSchema.parse({
-          data: { result: { ...res.data.data } },
-        });
+      // if (res.data.data.error) {
+      //   console.log('hola', res.data);
+      //   const parsed = dataSchema.parse({
+      //     data: { result: { ...res.data.data } },
+      //   });
 
-        return parsed.data.result;
-      }
-      const parsed = dataSchema.parse({
-        data: { result: { ...res.data.data.result, type } },
-      });
+      //   return parsed.data.result;
+      // }
+      // const parsed = dataSchema.parse({
+      //   data: { result: { ...res.data.data.result, type } },
+      // });
 
-      return parsed.data.result;
+      return parsedOutput;
     },
     // onError: (err) => {
     //   console.error('wah wah', err);
     // },
     onSuccess: (data, ctx) => {
       match(data)
-        .with({ type: AlgoType.Validator }, ({ exitValue }) => {
+        .with({ type: AlgoType.Validator }, ({ output, logs }) => {
           if (ctx.lens?.id) {
             // this all fucking sucks and i cant think straight
             // i need to remap all these actions so the state is in canvas
@@ -143,12 +133,14 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
             dispatch(
               CanvasActions.setValidationVisualization({
                 id: ctx.lens.id,
-                result: exitValue,
+                // need to make sure at some point when i run code for validator i store a boolean
+                // so i can index it here :3
+                result: output['validator'],
               })
             );
           }
         })
-        .with({ type: AlgoType.Visualizer }, ({ exitValue }) => {
+        .with({ type: AlgoType.Visualizer }, ({ output, logs }) => {
           dispatch(CodeExecActions.setVisitedVisualization(exitValue));
         })
         .with({ type: 'error' }, (errorInfo) => {

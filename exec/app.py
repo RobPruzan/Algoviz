@@ -1,3 +1,4 @@
+import json
 from flask import Flask, request, jsonify, make_response
 import subprocess
 import shlex
@@ -5,38 +6,42 @@ import uuid
 import os
 
 app = Flask(__name__)
+parse_var = "\P"
+
+
+def parse_output(out: str):
+    pre = [""]
+    post = [""]
+
+    for idx in range(out):
+        if idx == len(out):
+            return
+        if out[idx : idx + 2] == parse_var:
+            pre[0] = out[:idx]
+            post[0] = out[idx + 2 :]
+
+            return out[idx + 2 :]
+    return pre[0], post[0]
+
 
 languages = {
     "python": {
         "interpreter": "python3",
         "extension": ".py",
         "env_code": 'import os, json\nadjacencyList = json.loads(os.getenv("ADJACENCY_LIST", "[]"))\n',
+        "call_code": "\n" + parse_var + "print(json.dumps(adjacencyList))",
     },
     "javascript": {
         "interpreter": "node",
         "extension": ".js",
         "env_code": 'let adjacencyList = JSON.parse(process.env.ADJACENCY_LIST || "[]");\n',
+        "call_code": "\n" + parse_var + "console.log(JSON.stringify(adjacencyList));",
     },
     "java": {
         "interpreter": "javac",
         "extension": ".java",
         # java doesn't work need to parse in the env var
         "env_code": "",
-    },
-    "c": {
-        "interpreter": "gcc",
-        "extension": ".c",
-        "env_code": "",  # Parsing JSON in C is non-trivial and would require a library like cJSON.
-    },
-    "c++": {
-        "interpreter": "g++",
-        "extension": ".cpp",
-        "env_code": "",  # Parsing JSON in C++ is non-trivial and would require a library like nlohmann/json.
-    },
-    "ruby": {
-        "interpreter": "ruby",
-        "extension": ".rb",
-        "env_code": 'require "json"\nadjacencyList = JSON.parse(ENV["ADJACENCY_LIST"] || "[]")\n',
     },
     "rust": {
         "interpreter": "rustc",
@@ -47,6 +52,9 @@ languages = {
         "interpreter": "go",
         "extension": ".go",
         "env_code": 'import "encoding/json"\nvar adjacencyList []string\njson.Unmarshal([]byte(os.Getenv("ADJACENCY_LIST")), &adjacencyList)\n',
+        "call_code": "\n"
+        + parse_var
+        + "b, _ := json.Marshal(algorithm(adjacencyList))\nfmt.Println(string(b))",
     },
 }
 
@@ -115,7 +123,7 @@ def run_code():
             run_command = f"{interpreter} {filename}"
 
         # Run the code, with a 5-second timeout
-        print("the env", env)
+        print("the code", code)
         result = subprocess.run(
             shlex.split(run_command),
             timeout=2,
@@ -123,14 +131,26 @@ def run_code():
             env=env,
         )
 
-        output = result.stdout.decode()
+        stdout = result.stdout.decode()
+        stderr = result.stderr.decode()
+        output = stdout if not stderr else stderr
         print("thedecoded result", output)
+        print("any error", result.stderr.decode())
+        # need a parse point, everything before will be logs
     except Exception as e:
         output = str(e)
-    print(
-        f"output ->{output}<-",
-    )
-    return jsonify({"output": output})
+    # print(
+    #     f"output ->{output}<-",
+    # )
+    # return jsonify({"output": output})
+    output, logs = parse_output(output)
+    logs = logs if logs else ""
+    output = json.loads(output) if output else ""
+
+    if stderr:
+        return jsonify({"output": output, "logs": logs, "type": "error"})
+
+    return jsonify({"output": output, "logs": logs})
 
 
 if __name__ == "__main__":

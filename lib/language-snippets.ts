@@ -1,5 +1,5 @@
 export const languages = [
-  { value: 'Select', label: '' },
+  { value: 'Select', label: 'Select' },
   {
     value: 'python',
     label: 'Python',
