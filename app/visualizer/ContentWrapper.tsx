@@ -26,6 +26,7 @@ import { useCodeMutation } from './hooks/useCodeMutation';
 import { CollaborationActions } from '@/redux/slices/colloborationSlice';
 import { useMeta } from '@/hooks/useMeta';
 import { useToast } from '@/components/ui/use-toast';
+import { Languages } from '@/lib/language-snippets';
 type Props = {
   data: PickedPlayground | null;
 };
@@ -40,6 +41,8 @@ const ContentWrapper = ({ data }: Props) => {
   const selectedAlgorithm = useAppSelector(
     (store) => store.codeExec.selectedAlgorithm
   );
+  const [openLanguageComboBox, setOpenLanguageComboBox] = useState(false);
+  const [language, setLanguage] = useState<Languages>('python');
   const dispatch = useDispatch();
   const [userAlgorithm, setUserAlgorithm] = useState<
     Pick<Algorithm, 'code' | 'description' | 'title' | 'type'>
@@ -141,6 +144,10 @@ const ContentWrapper = ({ data }: Props) => {
             userAlgorithm={userAlgorithm}
             codeMutation={codeMutation}
             setUserAlgorithm={setUserAlgorithm}
+            openLanguageComboBox={openLanguageComboBox}
+            setOpenLanguageComboBox={setOpenLanguageComboBox}
+            language={language}
+            setLanguage={setLanguage}
           />
           <CodeExecution
             autoSelectAll={autoSelectAll}
@@ -149,6 +156,10 @@ const ContentWrapper = ({ data }: Props) => {
             setSelectedValidatorLens={setSelectedValidatorLens}
             setUserAlgorithm={setUserAlgorithm}
             userAlgorithm={userAlgorithm}
+            openLanguageComboBox={openLanguageComboBox}
+            setOpenLanguageComboBox={setOpenLanguageComboBox}
+            language={language}
+            setLanguage={setLanguage}
           />
         </div>
       }

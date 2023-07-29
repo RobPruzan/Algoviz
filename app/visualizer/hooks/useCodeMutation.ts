@@ -10,6 +10,7 @@ import { getSelectedItems } from '@/lib/utils';
 import { useGetAlgorithmsQuery } from './useGetAlgorithmsQuery';
 import { CanvasActions, ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 import { useMeta } from '@/hooks/useMeta';
+import { Languages } from '@/lib/language-snippets';
 
 export const useCodeMutation = (onError?: (error: unknown) => any) => {
   const dispatch = useAppDispatch();
@@ -49,11 +50,10 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
     },
     mutationFn: async ({
       algo,
-
       type,
-      lens,
       endNode,
       startNode,
+      language,
     }: {
       algo: Pick<
         ArrayItem<ReturnType<typeof useGetAlgorithmsQuery>['data']>,
@@ -61,6 +61,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       >;
 
       type: AlgoType;
+      language: Languages;
       lens?: ValidatorLensInfo;
       startNode: string | null;
       endNode: string | null;
@@ -69,13 +70,18 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       if (!url) Promise.reject();
       console.log('sending');
 
-      console.log('THORIWNG EOPJFRTOILSJF');
-      // Promise.reject();
       const res = await axios.post(url, {
         code: algo.code,
-        globalVar: adjacencyList,
-        startNode,
-        endNode,
+        lang: language,
+        // globalVar: adjacencyList,
+        // startNode,
+        // endNode,
+        // needs to be json guh
+        env: {
+          ADJACENCY_LIST: JSON.stringify(adjacencyList),
+          START_NODE: startNode,
+          END_NODE: endNode,
+        },
       });
 
       console.log('CODE RES', res);

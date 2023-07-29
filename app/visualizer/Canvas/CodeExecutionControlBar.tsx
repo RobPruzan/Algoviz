@@ -43,6 +43,8 @@ import { useToast } from '@/components/ui/use-toast';
 import AlgoHistorySlider from '../Sort/AlgoHistorySlider';
 import { ChevronDown } from 'lucide-react';
 import { ChevronUp } from 'lucide-react';
+import { LanguageComboBox } from '../LanguageComboBox';
+import { Languages } from '@/lib/language-snippets';
 
 type Props = {
   userAlgorithm: Pick<Algorithm, 'title' | 'code' | 'description' | 'type'>;
@@ -54,6 +56,10 @@ type Props = {
   codeMutation: ReturnType<typeof useCodeMutation>;
   autoSelectAll: boolean;
   setAutoSelectAll: Dispatch<SetStateAction<boolean>>;
+  openLanguageComboBox: boolean;
+  setOpenLanguageComboBox: Dispatch<SetStateAction<boolean>>;
+  language: Languages;
+  setLanguage: Dispatch<SetStateAction<Languages>>;
 };
 
 const startNodeAnnotation = ', startNode: NodeID';
@@ -135,6 +141,10 @@ const CodeExecutionControlBar = ({
   codeMutation,
   autoSelectAll,
   setAutoSelectAll,
+  language,
+  openLanguageComboBox,
+  setLanguage,
+  setOpenLanguageComboBox,
 }: Props) => {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<AlgoType>(AlgoType.Visualizer);
@@ -208,7 +218,7 @@ const CodeExecutionControlBar = ({
           codeMutation.mutate({
             // code: lensAlgo.code,
             // algo: lensAlgo,
-
+            language,
             algo: lensAlgo,
             type: AlgoType.Validator,
             lens,
@@ -263,6 +273,13 @@ const CodeExecutionControlBar = ({
                     />
                   )}
                 </div>
+
+                <LanguageComboBox
+                  open={openLanguageComboBox}
+                  setOpen={setOpenLanguageComboBox}
+                  setValue={setLanguage}
+                  value={language}
+                />
 
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -359,6 +376,7 @@ const CodeExecutionControlBar = ({
                       ? AlgoType.Validator
                       : AlgoType.Visualizer,
                   algo: { code: codeInfo.code },
+                  language,
 
                   endNode,
                   startNode,
@@ -383,6 +401,7 @@ const CodeExecutionControlBar = ({
                 algo: { code: codeInfo.code },
                 endNode,
                 startNode,
+                language,
               });
               dispatch(CodeExecActions.toggleIsApplyingAlgorithm());
             }}

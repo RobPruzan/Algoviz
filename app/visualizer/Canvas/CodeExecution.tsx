@@ -1,10 +1,11 @@
 'use client';
+
 import { useAppSelector } from '@/redux/store';
 import Editor from '@monaco-editor/react';
 
 import * as Graph from '@/lib/graph';
 // import * as DialogPrimitive from '@radix-ui/react-dialog';
-import React, { useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { match } from 'ts-pattern';
 import { nightOwlTheme } from './theme';
 import { Percentage, SelectedValidatorLens } from '@/lib/types';
@@ -24,6 +25,8 @@ import { Switch } from '@/components/ui/switch';
 import { Check } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { LanguageComboBox } from '../LanguageComboBox';
+import { Languages } from '@/lib/language-snippets';
 
 type Props = {
   setUserAlgorithm: React.Dispatch<
@@ -38,6 +41,10 @@ type Props = {
   selectedValidatorLens: SelectedValidatorLens | null;
   codeMutation: ReturnType<typeof useCodeMutation>;
   autoSelectAll: boolean;
+  openLanguageComboBox: boolean;
+  setOpenLanguageComboBox: Dispatch<SetStateAction<boolean>>;
+  language: Languages;
+  setLanguage: Dispatch<SetStateAction<Languages>>;
 };
 
 const CodeExecution = ({
@@ -45,6 +52,10 @@ const CodeExecution = ({
   userAlgorithm,
   codeMutation,
   autoSelectAll,
+  language,
+  openLanguageComboBox,
+  selectedValidatorLens,
+  setLanguage,
 }: Props) => {
   const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
@@ -94,11 +105,13 @@ const CodeExecution = ({
       : currentAlgorithm?.code ?? DEFAULT_VISUALIZATION_CODE;
 
   const execMode = useAppSelector((store) => store.codeExec.mode);
-  const isValidatorLens = currentAlgorithm?.type === 'validator';
-  const defaultCode = match(execMode)
-    .with('validator', () => DEFAULT_VALIDATOR_CODE)
-    .with('visualizer', () => DEFAULT_VISUALIZATION_CODE)
-    .exhaustive();
+  // const isValidatorLens = currentAlgorithm?.type === 'validator';
+  // const defaultCode = match(execMode)
+  //   .with('validator', () => DEFAULT_VALIDATOR_CODE)
+  //   .with('visualizer', () => DEFAULT_VISUALIZATION_CODE)
+  //   .exhaustive();
+
+  // const idx = 2;
 
   return (
     <div className="w-full h-[93%]">
@@ -130,7 +143,7 @@ const CodeExecution = ({
                   // vercel thing, basename type gets widened when building prod
                   m.editor.defineTheme('night-owl', nightOwlTheme as any);
                 }}
-                // theme="night-owl"
+                language={language}
                 theme={
                   themeInfo.theme === 'dark'
                     ? 'vs-dark'
@@ -146,7 +159,7 @@ const CodeExecution = ({
                     setUserAlgorithm((prev) => ({ ...prev, code: value }));
                   }
                 }}
-                defaultLanguage="typescript"
+                // defaultLanguage="typescript"
                 options={{
                   minimap: { enabled: false },
                   folding: false,
