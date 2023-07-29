@@ -26,7 +26,7 @@ import { useCodeMutation } from './hooks/useCodeMutation';
 import { CollaborationActions } from '@/redux/slices/colloborationSlice';
 import { useMeta } from '@/hooks/useMeta';
 import { useToast } from '@/components/ui/use-toast';
-import { Languages } from '@/lib/language-snippets';
+import { Languages, languageSnippets } from '@/lib/language-snippets';
 type Props = {
   data: PickedPlayground | null;
 };
@@ -38,19 +38,18 @@ const ContentWrapper = ({ data }: Props) => {
   );
   const [selectedValidatorLens, setSelectedValidatorLens] =
     useState<SelectedValidatorLens | null>(null);
-  const selectedAlgorithm = useAppSelector(
-    (store) => store.codeExec.selectedAlgorithm
-  );
+
   const [openLanguageComboBox, setOpenLanguageComboBox] = useState(false);
   const [language, setLanguage] = useState<Languages>('python');
   const dispatch = useDispatch();
   const [userAlgorithm, setUserAlgorithm] = useState<
-    Pick<Algorithm, 'code' | 'description' | 'title' | 'type'>
+    Pick<Algorithm, 'code' | 'description' | 'title' | 'type' | 'language'>
   >({
-    code: DEFAULT_VISUALIZATION_CODE,
+    code: languageSnippets[language],
     description: '',
     title: '',
     type: AlgoType.Visualizer,
+    language,
   });
 
   const { toast } = useToast();

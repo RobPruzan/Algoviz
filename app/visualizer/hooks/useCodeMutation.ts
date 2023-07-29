@@ -10,7 +10,7 @@ import { getSelectedItems } from '@/lib/utils';
 import { useGetAlgorithmsQuery } from './useGetAlgorithmsQuery';
 import { CanvasActions, ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 import { useMeta } from '@/hooks/useMeta';
-import { Languages } from '@/lib/language-snippets';
+import { Languages, runJavascriptWithWorker } from '@/lib/language-snippets';
 
 export const useCodeMutation = (onError?: (error: unknown) => any) => {
   const dispatch = useAppDispatch();
@@ -45,7 +45,6 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
   }, {});
   const codeMutation = useMutation({
     onError: (error) => {
-      console.log('fuck me ass', error);
       onError?.(error);
     },
     mutationFn: async ({
@@ -66,9 +65,18 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       startNode: string | null;
       endNode: string | null;
     }) => {
+      if (language === 'javascript') {
+        try {
+          const result = await runJavascriptWithWorker(
+            algo.code,
+            adjacencyList
+          );
+        } catch (error) {}
+        return;
+      }
+
       const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
       if (!url) Promise.reject();
-      console.log('sending');
 
       const res = await axios.post(url, {
         code: algo.code,
@@ -84,18 +92,16 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         },
       });
 
-      console.log('CODE RES', res);
-
       const dataSchema = z.union([
         z.object({
           output: z.array(z.array(z.string())),
           logs: z.string(),
-          type: z.literal('Visualizer'),
+          type: z.literal(AlgoType.Visualizer),
         }),
         z.object({
           output: z.boolean(),
           logs: z.string(),
-          type: z.literal('Validator'),
+          type: z.literal(AlgoType.Validator),
         }),
         z.object({
           output: z.array(z.string()),
@@ -105,18 +111,6 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
 
       const outputWithType = { type, ...res.data };
       const parsedOutput = dataSchema.parse(outputWithType);
-      console.log('whats getting parsed', res.data.data.error);
-      // if (res.data.data.error) {
-      //   console.log('hola', res.data);
-      //   const parsed = dataSchema.parse({
-      //     data: { result: { ...res.data.data } },
-      //   });
-
-      //   return parsed.data.result;
-      // }
-      // const parsed = dataSchema.parse({
-      //   data: { result: { ...res.data.data.result, type } },
-      // });
 
       return parsedOutput;
     },
@@ -124,6 +118,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
     //   console.error('wah wah', err);
     // },
     onSuccess: (data, ctx) => {
+      console.log('got data to match', data);
       match(data)
         .with({ type: AlgoType.Validator }, ({ output, logs }) => {
           if (ctx.lens?.id) {
@@ -141,7 +136,8 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
           }
         })
         .with({ type: AlgoType.Visualizer }, ({ output, logs }) => {
-          dispatch(CodeExecActions.setVisitedVisualization());
+          console.log('visualizer output', output);
+          dispatch(CodeExecActions.setVisitedVisualization(output));
         })
         .with({ type: 'error' }, (errorInfo) => {
           console.log('matching error');

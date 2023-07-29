@@ -14,6 +14,13 @@ export const useGetAlgorithmsQuery = () =>
         description: z.string(),
         createdAt: z.string(),
         type: z.string(),
+        language: z.union([
+          z.literal('javascript'),
+          z.literal('python'),
+          z.literal('java'),
+          z.literal('rust'),
+          z.literal('go'),
+        ]),
       });
       const res = (
         await axios.get(`${process.env.NEXT_PUBLIC_API_ROUTE}/algo/getall`)

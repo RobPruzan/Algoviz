@@ -57,9 +57,7 @@ export const socketMiddleware =
 
     switch (action.type) {
       case 'socket/connect':
-        console.log('connecting wahhhh');
         if (action.meta?.playgroundID) {
-          console.log('should be joining!');
           socketManager.socket = io(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL);
           socketManager
             .joinPlayground(action.meta.playgroundID, action.meta.user)
@@ -68,11 +66,8 @@ export const socketMiddleware =
                 dispatch(CollaborationActions.addUser(user))
               );
             })
-            .catch((err) => {
-              console.log('ERROR adding user', err);
-            });
+            .catch((err) => {});
           socketManager.addActionListener((socketAction: SocketAction) => {
-            console.log('fdlskjf');
             if (socketAction.meta.userID !== action.meta.userID) {
               // note, performance is pretty good with circles, but awful with boxes, investigate
               dispatch(socketAction);

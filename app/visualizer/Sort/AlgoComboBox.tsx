@@ -16,12 +16,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { SetStateAction, useState } from 'react';
-import {
-  ALGORITHMS,
-  AlgorithmInfo,
-  Algorithms,
-  SideBarContextState,
-} from '@/lib/types';
+
 import { Algorithm } from '@prisma/client';
 import { twMerge } from 'tailwind-merge';
 
@@ -31,10 +26,6 @@ type Props = {
   setValue: (value: string) => void;
   defaultPlaceholder: string;
   algorithms: (Omit<Algorithm, 'createdAt'> & { createdAt: string })[];
-};
-
-export const isStringAlgorithm = (s: string): s is Algorithms => {
-  return ALGORITHMS.includes(s as Algorithms);
 };
 
 export function AlgoComboBox({

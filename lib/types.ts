@@ -42,30 +42,6 @@ export type FirstLetterUpperCase<S extends string> =
     ? `${Uppercase<L1>}${L2} ${FirstLetterUpperCase<Rest>}`
     : BaseFirstLetterUpperCase<S>;
 
-export const ALGORITHMS = [
-  'breadth first search',
-  'merge sort',
-  'quick sort',
-  'bubble sort',
-  'insertion sort',
-  'depth first search',
-] as const;
-
-export type Algorithms = (typeof ALGORITHMS)[number];
-
-export type AlgorithmInfo = {
-  value: Algorithms;
-  label: FirstLetterUpperCase<Algorithms>;
-};
-export type SideBarContextState = {
-  algorithm: Algorithms;
-  display: DisplayTypes;
-};
-
-export type SideBarContextData = {
-  sideBarState: SideBarContextState;
-  setSideBarState: Dispatch<SetStateAction<SideBarContextState>>;
-};
 export const DISPLAY_TYPES = ['nodes', 'canvas', 'bar'] as const;
 
 export type DisplayTypes = (typeof DISPLAY_TYPES)[number];

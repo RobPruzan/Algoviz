@@ -10,20 +10,17 @@ parse_var = "\P"
 
 
 def parse_output(out: str):
-    try:
-        pre = [""]
-        post = [""]
-
-        for idx in range(len(out)):
-            if idx == len(out):
-                return
-            if out[idx : idx + 2] == parse_var:
-                pre[0] = out[:idx]
-                post[0] = out[idx + 2 :]
-                return pre[0], post[0]
-        return pre[0], post[0][1:-1]
-    except Exception as e:
-        return "", ""
+    pre = [""]
+    post = [""]
+    print("full stdout", out)
+    for idx in range(len(out)):
+        if idx == len(out):
+            return
+        if out[idx : idx + 2] == parse_var:
+            pre[0] = out[:idx]
+            post[0] = out[idx + 2 :]
+            return pre[0], post[0]
+    return pre[0], post[0]
 
 
 languages = {
@@ -41,7 +38,13 @@ languages = {
         "interpreter": "node",
         "extension": ".js",
         "env_code": 'let adjacencyList = JSON.parse(process.env.ADJACENCY_LIST || "[]");\n',
-        "call_code": "\n" + parse_var + "console.log(JSON.stringify(adjacencyList));",
+        "call_code": "\n"
+        + "console.log(process.env.ADJACENCY_LIST);"
+        + "const out = JSON.stringify(algorithm(adjacencyList));"
+        + "\n"
+        + f"console.log('{parse_var}')"
+        + "\n"
+        + "console.log(out)",
     },
     "java": {
         "interpreter": "javac",
@@ -59,8 +62,11 @@ languages = {
         "extension": ".go",
         "env_code": 'import "encoding/json"\nvar adjacencyList []string\njson.Unmarshal([]byte(os.Getenv("ADJACENCY_LIST")), &adjacencyList)\n',
         "call_code": "\n"
-        + parse_var
-        + "b, _ := json.Marshal(algorithm(adjacencyList))\nfmt.Println(string(b))",
+        + "out, _ := json.Marshal(algorithm(adjacencyList))"
+        + "\n"
+        + f'fmt.Println("{parse_var}")'
+        + "\n"
+        + "fmt.Println(string(out))",
     },
 }
 
@@ -114,7 +120,7 @@ def run_code():
         else:
             run_command = f"{interpreter} {filename}"
 
-        print("the code", code)
+        # print("the code", code)
         result = subprocess.run(
             shlex.split(run_command),
             timeout=2,
@@ -128,12 +134,13 @@ def run_code():
     except Exception as e:
         output = str(e)
     logs, out = parse_output(output)
-
-    out = json.loads(out) if out else ""
+    # print("before parsing", out)
+    out = json.loads(json.loads(out))
+    # print("typof", type(out))
 
     logs = logs if logs else ""
 
-    print("out and logs", out, logs)
+    print("logs", logs)
 
     if stderr:
         return jsonify({"output": out, "logs": logs, "type": "error"})

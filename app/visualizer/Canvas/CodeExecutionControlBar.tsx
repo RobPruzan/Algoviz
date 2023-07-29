@@ -47,10 +47,13 @@ import { LanguageComboBox } from '../LanguageComboBox';
 import { Languages, languageSnippets } from '@/lib/language-snippets';
 
 type Props = {
-  userAlgorithm: Pick<Algorithm, 'title' | 'code' | 'description' | 'type'>;
+  userAlgorithm: Pick<
+    Algorithm,
+    'title' | 'code' | 'description' | 'type' | 'language'
+  >;
   setUserAlgorithm: React.Dispatch<
     React.SetStateAction<
-      Pick<Algorithm, 'code' | 'description' | 'title' | 'type'>
+      Pick<Algorithm, 'title' | 'code' | 'description' | 'type' | 'language'>
     >
   >;
   codeMutation: ReturnType<typeof useCodeMutation>;
@@ -267,9 +270,20 @@ const CodeExecutionControlBar = ({
                       algorithms={getAlgorithmsQuery.data ?? []}
                       defaultPlaceholder="Algorithm"
                       value={selectedAlgorithm}
-                      setValue={(value) =>
-                        dispatch(CodeExecActions.setSelectedAlgorithm(value))
-                      }
+                      setValue={(value) => {
+                        const algos = getAlgorithmsQuery.data ?? [];
+                        dispatch(CodeExecActions.setSelectedAlgorithm(value));
+                        const algo = algos.find((d) => d.id === value);
+                        console.log('algo dot lang', algo);
+                        if (algo) {
+                          setUserAlgorithm((prev) => ({
+                            ...prev,
+                            code: algo.code,
+                            language: algo.language,
+                          }));
+                          setLanguage(algo.language);
+                        }
+                      }}
                     />
                   )}
                 </div>

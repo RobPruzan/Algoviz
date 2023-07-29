@@ -28,14 +28,7 @@ export type Languages = (typeof languages)[number]['value'];
 export type LanguageSnippets = { [Key in Languages]: string };
 
 export const languageSnippets: LanguageSnippets = {
-  python: `from typing import List, Dict
-
-NodeID = str  # uuid representing a node
-AdjacencyList = Dict[NodeID, List[NodeID]]
-VisitedIDs = List[NodeID]
-Visualization = List[VisitedIDs]
-
-def algorithm(adjList: AdjacencyList) -> Visualization:
+  python: `def algorithm(adjList):
     # your code here
     pass
   `,
@@ -100,3 +93,41 @@ func algorithm(adjList AdjacencyList) Visualization {
   `,
   Select: '',
 };
+
+export function runJavascriptWithWorker(
+  workerCode: string,
+  workerData: Record<string, string[]>
+) {
+  return new Promise((resolve, reject) => {
+    let worker = new Worker(
+      URL.createObjectURL(
+        new Blob(
+          [
+            workerCode +
+              `self.postMessage(algorithm(${JSON.stringify(workerData)}))`,
+          ],
+          {
+            type: 'text/javascript',
+          }
+        )
+      )
+    );
+
+    // Handle messages from the worker
+    worker.onmessage = function (e) {
+      console.log('Main script received message:', e.data);
+      resolve(e.data);
+    };
+
+    // Handle errors from the worker
+    worker.onerror = function (error) {
+      console.error('Worker error:', error);
+      reject(error);
+    };
+
+    // Send a message to the worker
+    console.log('Main script sending message to worker');
+    worker.postMessage('Hello from main script!');
+  });
+  // Create a new worker
+}

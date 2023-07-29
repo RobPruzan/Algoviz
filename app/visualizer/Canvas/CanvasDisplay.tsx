@@ -11,7 +11,6 @@ import {
   SelectedValidatorLensResizeCircle,
   Percentage,
 } from '@/lib/types';
-import { isStringAlgorithm } from '../Sort/AlgoComboBox';
 import React, { useRef, useState, useEffect, useContext } from 'react';
 import * as Draw from '@/lib/Canvas/draw';
 import * as Graph from '@/lib/graph';
@@ -92,7 +91,6 @@ const CanvasDisplay = ({
   const selectedGeometryInfo = useAppSelector(
     (store) => store.canvas.present.selectedGeometryInfo
   );
-  const { sideBarState, setSideBarState } = useContext(SideBarContext);
   const dispatch = useAppDispatch();
   const {
     attachableLines,
@@ -127,9 +125,6 @@ const CanvasDisplay = ({
   const playgroundID = searchParams.get('playground-id');
 
   const userID = session.data?.user.id ?? notSignedInUserID;
-  const selectedAlgorithm = useAppSelector(
-    (store) => store.codeExec.selectedAlgorithm
-  );
 
   const isInitialized = !!playgroundID && session.status !== 'loading';
 
@@ -600,22 +595,16 @@ const CanvasDisplay = ({
                     {algorithmsInfo.map((framework) => (
                       <CommandItem
                         key={framework.value}
-                        onSelect={(currentValue) => {
-                          if (!isStringAlgorithm(currentValue)) return;
-                          setSideBarState((prev) => ({
-                            ...prev,
-                            algorithm: currentValue,
-                          }));
-                        }}
+                        onSelect={(currentValue) => {}}
                       >
-                        <Check
+                        {/* <Check
                           className={cn(
                             'mr-2 h-4 w-4',
                             sideBarState.algorithm === framework.value
                               ? 'opacity-100'
                               : 'opacity-0'
                           )}
-                        />
+                        /> */}
                         {framework.label}
                       </CommandItem>
                     ))}

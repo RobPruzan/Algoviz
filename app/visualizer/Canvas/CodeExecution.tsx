@@ -33,15 +33,18 @@ import { Check } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { LanguageComboBox } from '../LanguageComboBox';
-import { Languages } from '@/lib/language-snippets';
+import { Languages, languageSnippets } from '@/lib/language-snippets';
 
 type Props = {
   setUserAlgorithm: React.Dispatch<
     React.SetStateAction<
-      Pick<Algorithm, 'code' | 'description' | 'title' | 'type'>
+      Pick<Algorithm, 'title' | 'code' | 'description' | 'type' | 'language'>
     >
   >;
-  userAlgorithm: Pick<Algorithm, 'code' | 'description' | 'title' | 'type'>;
+  userAlgorithm: Pick<
+    Algorithm,
+    'title' | 'code' | 'description' | 'type' | 'language'
+  >;
   setSelectedValidatorLens: React.Dispatch<
     React.SetStateAction<SelectedValidatorLens | null>
   >;
@@ -110,11 +113,12 @@ const CodeExecution = ({
     (d) => d.id === selectedAlgorithm
   );
 
-  const code =
-    userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE &&
-    userAlgorithm.code !== currentAlgorithm?.code
-      ? userAlgorithm.code
-      : currentAlgorithm?.code ?? DEFAULT_VISUALIZATION_CODE;
+  // const code =
+  //   userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE &&
+  //   userAlgorithm.code !== currentAlgorithm?.code
+  //     ? userAlgorithm.code
+  //     : currentAlgorithm?.code ?? DEFAULT_VISUALIZATION_CODE;
+  const code = userAlgorithm.code ? languageSnippets[language] : '';
 
   const execMode = useAppSelector((store) => store.codeExec.mode);
   // const isValidatorLens = currentAlgorithm?.type === 'validator';
@@ -163,7 +167,7 @@ const CodeExecution = ({
                     ? 'light'
                     : 'vs-dark'
                 }
-                value={code}
+                value={userAlgorithm.code}
                 // this doesn't make sense without edit functionality will do that next
                 onChange={(value) => {
                   if (value) {
@@ -247,20 +251,28 @@ const CodeExecution = ({
                 ))
                 .with('output', () => (
                   <div>
-                    {codeMutation.data?.logs.map((log) => (
-                      <div
-                        key={JSON.stringify(log)}
-                        className="flex items-center justify-start "
-                      >
-                        <div className="text-sm">{JSON.stringify(log)}</div>
-                      </div>
-                    ))}
+                    {codeMutation.data?.type === 'Validator' ||
+                      (codeMutation.data?.type === 'Visualizer' && (
+                        <div className="flex flex-col items-start justify-start text-sm">
+                          {codeMutation.data.logs}
+                        </div>
+                      ))}
+                    {codeMutation.data?.type === 'Validator' ||
+                      (codeMutation.data?.type === 'Visualizer' &&
+                        codeMutation.data?.output.map((log) => (
+                          <div
+                            key={JSON.stringify(log)}
+                            className="flex items-center justify-start "
+                          >
+                            <div className="text-sm">{JSON.stringify(log)}</div>
+                          </div>
+                        )))}
 
-                    <div>
+                    {/* <div>
                       {codeMutation.data?.type === 'Validator' ||
                         (codeMutation.data?.type === 'Visualizer' &&
                           JSON.stringify(codeMutation.data.exitValue))}
-                    </div>
+                    </div> */}
                   </div>
                 ))
                 .run()}

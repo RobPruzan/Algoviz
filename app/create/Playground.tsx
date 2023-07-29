@@ -37,7 +37,6 @@ const Playground = ({ playground, ...props }: Props) => {
   const [hoveringActionButton, setHoveringActionButton] = useState(false);
   const deletePlaygroundMutation = useMutation({
     mutationFn: async (playgroundId: number) => {
-      console.log('deleting playground', playgroundId);
       const json = (
         await axios.post(
           `${process.env.NEXT_PUBLIC_API_ROUTE}/playground/delete`,
@@ -46,7 +45,6 @@ const Playground = ({ playground, ...props }: Props) => {
           }
         )
       ).data;
-      console.log('da json', json);
       const jsonSchema = z.object({
         playgroundId: z.number(),
       });
@@ -59,9 +57,7 @@ const Playground = ({ playground, ...props }: Props) => {
           playgrounds?.filter((playground) => playground.id !== data)
       );
     },
-    onError: (e) => {
-      console.log('goo ga', e);
-    },
+    onError: (e) => {},
   });
 
   const editPlaygroundMutation = useMutation({
@@ -81,8 +77,6 @@ const Playground = ({ playground, ...props }: Props) => {
           }
         )
       ).data;
-
-      console.log('responded json', playground);
 
       const playgroundSchema = z.object({
         id: z.number(),
