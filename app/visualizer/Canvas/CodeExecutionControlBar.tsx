@@ -516,6 +516,7 @@ const CodeExecutionControlBar = ({
                     await saveAlgorithmMutation.mutateAsync({
                       ...userAlgorithm,
                       type,
+                      language,
                     });
                     setOpen(false);
 
