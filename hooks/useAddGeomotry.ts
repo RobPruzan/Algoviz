@@ -26,7 +26,7 @@ export const useAddGeometry = () => {
     ...args: Parameters<typeof shapeUpdateMutation.mutate>
   ) => searchParams.get('playground-id') && shapeUpdateMutation.mutate(...args);
 
-  const handleAddUndirectedEdge = () => {
+  const handleAddUndirectedEdge = (lineCenter: [number, number]) => {
     dispatch(
       CanvasActions.setSelectedAction(
         {
@@ -36,10 +36,7 @@ export const useAddGeometry = () => {
         meta
       )
     );
-    const [x1, y1] = [
-      creationZoomFactor * Math.random() * 400 - cameraCoordinate[0],
-      creationZoomFactor * Math.random() * 400 - cameraCoordinate[1],
-    ];
+    const [x1, y1] = lineCenter;
     const newLine: UndirectedEdge = {
       id: crypto.randomUUID(),
 
@@ -86,7 +83,7 @@ export const useAddGeometry = () => {
     dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
   };
 
-  const handleAddDirectedEdge = () => {
+  const handleAddDirectedEdge = (lineCenter: [number, number]) => {
     dispatch(
       CanvasActions.setSelectedAction(
         {
@@ -96,10 +93,7 @@ export const useAddGeometry = () => {
         meta
       )
     );
-    const [x1, y1] = [
-      Math.random() * 400 * creationZoomFactor - cameraCoordinate[0],
-      Math.random() * 600 * creationZoomFactor - cameraCoordinate[1],
-    ];
+    const [x1, y1] = lineCenter;
     const newLine: DirectedEdge = {
       // gotta change this iz so weird
       id: crypto.randomUUID(),
@@ -133,7 +127,7 @@ export const useAddGeometry = () => {
     dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
   };
 
-  const handleAddCircle = () => {
+  const handleAddCircle = (circleCenter: [number, number]) => {
     dispatch(
       CanvasActions.setSelectedAction(
         {
@@ -143,10 +137,10 @@ export const useAddGeometry = () => {
         meta
       )
     );
-    const circleCenter: [number, number] = [
-      Math.random() * 400 * creationZoomFactor - cameraCoordinate[0],
-      Math.random() * 400 * creationZoomFactor - cameraCoordinate[1],
-    ];
+    // const circleCenter: [number, number] = [
+    //   Math.random() * 400 * creationZoomFactor - cameraCoordinate[0],
+    //   Math.random() * 400 * creationZoomFactor - cameraCoordinate[1],
+    // ];
     const circleRadius = 50;
     const newNodeConnector: CircleReceiver['nodeReceiver'] = {
       id: crypto.randomUUID(),

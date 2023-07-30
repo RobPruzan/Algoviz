@@ -5,98 +5,42 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu';
 
-import {
-  AlgoType,
-  CanvasControlBarActions,
-  CircleReceiver,
-  DirectedEdge,
-  DrawTypes,
-  IO,
-  UndirectedEdge,
-} from '@/lib/types';
-import {
-  CanvasActions,
-  Meta,
-  ValidatorLensInfo,
-} from '@/redux/slices/canvasSlice';
+import { AlgoType, DrawTypes } from '@/lib/types';
+import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
-import {
-  ArrowDown,
-  ArrowDown10Icon,
-  ArrowDownWideNarrow,
-  ArrowRight,
-  CarrotIcon,
-  ChevronDown,
-  CircleDot,
-  Eraser,
-  Pencil,
-  RedoIcon,
-  Square,
-  SquareIcon,
-  Trash,
-  Undo,
-  XCircle,
-} from 'lucide-react';
-import React, {
-  Dispatch,
-  ElementRef,
-  SetStateAction,
-  useRef,
-  useState,
-} from 'react';
-import * as Utils from '@/lib/utils';
-import { useSearchParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '@/components/ui/hover-card';
-import { CodeExecActions } from '@/redux/slices/codeExecSlice';
+import { ChevronDown, CircleDot, RedoIcon, Trash, Undo } from 'lucide-react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { DirectedEdgeIcon } from '@/components/icons/DirectedEdge';
 import { UndirectedEdgeIcon } from '@/components/icons/UndirectedEdge';
 import { BINARY_SEARCH_TREE } from '@/lib/presets/binary-search-tree';
 import { ActionCreators } from 'redux-undo';
 import AlgoHistorySlider from '../Sort/AlgoHistorySlider';
-import { useShapeUpdateMutation } from '@/hooks/useShapeUpdateMutation';
 import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 import { useAddGeometry } from '@/hooks/useAddGeomotry';
 type Props = {
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
+  selectedControlBarAction: DrawTypes | null;
 };
 
-const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
-  const [showAlgoHistorySlider, setShowAlgoHistorySlider] = useState(false);
-  const [itemChecked, setItemChecked] = useState<null | string>(null);
-  const notSignedInUserID = useAppSelector(
-    (store) => store.canvas.present.notSignedInUserID
-  );
-
+const CanvasControlBar = ({
+  setSelectedControlBarAction,
+  selectedControlBarAction,
+}: Props) => {
   const visualization = useAppSelector((store) => store.codeExec.visualization);
-  // const canvasPicked = useAppSelector((store) => ({
-  //   attachableLines: store.canvas.present.attachableLines,
-  //   circles: store.canvas.present.circles,
-  // }));
 
   const dispatch = useAppDispatch();
 
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
 
-  // fix all these hard coded numbers and random spawn points
-  // move random spawn points to slight distribution around middle of canvas
-  // or when I have time do so you select then click on the screen
-  const {
-    handleAddCircle,
-    handleAddDirectedEdge,
-    handleAddUndirectedEdge,
-    handleAddValidatorLens,
-  } = useAddGeometry();
+  // const {
+  //   handleAddCircle,
+  //   handleAddDirectedEdge,
+  //   handleAddUndirectedEdge,
+  //   handleAddValidatorLens,
+  // } = useAddGeometry();
   return (
     <>
       <div className="w-full items-center prevent-select overflow-x-scroll overflow-y-hidden  h-14 flex justify-evenly ">
@@ -124,30 +68,16 @@ const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
           <RedoIcon />
         </Button>
         <div className="border-r  h-full"></div>
-        {/* <Button
-      onClick={() => {
-        dispatch(
-          CanvasActions.setSelectedAction(
-            {
-              actionType: CanvasControlBarActions.Pencil,
-              type: 'canvas-action',
-            },
-            meta
-          )
-        );
-        // setSelectedControlBarAction((prev) => (prev ? null : 'pencil'))
-      }}
-      variant={'outline'}
-      className="px-2"
-    >
-      <Pencil />
-    </Button>
-
-    <Button variant={'outline'} className="px-2">
-      <Eraser />
-    </Button> */}
         <Toggle
-          onClick={handleAddUndirectedEdge}
+          pressed={selectedControlBarAction === 'undirected-edge-toggle'}
+          // onClick={handleAddUndirectedEdge}
+          onPressedChange={(pressed) => {
+            if (pressed) {
+              setSelectedControlBarAction('undirected-edge-toggle');
+            } else {
+              setSelectedControlBarAction(null);
+            }
+          }}
           variant={'outline'}
           className="px-2 mb-0"
         >
@@ -156,17 +86,34 @@ const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
         </Toggle>
 
         <Toggle
-          onClick={handleAddDirectedEdge}
+          // onClick={handleAddDirectedEdge}
+          onPressedChange={(pressed) => {
+            if (pressed) {
+              setSelectedControlBarAction('directed-edge-toggle');
+            } else {
+              setSelectedControlBarAction(null);
+            }
+          }}
+          pressed={selectedControlBarAction === 'directed-edge-toggle'}
           variant={'outline'}
           className="px-2 min-w-fit"
         >
           <DirectedEdgeIcon />
         </Toggle>
         <Toggle
-          onClick={() => {
-            setSelectedControlBarAction('circle-toggle');
-            handleAddCircle();
+          // onClick={() => {
+          //   setSelectedControlBarAction('circle-toggle');
+          //   // handleAddCircle();
+
+          // }}
+          onPressedChange={(pressed) => {
+            if (pressed) {
+              setSelectedControlBarAction('circle-toggle');
+            } else {
+              setSelectedControlBarAction(null);
+            }
           }}
+          pressed={selectedControlBarAction === 'circle-toggle'}
           variant={'outline'}
           className="px-2"
         >
@@ -178,7 +125,8 @@ const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
         <DropdownMenu>
           <DropdownMenuTrigger className="border-2 w-32 flex items-center justify-evenly font-bold rounded-md text-sm p-2">
             {getAlgorithmsQuery.data?.find(
-              (algoInfo) => algoInfo.id === itemChecked
+              // fix
+              (algoInfo) => false
             )?.title ?? 'Validators'}
             <ChevronDown size={20} />
           </DropdownMenuTrigger>
@@ -192,7 +140,7 @@ const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
                   <DropdownMenuItem
                     className="w-full"
                     onClick={() => {
-                      handleAddValidatorLens(algo.id);
+                      // handleAddValidatorLens(algo.id);
                     }}
                   >
                     {algo.title}
@@ -231,7 +179,7 @@ const CanvasControlBar = ({ setSelectedControlBarAction }: Props) => {
 
       <AlgoHistorySlider
         // or true for debug remove this
-        show={(visualization?.length ?? 0) > 0 || showAlgoHistorySlider}
+        show={(visualization?.length ?? 0) > 0}
       />
     </>
   );

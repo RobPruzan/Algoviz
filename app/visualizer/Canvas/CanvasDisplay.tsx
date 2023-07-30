@@ -63,6 +63,7 @@ import { useClearCanvasState } from '@/hooks/useClearCanvasState';
 import { useFullyConnect } from '@/hooks/useFullyConnect';
 import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 import { useServerUpdateShapes } from '@/hooks/useServerUpdateShapes';
+import { useAddGeometry } from '@/hooks/useAddGeomotry';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
   canvasWrapperRef: React.RefObject<HTMLDivElement>;
@@ -278,6 +279,13 @@ const CanvasDisplay = ({
     setSelectedResizeValidatorLensCircle,
   });
 
+  const {
+    handleAddCircle,
+    handleAddDirectedEdge,
+    handleAddUndirectedEdge,
+    handleAddValidatorLens,
+  } = useAddGeometry();
+
   useCanvasWheel({
     canvasRef,
   });
@@ -462,6 +470,26 @@ const CanvasDisplay = ({
         <ContextMenu>
           <ContextMenuTrigger>
             <canvas
+              onClick={(event) => {
+                const mousePositionX =
+                  event.nativeEvent.offsetX - cameraCoordinate[0];
+                const mousePositionY =
+                  event.nativeEvent.offsetY - cameraCoordinate[1];
+                match(selectedControlBarAction)
+                  .with('circle-toggle', () => {
+                    handleAddCircle([mousePositionX, mousePositionY]);
+                  })
+                  .with('directed-edge-toggle', () => {
+                    handleAddDirectedEdge([mousePositionX, mousePositionY]);
+                  })
+                  .with('undirected-edge-toggle', () => {
+                    handleAddUndirectedEdge([mousePositionX, mousePositionY]);
+                  })
+                  // remeber to add validator lens oops
+                  .otherwise(() => {
+                    console.log('unsupported action');
+                  });
+              }}
               style={{
                 width: canvasWidth,
                 height: canvasHeight,

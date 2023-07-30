@@ -62,6 +62,7 @@ const Visualize = ({
           <SortControlBar algorithm={sideBarState.algorithm} />
         ) : (
           <CanvasControlBar
+            selectedControlBarAction={selectedControlBarAction}
             setSelectedControlBarAction={setSelectedControlBarAction}
           />
         )}
