@@ -20,9 +20,7 @@ import { useAppDispatch, useAppSelector } from '@/redux/store';
 
 import { Algorithm } from '@prisma/client';
 import { Label } from '@/components/ui/label';
-import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
-import { useCodeMutation } from '../hooks/useCodeMutation';
-import { useSaveAlgorithmMutation } from '../hooks/useSaveAlgorithmMutation';
+
 import {
   Popover,
   PopoverContent,
@@ -45,6 +43,9 @@ import { Bug, ChevronDown, Pause, Play, Save, SaveAll } from 'lucide-react';
 import { ChevronUp } from 'lucide-react';
 import { LanguageComboBox } from '../LanguageComboBox';
 import { Languages, languageSnippets } from '@/lib/language-snippets';
+import { useCodeMutation } from '@/hooks/useCodeMutation';
+import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
+import { useSaveAlgorithmMutation } from '@/hooks/useSaveAlgorithmMutation';
 
 type Props = {
   userAlgorithm: Pick<

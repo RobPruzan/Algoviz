@@ -595,7 +595,7 @@ export const getMouseDownActiveItem = ({
   canvasRef: RefObject<HTMLCanvasElement>;
   event: MouseEvent<HTMLCanvasElement>;
   selectBox: SelectBox | null;
-  selectedControlBarAction: 'pencil' | null;
+  selectedControlBarAction: DrawTypes | null;
   validatorLensContainer: ValidatorLensInfo[];
   cameraCoordinate: [number, number];
 }) => {

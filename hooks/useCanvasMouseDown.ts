@@ -1,4 +1,5 @@
 import {
+  DrawTypes,
   SelectBox,
   SelectedAttachableLine,
   SelectedGeometryInfo,
@@ -23,7 +24,7 @@ type UseCanvasMouseDownParams = {
   canvasRef: RefObject<HTMLCanvasElement>;
   selectBox: SelectBox | null;
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
-  selectedControlBarAction: 'pencil' | null;
+  selectedControlBarAction: DrawTypes | null;
 
   setSelectedCircleID: Dispatch<SetStateAction<string | null>>;
   setSelectedAttachableLine: Dispatch<

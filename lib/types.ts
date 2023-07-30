@@ -151,7 +151,12 @@ export type SelectedGeometryInfo = {
   maxPoints: MaxPoints;
 };
 
-export const DRAW_TYPES = ['pencil'] as const;
+export const DRAW_TYPES = [
+  'pencil',
+  'circle-toggle',
+  'directed-edge-toggle',
+  'undirected-edge-toggle',
+] as const;
 export type DrawTypes = (typeof DRAW_TYPES)[number];
 
 export type PencilCoordinates = {

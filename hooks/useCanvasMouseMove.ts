@@ -9,6 +9,7 @@ import React, {
 import * as Canvas from '@/lib/Canvas/canvas';
 import {
   CircleReceiver,
+  DrawTypes,
   Edge,
   NodeReceiver,
   PencilCoordinates,
@@ -28,7 +29,7 @@ type UseCanvasMouseMoveProps = {
   isMouseDownRef: MutableRefObject<boolean>;
   selectBox: SelectBox | null;
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
-  selectedControlBarAction: 'pencil' | null;
+  selectedControlBarAction: DrawTypes | null;
 
   selectedCircleID: string | null;
   selectedAttachableLine: SelectedAttachableLine | null;

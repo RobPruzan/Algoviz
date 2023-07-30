@@ -25,15 +25,16 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Algorithm } from '@prisma/client';
 import Resizable from '../Resizeable';
 
-import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 import { useTheme } from 'next-themes';
-import { useCodeMutation } from '../hooks/useCodeMutation';
+
 import { Switch } from '@/components/ui/switch';
 import { Check } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { LanguageComboBox } from '../LanguageComboBox';
 import { Languages, languageSnippets } from '@/lib/language-snippets';
+import { useCodeMutation } from '@/hooks/useCodeMutation';
+import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 
 type Props = {
   setUserAlgorithm: React.Dispatch<

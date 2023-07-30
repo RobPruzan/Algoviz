@@ -2,6 +2,7 @@ import { useAppSelector } from '@/redux/store';
 import { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import * as Canvas from '@/lib/Canvas/canvas';
 import {
+  DrawTypes,
   PencilCoordinates,
   SelectBox,
   SelectedAttachableLine,
@@ -16,7 +17,7 @@ type CanvasMouseUPParams = {
   isMouseDownRef: MutableRefObject<boolean>;
   selectBox: SelectBox | null;
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
-  selectedControlBarAction: 'pencil' | null;
+  selectedControlBarAction: DrawTypes | null;
 
   meta: Meta;
   selectedCircleID: string | null;

@@ -42,26 +42,27 @@ import {
   getSelectedItems,
   getValidatorLensSelectedIds,
 } from '@/lib/utils';
-import { useCanvasMouseDown } from '../hooks/useCanvasMouseDown';
-import { useCanvasContextMenu } from '../hooks/useCanvasContextMenu';
-import { useCanvasMouseMove } from '../hooks/useCanvasMouseMove';
-import { useHandleMouseUp } from '../hooks/useCanvasHandleMouseUp';
-import { useCanvasWheel } from '../hooks/useCanvasWheel';
-import { useApplyAlgorithm } from '../hooks/useApplyAlgorithm';
-import { useCanvasKeyDown } from '../hooks/useCanvasKeyDown';
-import { useFullyConnect } from '../hooks/useFullyConnect';
-import { useServerUpdateShapes } from '../hooks/useServerUpdateShapes';
-import { useClearCanvasState } from '../hooks/useClearCanvasState';
+
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { CollaborationActions } from '@/redux/slices/colloborationSlice';
 import { match } from 'ts-pattern';
 import { CodeExecActions } from '@/redux/slices/codeExecSlice';
-import { useGetAlgorithmsQuery } from '../hooks/useGetAlgorithmsQuery';
 import { socketManager } from '@/lib/socket/socket-utils';
 import { useMeta } from '@/hooks/useMeta';
 import { useInterval } from '@/hooks/useInterval';
+import { useApplyAlgorithm } from '@/hooks/useApplyAlgorithm';
+import { useCanvasContextMenu } from '@/hooks/useCanvasContextMenu';
+import { useHandleMouseUp } from '@/hooks/useCanvasHandleMouseUp';
+import { useCanvasKeyDown } from '@/hooks/useCanvasKeyDown';
+import { useCanvasMouseDown } from '@/hooks/useCanvasMouseDown';
+import { useCanvasMouseMove } from '@/hooks/useCanvasMouseMove';
+import { useCanvasWheel } from '@/hooks/useCanvasWheel';
+import { useClearCanvasState } from '@/hooks/useClearCanvasState';
+import { useFullyConnect } from '@/hooks/useFullyConnect';
+import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
+import { useServerUpdateShapes } from '@/hooks/useServerUpdateShapes';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
   canvasWrapperRef: React.RefObject<HTMLDivElement>;

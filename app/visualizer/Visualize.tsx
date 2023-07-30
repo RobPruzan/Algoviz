@@ -45,39 +45,11 @@ const Visualize = ({
   setSelectedValidatorLens,
 }: Props) => {
   const { sideBarState } = useContext(SideBarContext);
-  const canvasPastStateLength = useAppSelector(
-    (store) => store.canvas.past.length
-  );
 
-  const dispatch = useDispatch();
-  // const { show } = useAppSelector((store) => store.canvas.present.variableInspector);
-  const { attachableLines, circles } = useAppSelector(
-    (store) => store.canvas.present
-  );
   const [selectedControlBarAction, setSelectedControlBarAction] =
     useState<DrawTypes | null>(null);
-  // if i were to redo this, i would just set the selected ids in state
-  // const [selectedGeometryInfo, setSelectedGeometryInfo] =
-  //   useState<SelectedGeometryInfo | null>(null);
-  const selectedGeometryInfo = useAppSelector(
-    (store) => store.canvas.present.selectedGeometryInfo
-  );
-  const { selectedAttachableLines, selectedCircles } = getSelectedItems({
-    attachableLines,
-    circles,
-    selectedGeometryInfo,
-  });
 
-  const adjacencyList = Graph.getAdjacencyList({
-    edges: selectedAttachableLines,
-    vertices: selectedCircles,
-  });
-
-  const { handleDfs } = useDepthFirstSearch({
-    adjacencyList,
-    // temporary until select is implemented
-    startingNode: [...adjacencyList.keys()].at(0) ?? '',
-  });
+  // const [actionPressed, setActionPressed] = useState(false);
 
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
   const width = canvasWrapperRef.current?.offsetWidth;
