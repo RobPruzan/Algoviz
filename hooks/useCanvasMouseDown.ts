@@ -15,13 +15,15 @@ import {
   MutableRefObject,
   RefObject,
   SetStateAction,
+  useContext,
 } from 'react';
 import { match } from 'ts-pattern';
 import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
+import { CanvasContext } from '@/context/CanvasContext';
 
 type UseCanvasMouseDownParams = {
   isMouseDownRef: MutableRefObject<boolean>;
-  canvasRef: RefObject<HTMLCanvasElement>;
+
   selectBox: SelectBox | null;
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
   selectedControlBarAction: DrawTypes | null;
@@ -44,13 +46,14 @@ export const useCanvasMouseDown = ({
   setSelectedAttachableLine,
   meta,
   isMouseDownRef,
-  canvasRef,
+
   selectBox,
   setSelectBox,
   selectedControlBarAction,
   setSelectedValidatorLens,
   setSelectedResizeValidatorLensCircle,
 }: UseCanvasMouseDownParams) => {
+  const { canvasRef } = useContext(CanvasContext);
   const {
     attachableLines,
     circles,
@@ -64,6 +67,7 @@ export const useCanvasMouseDown = ({
     selectedGeometryInfo &&
     (selectedGeometryInfo?.selectedIds.length ?? -1) > 0;
   const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
+    if (!canvasRef?.current) return;
     isMouseDownRef.current = true;
 
     const activeItemInfo = Canvas.getMouseDownActiveItem({

@@ -8,12 +8,15 @@ import {
   useCallback,
   useRef,
   useEffect,
+  useContext,
 } from 'react';
 import * as Draw from '@/lib/Canvas/draw';
-type UseCanvasWheel = {
-  canvasRef: React.RefObject<HTMLCanvasElement>;
-};
-export const useCanvasWheel = ({ canvasRef }: UseCanvasWheel) => {
+import { CanvasContext } from '@/context/CanvasContext';
+import { useCanvasRef } from './useCanvasRef';
+
+export const useCanvasWheel = () => {
+  const canvasRef = useCanvasRef();
+
   const offsetX = useRef(0);
   const offsetY = useRef(0);
   const dispatch = useAppDispatch();
@@ -22,13 +25,14 @@ export const useCanvasWheel = ({ canvasRef }: UseCanvasWheel) => {
   );
   const handleWheel = useCallback(
     (event: WheelEvent) => {
+      if (!canvasRef?.current) return;
       event.preventDefault();
       // this is going to look awful and will 100% be refactored when everything works, no point in making something clean that might not work
       if (event.ctrlKey) {
         // This is a pinch gesture
         const zoomAmount = event.deltaY > 0 ? 0.98 : 1.02;
         dispatch(CanvasActions.updateCreationZoomFactor(zoomAmount));
-        const center: [number, number] = Draw.getCursorPosition(
+        const center: [number, number] = Draw.viewToWorld(
           event,
           canvasRef,
           cameraCoordinate
@@ -159,12 +163,17 @@ export const useCanvasWheel = ({ canvasRef }: UseCanvasWheel) => {
 
         dispatch(CanvasActions.shiftCamera({ shift }));
       }
+      // const [x, y] = Draw.getCursorPosition(event, canvasRef, cameraCoordinate);
+      // previousMousePositionRef.current = [
+      //   x - cameraCoordinate[0],
+      //   y - cameraCoordinate[1],
+      // ];
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [attachableLines, canvasRef, circles, cameraCoordinate]
   );
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = canvasRef?.current;
     if (!canvas) return;
     // needs to be an imperative event listener to set passive to false
     canvas.addEventListener('wheel', handleWheel, { passive: false });

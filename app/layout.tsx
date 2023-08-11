@@ -19,6 +19,8 @@ import ReduxProvider from './ReduxProvider';
 import PlaygroundsButton from './PlaygroundsButton';
 import { Toaster } from '@/components/ui/toaster';
 import ConnectedUsers from './ConnectedUsers';
+import { CanvasContext } from '@/context/CanvasContext';
+import { Providers } from './Providers';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -40,50 +42,40 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <AuthProvider>
-          <QueryProvider>
-            <ReduxProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-              >
-                <div className="h-screen w-screen flex flex-col items-center justify-evenly">
-                  {/* temporary padding */}
-                  <nav className="w-screen pt-[10px] px-[25px] h-[5%] flex justify-end items-center  ">
-                    <div className="w-3/6 flex justify-start items-center ">
-                      <Link href="/">
-                        <Button className="mr-2" variant="outline">
-                          Home
-                        </Button>
-                      </Link>
+        <Providers>
+          <div className="h-screen w-screen flex flex-col items-center justify-evenly">
+            {/* temporary padding */}
+            <nav className="w-screen pt-[10px] px-[25px] h-[5%] flex justify-end items-center  ">
+              <div className="w-3/6 flex justify-start items-center ">
+                <Link href="/">
+                  <Button className="mr-2" variant="outline">
+                    Home
+                  </Button>
+                </Link>
 
-                      <PlaygroundsButton />
-                    </div>
+                <PlaygroundsButton />
+              </div>
 
-                    <div className="w-2/6 " />
+              <div className="w-2/6 " />
 
-                    <div className="w-[60%] flex justify-end items-center">
-                      <div className="mr-2">
-                        <ConnectedUsers />
-                      </div>
-                      <ShareableLink />
-                      <div className="mx-2">
-                        <ModeToggle />
-                      </div>
-                      <div className="ml-2">
-                        <SignInButton />
-                      </div>
-                    </div>
-                  </nav>
-
-                  {children}
-                  <Toaster />
+              <div className="w-[60%] flex justify-end items-center">
+                <div className="mr-2">
+                  <ConnectedUsers />
                 </div>
-              </ThemeProvider>
-            </ReduxProvider>
-          </QueryProvider>
-        </AuthProvider>
+                <ShareableLink />
+                <div className="mx-2">
+                  <ModeToggle />
+                </div>
+                <div className="ml-2">
+                  <SignInButton />
+                </div>
+              </div>
+            </nav>
+
+            {children}
+            <Toaster />
+          </div>
+        </Providers>
       </body>
     </html>
   );

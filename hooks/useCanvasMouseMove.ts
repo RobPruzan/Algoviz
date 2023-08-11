@@ -37,6 +37,9 @@ type UseCanvasMouseMoveProps = {
   selectedValidatorLens: SelectedValidatorLens | null;
   selectedResizeValidatorLensCircle: SelectedValidatorLensResizeCircle | null;
   cameraCoordinate: [number, number];
+  previousMousePositionRef: React.MutableRefObject<
+    [number, number] | undefined
+  >;
 };
 
 export const useCanvasMouseMove = ({
@@ -50,6 +53,7 @@ export const useCanvasMouseMove = ({
   selectedValidatorLens,
   selectedResizeValidatorLensCircle,
   cameraCoordinate,
+  previousMousePositionRef,
 }: UseCanvasMouseMoveProps) => {
   const {
     attachableLines,
@@ -58,7 +62,6 @@ export const useCanvasMouseMove = ({
     validatorLensContainer,
   } = useAppSelector((store) => store.canvas.present);
 
-  const previousMousePositionRef = useRef<[number, number]>();
   const isSelectBoxSet =
     selectBox === null &&
     selectedGeometryInfo &&
@@ -66,8 +69,10 @@ export const useCanvasMouseMove = ({
   const dispatch = useAppDispatch();
 
   const handleMouseMove = (event: MouseEvent<HTMLCanvasElement>) => {
+    console.log([event.nativeEvent.offsetX, event.nativeEvent.offsetY]);
     const mousePositionX = event.nativeEvent.offsetX - cameraCoordinate[0];
     const mousePositionY = event.nativeEvent.offsetY - cameraCoordinate[1];
+
     dispatch(
       CollaborationActions.setUserMousePosition(
         {

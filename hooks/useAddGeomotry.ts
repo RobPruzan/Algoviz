@@ -26,7 +26,7 @@ export const useAddGeometry = () => {
     ...args: Parameters<typeof shapeUpdateMutation.mutate>
   ) => searchParams.get('playground-id') && shapeUpdateMutation.mutate(...args);
 
-  const handleAddUndirectedEdge = (lineCenter: [number, number]) => {
+  const handleAddUndirectedEdge = (c1: [number, number]) => {
     dispatch(
       CanvasActions.setSelectedAction(
         {
@@ -36,7 +36,7 @@ export const useAddGeometry = () => {
         meta
       )
     );
-    const [x1, y1] = lineCenter;
+    const [x1, y1] = c1;
     const newLine: UndirectedEdge = {
       id: crypto.randomUUID(),
 
@@ -69,16 +69,6 @@ export const useAddGeometry = () => {
       lines: [...attachableLines, newLine],
       zoomAmount: creationZoomFactor,
     });
-    // if (playgroundID) {
-    //   Utils.sendCreate(
-    //     {
-    //       roomID: playgroundID,
-    //       type: 'edge',
-    //       state: newLine,
-    //     },
-    //     socketRef
-    //   );
-    // }
     dispatch(CanvasActions.addLine(newLine, meta));
     dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
   };
@@ -137,10 +127,6 @@ export const useAddGeometry = () => {
         meta
       )
     );
-    // const circleCenter: [number, number] = [
-    //   Math.random() * 400 * creationZoomFactor - cameraCoordinate[0],
-    //   Math.random() * 400 * creationZoomFactor - cameraCoordinate[1],
-    // ];
     const circleRadius = 50;
     const newNodeConnector: CircleReceiver['nodeReceiver'] = {
       id: crypto.randomUUID(),
@@ -172,7 +158,8 @@ export const useAddGeometry = () => {
     dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
   };
 
-  const handleAddValidatorLens = (id: string) => {
+  const handleAddValidatorLens = (id: string, c1: [number, number]) => {
+    const [x1, y1] = c1;
     dispatch(
       CanvasActions.setSelectedAction(
         {
@@ -188,14 +175,8 @@ export const useAddGeometry = () => {
       result: null,
       code: null,
       rect: {
-        bottomRight: [
-          creationZoomFactor * Math.random() * 400 - cameraCoordinate[0],
-          creationZoomFactor * Math.random() * 400 - cameraCoordinate[1],
-        ],
-        topLeft: [
-          creationZoomFactor * Math.random() * 400 - cameraCoordinate[0],
-          creationZoomFactor * Math.random() * 400 - cameraCoordinate[1],
-        ],
+        bottomRight: [x1, y1],
+        topLeft: [x1 - 100, y1 - 100],
       },
       selectedIds: [],
       type: 'validator-lens',

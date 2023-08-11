@@ -156,6 +156,7 @@ export const DRAW_TYPES = [
   'circle-toggle',
   'directed-edge-toggle',
   'undirected-edge-toggle',
+  'validator-lens-select',
 ] as const;
 export type DrawTypes = (typeof DRAW_TYPES)[number];
 

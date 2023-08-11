@@ -137,11 +137,18 @@ export const sendCreate = (
   socketRef.current?.emit('create', state);
 };
 
-export const twCond = (
-  cases: { cond: boolean; className: string }[],
-  fallback?: string
-): string => {
-  return cases.find((cond) => cond.cond)?.className ?? fallback ?? '';
+export const twCond = ({
+  base = '',
+  cases,
+  fallback,
+}: {
+  base?: string;
+  cases: { cond: boolean; className: string }[];
+  fallback?: string;
+}): string => {
+  return (
+    base + ' ' + cases.find((cond) => cond.cond)?.className ?? fallback ?? ''
+  );
 };
 
 export const RESIZE_CIRCLE_RADIUS = 5;

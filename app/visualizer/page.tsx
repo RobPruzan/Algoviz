@@ -1,21 +1,9 @@
-import Visualize from '@/app/visualizer/Visualize';
-import { AlgoComboBox } from '@/app/visualizer/Sort/AlgoComboBox';
-
-import Content from './Content';
-import SideBar from './SideBar';
-import CodeExecution from './Canvas/CodeExecution';
-import Resizable from './Resizeable';
 import ContentWrapper from './ContentWrapper';
-import { useSearchParams } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import { store } from '@/redux/store';
-import { CanvasActions } from '@/redux/slices/canvasSlice';
-import { CircleReceiver, Edge, PickedPlayground, Prettify } from '@/lib/types';
+import { PickedPlayground } from '@/lib/types';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]/route';
 import { z } from 'zod';
-import { Playground } from '@prisma/client';
-import { NextRequest } from 'next/server';
 const jwt = require('jsonwebtoken');
 
 export const metadata = {};
@@ -132,9 +120,7 @@ const page = async ({ searchParams }: Props) => {
   return (
     <div className=" w-screen h-[95%] flex items-display overflow-y-hidden ">
       <div className="h-full w-full py-[10px] px-[25px] flex flex-col items-center justify-center">
-        <Content>
-          <ContentWrapper data={pattern.data} />
-        </Content>
+        <ContentWrapper data={pattern.data} />
       </div>
     </div>
   );

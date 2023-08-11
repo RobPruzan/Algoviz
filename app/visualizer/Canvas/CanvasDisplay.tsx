@@ -4,14 +4,17 @@ import {
   SelectedAttachableLine,
   SelectBox,
   DrawTypes,
-  PencilCoordinates,
-  IO,
   FirstParameter,
   SelectedValidatorLens,
   SelectedValidatorLensResizeCircle,
-  Percentage,
 } from '@/lib/types';
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  SetStateAction,
+  Dispatch,
+} from 'react';
 import * as Draw from '@/lib/Canvas/draw';
 import * as Graph from '@/lib/graph';
 
@@ -27,8 +30,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { Button } from '@/components/ui/button';
-import { Check } from 'lucide-react';
-import { SideBarContext } from '@/context/SideBarContext';
+
 import {
   Command,
   CommandEmpty,
@@ -36,12 +38,7 @@ import {
   CommandInput,
   CommandItem,
 } from '@/components/ui/command';
-import {
-  algorithmsInfo,
-  cn,
-  getSelectedItems,
-  getValidatorLensSelectedIds,
-} from '@/lib/utils';
+import { algorithmsInfo, getSelectedItems } from '@/lib/utils';
 
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
@@ -64,8 +61,10 @@ import { useFullyConnect } from '@/hooks/useFullyConnect';
 import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 import { useServerUpdateShapes } from '@/hooks/useServerUpdateShapes';
 import { useAddGeometry } from '@/hooks/useAddGeomotry';
+import { useCanvasRef } from '@/hooks/useCanvasRef';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
+  setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
   canvasWrapperRef: React.RefObject<HTMLDivElement>;
 
   canvasWidth: number;
@@ -78,18 +77,20 @@ export type Props = {
 
 const CanvasDisplay = ({
   selectedControlBarAction,
+  setSelectedControlBarAction,
   canvasWrapperRef,
   selectedValidatorLens,
   canvasHeight,
   canvasWidth,
   setSelectedValidatorLens,
 }: Props) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useCanvasRef();
   const notSignedInUserID = useAppSelector(
     (store) => store.canvas.present.notSignedInUserID
   );
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
+  const previousMousePositionRef = useRef<[number, number]>();
   const selectedGeometryInfo = useAppSelector(
     (store) => store.canvas.present.selectedGeometryInfo
   );
@@ -231,7 +232,6 @@ const CanvasDisplay = ({
   useServerUpdateShapes();
 
   const handleMouseDown = useCanvasMouseDown({
-    canvasRef,
     isMouseDownRef,
     selectBox,
     selectedControlBarAction,
@@ -245,7 +245,7 @@ const CanvasDisplay = ({
 
   const handleContextMenu = useCanvasContextMenu({
     meta,
-    canvasRef,
+
     setSelectedCircleID,
     isContextMenuActiveRef,
     cameraCoordinate,
@@ -262,6 +262,7 @@ const CanvasDisplay = ({
     meta,
     selectedValidatorLens,
     selectedResizeValidatorLensCircle,
+    previousMousePositionRef,
   });
 
   const handleMouseUp = useHandleMouseUp({
@@ -281,14 +282,12 @@ const CanvasDisplay = ({
 
   const {
     handleAddCircle,
+    handleAddValidatorLens,
     handleAddDirectedEdge,
     handleAddUndirectedEdge,
-    handleAddValidatorLens,
   } = useAddGeometry();
 
-  useCanvasWheel({
-    canvasRef,
-  });
+  useCanvasWheel();
 
   useApplyAlgorithm();
 
@@ -300,40 +299,23 @@ const CanvasDisplay = ({
   useEffect(() => {
     const visualizationNodes = visualization?.at(visualizationPointer);
 
-    const canvas = canvasRef.current;
+    const canvas = canvasRef?.current;
     const ctx = canvas?.getContext('2d');
     if (!ctx) return;
     if (!canvas) return;
-
-    // 1. Clear the canvas
-    // ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // // 2. Reset the transformation matrix
-    // ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-    // // 3. Apply the translation
-    // ctx.translate(cameraCoordinate[0], cameraCoordinate[1]);
-
     Draw.updateCanvasEnvironment({
       ctx,
       canvas,
-      cameraPosition: {
-        x: cameraCoordinate[0],
-        y: cameraCoordinate[1],
-      },
+      cameraPosition: cameraCoordinate,
     });
 
-    // const dpr = window.devicePixelRatio;
-    // ctx.scale(dpr, dpr);
-
-    // // 1. Clear the canvas
-    // ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // // 2. Reset the transformation matrix
-    // ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-    // // 3. Apply the translation
-    // ctx.translate(cameraCoordinate[0], cameraCoordinate[1]);
+    Draw.drawBackground({
+      camera: cameraCoordinate,
+      canvas,
+      ctx,
+      mousePos: previousMousePositionRef.current ?? [0, 0],
+      zoom: currentZoomFactor,
+    });
 
     const selectedIDs = Object.keys(
       [
@@ -462,6 +444,8 @@ const CanvasDisplay = ({
     selectedCircles,
     visualization,
     visualizationPointer,
+    currentZoomFactor,
+    canvasRef,
   ]);
 
   return (
@@ -485,7 +469,14 @@ const CanvasDisplay = ({
                   .with('undirected-edge-toggle', () => {
                     handleAddUndirectedEdge([mousePositionX, mousePositionY]);
                   })
-                  // remeber to add validator lens oops
+                  .with('validator-lens-select', () => {
+                    handleAddValidatorLens(crypto.randomUUID(), [
+                      mousePositionX,
+                      mousePositionY,
+                    ]);
+                    setSelectedControlBarAction(null);
+                  })
+                  // // remeber to add validator lens oops
                   .otherwise(() => {
                     console.log('unsupported action');
                   });

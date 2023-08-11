@@ -19,8 +19,9 @@ import { store, withMeta } from '../store';
 import { match } from 'ts-pattern';
 import { NodeValidation } from './codeExecSlice';
 import { User } from 'next-auth';
-import { Payload } from '@prisma/client/runtime';
+
 import undoable from 'redux-undo';
+import { ElementRef, RefObject } from 'react';
 
 // this validatorLens will have code attached to it
 // it should probably extend the selectedGeomotryInfo
@@ -63,6 +64,9 @@ export type CanvasState = {
   cameraCoordinate: [number, number];
   notSignedInUserID: string;
   lastUpdate: number;
+  // canvasRef: React.RefObject<HTMLCanvasElement>
+  // canvasRef: RefObject<ElementRef<'canvas'>>
+  // canvasRef: RefObject<ElementRef<'canvas'>> | null;
 };
 
 const initialState: CanvasState = {
@@ -111,6 +115,9 @@ const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    // setCanvasRef: (state, action: PayloadAction<CanvasState['canvasRef']>) => {
+    //   state.canvasRef
+    // },
     update: (state) => {
       state.lastUpdate = Date.now();
     },

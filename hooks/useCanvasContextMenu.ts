@@ -1,11 +1,19 @@
 import { useAppDispatch, useAppSelector } from '@/redux/store';
-import React, { Dispatch, MouseEvent, SetStateAction } from 'react';
+import React, {
+  Dispatch,
+  MouseEvent,
+  RefObject,
+  SetStateAction,
+  useContext,
+  useRef,
+} from 'react';
 import * as Canvas from '@/lib/Canvas/canvas';
 import { SelectedGeometryInfo } from '@/lib/types';
 import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
+import { CanvasContext } from '@/context/CanvasContext';
+import { useCanvasRef } from './useCanvasRef';
 
 type CanvasContextMenuParams = {
-  canvasRef: React.RefObject<HTMLCanvasElement>;
   setSelectedCircleID: Dispatch<SetStateAction<string | null>>;
   meta: Meta;
   isContextMenuActiveRef: React.MutableRefObject<boolean>;
@@ -13,17 +21,21 @@ type CanvasContextMenuParams = {
 };
 
 export const useCanvasContextMenu = ({
-  canvasRef,
   meta,
   setSelectedCircleID,
   isContextMenuActiveRef,
   cameraCoordinate,
 }: CanvasContextMenuParams) => {
+  const canvasRef = useCanvasRef();
+  const test = useRef<string | null>('fdsf');
+
   const circles = useAppSelector((store) => store.canvas.present.circles);
   const dispatch = useAppDispatch();
   const handleContextMenu = (
     event: MouseEvent<HTMLCanvasElement, globalThis.MouseEvent>
   ) => {
+    if (!canvasRef.current) return;
+
     isContextMenuActiveRef.current = true;
     const activeCircleId = Canvas.getActiveCircle({
       circles,

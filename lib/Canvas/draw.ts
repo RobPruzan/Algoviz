@@ -11,7 +11,7 @@ import { NodeValidation } from '@/redux/slices/codeExecSlice';
 import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 import { RESIZE_CIRCLE_RADIUS } from '../utils';
 import { match } from 'ts-pattern';
-import { useGetAlgorithmsQuery } from '@/app/visualizer/hooks/useGetAlgorithmsQuery';
+import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 
 export const drawNodes = ({
   nodes,
@@ -239,7 +239,6 @@ export const drawValidatorLens = ({
   theme: string;
   selectedIds: string[] | undefined;
   selectedValidatorLens: SelectedValidatorLens | null;
-
   algos: ReturnType<typeof useGetAlgorithmsQuery>['data'];
 }) => {
   validatorLensContainer.forEach((lens, index) => {
@@ -505,7 +504,7 @@ export const updateCanvasEnvironment = ({
 }: {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
-  cameraPosition: { x: number; y: number };
+  cameraPosition: [number, number];
 }) => {
   const dpr = window.devicePixelRatio;
   const rect = canvas.getBoundingClientRect();
@@ -518,14 +517,19 @@ export const updateCanvasEnvironment = ({
   ctx.scale(dpr, dpr);
 
   // Translate the origin to the camera position
-  ctx.translate(cameraPosition.x, cameraPosition.y);
+  ctx.translate(cameraPosition[0], cameraPosition[1]);
 
   // Set the "drawn" size of the canvas
   canvas.style.width = `${rect.width}px`;
   canvas.style.height = `${rect.height}px`;
 
   // Clear the canvas, taking into account the new origin
-  ctx.clearRect(-cameraPosition.x, -cameraPosition.y, rect.width, rect.height);
+  ctx.clearRect(
+    -cameraPosition[0],
+    -cameraPosition[1],
+    rect.width,
+    rect.height
+  );
 };
 
 export const drawPencil = ({
@@ -626,11 +630,12 @@ export function mouseCenteredZoom(
   return newCenter;
 }
 
-export function getCursorPosition(
-  event: WheelEvent,
+export function viewToWorld(
+  event: { clientX: number; clientY: number },
   canvasRef: RefObject<HTMLCanvasElement>,
   cameraCord: [number, number]
 ): [number, number] {
+  // inspect
   const canvas = canvasRef.current;
   if (!canvas) return [0, 0];
   const rect = canvas.getBoundingClientRect();
@@ -695,3 +700,17 @@ export const drawTriangle = ({
     ctx.stroke();
   });
 };
+
+export const drawBackground = ({
+  camera,
+  canvas,
+  ctx,
+  zoom,
+  mousePos,
+}: {
+  camera: [number, number];
+  canvas: HTMLCanvasElement;
+  zoom: number;
+  ctx: CanvasRenderingContext2D;
+  mousePos: [number, number];
+}) => {};

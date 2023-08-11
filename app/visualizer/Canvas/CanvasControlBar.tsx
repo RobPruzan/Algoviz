@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
-
+import * as Draw from '@/lib/Canvas/draw';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import { AlgoType, DrawTypes } from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { ChevronDown, CircleDot, RedoIcon, Trash, Undo } from 'lucide-react';
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useContext, useState } from 'react';
 import { DirectedEdgeIcon } from '@/components/icons/DirectedEdge';
 import { UndirectedEdgeIcon } from '@/components/icons/UndirectedEdge';
 import { BINARY_SEARCH_TREE } from '@/lib/presets/binary-search-tree';
@@ -20,27 +20,31 @@ import { ActionCreators } from 'redux-undo';
 import AlgoHistorySlider from '../Sort/AlgoHistorySlider';
 import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 import { useAddGeometry } from '@/hooks/useAddGeomotry';
+import { CanvasContext } from '@/context/CanvasContext';
+import { useCanvasRef } from '@/hooks/useCanvasRef';
+import { twCond } from '@/lib/utils';
 type Props = {
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
   selectedControlBarAction: DrawTypes | null;
 };
-
+const DEFAULT_SELECT_ITEMS_LEFT = 1;
 const CanvasControlBar = ({
   setSelectedControlBarAction,
   selectedControlBarAction,
 }: Props) => {
   const visualization = useAppSelector((store) => store.codeExec.visualization);
+  // const { cameraCoordinate, currentZoomFactor } = useAppSelector(
+  //   (store) => store.canvas.present
+  // );
 
+  // const canvasRef = useCanvasRef();
+
+  const [itemChecked, setItemChecked] = useState<null | string>(null);
   const dispatch = useAppDispatch();
 
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
 
-  // const {
-  //   handleAddCircle,
-  //   handleAddDirectedEdge,
-  //   handleAddUndirectedEdge,
-  //   handleAddValidatorLens,
-  // } = useAddGeometry();
+  const { handleAddValidatorLens } = useAddGeometry();
   return (
     <>
       <div className="w-full items-center prevent-select overflow-x-scroll overflow-y-hidden  h-14 flex justify-evenly ">
@@ -123,10 +127,19 @@ const CanvasControlBar = ({
         <div className="border-r  h-full"></div>
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="border-2 w-32 flex items-center justify-evenly font-bold rounded-md text-sm p-2">
+          <DropdownMenuTrigger
+            className={twCond({
+              cases: [
+                {
+                  cond: selectedControlBarAction === 'validator-lens-select',
+                  className: 'bg-secondary',
+                },
+              ],
+              base: 'border-2 w-32 flex items-center justify-evenly font-bold rounded-md text-sm p-2',
+            })}
+          >
             {getAlgorithmsQuery.data?.find(
-              // fix
-              (algoInfo) => false
+              (algoInfo) => algoInfo.id === itemChecked
             )?.title ?? 'Validators'}
             <ChevronDown size={20} />
           </DropdownMenuTrigger>
@@ -139,8 +152,31 @@ const CanvasControlBar = ({
                 >
                   <DropdownMenuItem
                     className="w-full"
-                    onClick={() => {
-                      // handleAddValidatorLens(algo.id);
+                    onClick={(e) => {
+                      setItemChecked(algo.id);
+                      console.log('fodksjaf', e);
+                      setSelectedControlBarAction('validator-lens-select');
+
+                      // const canvas = canvasRef?.current;
+                      // if (!canvas) return;
+                      // const rect = canvas.getBoundingClientRect();
+                      // const x = e.clientX - rect.left - cameraCoordinate[0];
+                      // const y = e.clientY - rect.top - cameraCoordinate[1];
+                      // console.log('da fook', [x, y]);
+
+                      // const cord = Draw.viewToWorld(
+                      //   e,
+                      //   canvasRef,
+                      //   cameraCoordinate
+                      // );
+
+                      // const actualCord: [number, number] = [
+                      //   Math.random() * 400 * currentZoomFactor -
+                      //     cameraCoordinate[0],
+                      //   Math.random() * 400 * currentZoomFactor -
+                      //     cameraCoordinate[1],
+                      // ];
+                      // handleAddValidatorLens(crypto.randomUUID(), actualCord);
                     }}
                   >
                     {algo.title}
