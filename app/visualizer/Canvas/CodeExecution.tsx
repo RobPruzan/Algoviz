@@ -269,6 +269,20 @@ const CodeExecution = ({
                           </div>
                         )))}
 
+                    {codeMutation.data?.type === 'error' &&
+                      codeMutation.data.output.map((log) => (
+                        <>
+                          <div
+                            key={JSON.stringify(log)}
+                            className="flex items-center justify-start "
+                          >
+                            <div className="text-sm text-red-500">
+                              {JSON.stringify(log)}
+                            </div>
+                          </div>
+                        </>
+                      ))}
+
                     {/* <div>
                       {codeMutation.data?.type === 'Validator' ||
                         (codeMutation.data?.type === 'Visualizer' &&

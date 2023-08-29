@@ -1,7 +1,7 @@
 import { ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import {
-  AlgorithmInfo,
+  // AlgorithmInfo,
   CircleReceiver,
   Edge,
   HistoryNode,
@@ -35,24 +35,24 @@ export const getNodeArray = (nodeRow: NodeMetadata[]) => {
   return arrays;
 };
 
-export const algorithmsInfo: AlgorithmInfo[] = [
-  {
-    value: 'merge sort',
-    label: 'Merge Sort',
-  },
-  {
-    value: 'quick sort',
-    label: 'Quick Sort',
-  },
-  {
-    value: 'breadth first search',
-    label: 'Breadth First Search',
-  },
-  {
-    value: 'depth first search',
-    label: 'Depth First Search',
-  },
-];
+// export const algorithmsInfo: AlgorithmInfo[] = [
+//   {
+//     value: 'merge sort',
+//     label: 'Merge Sort',
+//   },
+//   {
+//     value: 'quick sort',
+//     label: 'Quick Sort',
+//   },
+//   {
+//     value: 'breadth first search',
+//     label: 'Breadth First Search',
+//   },
+//   {
+//     value: 'depth first search',
+//     label: 'Depth First Search',
+//   },
+// ];
 
 export const DEFAULT_VISUALIZATION_CODE = `type NodeID = string // uuid representing a node
 type AdjacencyList = Record<NodeID, NodeID[]>
@@ -227,3 +227,5 @@ export const getValidatorLensSelectedIds = ({
 
   return selectedIds;
 };
+
+export const run = <T>(f: () => T): T => f();

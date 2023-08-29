@@ -85,6 +85,7 @@ def add_cors_headers(response):
 
 @app.route("/run", methods=["POST", "OPTIONS"])
 def run_code():
+    print("recieved")
     if request.method == "OPTIONS":
         return make_response(("Allowed", 204))
     data = request.get_json()
@@ -121,6 +122,7 @@ def run_code():
             run_command = f"{interpreter} {filename}"
 
         # print("the code", code)
+
         result = subprocess.run(
             shlex.split(run_command),
             timeout=2,
@@ -129,21 +131,23 @@ def run_code():
         )
 
         stdout = result.stdout.decode()
+
         stderr = result.stderr.decode()
+
         output = stdout if not stderr else stderr
     except Exception as e:
         output = str(e)
+        # print("caught exception, here it is:", output)
+    if stderr:
+        print("returning err")
+        return jsonify({"output": [stderr], "type": "error"})
     logs, out = parse_output(output)
     # print("before parsing", out)
     out = json.loads(json.loads(out))
+    out = out if out is not None else []
     # print("typof", type(out))
 
     logs = logs if logs else ""
-
-    print("logs", logs)
-
-    if stderr:
-        return jsonify({"output": out, "logs": logs, "type": "error"})
 
     return jsonify({"output": out, "logs": logs})
 

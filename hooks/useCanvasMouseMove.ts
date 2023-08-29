@@ -69,7 +69,6 @@ export const useCanvasMouseMove = ({
   const dispatch = useAppDispatch();
 
   const handleMouseMove = (event: MouseEvent<HTMLCanvasElement>) => {
-    console.log([event.nativeEvent.offsetX, event.nativeEvent.offsetY]);
     const mousePositionX = event.nativeEvent.offsetX - cameraCoordinate[0];
     const mousePositionY = event.nativeEvent.offsetY - cameraCoordinate[1];
 

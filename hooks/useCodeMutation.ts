@@ -45,6 +45,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
   }, {});
   const codeMutation = useMutation({
     onError: (error) => {
+      console.log('code mutation errored');
       onError?.(error);
     },
     mutationFn: async ({
@@ -110,6 +111,8 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       ]);
 
       const outputWithType = { type, ...res.data };
+
+      console.log('output with type, still in mutation fn', outputWithType);
       const parsedOutput = dataSchema.parse(outputWithType);
 
       return parsedOutput;

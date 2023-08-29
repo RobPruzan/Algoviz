@@ -37,10 +37,11 @@ const Resizable = (props: Props) => {
       if (!parentDiv) return;
       match(props)
         .with({ type: 'horizontal' }, (props) => {
-          let newDiv1Width = e.clientX - parentDiv.offsetLeft - padding; // subtract left padding
+          let newDiv1Width = e.clientX - parentDiv.offsetLeft;
 
           newDiv1Width = Math.max(0, newDiv1Width);
           newDiv1Width = Math.min(parentDiv.offsetWidth, newDiv1Width);
+          const a = 'fucker';
 
           const newDiv2Width = parentDiv.offsetWidth - newDiv1Width;
 

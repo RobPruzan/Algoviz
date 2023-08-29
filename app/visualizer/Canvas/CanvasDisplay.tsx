@@ -38,7 +38,7 @@ import {
   CommandInput,
   CommandItem,
 } from '@/components/ui/command';
-import { algorithmsInfo, getSelectedItems } from '@/lib/utils';
+import { getSelectedItems } from '@/lib/utils';
 
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
@@ -608,7 +608,7 @@ const CanvasDisplay = ({
             <ContextMenuSub>
               <ContextMenuSubTrigger inset>Algorithms</ContextMenuSubTrigger>
               <ContextMenuSubContent className=" ">
-                <Command>
+                {/* <Command>
                   <CommandInput placeholder="Search Sorting Algorithm..." />
                   <CommandEmpty>No algorithm found.</CommandEmpty>
                   <CommandGroup>
@@ -617,19 +617,12 @@ const CanvasDisplay = ({
                         key={framework.value}
                         onSelect={(currentValue) => {}}
                       >
-                        {/* <Check
-                          className={cn(
-                            'mr-2 h-4 w-4',
-                            sideBarState.algorithm === framework.value
-                              ? 'opacity-100'
-                              : 'opacity-0'
-                          )}
-                        /> */}
+                   
                         {framework.label}
                       </CommandItem>
                     ))}
                   </CommandGroup>
-                </Command>
+                </Command> */}
                 <Button className="bg-secondary mt-3 ring-0 hover: hover:border-2 hover:border-secondary w-full">
                   Apply algorithm
                 </Button>
