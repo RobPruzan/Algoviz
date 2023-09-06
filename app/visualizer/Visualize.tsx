@@ -31,17 +31,24 @@ import { useDispatch } from 'react-redux';
 import { CanvasActions, canvasReducer } from '@/redux/slices/canvasSlice';
 import { ActionCreators } from 'redux-undo';
 import AlgoHistorySlider from './Sort/AlgoHistorySlider';
+import { Algorithm } from '@prisma/client';
 type Props = {
   setSelectedValidatorLens: React.Dispatch<
     React.SetStateAction<SelectedValidatorLens | null>
   >;
   selectedValidatorLens: SelectedValidatorLens | null;
   canvasWidth: number | Percentage;
+  setUserAlgorithm: React.Dispatch<
+    React.SetStateAction<
+      Pick<Algorithm, 'title' | 'code' | 'description' | 'type' | 'language'>
+    >
+  >;
 };
 
 const Visualize = ({
   canvasWidth,
   selectedValidatorLens,
+  setUserAlgorithm,
   setSelectedValidatorLens,
 }: Props) => {
   const [selectedControlBarAction, setSelectedControlBarAction] =
@@ -67,6 +74,7 @@ const Visualize = ({
         className=" w-full overflow-y-scroll rounded-t-none h-full border-2 border-secondary border-t-0"
       >
         <CanvasDisplay
+          setUserAlgorithm={setUserAlgorithm}
           setSelectedControlBarAction={setSelectedControlBarAction}
           selectedValidatorLens={selectedValidatorLens}
           setSelectedValidatorLens={setSelectedValidatorLens}

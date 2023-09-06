@@ -41,7 +41,6 @@ const Resizable = (props: Props) => {
 
           newDiv1Width = Math.max(0, newDiv1Width);
           newDiv1Width = Math.min(parentDiv.offsetWidth, newDiv1Width);
-          const a = 'fucker';
 
           const newDiv2Width = parentDiv.offsetWidth - newDiv1Width;
 

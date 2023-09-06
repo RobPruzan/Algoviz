@@ -62,6 +62,7 @@ import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 import { useServerUpdateShapes } from '@/hooks/useServerUpdateShapes';
 import { useAddGeometry } from '@/hooks/useAddGeomotry';
 import { useCanvasRef } from '@/hooks/useCanvasRef';
+import { Algorithm } from '@prisma/client';
 export type Props = {
   selectedControlBarAction: DrawTypes | null;
   setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
@@ -71,6 +72,11 @@ export type Props = {
   canvasHeight: number;
   setSelectedValidatorLens: React.Dispatch<
     React.SetStateAction<SelectedValidatorLens | null>
+  >;
+  setUserAlgorithm: React.Dispatch<
+    React.SetStateAction<
+      Pick<Algorithm, 'title' | 'code' | 'description' | 'type' | 'language'>
+    >
   >;
   selectedValidatorLens: SelectedValidatorLens | null;
 };
@@ -82,6 +88,7 @@ const CanvasDisplay = ({
   selectedValidatorLens,
   canvasHeight,
   canvasWidth,
+  setUserAlgorithm,
   setSelectedValidatorLens,
 }: Props) => {
   const canvasRef = useCanvasRef();
@@ -571,10 +578,20 @@ const CanvasDisplay = ({
                       validatorLens.id === selectedValidatorLens.id
                   );
                   if (!validatorLens) return;
+                  console.log('setting selected algo to', validatorLens.algoId);
                   dispatch(
                     CodeExecActions.setSelectedAlgorithm(validatorLens.algoId)
                   );
-                  setSelectedValidatorLens(null);
+                  const targetAlgo = algos.data?.find(
+                    (algo) => algo.id === validatorLens.algoId
+                  );
+                  console.log('target algo', targetAlgo, algos);
+                  targetAlgo &&
+                    (() => {
+                      setUserAlgorithm(targetAlgo);
+                      console.log('the target algo', targetAlgo);
+                      setSelectedValidatorLens(null);
+                    })();
                 }}
                 inset
               >
