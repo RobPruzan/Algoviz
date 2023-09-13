@@ -34,7 +34,7 @@ import {
   getValidatorLensSelectedIds,
   twCond,
 } from '@/lib/utils';
-import { AlgoComboBox } from '../Sort/AlgoComboBox';
+
 import { AlgoType, SelectedValidatorLens } from '@/lib/types';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/components/ui/use-toast';
@@ -46,6 +46,7 @@ import { Languages, languageSnippets } from '@/lib/language-snippets';
 import { useCodeMutation } from '@/hooks/useCodeMutation';
 import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 import { useSaveAlgorithmMutation } from '@/hooks/useSaveAlgorithmMutation';
+import { AlgoComboBox } from '../Sort/AlgoComboBox';
 
 type Props = {
   userAlgorithm: Pick<

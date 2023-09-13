@@ -6,9 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import SortControlBar from './Sort/SortControlBar';
-import SortDisplay from './Sort/SortDisplay';
-import * as Graph from '@/lib/graph';
+
 import CanvasDisplay from './Canvas/CanvasDisplay';
 import CanvasControlBar from './Canvas/CanvasControlBar';
 import {
