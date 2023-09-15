@@ -78,10 +78,11 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
 
       const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
       if (!url) Promise.reject();
-
+      console.log('the incoming type', type);
       const res = await axios.post(url, {
         code: algo.code,
         lang: language,
+        type,
         // globalVar: adjacencyList,
         // startNode,
         // endNode,

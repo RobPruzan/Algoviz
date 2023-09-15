@@ -484,7 +484,8 @@ const CanvasDisplay = ({
                     setSelectedControlBarAction(null);
                   })
                   // // remeber to add validator lens oops
-                  .otherwise(() => {
+                  .otherwise((action) => {
+                    console.log(action);
                     console.log('unsupported action');
                   });
               }}

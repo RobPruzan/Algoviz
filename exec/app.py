@@ -85,13 +85,17 @@ def add_cors_headers(response):
 
 @app.route("/run", methods=["POST", "OPTIONS"])
 def run_code():
-    print("recieved")
     if request.method == "OPTIONS":
         return make_response(("Allowed", 204))
     data = request.get_json()
     lang = data.get("lang")
     code = data.get("code")
+    code = code.replace(": NodeID", "") if lang != "typescript" else code
     env = data.get("env")
+    print(
+        "recieved",
+        code,
+    )
     # print("fo sho runniiing")
     # print(data, lang, code, env)
 

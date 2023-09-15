@@ -534,6 +534,7 @@ const canvasSlice = createSlice({
           },
         });
         if (!selectedGeometry) return;
+
         selectedValidatorLens.selectedIds = selectedGeometry.selectedIds;
       }
     ),

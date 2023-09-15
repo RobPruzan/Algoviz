@@ -62,6 +62,7 @@ export const drawNodes = ({
     const currentLens = validatorLensContainer.find((lens) =>
       lens.selectedIds.includes(node.id)
     );
+
     // if (selectedIDs?.includes(node.id)) {
     switch (typeof currentLens?.result) {
       case 'boolean':

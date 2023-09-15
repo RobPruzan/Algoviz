@@ -222,7 +222,7 @@ const CodeExecution = ({
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-
+            {/* should represent the input of the adjlist as interactivable divs with data with examples on how to access them */}
             <div className="  pl-5 pt-3 w-full border-t-2   border-secondary flex flex-col items-start justify-start text-white  h-full overflow-y-scroll">
               {match(tabValue)
                 .with('input', () => (
