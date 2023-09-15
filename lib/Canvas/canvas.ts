@@ -15,6 +15,7 @@ import {
   SelectedGeometryInfo,
   SelectedValidatorLens,
   SelectedValidatorLensResizeCircle,
+  TaggedDrawTypes,
 } from '../types';
 import * as Utils from '@/lib/utils';
 import { RefObject, type MouseEvent } from 'react';
@@ -595,7 +596,7 @@ export const getMouseDownActiveItem = ({
   canvasRef: RefObject<HTMLCanvasElement>;
   event: MouseEvent<HTMLCanvasElement>;
   selectBox: SelectBox | null;
-  selectedControlBarAction: DrawTypes | null;
+  selectedControlBarAction: TaggedDrawTypes | null;
   validatorLensContainer: ValidatorLensInfo[];
   cameraCoordinate: [number, number];
 }) => {
@@ -723,7 +724,7 @@ export const getMouseUpActiveItem = ({
   selectedCircleID: string | null;
   selectedAttachableLine: SelectedAttachableLine | null;
   selectBox: SelectBox | null;
-  selectedControlBarAction: DrawTypes | null;
+  selectedControlBarAction: TaggedDrawTypes | null;
   selectedValidatorLens: SelectedValidatorLens | null;
   validatorLensContainer: ValidatorLensInfo[];
 }) => {
@@ -756,7 +757,7 @@ export const getMouseUpActiveItem = ({
     ) ?? null;
 
   const activeItem =
-    (selectedControlBarAction && { type: selectedControlBarAction }) ||
+    (selectedControlBarAction && { type: selectedControlBarAction.state }) ||
     activeCircle ||
     activeRect ||
     activeAttachNodeOne ||

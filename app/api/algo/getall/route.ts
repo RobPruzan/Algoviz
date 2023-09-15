@@ -16,6 +16,9 @@ export async function GET() {
     },
   });
 
-  const res = NextResponse.json(data);
+  const res = NextResponse.json(
+    data.map((d) => ({ ...d, algoID: d.algoID ?? 'default' }))
+  );
+
   return res;
 }

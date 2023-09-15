@@ -308,7 +308,7 @@ export const drawValidatorLens = ({
     ctx.font = '20px Arial';
 
     const text =
-      algos?.find((algo) => algo.id === lens.algoId)?.title || 'unknown';
+      algos?.find((algo) => algo.algoID === lens.algoID)?.title || 'unknown';
 
     // Assume we have the rectangle's corners as rect.lens.topLeft and rect.lens.bottomRight
     const topLeft = lens.rect.topLeft;

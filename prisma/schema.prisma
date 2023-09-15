@@ -58,6 +58,8 @@ model VerificationToken {
 
 model Algorithm {
   id          String   @id @default(cuid())
+  // optional field algoID
+  algoID      String?  @unique @default(cuid())
   code        String
   userId      String
   createdAt   DateTime @default(now())

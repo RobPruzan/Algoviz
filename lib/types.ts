@@ -159,6 +159,7 @@ export const DRAW_TYPES = [
   'validator-lens-select',
 ] as const;
 export type DrawTypes = (typeof DRAW_TYPES)[number];
+export type TaggedDrawTypes = { tag: DrawTypes; state?: string } | null;
 
 export type PencilCoordinates = {
   drawnCoordinates: [number, number][][];

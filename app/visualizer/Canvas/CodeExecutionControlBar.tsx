@@ -1,4 +1,10 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, {
+  ComponentProps,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 
 import { Button } from '@/components/ui/button';
@@ -35,7 +41,7 @@ import {
   twCond,
 } from '@/lib/utils';
 
-import { AlgoType, SelectedValidatorLens } from '@/lib/types';
+import { AlgoType, Prettify, SelectedValidatorLens } from '@/lib/types';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/components/ui/use-toast';
 import AlgoHistorySlider from '../Sort/AlgoHistorySlider';
@@ -213,13 +219,24 @@ const CodeExecutionControlBar = ({
         };
 
   useEffect(() => {
+    // console.log(
+    //   'running',
+    //   validatorLensContainer,
+    //   getAlgorithmsQuery.data?.filter((d) => d.type === AlgoType.Validator),
+    //   'vs',
+    //   validatorLensContainer.at(0)?.id
+    // );TaggedDrawTypes
+
     validatorLensContainer.forEach((lens) => {
       if (lens.selectedIds.length > 0) {
         const lensAlgo = getAlgorithmsQuery.data?.find(
-          (d) => d.id === lens.algoId
+          (d) => d.algoID === lens.algoID
         );
 
+        console.log('big l', lensAlgo);
+
         if (lensAlgo) {
+          console.log('got lens algo', lensAlgo);
           codeMutation.mutate({
             // code: lensAlgo.code,
             // algo: lensAlgo,
@@ -519,6 +536,7 @@ const CodeExecutionControlBar = ({
                       ...userAlgorithm,
                       type,
                       language,
+                      algoID: crypto.randomUUID(),
                     });
                     setOpen(false);
 

@@ -7,6 +7,7 @@ import {
   FirstParameter,
   SelectedValidatorLens,
   SelectedValidatorLensResizeCircle,
+  TaggedDrawTypes,
 } from '@/lib/types';
 import React, {
   useRef,
@@ -64,8 +65,8 @@ import { useAddGeometry } from '@/hooks/useAddGeomotry';
 import { useCanvasRef } from '@/hooks/useCanvasRef';
 import { Algorithm } from '@prisma/client';
 export type Props = {
-  selectedControlBarAction: DrawTypes | null;
-  setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
+  selectedControlBarAction: TaggedDrawTypes | null;
+  setSelectedControlBarAction: Dispatch<SetStateAction<TaggedDrawTypes | null>>;
   canvasWrapperRef: React.RefObject<HTMLDivElement>;
 
   canvasWidth: number;
@@ -466,18 +467,23 @@ const CanvasDisplay = ({
                   event.nativeEvent.offsetX - cameraCoordinate[0];
                 const mousePositionY =
                   event.nativeEvent.offsetY - cameraCoordinate[1];
+                console.log('THE SELECTED ACTION', selectedControlBarAction);
                 match(selectedControlBarAction)
-                  .with('circle-toggle', () => {
+                  .with({ tag: 'circle-toggle' }, () => {
                     handleAddCircle([mousePositionX, mousePositionY]);
                   })
-                  .with('directed-edge-toggle', () => {
+                  .with({ tag: 'directed-edge-toggle' }, () => {
                     handleAddDirectedEdge([mousePositionX, mousePositionY]);
                   })
-                  .with('undirected-edge-toggle', () => {
+                  .with({ tag: 'undirected-edge-toggle' }, () => {
                     handleAddUndirectedEdge([mousePositionX, mousePositionY]);
                   })
-                  .with('validator-lens-select', () => {
-                    handleAddValidatorLens(crypto.randomUUID(), [
+                  .with({ tag: 'validator-lens-select' }, ({ state: id }) => {
+                    // we cant just trivially pass the crypto random, we need the uuid of what we just added
+                    if (!id) {
+                      throw new Error('something went wrong pal');
+                    }
+                    handleAddValidatorLens(id, [
                       mousePositionX,
                       mousePositionY,
                     ]);
@@ -499,7 +505,7 @@ const CanvasDisplay = ({
               className={`
               outline-none 
               
-              ${selectedControlBarAction === 'pencil' ? 'cursor-crosshair' : ''}
+           
          
                 `}
               ref={canvasRef}
@@ -579,12 +585,12 @@ const CanvasDisplay = ({
                       validatorLens.id === selectedValidatorLens.id
                   );
                   if (!validatorLens) return;
-                  console.log('setting selected algo to', validatorLens.algoId);
+                  console.log('setting selected algo to', validatorLens.algoID);
                   dispatch(
-                    CodeExecActions.setSelectedAlgorithm(validatorLens.algoId)
+                    CodeExecActions.setSelectedAlgorithm(validatorLens.algoID)
                   );
                   const targetAlgo = algos.data?.find(
-                    (algo) => algo.id === validatorLens.algoId
+                    (algo) => algo.id === validatorLens.algoID
                   );
                   console.log('target algo', targetAlgo, algos);
                   targetAlgo &&

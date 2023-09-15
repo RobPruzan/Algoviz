@@ -11,12 +11,14 @@ export const useSaveAlgorithmMutation = () =>
       title,
       type,
       language,
+      algoID,
     }: {
       code: string;
       description: string;
       title: string;
       type: AlgoType;
       language: Languages;
+      algoID: string;
     }) => {
       await axios.post(`${process.env.NEXT_PUBLIC_API_ROUTE}/algo/create`, {
         code,
@@ -24,6 +26,7 @@ export const useSaveAlgorithmMutation = () =>
         description,
         type,
         language,
+        algoID,
       });
     },
     onError: (e) => {},

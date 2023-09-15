@@ -37,7 +37,7 @@ export type Shift = { shift: [number, number] };
 
 export type ValidatorLensInfo = {
   id: string;
-  algoId: string;
+  algoID: string;
   rect: {
     topLeft: [number, number];
     bottomRight: [number, number];

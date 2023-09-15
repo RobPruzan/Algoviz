@@ -8,6 +8,7 @@ export const useGetAlgorithmsQuery = () =>
     queryFn: async () => {
       const algorithmSchema = z.object({
         id: z.string(),
+        algoID: z.string(),
         userId: z.string(),
         title: z.string(),
         code: z.string(),

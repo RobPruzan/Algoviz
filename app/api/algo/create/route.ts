@@ -11,10 +11,12 @@ export async function POST(request: Request) {
     description: z.string(),
     type: z.string(),
     language: z.string(),
+    algoID: z.string(),
   });
   const json = await request.json();
-
-  const { code, title, description, type, language } = algoSchema.parse(json);
+  console.log('da json', json);
+  const { code, title, description, type, algoID, language } =
+    algoSchema.parse(json);
   const session = await getServerSession(authOptions);
   if (!session?.user)
     return NextResponse.json({
@@ -26,6 +28,8 @@ export async function POST(request: Request) {
       data: {
         code,
         title,
+        algoID,
+
         description,
         userId: session.user.id,
         type,

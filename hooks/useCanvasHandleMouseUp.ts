@@ -8,6 +8,7 @@ import {
   SelectedAttachableLine,
   SelectedValidatorLens,
   SelectedValidatorLensResizeCircle,
+  TaggedDrawTypes,
 } from '@/lib/types';
 import { match } from 'ts-pattern';
 import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
@@ -17,7 +18,7 @@ type CanvasMouseUPParams = {
   isMouseDownRef: MutableRefObject<boolean>;
   selectBox: SelectBox | null;
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
-  selectedControlBarAction: DrawTypes | null;
+  selectedControlBarAction: TaggedDrawTypes | null;
 
   meta: Meta;
   selectedCircleID: string | null;
@@ -80,7 +81,7 @@ export const useHandleMouseUp = ({
         setSelectedAttachableLine(null);
       })
       .with({ type: 'pencil' }, () => {
-        if (selectedControlBarAction === 'pencil') {
+        if (selectedControlBarAction?.tag === 'pencil') {
           // setPencilCoordinates((prev) => ({
           //   drawnCoordinates: [
           //     ...prev.drawnCoordinates,

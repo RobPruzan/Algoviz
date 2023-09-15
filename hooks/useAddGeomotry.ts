@@ -171,7 +171,7 @@ export const useAddGeometry = () => {
     );
     const newValidatorLens: ValidatorLensInfo = {
       id: crypto.randomUUID(),
-      algoId: id,
+      algoID: id,
       result: null,
       code: null,
       rect: {

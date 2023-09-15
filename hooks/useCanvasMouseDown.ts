@@ -5,6 +5,7 @@ import {
   SelectedGeometryInfo,
   SelectedValidatorLens,
   SelectedValidatorLensResizeCircle,
+  TaggedDrawTypes,
 } from '@/lib/types';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import * as Canvas from '@/lib/Canvas/canvas';
@@ -26,7 +27,7 @@ type UseCanvasMouseDownParams = {
 
   selectBox: SelectBox | null;
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
-  selectedControlBarAction: DrawTypes | null;
+  selectedControlBarAction: TaggedDrawTypes | null;
 
   setSelectedCircleID: Dispatch<SetStateAction<string | null>>;
   setSelectedAttachableLine: Dispatch<
@@ -144,7 +145,7 @@ export const useCanvasMouseDown = ({
           selected: 'node2',
         });
       })
-      .with({ type: 'pencil' }, () => {})
+
       .with({ type: 'validator-lens' }, (lens) => {
         setSelectedValidatorLens({
           id: lens.id,

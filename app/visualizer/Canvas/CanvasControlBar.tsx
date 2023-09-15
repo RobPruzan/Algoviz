@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import { AlgoType, DrawTypes } from '@/lib/types';
+import { AlgoType, DrawTypes, TaggedDrawTypes } from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { ChevronDown, CircleDot, RedoIcon, Trash, Undo } from 'lucide-react';
@@ -22,10 +22,11 @@ import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 import { useAddGeometry } from '@/hooks/useAddGeomotry';
 import { CanvasContext } from '@/context/CanvasContext';
 import { useCanvasRef } from '@/hooks/useCanvasRef';
-import { twCond } from '@/lib/utils';
+import { run, twCond } from '@/lib/utils';
+
 type Props = {
-  setSelectedControlBarAction: Dispatch<SetStateAction<DrawTypes | null>>;
-  selectedControlBarAction: DrawTypes | null;
+  setSelectedControlBarAction: Dispatch<SetStateAction<TaggedDrawTypes | null>>;
+  selectedControlBarAction: TaggedDrawTypes | null;
 };
 const DEFAULT_SELECT_ITEMS_LEFT = 1;
 const CanvasControlBar = ({
@@ -73,11 +74,11 @@ const CanvasControlBar = ({
         </Button>
         <div className="border-r  h-full"></div>
         <Toggle
-          pressed={selectedControlBarAction === 'undirected-edge-toggle'}
+          pressed={selectedControlBarAction?.tag === 'undirected-edge-toggle'}
           // onClick={handleAddUndirectedEdge}
           onPressedChange={(pressed) => {
             if (pressed) {
-              setSelectedControlBarAction('undirected-edge-toggle');
+              setSelectedControlBarAction({ tag: 'undirected-edge-toggle' });
             } else {
               setSelectedControlBarAction(null);
             }
@@ -93,12 +94,12 @@ const CanvasControlBar = ({
           // onClick={handleAddDirectedEdge}
           onPressedChange={(pressed) => {
             if (pressed) {
-              setSelectedControlBarAction('directed-edge-toggle');
+              setSelectedControlBarAction({ tag: 'directed-edge-toggle' });
             } else {
               setSelectedControlBarAction(null);
             }
           }}
-          pressed={selectedControlBarAction === 'directed-edge-toggle'}
+          pressed={selectedControlBarAction?.tag === 'directed-edge-toggle'}
           variant={'outline'}
           className="px-2 min-w-fit"
         >
@@ -112,12 +113,12 @@ const CanvasControlBar = ({
           // }}
           onPressedChange={(pressed) => {
             if (pressed) {
-              setSelectedControlBarAction('circle-toggle');
+              setSelectedControlBarAction({ tag: 'circle-toggle' });
             } else {
               setSelectedControlBarAction(null);
             }
           }}
-          pressed={selectedControlBarAction === 'circle-toggle'}
+          pressed={selectedControlBarAction?.tag === 'circle-toggle'}
           variant={'outline'}
           className="px-2"
         >
@@ -131,7 +132,8 @@ const CanvasControlBar = ({
             className={twCond({
               cases: [
                 {
-                  cond: selectedControlBarAction === 'validator-lens-select',
+                  cond:
+                    selectedControlBarAction?.tag === 'validator-lens-select',
                   className: 'bg-secondary',
                 },
               ],
@@ -147,15 +149,18 @@ const CanvasControlBar = ({
             {getAlgorithmsQuery.data?.map((algo) =>
               algo.type === AlgoType.Validator ? (
                 <div
-                  key={algo.id}
+                  key={algo.algoID}
                   className="flex items-center justify-end p-0 "
                 >
                   <DropdownMenuItem
                     className="w-full"
                     onClick={(e) => {
-                      setItemChecked(algo.id);
+                      setItemChecked(algo.algoID);
                       console.log('fodksjaf', e);
-                      setSelectedControlBarAction('validator-lens-select');
+                      setSelectedControlBarAction({
+                        tag: 'validator-lens-select',
+                        state: algo.algoID,
+                      });
 
                       // const canvas = canvasRef?.current;
                       // if (!canvas) return;

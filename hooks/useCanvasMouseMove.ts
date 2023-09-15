@@ -17,6 +17,7 @@ import {
   SelectedAttachableLine,
   SelectedValidatorLens,
   SelectedValidatorLensResizeCircle,
+  TaggedDrawTypes,
 } from '@/lib/types';
 import { match } from 'ts-pattern';
 import {
@@ -29,7 +30,7 @@ type UseCanvasMouseMoveProps = {
   isMouseDownRef: MutableRefObject<boolean>;
   selectBox: SelectBox | null;
   setSelectBox: Dispatch<SetStateAction<SelectBox | null>>;
-  selectedControlBarAction: DrawTypes | null;
+  selectedControlBarAction: TaggedDrawTypes | null;
 
   selectedCircleID: string | null;
   selectedAttachableLine: SelectedAttachableLine | null;
@@ -86,16 +87,17 @@ export const useCanvasMouseMove = ({
 
     // if (selectedControlBarAction === 'pencil')
     match(selectedControlBarAction)
-      .with('pencil', () => {
-        if (isMouseDownRef.current) {
-          dispatch(
-            CanvasActions.setPencilDrawingCoordinates([
-              mousePositionX,
-              mousePositionY,
-            ])
-          );
-        }
-      })
+      // fix pencil oopsies
+      // .with('pencil', () => {
+      //   if (isMouseDownRef.current) {
+      //     dispatch(
+      //       CanvasActions.setPencilDrawingCoordinates([
+      //         mousePositionX,
+      //         mousePositionY,
+      //       ])
+      //     );
+      //   }
+      // })
       .otherwise(() => {
         const activeTask = Canvas.getActiveGeometry({
           selectedCircleID,

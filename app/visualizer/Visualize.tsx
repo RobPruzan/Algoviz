@@ -16,6 +16,7 @@ import {
   Percentage,
   SelectedGeometryInfo,
   SelectedValidatorLens,
+  TaggedDrawTypes,
   UndirectedEdge,
 } from '@/lib/types';
 import { useAppSelector } from '@/redux/store';
@@ -50,7 +51,7 @@ const Visualize = ({
   setSelectedValidatorLens,
 }: Props) => {
   const [selectedControlBarAction, setSelectedControlBarAction] =
-    useState<DrawTypes | null>(null);
+    useState<TaggedDrawTypes | null>(null);
 
   // const [actionPressed, setActionPressed] = useState(false);
 
