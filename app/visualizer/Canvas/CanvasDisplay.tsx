@@ -39,7 +39,7 @@ import {
   CommandInput,
   CommandItem,
 } from '@/components/ui/command';
-import { getSelectedItems } from '@/lib/utils';
+import { getSelectedItems, run } from '@/lib/utils';
 
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
@@ -479,6 +479,7 @@ const CanvasDisplay = ({
                     handleAddUndirectedEdge([mousePositionX, mousePositionY]);
                   })
                   .with({ tag: 'validator-lens-select' }, ({ state: id }) => {
+                    console.log(algos.data?.find((a) => a.algoID === id));
                     // we cant just trivially pass the crypto random, we need the uuid of what we just added
                     if (!id) {
                       throw new Error('something went wrong pal');
@@ -504,9 +505,6 @@ const CanvasDisplay = ({
               }}
               className={`
               outline-none 
-              
-           
-         
                 `}
               ref={canvasRef}
               onMouseDown={handleMouseDown}
@@ -590,15 +588,15 @@ const CanvasDisplay = ({
                     CodeExecActions.setSelectedAlgorithm(validatorLens.algoID)
                   );
                   const targetAlgo = algos.data?.find(
-                    (algo) => algo.id === validatorLens.algoID
+                    (algo) => algo.algoID === validatorLens.algoID
                   );
-                  console.log('target algo', targetAlgo, algos);
+
                   targetAlgo &&
-                    (() => {
+                    run(() => {
                       setUserAlgorithm(targetAlgo);
                       console.log('the target algo', targetAlgo);
                       setSelectedValidatorLens(null);
-                    })();
+                    });
                 }}
                 inset
               >

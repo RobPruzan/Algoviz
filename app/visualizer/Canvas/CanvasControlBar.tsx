@@ -156,32 +156,11 @@ const CanvasControlBar = ({
                     className="w-full"
                     onClick={(e) => {
                       setItemChecked(algo.algoID);
-                      console.log('fodksjaf', e);
+                      console.log(algo);
                       setSelectedControlBarAction({
                         tag: 'validator-lens-select',
                         state: algo.algoID,
                       });
-
-                      // const canvas = canvasRef?.current;
-                      // if (!canvas) return;
-                      // const rect = canvas.getBoundingClientRect();
-                      // const x = e.clientX - rect.left - cameraCoordinate[0];
-                      // const y = e.clientY - rect.top - cameraCoordinate[1];
-                      // console.log('da fook', [x, y]);
-
-                      // const cord = Draw.viewToWorld(
-                      //   e,
-                      //   canvasRef,
-                      //   cameraCoordinate
-                      // );
-
-                      // const actualCord: [number, number] = [
-                      //   Math.random() * 400 * currentZoomFactor -
-                      //     cameraCoordinate[0],
-                      //   Math.random() * 400 * currentZoomFactor -
-                      //     cameraCoordinate[1],
-                      // ];
-                      // handleAddValidatorLens(crypto.randomUUID(), actualCord);
                     }}
                   >
                     {algo.title}
