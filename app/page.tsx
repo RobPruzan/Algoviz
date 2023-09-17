@@ -64,12 +64,12 @@ export default function Home() {
           height={800}
         /> */}
           <Image
-            className=" w-[500px]  lg:w-[850px] "
+            className=" "
             // className=" opacity-30 filter grayscale absolute inset-0 ml-auto"
             alt="tree"
             src={'/platform.png'}
             width={850}
-            height={850}
+            height={490}
           />
         </div>
       </div>
