@@ -44,7 +44,7 @@ export default function RootLayout({
       >
         <Providers>
           <div className="h-screen w-screen ">
-            <div className="h-[7%] w-full flex items-center justify-center">
+            <div className="h-[5%] w-full flex items-center justify-center">
               <nav className="w-screen pt-[10px] px-[25px] h-[5%] flex justify-end items-center top-full">
                 <div className="w-3/6 flex justify-start items-center ">
                   <Link href="/">
@@ -72,7 +72,7 @@ export default function RootLayout({
                 </div>
               </nav>
             </div>
-            <div className="h-[93%] w-full flex flex-col items-center justify-evenly">
+            <div className="h-[95%] w-full flex flex-col items-center justify-evenly">
               {children}
               <Toaster />
             </div>

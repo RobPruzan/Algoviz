@@ -18,6 +18,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  // FOR CUSTOM SIGN IN PAGE WE WILL NEED
   // pages: {
   //   signIn: '/signin',
   // },
