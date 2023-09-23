@@ -151,7 +151,10 @@ const CanvasDisplay = ({
   const cursorImgRef = useRef<HTMLImageElement | null>(null);
   useEffect(() => {
     // putting a condition here of session.status === 'loading' still breaks even with the updated cleanup logic
-
+    if (process.env.NODE_ENV === 'production') {
+      // temporarily disable in prod
+      return;
+    }
     if (!playgroundID) return;
 
     dispatch({
