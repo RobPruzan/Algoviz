@@ -43,37 +43,39 @@ export default function RootLayout({
         )}
       >
         <Providers>
-          <div className="h-screen w-screen flex flex-col items-center justify-evenly">
-            {/* temporary padding */}
-            <nav className="w-screen pt-[10px] px-[25px] h-[5%] flex justify-end items-center mb-auto">
-              <div className="w-3/6 flex justify-start items-center ">
-                <Link href="/">
-                  <Button className="mr-2" variant="outline">
-                    Home
-                  </Button>
-                </Link>
+          <div className="h-screen w-screen ">
+            <div className="h-[7%] w-full flex items-center justify-center">
+              <nav className="w-screen pt-[10px] px-[25px] h-[5%] flex justify-end items-center top-full">
+                <div className="w-3/6 flex justify-start items-center ">
+                  <Link href="/">
+                    <Button className="mr-2" variant="outline">
+                      Home
+                    </Button>
+                  </Link>
 
-                <PlaygroundsButton />
-              </div>
-
-              <div className="w-2/6 " />
-
-              <div className="w-[60%] flex justify-end items-center">
-                <div className="mr-2">
-                  <ConnectedUsers />
+                  <PlaygroundsButton />
                 </div>
-                <ShareableLink />
-                <div className="mx-2">
-                  <ModeToggle />
-                </div>
-                <div className="ml-2">
-                  <SignInButton />
-                </div>
-              </div>
-            </nav>
 
-            {children}
-            <Toaster />
+                <div className="w-2/6 " />
+
+                <div className="w-[60%] flex justify-end items-center">
+                  <div className="mr-2">
+                    <ConnectedUsers />
+                  </div>
+                  <ShareableLink />
+                  <div className="mx-2">
+                    <ModeToggle />
+                  </div>
+                  <div className="ml-2">
+                    <SignInButton />
+                  </div>
+                </div>
+              </nav>
+            </div>
+            <div className="h-[93%] w-full flex flex-col items-center justify-evenly">
+              {children}
+              <Toaster />
+            </div>
           </div>
         </Providers>
       </body>

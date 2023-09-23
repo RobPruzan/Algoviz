@@ -39,7 +39,7 @@ export default function Home() {
     <>
       <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
         <div className="flex max-w-[980px] bg-opacity-60  flex-col items-start gap-2">
-          <h1 className="text-2xl   font-extrabold opacity-70 leading-tight tracking-tighter sm:text-4xl md:text-6xl lg:text-7xl">
+          <h1 className="text-2xl font-extrabold opacity-70 leading-tight tracking-tighter sm:text-4xl md:text-6xl lg:text-7xl">
             {'Take your algorithms to the next level'}
           </h1>
         </div>
