@@ -39,9 +39,6 @@ const playgroundUsers = new Map<string, (User | { id: string })[]>();
 // let mainId = '';
 
 io.on('connect', (socket) => {
-  console.log('a user connected (+1)', new Date().getUTCDay());
-  console.log('pg users', playgroundUsers);
-  // join room event
   socket.on(
     'join playground',
 
@@ -55,13 +52,12 @@ io.on('connect', (socket) => {
 
       playgroundUsers.set(
         playgroundID,
-        // (playgroundUsers.get(playgroundID) ?? 0) + 1
+
         [...(before_UsersInPlayground ?? []), user]
       );
 
       socket.join(playgroundID);
       const after_UsersInPlayground = playgroundUsers.get(playgroundID);
-      // console.log('calling ack with users: ', after_UsersInPlayground);
 
       acknowledgement(after_UsersInPlayground);
       socket.emit('user joined playground', user);
@@ -69,18 +65,12 @@ io.on('connect', (socket) => {
   );
 
   socket.on('action', (data: SocketAction) => {
-    console.log('sending to clients in room', playgroundUsers);
-    // const clientsInRoom = io.sockets.adapter.rooms.get(data.meta.playgroundID);
-    // console.log('Current users in the room:', Array.from(clientsInRoom ?? []));
     data.meta.fromServer = true;
-    // kinda confused to have action as 2 separate handlers should change
     socket.broadcast.to(data.meta.playgroundID).emit('action', data);
   });
 
   socket.on('disconnect', () => {
-    // playgroundUsers.set(mainId, (playgroundUsers.get(mainId) ?? 0) - 1);
-
-    console.log('user disconnected (-1)', new Date().getTime());
+    // #TODO
   });
 
   socket.on(

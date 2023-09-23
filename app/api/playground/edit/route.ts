@@ -14,7 +14,6 @@ export async function PUT(request: NextRequest) {
     });
 
   const json = await request.json();
-  console.log('request data', json);
 
   const jsonSchema = z.object({
     id: z.number(),
@@ -22,8 +21,6 @@ export async function PUT(request: NextRequest) {
   });
 
   const parsedJson = jsonSchema.safeParse(json);
-
-  console.log('parsed json', parsedJson);
 
   if (!parsedJson.success) {
     return NextResponse.json(null, {

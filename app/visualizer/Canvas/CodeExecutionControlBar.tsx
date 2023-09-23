@@ -219,27 +219,14 @@ const CodeExecutionControlBar = ({
         };
 
   useEffect(() => {
-    // console.log(
-    //   'running',
-    //   validatorLensContainer,
-    //   getAlgorithmsQuery.data?.filter((d) => d.type === AlgoType.Validator),
-    //   'vs',
-    //   validatorLensContainer.at(0)?.id
-    // );TaggedDrawTypes
-
     validatorLensContainer.forEach((lens) => {
       if (lens.selectedIds.length > 0) {
         const lensAlgo = getAlgorithmsQuery.data?.find(
           (d) => d.algoID === lens.algoID
         );
 
-        console.log('big l', lensAlgo);
-
         if (lensAlgo) {
-          console.log('got lens algo', lensAlgo);
           codeMutation.mutate({
-            // code: lensAlgo.code,
-            // algo: lensAlgo,
             language,
             algo: lensAlgo,
             type: AlgoType.Validator,
@@ -293,7 +280,7 @@ const CodeExecutionControlBar = ({
                         const algos = getAlgorithmsQuery.data ?? [];
                         dispatch(CodeExecActions.setSelectedAlgorithm(value));
                         const algo = algos.find((d) => d.id === value);
-                        console.log('algo dot lang', algo);
+
                         if (algo) {
                           setUserAlgorithm((prev) => ({
                             ...prev,

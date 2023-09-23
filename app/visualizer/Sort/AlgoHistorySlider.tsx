@@ -34,7 +34,6 @@ const AlgoHistorySlider = ({ show = false }: Props) => {
         onValueChange={(value) => {
           if (value.length !== 1) return;
           const [val] = value;
-          // console.log('slider val', value);
           dispatch(CodeExecActions.setVisualizationPointer(val));
         }}
         className="w-[85%]"

@@ -154,21 +154,12 @@ const undoableCanvasReducer = undoable(
         'update',
         'setSelectedAction',
       ];
-      // const debouncedCollabNames = ['setUserMousePosition'];
+
       const debouncedActionTypes = debounceReducerNames.map(
         (name) => `canvas/${name}`
       );
-      // const debouncedActionCollabNames = debouncedCollabNames.map(
-      //   (name) => `collaborationState/${name}`
-      // );
 
-      if (
-        debouncedActionTypes.includes(action.type)
-        // debouncedActionCollabNames.includes(action.type)
-      )
-        return false;
-      // console.log(Date.now(), state.lastUpdate, Date.now() - state.lastUpdate);
-      // return Date.now() - state.lastUpdate > 300;
+      if (debouncedActionTypes.includes(action.type)) return false;
       return true;
     },
   }

@@ -43,10 +43,6 @@ const ConnectedUsers = () => {
         playgroundID
       );
     }
-    // return () => {
-    //   console.log('cleanup');
-    //   dispatch(CollaborationActions.cleanupCollabInfo());
-    // };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collabInfoState.length]);
 

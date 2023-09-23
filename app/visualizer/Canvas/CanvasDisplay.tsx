@@ -161,7 +161,6 @@ const CanvasDisplay = ({
     // need to understand the problem with waiting for the session to load :/
     return () => {
       if (!playgroundID) return;
-      console.log('disconeccting');
       dispatch({
         type: 'socket/disconnect',
         meta,
@@ -467,7 +466,7 @@ const CanvasDisplay = ({
                   event.nativeEvent.offsetX - cameraCoordinate[0];
                 const mousePositionY =
                   event.nativeEvent.offsetY - cameraCoordinate[1];
-                console.log('THE SELECTED ACTION', selectedControlBarAction);
+
                 match(selectedControlBarAction)
                   .with({ tag: 'circle-toggle' }, () => {
                     handleAddCircle([mousePositionX, mousePositionY]);
@@ -479,7 +478,6 @@ const CanvasDisplay = ({
                     handleAddUndirectedEdge([mousePositionX, mousePositionY]);
                   })
                   .with({ tag: 'validator-lens-select' }, ({ state: id }) => {
-                    console.log(algos.data?.find((a) => a.algoID === id));
                     // we cant just trivially pass the crypto random, we need the uuid of what we just added
                     if (!id) {
                       throw new Error('something went wrong pal');
@@ -492,8 +490,7 @@ const CanvasDisplay = ({
                   })
                   // // remeber to add validator lens oops
                   .otherwise((action) => {
-                    console.log(action);
-                    console.log('unsupported action');
+                    //  #TODO
                   });
               }}
               style={{
@@ -583,7 +580,7 @@ const CanvasDisplay = ({
                       validatorLens.id === selectedValidatorLens.id
                   );
                   if (!validatorLens) return;
-                  console.log('setting selected algo to', validatorLens.algoID);
+
                   dispatch(
                     CodeExecActions.setSelectedAlgorithm(validatorLens.algoID)
                   );
@@ -594,7 +591,7 @@ const CanvasDisplay = ({
                   targetAlgo &&
                     run(() => {
                       setUserAlgorithm(targetAlgo);
-                      console.log('the target algo', targetAlgo);
+
                       setSelectedValidatorLens(null);
                     });
                 }}

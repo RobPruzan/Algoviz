@@ -14,7 +14,6 @@ export async function POST(request: Request) {
     algoID: z.string(),
   });
   const json = await request.json();
-  console.log('da json', json);
   const { code, title, description, type, algoID, language } =
     algoSchema.parse(json);
   const session = await getServerSession(authOptions);

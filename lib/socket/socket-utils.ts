@@ -38,16 +38,6 @@ export class SocketIO {
     );
   }
 
-  // handleSynchronizeObjectState() {
-  //   this.socket?.on(
-  //     'synchronize',
-  //     (state: ObjectState, dispatch: ReturnType<typeof useAppDispatch>) => {
-  //       console.log('synchronize', state);
-  //       dispatch(CanvasActions.synchronizeObjectState(state));
-  //     }
-  //   );
-  // }
-
   sendUpdate(
     state:
       | {

@@ -113,21 +113,17 @@ export function runJavascriptWithWorker(
       )
     );
 
-    // Handle messages from the worker
     worker.onmessage = function (e) {
       console.log('Main script received message:', e.data);
       resolve(e.data);
     };
 
-    // Handle errors from the worker
     worker.onerror = function (error) {
       console.error('Worker error:', error);
       reject(error);
     };
 
-    // Send a message to the worker
     console.log('Main script sending message to worker');
     worker.postMessage('Hello from main script!');
   });
-  // Create a new worker
 }

@@ -156,7 +156,6 @@ const CanvasControlBar = ({
                     className="w-full"
                     onClick={(e) => {
                       setItemChecked(algo.algoID);
-                      console.log(algo);
                       setSelectedControlBarAction({
                         tag: 'validator-lens-select',
                         state: algo.algoID,

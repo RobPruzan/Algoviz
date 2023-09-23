@@ -32,7 +32,6 @@ export async function POST(request: Request) {
       });
     }
   } catch (error) {
-    console.log('ahh', error);
     return NextResponse.json(null, { status: 400 });
   }
 }

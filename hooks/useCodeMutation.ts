@@ -11,6 +11,7 @@ import { useGetAlgorithmsQuery } from './useGetAlgorithmsQuery';
 import { CanvasActions, ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 import { useMeta } from '@/hooks/useMeta';
 import { Languages, runJavascriptWithWorker } from '@/lib/language-snippets';
+import _logger from 'next-auth/utils/logger';
 
 export const useCodeMutation = (onError?: (error: unknown) => any) => {
   const dispatch = useAppDispatch();
@@ -33,8 +34,6 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
     validatorLensContainer.some((lens) => lens.selectedIds.includes(circle.id))
   );
 
-  // const { meta } = useMeta(notSignedInUserId);
-
   const adjacencyList: Record<string, string[]> = [
     ...Graph.getAdjacencyList({
       edges: selectedAttachableLines.concat(selectedAttachableLinesThroughLens),
@@ -45,7 +44,6 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
   }, {});
   const codeMutation = useMutation({
     onError: (error) => {
-      console.log('code mutation errored');
       onError?.(error);
     },
     mutationFn: async ({
@@ -78,19 +76,13 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
 
       const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
       if (!url) Promise.reject();
-      console.log('the incoming type', type);
+
       const res = await axios.post(url, {
         code: algo.code,
         lang: language,
         type,
-        // globalVar: adjacencyList,
-        // startNode,
-        // endNode,
-        // needs to be json guh
         env: {
           ADJACENCY_LIST: JSON.stringify(adjacencyList),
-          // START_NODE: startNode,
-          // END_NODE: endNode,
         },
       });
 
@@ -113,50 +105,35 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
 
       const outputWithType = { type, ...res.data };
 
-      console.log('output with type, still in mutation fn', outputWithType);
       const parsedOutput = dataSchema.parse(outputWithType);
 
       return parsedOutput;
     },
-    // onError: (err) => {
-    //   console.error('wah wah', err);
-    // },
     onSuccess: (data, ctx) => {
-      console.log('got data to match', data);
       match(data)
         .with({ type: AlgoType.Validator }, ({ output, logs }) => {
           if (ctx.lens?.id) {
-            // this all fucking sucks and i cant think straight
-            // i need to remap all these actions so the state is in canvas
-            // then i need to map the result to each invidual lens
             dispatch(
               CanvasActions.setValidationVisualization({
                 id: ctx.lens.id,
-                // need to make sure at some point when i run code for validator i store a boolean
-                // so i can index it here :3
                 result: output,
               })
             );
           }
         })
         .with({ type: AlgoType.Visualizer }, ({ output, logs }) => {
-          console.log('visualizer output', output);
           dispatch(CodeExecActions.setVisitedVisualization(output));
         })
         .with({ type: 'error' }, (errorInfo) => {
-          console.log('matching error');
-          // dispatch(CodeExecActions.setError(error));
           dispatch(
             CodeExecActions.setError({
               logs: errorInfo.output.map((log) => JSON.stringify(log)),
-              // fix dis
               message: errorInfo.output.join(' '),
             })
           );
         })
-        .otherwise((_) => console.log('no match'));
-
-      // dispatch(CodeExecActions.setVisitedVisualization(data.exitValue));
+        // #TODO
+        .otherwise((_) => _);
     },
   });
 
