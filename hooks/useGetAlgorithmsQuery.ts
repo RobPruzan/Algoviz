@@ -1,3 +1,4 @@
+import { API_URL } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { z } from 'zod';
@@ -23,9 +24,7 @@ export const useGetAlgorithmsQuery = () =>
           z.literal('go'),
         ]),
       });
-      const res = (
-        await axios.get(`${process.env.NEXT_PUBLIC_API_ROUTE}/algo/getall`)
-      ).data;
+      const res = (await axios.get(`${API_URL}/algo/getall`)).data;
 
       return z.array(algorithmSchema).parse(res);
     },

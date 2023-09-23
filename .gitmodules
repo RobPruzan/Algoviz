@@ -1,0 +1,3 @@
+[submodule "remote-exec"]
+	path = remote-exec
+	url = git@github.com:RobPruzan/remote-exec.git

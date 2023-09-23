@@ -76,7 +76,7 @@ export function AlgoComboBox({
                     value === algo.id ? 'opacity-100' : 'opacity-0'
                   )}
                 />
-                {algo.title.slice(0, 8)}
+                {algo.title.slice(0, 15)}
               </CommandItem>
             ))}
           </CommandGroup>

@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { SerializedPlayground } from '@/lib/types';
-import { serializedPlaygroundSchema } from '@/lib/utils';
+import { API_URL, serializedPlaygroundSchema } from '@/lib/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ky from 'ky';
 import { Plus } from 'lucide-react';
@@ -16,9 +16,7 @@ const CreatePlayground = () => {
   const createPlaygroundMutation = useMutation({
     mutationFn: async () => {
       await queryClient.cancelQueries({ queryKey: ['todos'] });
-      const json = await ky
-        .post(`${process.env.NEXT_PUBLIC_API_ROUTE}/playground/create`)
-        .json();
+      const json = await ky.post(`${API_URL}/playground/create`).json();
 
       const resPlaygroundSchema = z.object({
         playground: serializedPlaygroundSchema,

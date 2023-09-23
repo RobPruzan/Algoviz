@@ -35,6 +35,8 @@ export const getNodeArray = (nodeRow: NodeMetadata[]) => {
   return arrays;
 };
 
+export const API_URL =
+  typeof window !== 'undefined' ? window.origin + '/api' : '';
 // export const algorithmsInfo: AlgorithmInfo[] = [
 //   {
 //     value: 'merge sort',
@@ -102,9 +104,7 @@ export const getPlaygrounds = async (): Promise<
     name: string;
   }[]
 > => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_ROUTE}/playground/get`
-  );
+  const res = await fetch(`${API_URL}/playground/get`);
   const json = await res.json();
 
   const parsedJson = z

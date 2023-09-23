@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import axios from 'axios';
+import { API_URL } from '@/lib/utils';
 type Props = {
   playground: {
     userId: string;
@@ -38,12 +39,9 @@ const Playground = ({ playground, ...props }: Props) => {
   const deletePlaygroundMutation = useMutation({
     mutationFn: async (playgroundId: number) => {
       const json = (
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_API_ROUTE}/playground/delete`,
-          {
-            id: playgroundId,
-          }
-        )
+        await axios.post(`${API_URL}/playground/delete`, {
+          id: playgroundId,
+        })
       ).data;
       const jsonSchema = z.object({
         playgroundId: z.number(),
@@ -69,13 +67,10 @@ const Playground = ({ playground, ...props }: Props) => {
       name: string;
     }) => {
       const playground = (
-        await axios.put(
-          `${process.env.NEXT_PUBLIC_API_ROUTE}/playground/edit`,
-          {
-            id: playgroundId,
-            name,
-          }
-        )
+        await axios.put(`${API_URL}/playground/edit`, {
+          id: playgroundId,
+          name,
+        })
       ).data;
 
       const playgroundSchema = z.object({

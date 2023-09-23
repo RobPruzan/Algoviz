@@ -22,7 +22,6 @@ const envSchema = z.object({
   POSTGRES_PASSWORD: z.string().optional(),
   POSTGRES_DATABASE: z.string().optional(),
   NEXT_PUBLIC_CODE_EXEC_URL: z.string(),
-  NEXT_PUBLIC_API_ROUTE: z.string(),
   SERVERLESS_EXEC_ROUTE: z.string().optional(),
   NEXT_PUBLIC_SOCKET_SERVER_URL: z.string(),
   IS_TAURI_BUILD: z.string(),

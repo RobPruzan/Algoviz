@@ -19,6 +19,7 @@ import { useMutation } from '@tanstack/react-query';
 import ky from 'ky';
 import { z } from 'zod';
 import { useSession } from 'next-auth/react';
+import { API_URL } from '@/lib/utils';
 const VISUALIZE_PATH = '/visualizer';
 
 const PERMISSIONS = ['EDIT', 'READ-ONLY'] as const;
@@ -38,15 +39,12 @@ const ShareableLink = () => {
   const generateLinkMutation = useMutation({
     mutationFn: async (permission: string) => {
       const json = await (
-        await ky.post(
-          `${process.env.NEXT_PUBLIC_API_ROUTE}/playground/link/create`,
-          {
-            json: {
-              permission,
-              roomId: searchParams.get('playground-id'),
-            },
-          }
-        )
+        await ky.post(`${API_URL}/playground/link/create`, {
+          json: {
+            permission,
+            roomId: searchParams.get('playground-id'),
+          },
+        })
       ).json();
       const urlSchema = z.object({
         url: z.string(),

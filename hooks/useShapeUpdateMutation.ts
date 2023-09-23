@@ -1,4 +1,5 @@
 import { CircleReceiver, Edge } from '@/lib/types';
+import { API_URL } from '@/lib/utils';
 import { useMutation } from '@tanstack/react-query';
 import ky from 'ky';
 import { useSearchParams } from 'next/navigation';
@@ -16,28 +17,22 @@ export const useShapeUpdateMutation = () => {
         return Promise.reject('No playground id');
       }
       if (shapes.circles) {
-        await ky.put(
-          `${process.env.NEXT_PUBLIC_API_ROUTE}/playground/shapes/update`,
-          {
-            json: {
-              circles: shapes.circles,
-              playgroundID: +playgroundID,
-              zoomAmount: shapes.zoomAmount,
-            },
-          }
-        );
+        await ky.put(`${API_URL}/playground/shapes/update`, {
+          json: {
+            circles: shapes.circles,
+            playgroundID: +playgroundID,
+            zoomAmount: shapes.zoomAmount,
+          },
+        });
       }
       if (shapes.lines) {
-        await ky.put(
-          `${process.env.NEXT_PUBLIC_API_ROUTE}/playground/shapes/update`,
-          {
-            json: {
-              lines: shapes.lines,
-              playgroundID: +playgroundID,
-              zoomAmount: shapes.zoomAmount,
-            },
-          }
-        );
+        await ky.put(`${API_URL}/playground/shapes/update`, {
+          json: {
+            lines: shapes.lines,
+            playgroundID: +playgroundID,
+            zoomAmount: shapes.zoomAmount,
+          },
+        });
       }
     },
   });

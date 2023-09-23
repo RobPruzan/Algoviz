@@ -28,6 +28,7 @@ import { useMeta } from '@/hooks/useMeta';
 import { useToast } from '@/components/ui/use-toast';
 import { Languages, languageSnippets } from '@/lib/language-snippets';
 import { useCodeMutation } from '@/hooks/useCodeMutation';
+import { AxiosError } from 'axios';
 type Props = {
   data: PickedPlayground | null;
 };
@@ -57,9 +58,17 @@ const ContentWrapper = ({ data }: Props) => {
   const [autoSelectAll, setAutoSelectAll] = useState(false);
 
   const codeMutation = useCodeMutation((error) => {
+    if (error instanceof AxiosError) {
+      return toast({
+        title: 'Error',
+        description: error.message,
+      });
+    }
+    const data = JSON.stringify(error);
+
     toast({
       title: 'Error',
-      description: JSON.stringify(error),
+      description: data,
     });
   });
 
