@@ -5,7 +5,7 @@ import React from 'react';
 const Loading = () => {
   // this does run need a sensible loading state
   return (
-    <div className=" text-6xl w-screen flex h-screen items-start justify-center px-[25px] py-[10px] ">
+    <div className=" text-6xl w-screen flex h-screen items-start justify-center px-[25px] py-[25px] ">
       <div className="h-[98%] w-full flex  ">
         <div className=" w-3/5 h-full rounded-none border-0 animate-pulse flex flex-col">
           <div className="border-2 h-[7%] w-full  border-b-0 rounded-none"></div>
