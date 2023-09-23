@@ -122,7 +122,7 @@ export const useCanvasMouseMove = ({
 
         if (
           isMouseDownRef.current &&
-          Date.now() - lastMouseDownTime.current > 500
+          Date.now() - lastMouseDownTime.current > 200
         ) {
           setSelectedControlBarAction(null);
         }
