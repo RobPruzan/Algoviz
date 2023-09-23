@@ -71,6 +71,7 @@ const ContentWrapper = ({ data }: Props) => {
       description: data,
     });
   });
+  const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
 
   const meta = useMeta();
 
@@ -149,6 +150,8 @@ const ContentWrapper = ({ data }: Props) => {
       rightDiv={
         <div className="w-full h-full border-2 border-secondary">
           <CodeExecutionControlBar
+            setTabValue={setTabValue}
+            tabValue={tabValue}
             autoSelectAll={autoSelectAll}
             setAutoSelectAll={setAutoSelectAll}
             userAlgorithm={userAlgorithm}
@@ -160,6 +163,8 @@ const ContentWrapper = ({ data }: Props) => {
             setLanguage={setLanguage}
           />
           <CodeExecution
+            setTabValue={setTabValue}
+            tabValue={tabValue}
             autoSelectAll={autoSelectAll}
             codeMutation={codeMutation}
             selectedValidatorLens={selectedValidatorLens}

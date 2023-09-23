@@ -71,6 +71,8 @@ type Props = {
   setOpenLanguageComboBox: Dispatch<SetStateAction<boolean>>;
   language: Languages;
   setLanguage: Dispatch<SetStateAction<Languages>>;
+  setTabValue: React.Dispatch<React.SetStateAction<'output' | 'input'>>;
+  tabValue: 'output' | 'input';
 };
 
 const startNodeAnnotation = ', startNode: NodeID';
@@ -156,6 +158,8 @@ const CodeExecutionControlBar = ({
   openLanguageComboBox,
   setLanguage,
   setOpenLanguageComboBox,
+  setTabValue,
+  tabValue,
 }: Props) => {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<AlgoType>(AlgoType.Visualizer);
@@ -409,6 +413,7 @@ const CodeExecutionControlBar = ({
                 return;
               }
               if (!selectedIds) {
+                setTabValue('output');
                 codeMutation.mutate({
                   type:
                     codeInfo.type === AlgoType.Validator
@@ -435,6 +440,7 @@ const CodeExecutionControlBar = ({
           </Button>
           <Button
             onClick={async (e) => {
+              setTabValue('output');
               await codeMutation.mutateAsync({
                 type: AlgoType.Visualizer,
                 algo: { code: codeInfo.code },

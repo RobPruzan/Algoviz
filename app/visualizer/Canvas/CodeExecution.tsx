@@ -56,6 +56,8 @@ type Props = {
   setOpenLanguageComboBox: Dispatch<SetStateAction<boolean>>;
   language: Languages;
   setLanguage: Dispatch<SetStateAction<Languages>>;
+  tabValue: 'output' | 'input';
+  setTabValue: Dispatch<SetStateAction<Props['tabValue']>>;
 };
 
 const CodeExecution = ({
@@ -67,6 +69,8 @@ const CodeExecution = ({
   openLanguageComboBox,
   selectedValidatorLens,
   setLanguage,
+  tabValue,
+  setTabValue,
 }: Props) => {
   const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
@@ -88,8 +92,6 @@ const CodeExecution = ({
     selectedGeometryInfo,
     validatorLensContainer,
   } = useAppSelector((store) => store.canvas.present);
-
-  const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
 
   const { selectedAttachableLines, selectedCircles } = getSelectedItems({
     attachableLines,
