@@ -99,6 +99,7 @@ const CanvasDisplay = ({
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
   const previousMousePositionRef = useRef<[number, number]>();
+  const lastMouseDownTime = useRef(0);
   const selectedGeometryInfo = useAppSelector(
     (store) => store.canvas.present.selectedGeometryInfo
   );
@@ -250,6 +251,7 @@ const CanvasDisplay = ({
     setSelectedCircleID,
     setSelectedValidatorLens,
     setSelectedResizeValidatorLensCircle,
+    lastMouseDownTime,
     meta,
   });
 
@@ -273,6 +275,8 @@ const CanvasDisplay = ({
     selectedValidatorLens,
     selectedResizeValidatorLensCircle,
     previousMousePositionRef,
+    setSelectedControlBarAction,
+    lastMouseDownTime,
   });
 
   const handleMouseUp = useHandleMouseUp({

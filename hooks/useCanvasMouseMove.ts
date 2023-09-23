@@ -41,6 +41,8 @@ type UseCanvasMouseMoveProps = {
   previousMousePositionRef: React.MutableRefObject<
     [number, number] | undefined
   >;
+  setSelectedControlBarAction: Dispatch<SetStateAction<TaggedDrawTypes | null>>;
+  lastMouseDownTime: React.MutableRefObject<number>;
 };
 
 export const useCanvasMouseMove = ({
@@ -55,6 +57,8 @@ export const useCanvasMouseMove = ({
   selectedResizeValidatorLensCircle,
   cameraCoordinate,
   previousMousePositionRef,
+  setSelectedControlBarAction,
+  lastMouseDownTime,
 }: UseCanvasMouseMoveProps) => {
   const {
     attachableLines,
@@ -115,8 +119,16 @@ export const useCanvasMouseMove = ({
           prevPos[0] - mousePositionX,
           prevPos[1] - mousePositionY,
         ];
+
+        if (
+          isMouseDownRef.current &&
+          Date.now() - lastMouseDownTime.current > 500
+        ) {
+          setSelectedControlBarAction(null);
+        }
         // this should be a case obviously just doing this for quick measures
         if (isSelectBoxSet && isMouseDownRef.current) {
+          console.log('yoo');
           // dispatch(CanvasActions.update());
 
           dispatch(

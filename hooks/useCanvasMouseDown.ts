@@ -40,6 +40,7 @@ type UseCanvasMouseDownParams = {
   setSelectedResizeValidatorLensCircle: React.Dispatch<
     React.SetStateAction<SelectedValidatorLensResizeCircle | null>
   >;
+  lastMouseDownTime: React.MutableRefObject<number>;
 };
 
 export const useCanvasMouseDown = ({
@@ -47,7 +48,7 @@ export const useCanvasMouseDown = ({
   setSelectedAttachableLine,
   meta,
   isMouseDownRef,
-
+  lastMouseDownTime,
   selectBox,
   setSelectBox,
   selectedControlBarAction,
@@ -96,6 +97,8 @@ export const useCanvasMouseDown = ({
       dispatch(CanvasActions.nullifySelectedGeometryInfo(undefined, meta));
       return;
     }
+
+    lastMouseDownTime.current = Date.now();
 
     // i hate this why am i doing this
 
