@@ -28,13 +28,14 @@ import Resizable from '../Resizeable';
 import { useTheme } from 'next-themes';
 
 import { Switch } from '@/components/ui/switch';
-import { Check } from 'lucide-react';
+import { Check, Loader } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { LanguageComboBox } from '../LanguageComboBox';
 import { Languages, languageSnippets } from '@/lib/language-snippets';
 import { useCodeMutation } from '@/hooks/useCodeMutation';
 import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
+import Loading from '../loading';
 
 type Props = {
   setUserAlgorithm: React.Dispatch<
@@ -104,36 +105,15 @@ const CodeExecution = ({
 
   const themeInfo = useTheme();
 
-  // const adjacencyList: Record<string, string[]> = [
-  //   ...Graph.getAdjacencyList({
-  //     edges: autoSelectAll ? attachableLines : selectedAttachableLines,
-  //     vertices: autoSelectAll ? circles : selectedCircles,
-  //   }).entries(),
-  // ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
-  //   return { ...prev, [id]: neighbors };
-  // }, {});
-
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
 
   const currentAlgorithm = getAlgorithmsQuery.data?.find(
     (d) => d.id === selectedAlgorithm
   );
 
-  // const code =
-  //   userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE &&
-  //   userAlgorithm.code !== currentAlgorithm?.code
-  //     ? userAlgorithm.code
-  //     : currentAlgorithm?.code ?? DEFAULT_VISUALIZATION_CODE;
   const code = userAlgorithm.code ? languageSnippets[language] : '';
 
   const execMode = useAppSelector((store) => store.codeExec.mode);
-  // const isValidatorLens = currentAlgorithm?.type === 'validator';
-  // const defaultCode = match(execMode)
-  //   .with('validator', () => DEFAULT_VALIDATOR_CODE)
-  //   .with('visualizer', () => DEFAULT_VISUALIZATION_CODE)
-  //   .exhaustive();
-
-  // const idx = 2;
 
   return (
     <div style={{ height: 'calc(100% - 60px)' }} className="w-full ">
@@ -255,46 +235,48 @@ const CodeExecution = ({
                     ))}
                   </>
                 ))
-                .with('output', () => (
-                  <div>
-                    {codeMutation.data?.type === 'Validator' ||
-                      (codeMutation.data?.type === 'Visualizer' && (
-                        <div className="flex flex-col items-start justify-start text-sm">
-                          {codeMutation.data.logs}
-                        </div>
-                      ))}
-                    {codeMutation.data?.type === 'Validator' ||
-                      (codeMutation.data?.type === 'Visualizer' &&
-                        codeMutation.data?.output.map((log) => (
-                          <div
-                            key={JSON.stringify(log)}
-                            className="flex items-center justify-start "
-                          >
-                            <div className="text-sm">{JSON.stringify(log)}</div>
+                .with('output', () =>
+                  codeMutation.isLoading ? (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Loader className="animate-spin" />
+                    </div>
+                  ) : (
+                    <div>
+                      {codeMutation.data?.type === 'Validator' ||
+                        (codeMutation.data?.type === 'Visualizer' && (
+                          <div className="flex flex-col items-start justify-start text-sm">
+                            {codeMutation.data.logs}
                           </div>
-                        )))}
-
-                    {codeMutation.data?.type === 'error' &&
-                      codeMutation.data.output.map((log) => (
-                        <>
-                          <div
-                            key={JSON.stringify(log)}
-                            className="flex items-center justify-start "
-                          >
-                            <div className="text-sm text-red-500">
-                              {JSON.stringify(log)}
-                            </div>
-                          </div>
-                        </>
-                      ))}
-
-                    {/* <div>
+                        ))}
                       {codeMutation.data?.type === 'Validator' ||
                         (codeMutation.data?.type === 'Visualizer' &&
-                          JSON.stringify(codeMutation.data.exitValue))}
-                    </div> */}
-                  </div>
-                ))
+                          codeMutation.data?.output.map((log) => (
+                            <div
+                              key={JSON.stringify(log)}
+                              className="flex items-center justify-start "
+                            >
+                              <div className="text-sm">
+                                {JSON.stringify(log)}
+                              </div>
+                            </div>
+                          )))}
+
+                      {codeMutation.data?.type === 'error' &&
+                        codeMutation.data.output.map((log) => (
+                          <>
+                            <div
+                              key={JSON.stringify(log)}
+                              className="flex items-center justify-start "
+                            >
+                              <div className="text-sm text-red-500">
+                                {JSON.stringify(log)}
+                              </div>
+                            </div>
+                          </>
+                        ))}
+                    </div>
+                  )
+                )
                 .run()}
             </div>
           </div>
