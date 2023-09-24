@@ -88,7 +88,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
 
       const dataSchema = z.union([
         z.object({
-          output: z.array(z.array(z.string())),
+          output: z.union([z.array(z.array(z.string())), z.array(z.string())]),
           logs: z.string(),
           type: z.literal(AlgoType.Visualizer),
         }),
@@ -103,11 +103,39 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         }),
       ]);
 
+      type AlteredOutputUnion =
+        | {
+            output: Array<Array<string>>;
+            logs: string;
+            type: AlgoType.Visualizer;
+          }
+        | {
+            output: boolean;
+            logs: string;
+            type: AlgoType.Validator;
+          }
+        | {
+            output: Array<string>;
+
+            type: 'error';
+          };
+
       const outputWithType = { type, ...res.data };
+      console.log('oyoy', outputWithType);
 
       const parsedOutput = dataSchema.parse(outputWithType);
 
-      return parsedOutput;
+      const unFlatten =
+        parsedOutput.type === AlgoType.Visualizer
+          ? {
+              ...parsedOutput,
+              output: (
+                parsedOutput.output as Array<any> | null | undefined
+              )?.map((o) => (o instanceof Array ? o : [o])),
+            }
+          : parsedOutput;
+
+      return unFlatten as AlteredOutputUnion;
     },
     onSuccess: (data, ctx) => {
       match(data)
