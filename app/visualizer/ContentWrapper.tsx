@@ -55,7 +55,7 @@ const ContentWrapper = ({ data }: Props) => {
   });
 
   const { toast } = useToast();
-  const [autoSelectAll, setAutoSelectAll] = useState(false);
+  const [autoSelectAll, setAutoSelectAll] = useState(true);
 
   const codeMutation = useCodeMutation((error) => {
     if (error instanceof AxiosError) {

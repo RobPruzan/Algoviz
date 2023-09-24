@@ -12,6 +12,7 @@ import { CanvasActions, ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 import { useMeta } from '@/hooks/useMeta';
 import { Languages, runJavascriptWithWorker } from '@/lib/language-snippets';
 import _logger from 'next-auth/utils/logger';
+import { useState } from 'react';
 
 export const useCodeMutation = (onError?: (error: unknown) => any) => {
   const dispatch = useAppDispatch();
@@ -27,21 +28,32 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
     selectedGeometryInfo,
   });
 
-  const selectedAttachableLinesThroughLens = attachableLines.filter((line) =>
-    validatorLensContainer.some((lens) => lens.selectedIds.includes(line.id))
-  );
-  const selectedCirclesThroughLens = circles.filter((circle) =>
-    validatorLensContainer.some((lens) => lens.selectedIds.includes(circle.id))
-  );
+  const selectedAttachableLinesThroughLens = (selectAll: boolean) =>
+    attachableLines.filter((line) =>
+      validatorLensContainer.some((lens) =>
+        selectAll ? lens : lens.selectedIds.includes(line.id)
+      )
+    );
+  const selectedCirclesThroughLens = (selectAll: boolean) =>
+    circles.filter((circle) =>
+      validatorLensContainer.some((lens) =>
+        selectAll ? lens : lens.selectedIds.includes(circle.id)
+      )
+    );
 
-  const adjacencyList: Record<string, string[]> = [
-    ...Graph.getAdjacencyList({
-      edges: selectedAttachableLines.concat(selectedAttachableLinesThroughLens),
-      vertices: selectedCircles.concat(selectedCirclesThroughLens),
-    }).entries(),
-  ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
-    return { ...prev, [id]: neighbors };
-  }, {});
+  const getAdjacenyList: (selectAll: boolean) => Record<string, string[]> = (
+    selectAll: boolean
+  ) =>
+    [
+      ...Graph.getAdjacencyList({
+        edges: selectedAttachableLines.concat(
+          selectedAttachableLinesThroughLens(selectAll)
+        ),
+        vertices: selectedCircles.concat(selectedCirclesThroughLens(selectAll)),
+      }).entries(),
+    ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
+      return { ...prev, [id]: neighbors };
+    }, {});
   const codeMutation = useMutation({
     onError: (error) => {
       onError?.(error);
@@ -52,6 +64,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       endNode,
       startNode,
       language,
+      selectAll,
     }: {
       algo: Pick<
         ArrayItem<ReturnType<typeof useGetAlgorithmsQuery>['data']>,
@@ -60,6 +73,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
 
       type: AlgoType;
       language: Languages;
+      selectAll: boolean;
       lens?: ValidatorLensInfo;
       startNode: string | null;
       endNode: string | null;
@@ -68,7 +82,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         try {
           const result = await runJavascriptWithWorker(
             algo.code,
-            adjacencyList
+            getAdjacenyList(selectAll)
           );
         } catch (error) {}
         return;
@@ -82,7 +96,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         lang: language,
         type,
         env: {
-          ADJACENCY_LIST: JSON.stringify(adjacencyList),
+          ADJACENCY_LIST: JSON.stringify(getAdjacenyList(selectAll)),
         },
       });
 

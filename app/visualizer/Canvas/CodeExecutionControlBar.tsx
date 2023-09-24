@@ -54,27 +54,6 @@ import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 import { useSaveAlgorithmMutation } from '@/hooks/useSaveAlgorithmMutation';
 import { AlgoComboBox } from '../Sort/AlgoComboBox';
 
-type Props = {
-  userAlgorithm: Pick<
-    Algorithm,
-    'title' | 'code' | 'description' | 'type' | 'language'
-  >;
-  setUserAlgorithm: React.Dispatch<
-    React.SetStateAction<
-      Pick<Algorithm, 'title' | 'code' | 'description' | 'type' | 'language'>
-    >
-  >;
-  codeMutation: ReturnType<typeof useCodeMutation>;
-  autoSelectAll: boolean;
-  setAutoSelectAll: Dispatch<SetStateAction<boolean>>;
-  openLanguageComboBox: boolean;
-  setOpenLanguageComboBox: Dispatch<SetStateAction<boolean>>;
-  language: Languages;
-  setLanguage: Dispatch<SetStateAction<Languages>>;
-  setTabValue: React.Dispatch<React.SetStateAction<'output' | 'input'>>;
-  tabValue: 'output' | 'input';
-};
-
 const startNodeAnnotation = ', startNode: NodeID';
 const endNodeAnnotation = ', endNode: NodeID';
 
@@ -146,6 +125,26 @@ const parseCodeAndAddParameters = ({
   newCode += code[pointer];
 
   return newCode;
+};
+type Props = {
+  userAlgorithm: Pick<
+    Algorithm,
+    'title' | 'code' | 'description' | 'type' | 'language'
+  >;
+  setUserAlgorithm: React.Dispatch<
+    React.SetStateAction<
+      Pick<Algorithm, 'title' | 'code' | 'description' | 'type' | 'language'>
+    >
+  >;
+  codeMutation: ReturnType<typeof useCodeMutation>;
+  autoSelectAll: boolean;
+  setAutoSelectAll: Dispatch<SetStateAction<boolean>>;
+  openLanguageComboBox: boolean;
+  setOpenLanguageComboBox: Dispatch<SetStateAction<boolean>>;
+  language: Languages;
+  setLanguage: Dispatch<SetStateAction<Languages>>;
+  setTabValue: React.Dispatch<React.SetStateAction<'output' | 'input'>>;
+  tabValue: 'output' | 'input';
 };
 
 const CodeExecutionControlBar = ({
@@ -237,6 +236,7 @@ const CodeExecutionControlBar = ({
             lens,
             startNode,
             endNode,
+            selectAll: autoSelectAll,
           });
         } else {
         }
@@ -380,13 +380,6 @@ const CodeExecutionControlBar = ({
           <LanguageComboBox
             open={openLanguageComboBox}
             setOpen={setOpenLanguageComboBox}
-            // setValue={(val) => {
-            // setUserAlgorithm((prev) => ({
-            //   ...prev,
-            //   code: languageSnippets[val],
-            // }));
-            // setLanguage(val);
-            // }}
             onSelect={(currentValue) => {
               setLanguage(
                 currentValue === language
@@ -421,7 +414,7 @@ const CodeExecutionControlBar = ({
                       : AlgoType.Visualizer,
                   algo: { code: codeInfo.code },
                   language,
-
+                  selectAll: autoSelectAll,
                   endNode,
                   startNode,
                 });
@@ -447,6 +440,7 @@ const CodeExecutionControlBar = ({
                 endNode,
                 startNode,
                 language,
+                selectAll: autoSelectAll,
               });
               dispatch(CodeExecActions.toggleIsApplyingAlgorithm());
             }}
