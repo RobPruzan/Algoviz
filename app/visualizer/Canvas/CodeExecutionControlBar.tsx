@@ -136,7 +136,7 @@ type Props = {
       Pick<Algorithm, 'title' | 'code' | 'description' | 'type' | 'language'>
     >
   >;
-  codeMutation: ReturnType<typeof useCodeMutation>;
+  codeMutation: ReturnType<typeof useCodeMutation>['codeMutation'];
   autoSelectAll: boolean;
   setAutoSelectAll: Dispatch<SetStateAction<boolean>>;
   openLanguageComboBox: boolean;

@@ -50,7 +50,7 @@ type Props = {
     React.SetStateAction<SelectedValidatorLens | null>
   >;
   selectedValidatorLens: SelectedValidatorLens | null;
-  codeMutation: ReturnType<typeof useCodeMutation>;
+  codeMutation: ReturnType<typeof useCodeMutation>['codeMutation'];
   autoSelectAll: boolean;
   openLanguageComboBox: boolean;
   setOpenLanguageComboBox: Dispatch<SetStateAction<boolean>>;
@@ -58,6 +58,7 @@ type Props = {
   setLanguage: Dispatch<SetStateAction<Languages>>;
   tabValue: 'output' | 'input';
   setTabValue: Dispatch<SetStateAction<Props['tabValue']>>;
+  adjacencyList: Record<string, string[]>;
 };
 
 const CodeExecution = ({
@@ -71,12 +72,14 @@ const CodeExecution = ({
   setLanguage,
   tabValue,
   setTabValue,
+  adjacencyList,
 }: Props) => {
   const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
-    '40%'
+    // to really fix this need to do it in the css with a calc minus for the h-10 and padding
+    '37.5%'
   );
-
+  console.log('da adj list', adjacencyList);
   const ioPanelRef = useRef<ElementRef<'div'>>(null);
 
   const width = ioPanelRef.current?.offsetWidth;
@@ -101,14 +104,14 @@ const CodeExecution = ({
 
   const themeInfo = useTheme();
 
-  const adjacencyList: Record<string, string[]> = [
-    ...Graph.getAdjacencyList({
-      edges: autoSelectAll ? attachableLines : selectedAttachableLines,
-      vertices: autoSelectAll ? circles : selectedCircles,
-    }).entries(),
-  ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
-    return { ...prev, [id]: neighbors };
-  }, {});
+  // const adjacencyList: Record<string, string[]> = [
+  //   ...Graph.getAdjacencyList({
+  //     edges: autoSelectAll ? attachableLines : selectedAttachableLines,
+  //     vertices: autoSelectAll ? circles : selectedCircles,
+  //   }).entries(),
+  // ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
+  //   return { ...prev, [id]: neighbors };
+  // }, {});
 
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
 

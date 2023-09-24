@@ -57,7 +57,7 @@ const ContentWrapper = ({ data }: Props) => {
   const { toast } = useToast();
   const [autoSelectAll, setAutoSelectAll] = useState(true);
 
-  const codeMutation = useCodeMutation((error) => {
+  const { codeMutation, getAdjacenyList } = useCodeMutation((error) => {
     if (error instanceof AxiosError) {
       return toast({
         title: 'Error',
@@ -163,6 +163,7 @@ const ContentWrapper = ({ data }: Props) => {
             setLanguage={setLanguage}
           />
           <CodeExecution
+            adjacencyList={getAdjacenyList(autoSelectAll)}
             setTabValue={setTabValue}
             tabValue={tabValue}
             autoSelectAll={autoSelectAll}

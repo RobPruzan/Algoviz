@@ -28,18 +28,24 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
     selectedGeometryInfo,
   });
 
-  const selectedAttachableLinesThroughLens = (selectAll: boolean) =>
-    attachableLines.filter((line) =>
-      validatorLensContainer.some((lens) =>
-        selectAll ? lens : lens.selectedIds.includes(line.id)
-      )
-    );
+  const selectedAttachableLinesThroughLens = (selectAll: boolean) => {
+    console.log('sa', selectAll);
+    return selectAll
+      ? attachableLines
+      : attachableLines.filter((line) =>
+          validatorLensContainer.some((lens) =>
+            lens.selectedIds.includes(line.id)
+          )
+        );
+  };
   const selectedCirclesThroughLens = (selectAll: boolean) =>
-    circles.filter((circle) =>
-      validatorLensContainer.some((lens) =>
-        selectAll ? lens : lens.selectedIds.includes(circle.id)
-      )
-    );
+    selectAll
+      ? circles
+      : circles.filter((circle) =>
+          validatorLensContainer.some((lens) =>
+            lens.selectedIds.includes(circle.id)
+          )
+        );
 
   const getAdjacenyList: (selectAll: boolean) => Record<string, string[]> = (
     selectAll: boolean
@@ -179,5 +185,5 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
     },
   });
 
-  return codeMutation;
+  return { codeMutation, getAdjacenyList };
 };
