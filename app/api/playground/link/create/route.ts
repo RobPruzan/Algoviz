@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 
 const jwtSecret = process.env.NEXTAUTH_SECRET;
 
-function generateRoomUrl(roomId: string, permission: string) {
+function generateRoomUrl(roomId: string, permission: string, headers: Headers) {
   // generates encrypted JWT
   const payload = {
     roomId,
@@ -16,7 +16,11 @@ function generateRoomUrl(roomId: string, permission: string) {
 
   const token = jwt.sign(payload, jwtSecret);
 
-  return `${process.env.NEXTAUTH_URL}/visualizer?playground-id=${roomId}&share-id=${token}`;
+  return `${
+    process.env.NODE_ENV === 'production' ? 'https' : 'http'
+  }://${headers.get(
+    'host'
+  )}/visualizer?playground-id=${roomId}&share-id=${token}`;
 }
 
 export async function POST(request: Request) {
@@ -29,8 +33,8 @@ export async function POST(request: Request) {
 
   const json = await request.json();
   const { roomId, permission } = json;
-
-  const url = generateRoomUrl(roomId, permission);
+  console.log('the host', request.headers.get('host'));
+  const url = generateRoomUrl(roomId, permission, request.headers);
   return NextResponse.json({
     url,
     status: 200,
