@@ -108,4 +108,6 @@ export class SocketIO {
 }
 
 // #TODO make this an env var
-export const socketManager = new SocketIO('http://localhost:8080');
+export const socketManager = new SocketIO(
+  'https://express-server-production-06b3.up.railway.app/'
+);
