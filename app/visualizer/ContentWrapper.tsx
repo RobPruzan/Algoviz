@@ -29,6 +29,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Languages, languageSnippets } from '@/lib/language-snippets';
 import { useCodeMutation } from '@/hooks/useCodeMutation';
 import { AxiosError } from 'axios';
+import { useIsGodMode } from '@/hooks/isGodMode';
 type Props = {
   data: PickedPlayground | null;
 };
@@ -55,7 +56,8 @@ const ContentWrapper = ({ data }: Props) => {
   });
 
   const { toast } = useToast();
-  const [autoSelectAll, setAutoSelectAll] = useState(true);
+  const isGodMode = useIsGodMode();
+  const [autoSelectAll, setAutoSelectAll] = useState(!isGodMode);
 
   const { codeMutation, getAdjacenyList } = useCodeMutation((error) => {
     if (error instanceof AxiosError) {
