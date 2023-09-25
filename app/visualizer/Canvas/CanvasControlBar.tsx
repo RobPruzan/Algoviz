@@ -17,7 +17,14 @@ import {
 } from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
-import { ChevronDown, CircleDot, RedoIcon, Trash, Undo } from 'lucide-react';
+import {
+  ChevronDown,
+  CircleDot,
+  Loader,
+  RedoIcon,
+  Trash,
+  Undo,
+} from 'lucide-react';
 import React, { Dispatch, SetStateAction, useContext, useState } from 'react';
 import { DirectedEdgeIcon } from '@/components/icons/DirectedEdge';
 import { UndirectedEdgeIcon } from '@/components/icons/UndirectedEdge';
@@ -259,6 +266,8 @@ const CanvasControlBar = ({
                 </DropdownMenuItem>
               </div>
             ))}
+
+            {getPresetsQuery.isLoading && <Loader className="animate-spin" />}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
