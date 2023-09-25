@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 export async function POST(request: Request) {
-  const url = process.env.SERVERLESS_EXEC_ROUTE;
+  const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
   const globalVarSchema = z.record(z.array(z.string()));
   const codeSchema = z.object({
     code: z.string(),

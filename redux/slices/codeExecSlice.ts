@@ -39,6 +39,9 @@ const codeExecSlice = createSlice({
   name: 'codeExec',
   initialState,
   reducers: {
+    cleanUp: (state) => {
+      return initialState;
+    },
     setVisualizationPointer: (state, action: PayloadAction<number>) => {
       if (
         action.payload >= 0 &&

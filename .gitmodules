@@ -1,3 +1,6 @@
 [submodule "remote-exec"]
 	path = remote-exec
 	url = git@github.com:RobPruzan/remote-exec.git
+[submodule "playground-sockets"]
+	path = playground-sockets
+	url = git@github.com:RobPruzan/playground-sockets.git

@@ -227,16 +227,14 @@ const CanvasDisplay = ({
     selectedGeometryInfo,
   });
 
-  const adjacencyList: Record<string, string[]> = [
-    ...Graph.getAdjacencyList({
-      edges: selectedAttachableLines,
-      vertices: selectedCircles,
-    }).entries(),
-  ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
-    return { ...prev, [id]: neighbors };
-  }, {});
-
   const algos = useGetAlgorithmsQuery();
+
+  useEffect(
+    () => () => {
+      dispatch(CodeExecActions.cleanUp());
+    },
+    [dispatch]
+  );
 
   useClearCanvasState(meta);
 
