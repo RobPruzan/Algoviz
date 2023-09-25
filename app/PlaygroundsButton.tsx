@@ -2,15 +2,18 @@
 import { Button } from '@/components/ui/button';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import React from 'react';
+import React, { ComponentProps } from 'react';
+import { twMerge } from 'tailwind-merge';
 
-type Props = {};
+type Props = {
+  className?: string;
+};
 
-const PlaygroundsButton = (props: Props) => {
+const PlaygroundsButton = ({ className }: Props) => {
   const session = useSession();
   return session.status === 'authenticated' ? (
     <Link href="/create">
-      <Button className="mx-2" variant="outline">
+      <Button className={twMerge(['mx-2', className])} variant="outline">
         Playgrounds
       </Button>
     </Link>

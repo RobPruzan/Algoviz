@@ -8,7 +8,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import { AlgoType, DrawTypes, TaggedDrawTypes } from '@/lib/types';
+import {
+  AlgoType,
+  CircleReceiver,
+  DrawTypes,
+  Edge,
+  TaggedDrawTypes,
+} from '@/lib/types';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { ChevronDown, CircleDot, RedoIcon, Trash, Undo } from 'lucide-react';
@@ -23,28 +29,28 @@ import { useAddGeometry } from '@/hooks/useAddGeomotry';
 import { CanvasContext } from '@/context/CanvasContext';
 import { useCanvasRef } from '@/hooks/useCanvasRef';
 import { run, twCond } from '@/lib/utils';
+import { useGetPresets } from '@/hooks/useGetPresets';
+import { useMeta } from '@/hooks/useMeta';
 
 type Props = {
   setSelectedControlBarAction: Dispatch<SetStateAction<TaggedDrawTypes | null>>;
   selectedControlBarAction: TaggedDrawTypes | null;
 };
-const DEFAULT_SELECT_ITEMS_LEFT = 1;
+
 const CanvasControlBar = ({
   setSelectedControlBarAction,
   selectedControlBarAction,
 }: Props) => {
   const visualization = useAppSelector((store) => store.codeExec.visualization);
-  // const { cameraCoordinate, currentZoomFactor } = useAppSelector(
-  //   (store) => store.canvas.present
-  // );
-
-  // const canvasRef = useCanvasRef();
+  const getPresetsQuery = useGetPresets();
 
   const [itemChecked, setItemChecked] = useState<null | string>(null);
   const dispatch = useAppDispatch();
-
+  const currentZoomFactor = useAppSelector(
+    (store) => store.canvas.present.currentZoomFactor
+  );
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
-
+  const meta = useMeta();
   const { handleAddValidatorLens } = useAddGeometry();
   return (
     <>
@@ -176,7 +182,7 @@ const CanvasControlBar = ({
             <ChevronDown size={20} />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {[BINARY_SEARCH_TREE].map((preset) => (
+            {getPresetsQuery.data?.presets.map((preset) => (
               <div
                 key={preset.type}
                 className="flex items-center justify-end p-0 "
@@ -184,11 +190,72 @@ const CanvasControlBar = ({
                 <DropdownMenuItem
                   className="w-full"
                   onClick={() => {
-                    // add meta later
-                    dispatch(CanvasActions.addPreset(preset));
+                    const offset = String(Date.now());
+                    const newZoom = preset.zoomAmount * currentZoomFactor;
+                    // need to do a mouse centered zoom on the coordinates for that to work
+                    // everything also needs to be integrated to the selected item flow, get the mouse pos, mouse center zoom every single item and then place, no other odd scaling. Works for the circle, doesn't work for the line since before we just hardcoded it
+                    dispatch(
+                      CanvasActions.addPreset(
+                        {
+                          type: preset.type,
+                          // offset mapping is necessary to allow multiple presets to be made in the same playground
+                          attachableLines: (preset.lines as Edge[]).map(
+                            (line) => ({
+                              ...line,
+                              id: line.id + offset,
+                              // x1: line.x1 * newZoom,
+                              // x2: line.x2 * newZoom,
+                              // y1: line.y1 * newZoom,
+                              // y2: line.y2 * newZoom,
+                              width: line.width * newZoom,
+                              attachNodeOne: {
+                                ...line.attachNodeOne,
+                                // center: [
+                                //   line.attachNodeOne.center[0] * newZoom,
+                                //   line.attachNodeOne.center[1] * newZoom,
+                                // ],
+                                id: line.attachNodeOne.id + offset,
+                                radius: line.attachNodeOne.radius * newZoom,
+                                connectedToId:
+                                  line.attachNodeOne.connectedToId + offset,
+                              },
+                              attachNodeTwo: {
+                                ...line.attachNodeTwo,
+                                // center: [
+                                //   line.attachNodeTwo.center[0] * newZoom,
+                                //   line.attachNodeTwo.center[1] * newZoom,
+                                // ],
+                                radius: line.attachNodeTwo.radius * newZoom,
+                                id: line.attachNodeTwo.id + offset,
+                                connectedToId:
+                                  line.attachNodeTwo.connectedToId + offset,
+                              },
+                            })
+                          ),
+                          circles: (preset.circles as CircleReceiver[]).map(
+                            (circle) => ({
+                              ...circle,
+                              id: circle.id + offset,
+
+                              radius: circle.radius * newZoom,
+                              nodeReceiver: {
+                                ...circle.nodeReceiver,
+                                radius: circle.nodeReceiver.radius * newZoom,
+                                id: circle.nodeReceiver.id + offset,
+                                attachedIds:
+                                  circle.nodeReceiver.attachedIds.map(
+                                    (nrID: string) => nrID + offset
+                                  ),
+                              },
+                            })
+                          ),
+                        },
+                        meta
+                      )
+                    );
                   }}
                 >
-                  {preset.type}
+                  {preset.name}
                 </DropdownMenuItem>
               </div>
             ))}

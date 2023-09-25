@@ -11,7 +11,8 @@
     "roomid",
     "signin",
     "undoable",
-    "unselectable"
+    "unselectable",
+    "yoinked"
   ],
   "typescript.tsdk": "node_modules/typescript/lib"
 }

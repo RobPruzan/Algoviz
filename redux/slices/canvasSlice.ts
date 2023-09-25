@@ -121,21 +121,38 @@ const canvasSlice = createSlice({
     update: (state) => {
       state.lastUpdate = Date.now();
     },
-    addPreset: (
-      state,
-      action: PayloadAction<{
-        circles: CircleReceiver[];
-        attachableLines: Edge[];
-        type: string;
-        // realCenter: [number, number];
-      }>
-    ) => {
+    addPreset: withCanvasMeta<{
+      circles: CircleReceiver[];
+      attachableLines: Edge[];
+      type: string;
+      // realCenter: [number, number];
+    }>((state, action) => {
       // const zoomedAttachableLines = action.payload.attachableLines.map(line => {
       //   const zoomedLine = Draw.zooj
       // })
+      const idMap = new Map<string, string>();
+      // action.payload.attachableLines.map(edge => ({
+      //   ...edge,
+      // id: crypto.ra}))
+
       state.attachableLines.push(...action.payload.attachableLines);
       state.circles.push(...action.payload.circles);
-    },
+    }),
+    // addPreset: (
+    //   state,
+    //   action: PayloadAction<{
+    //     circles: CircleReceiver[];
+    //     attachableLines: Edge[];
+    //     type: string;
+    //     // realCenter: [number, number];
+    //   }>
+    // ) => {
+    //   // const zoomedAttachableLines = action.payload.attachableLines.map(line => {
+    //   //   const zoomedLine = Draw.zooj
+    //   // })
+    //   state.attachableLines.push(...action.payload.attachableLines);
+    //   state.circles.push(...action.payload.circles);
+    // },
     synchronizeObjectState: (
       state,
       action: PayloadAction<{

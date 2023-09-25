@@ -33,7 +33,6 @@ export async function POST(request: Request) {
 
   const json = await request.json();
   const { roomId, permission } = json;
-  console.log('the host', request.headers.get('host'));
   const url = generateRoomUrl(roomId, permission, request.headers);
   return NextResponse.json({
     url,

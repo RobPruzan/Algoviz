@@ -21,6 +21,7 @@ import { Toaster } from '@/components/ui/toaster';
 import ConnectedUsers from './ConnectedUsers';
 import { CanvasContext } from '@/context/CanvasContext';
 import { Providers } from './Providers';
+import AdminNav from '@/components/AdminNav';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -54,6 +55,7 @@ export default function RootLayout({
                   </Link>
 
                   <PlaygroundsButton />
+                  <AdminNav className="mx-2" />
                 </div>
 
                 <div className="w-2/6 " />

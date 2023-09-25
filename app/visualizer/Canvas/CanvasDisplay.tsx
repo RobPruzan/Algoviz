@@ -64,6 +64,13 @@ import { useServerUpdateShapes } from '@/hooks/useServerUpdateShapes';
 import { useAddGeometry } from '@/hooks/useAddGeomotry';
 import { useCanvasRef } from '@/hooks/useCanvasRef';
 import { Algorithm } from '@prisma/client';
+import { useIsGodMode } from '@/hooks/isGodMode';
+import {
+  PresetType,
+  useSaveAsPresetMutation,
+} from '@/hooks/useSaveAsPresetMutation';
+import { useGetSelectedItems } from '@/hooks/useGetSelectedItems';
+import { useGetPresets } from '@/hooks/useGetPresets';
 export type Props = {
   selectedControlBarAction: TaggedDrawTypes | null;
   setSelectedControlBarAction: Dispatch<SetStateAction<TaggedDrawTypes | null>>;
@@ -100,6 +107,7 @@ const CanvasDisplay = ({
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
   const previousMousePositionRef = useRef<[number, number]>();
   const lastMouseDownTime = useRef(0);
+  const [presetName, setPresetName] = useState('');
   const selectedGeometryInfo = useAppSelector(
     (store) => store.canvas.present.selectedGeometryInfo
   );
@@ -137,8 +145,9 @@ const CanvasDisplay = ({
   const playgroundID = searchParams.get('playground-id');
 
   const userID = session.data?.user.id ?? notSignedInUserID;
-
-  const isInitialized = !!playgroundID && session.status !== 'loading';
+  const saveAsPresetMutation = useSaveAsPresetMutation();
+  const selectedValues = useGetSelectedItems();
+  const isGodMode = useIsGodMode();
 
   const baseMeta = useMeta();
   const meta: Meta = {
@@ -223,6 +232,8 @@ const CanvasDisplay = ({
     circles,
     selectedGeometryInfo,
   });
+
+  const getPresetsQuery = useGetPresets();
 
   const algos = useGetAlgorithmsQuery();
 
@@ -602,7 +613,6 @@ const CanvasDisplay = ({
                 Show code
               </ContextMenuItem>
             )}
-
             <ContextMenuItem
               onClick={() => {
                 if (selectedCircleID) {
@@ -626,29 +636,42 @@ const CanvasDisplay = ({
               Set as ending node
             </ContextMenuItem>
 
-            <ContextMenuSub>
-              <ContextMenuSubTrigger inset>Algorithms</ContextMenuSubTrigger>
-              <ContextMenuSubContent className=" ">
-                {/* <Command>
-                  <CommandInput placeholder="Search Sorting Algorithm..." />
-                  <CommandEmpty>No algorithm found.</CommandEmpty>
-                  <CommandGroup>
-                    {algorithmsInfo.map((framework) => (
-                      <CommandItem
-                        key={framework.value}
-                        onSelect={(currentValue) => {}}
-                      >
-                   
-                        {framework.label}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command> */}
-                <Button className="bg-secondary mt-3 ring-0 hover: hover:border-2 hover:border-secondary w-full">
-                  Apply algorithm
-                </Button>
-              </ContextMenuSubContent>
-            </ContextMenuSub>
+            {isGodMode && (
+              <ContextMenuSub>
+                <ContextMenuSubTrigger inset>Save Preset</ContextMenuSubTrigger>
+                <ContextMenuSubContent className=" ">
+                  <Command>
+                    <CommandInput
+                      onValueChange={(v) => {
+                        setPresetName(v);
+                      }}
+                      placeholder="Name"
+                    />
+                  </Command>
+                  <Button
+                    onClick={() => {
+                      saveAsPresetMutation.mutate({
+                        name: presetName,
+                        shapes: {
+                          circles: selectedValues.selectedCircles,
+                          lines: selectedValues.selectedAttachableLines,
+                          zoomAmount: currentZoomFactor,
+                        },
+                        typeData: {
+                          type: PresetType.DataStructure,
+                        },
+                      });
+                      getPresetsQuery.refetch();
+                    }}
+                    className="bg-secondary mt-3 ring-0 hover: hover:border-2 hover:border-secondary w-full"
+                  >
+                    {saveAsPresetMutation.isLoading
+                      ? 'Save Preset'
+                      : 'Saving ...'}
+                  </Button>
+                </ContextMenuSubContent>
+              </ContextMenuSub>
+            )}
           </ContextMenuContent>
         </ContextMenu>
 

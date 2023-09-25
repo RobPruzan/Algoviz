@@ -12,9 +12,10 @@ export async function POST(request: Request) {
     type: z.string(),
     language: z.string(),
     algoID: z.string(),
+    isGodMode: z.boolean(),
   });
   const json = await request.json();
-  const { code, title, description, type, algoID, language } =
+  const { code, title, description, type, algoID, language, isGodMode } =
     algoSchema.parse(json);
   const session = await getServerSession(authOptions);
   if (!session?.user)
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
         code,
         title,
         algoID,
-
+        isGodMode,
         description,
         userId: session.user.id,
         type,

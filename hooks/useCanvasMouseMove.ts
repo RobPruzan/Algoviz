@@ -128,7 +128,6 @@ export const useCanvasMouseMove = ({
         }
         // this should be a case obviously just doing this for quick measures
         if (isSelectBoxSet && isMouseDownRef.current) {
-          console.log('yoo');
           // dispatch(CanvasActions.update());
 
           dispatch(

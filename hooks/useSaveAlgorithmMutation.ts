@@ -3,9 +3,12 @@ import { AlgoType } from '@/lib/types';
 import { API_URL } from '@/lib/utils';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { usePathname } from 'next/navigation';
 
-export const useSaveAlgorithmMutation = () =>
-  useMutation({
+export const useSaveAlgorithmMutation = () => {
+  const pathname = usePathname();
+  const isGodMode = pathname.split('/').at(-1) === 'admin';
+  const saveAlgoMutation = useMutation({
     mutationFn: async ({
       code,
       description,
@@ -28,8 +31,11 @@ export const useSaveAlgorithmMutation = () =>
         type,
         language,
         algoID,
+        isGodMode,
       });
     },
     onError: (e) => {},
     onSuccess: (s) => {},
   });
+  return saveAlgoMutation;
+};

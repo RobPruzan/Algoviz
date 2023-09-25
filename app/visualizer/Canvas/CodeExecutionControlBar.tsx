@@ -181,8 +181,6 @@ const CodeExecutionControlBar = ({
 
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
 
-  // const codeMutation = useCodeMutation();
-
   const saveAlgorithmMutation = useSaveAlgorithmMutation();
 
   const { toast } = useToast();
@@ -200,18 +198,12 @@ const CodeExecutionControlBar = ({
     startNode,
   } = useAppSelector((store) => store.canvas.present);
 
-  const visualization = useAppSelector((store) => store.codeExec.visualization);
-  const results = validatorLensContainer.map((lens) => lens.result);
-
   const selectedIds = getValidatorLensSelectedIds({
     attachableLines,
     circles,
     validatorLensContainer,
   }).join(',');
 
-  const isValidatorLens = currentAlgorithm?.type === 'validator';
-
-  // const code = userAlgorithm.code ?? currentAlgorithm?.code;
   const codeInfo =
     userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE
       ? { ...userAlgorithm, id: null }

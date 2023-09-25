@@ -16,6 +16,7 @@ export const useGetAlgorithmsQuery = () =>
         description: z.string(),
         createdAt: z.string(),
         type: z.string(),
+        isGodMode: z.boolean(),
         language: z.union([
           z.literal('javascript'),
           z.literal('python'),

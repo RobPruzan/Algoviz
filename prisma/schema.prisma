@@ -65,6 +65,7 @@ model Algorithm {
   createdAt   DateTime @default(now())
   description String
   title       String
+  isGodMode   Boolean  @default(false)
   type        String   @default("visualizer")
   language    String   @default("javascript")
   user        User     @relation(fields: [userId], references: [id])
@@ -80,4 +81,15 @@ model Playground {
   pencil     Json
   zoomAmount Float
   user       User     @relation(fields: [userId], references: [id])
+}
+
+model Preset {
+  id         String   @id @default(cuid())
+  type       String
+  code       String?
+  name       String
+  createdAt  DateTime @default(now())
+  circles    Json
+  lines      Json
+  zoomAmount Float
 }

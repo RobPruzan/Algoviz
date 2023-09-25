@@ -10,6 +10,11 @@ export async function GET() {
   const data = await prisma.algorithm.findMany({
     where: {
       userId: session?.user.id,
+      OR: [
+        {
+          isGodMode: true,
+        },
+      ],
     },
     orderBy: {
       createdAt: 'desc',

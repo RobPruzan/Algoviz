@@ -13,20 +13,14 @@ import { useMeta } from '@/hooks/useMeta';
 import { Languages, runJavascriptWithWorker } from '@/lib/language-snippets';
 import _logger from 'next-auth/utils/logger';
 import { useState } from 'react';
+import { useGetSelectedItems } from './useGetSelectedItems';
 
 export const useCodeMutation = (onError?: (error: unknown) => any) => {
   const dispatch = useAppDispatch();
-  const {
-    attachableLines,
-    circles,
-    selectedGeometryInfo,
-    validatorLensContainer,
-  } = useAppSelector((store) => store.canvas.present);
-  const { selectedAttachableLines, selectedCircles } = getSelectedItems({
-    attachableLines,
-    circles,
-    selectedGeometryInfo,
-  });
+  const { attachableLines, circles, validatorLensContainer } = useAppSelector(
+    (store) => store.canvas.present
+  );
+  const { selectedAttachableLines, selectedCircles } = useGetSelectedItems();
 
   const selectedAttachableLinesThroughLens = (selectAll: boolean) => {
     return selectAll
@@ -140,7 +134,6 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
           };
 
       const outputWithType = { type, ...res.data };
-      console.log('oyoy', outputWithType);
 
       const parsedOutput = dataSchema.parse(outputWithType);
 
