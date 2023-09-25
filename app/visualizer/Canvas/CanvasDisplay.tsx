@@ -666,8 +666,8 @@ const CanvasDisplay = ({
                     className="bg-secondary mt-3 ring-0 hover: hover:border-2 hover:border-secondary w-full"
                   >
                     {saveAsPresetMutation.isLoading
-                      ? 'Save Preset'
-                      : 'Saving ...'}
+                      ? 'Saving ...'
+                      : 'Save Preset'}
                   </Button>
                 </ContextMenuSubContent>
               </ContextMenuSub>
