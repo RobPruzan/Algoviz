@@ -80,7 +80,7 @@ const CodeExecution = ({
     // to really fix this need to do it in the css with a calc minus for the h-10 and padding
     '37.5%'
   );
-  console.log('da adj list', adjacencyList);
+
   const ioPanelRef = useRef<ElementRef<'div'>>(null);
 
   const width = ioPanelRef.current?.offsetWidth;

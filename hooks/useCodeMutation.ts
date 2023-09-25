@@ -29,7 +29,6 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
   });
 
   const selectedAttachableLinesThroughLens = (selectAll: boolean) => {
-    console.log('sa', selectAll);
     return selectAll
       ? attachableLines
       : attachableLines.filter((line) =>
