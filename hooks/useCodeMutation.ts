@@ -47,8 +47,8 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
   //   validatorLensContainer,
   // }).join(',');
   const getAdjacenyList: (
-    selectAll: boolean,
-    type: AlgoType
+    selectAll: boolean
+    // type: AlgoType
   ) => Record<string, string[]> = (selectAll: boolean) =>
     // #TODO, need to run the mutation by passing in the selected ids for the individual validator, and then push the result again for that specific validator
     [
@@ -89,7 +89,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         try {
           const result = await runJavascriptWithWorker(
             algo.code,
-            getAdjacenyList(selectAll, type)
+            getAdjacenyList(selectAll)
           );
         } catch (error) {}
         return;
@@ -105,7 +105,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         lang: language,
         type,
         env: {
-          ADJACENCY_LIST: JSON.stringify(getAdjacenyList(selectAll, type)),
+          ADJACENCY_LIST: JSON.stringify(getAdjacenyList(selectAll)),
           START_NODE: JSON.stringify(startNode ?? 'NO-START-NODE-SELECTED'),
         },
       });

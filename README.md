@@ -4,15 +4,12 @@ Algoviz is a playground designed to enable both physical and programmatic intera
 
 ## Key Features
 
-- **Execution of TypeScript & JavaScript (significantly more languages coming soon):** Algoviz uses AWS Lambda functions to securely execute TypeScript and JavaScript code, providing a flexible environment for testing and visualizing algorithms.
+- **Execution of Python (significantly more languages coming soon):** Algoviz uses a custom code execution server to enable users to execute Python code directly in the browser. This feature allows users to visualize the effects of their code in real-time.
 
 - **Interactive Geometry:** Algoviz leverages the power of native web canvas to render fully interactive geometric structures. This allows for real-time visualization and interaction with the underlying data structures.
 
 - **Preset Algorithms Library:** Algoviz comes with a pre-built library of algorithms. This feature enables users to quickly load and visualize standard algorithms without the need for manual implementation.
-- 
-<img width="1512" alt="image" src="https://github.com/RobPruzan/Algoviz/assets/97781863/a5fc8e65-fffd-497c-a70a-c44d91e7dbe8">
-
-
+- <img width="1512" alt="image" src="https://github.com/RobPruzan/Algoviz/assets/97781863/a5fc8e65-fffd-497c-a70a-c44d91e7dbe8">
 
 Immerse yourself in the world of algorithms with Algoviz!
 
