@@ -19,9 +19,9 @@ export const authOptions: NextAuthOptions = {
     },
   },
   // FOR CUSTOM SIGN IN PAGE WE WILL NEED
-  // pages: {
-  //   signIn: '/signin',
-  // },
+  pages: {
+    signIn: '/signin',
+  },
 };
 
 const handler = NextAuth(authOptions);

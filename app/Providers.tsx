@@ -4,6 +4,7 @@ import AuthProvider from './AuthProvider';
 import { QueryProvider } from './QueryProvider';
 import ReduxProvider from './ReduxProvider';
 import { CanvasProvider } from './CanvasProvider';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 export const Providers = ({ children }: { children: React.ReactNode }) => (
   <AuthProvider>

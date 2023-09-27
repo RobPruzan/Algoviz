@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
 export async function GET() {
-  // const { code, name } = algoSchema.parse(await request.json());
   const session = await getServerSession(authOptions);
 
   const data = await prisma.algorithm.findMany({
