@@ -114,7 +114,7 @@ const CanvasControlBar = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent className="max-w-[300px]">
-              <p>Undo</p>
+              <p>Redo</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
