@@ -53,8 +53,16 @@ export function DemoCreateAccount({ googleProvider }: Props) {
               </TooltipTrigger>
               <TooltipContent className="max-w-[300px]">
                 <p>
-                  Only name, email and pfp are shared by Google, you are not
-                  connecting your Google account by signing in
+                  Only name, email and pfp are shared by Google. And, by signing
+                  in you will be able to:
+                  <ul>
+                    <li>- Save Algorithms or Datastructures</li>
+                    <li>
+                      - Create shareable links for people to join your
+                      playground
+                    </li>
+                    <li>- Create playgrounds</li>
+                  </ul>
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -81,8 +89,33 @@ export function DemoCreateAccount({ googleProvider }: Props) {
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue as guest
+            <span className="bg-background px-2 text-muted-foreground flex items-center">
+              Or continue as guest{' '}
+              <TooltipProvider>
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger className="ml-2" asChild>
+                    <InfoIcon className="hover:fill-accent" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[300px]">
+                    <p
+                      style={{
+                        textTransform: 'initial',
+                      }}
+                      className="upp"
+                    >
+                      <b>By signing in as guest, you wont be able to:</b>
+                      <ul>
+                        <li>- Save Algorithms or Datastructures</li>
+                        <li>
+                          - Create shareable links for people to join your
+                          playground
+                        </li>
+                        <li>- Create playgrounds</li>
+                      </ul>
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </span>
           </div>
         </div>
