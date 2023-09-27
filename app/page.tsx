@@ -42,7 +42,7 @@ export default function Home() {
       <div className="h-1/2 w-full flex flex-col sm:flex-row  items-center justify-center p-5">
         <div className="w-full sm:w-1/2 h-full flex flex-col items-center justify-center">
           <div className="flex max-w-[980px] bg-opacity-60  flex-col justify-start items-start gap-2 mb-6">
-            <h1 className="text-2xl font-extrabold opacity-70 leading-tight tracking-tighter sm:text-4xl md:text-6xl lg:text-7xl">
+            <h1 className="text-3xl font-extrabold opacity-70 leading-tight tracking-tighter sm:text-4xl md:text-6xl lg:text-7xl">
               {'Take your algorithms to the next level'}
             </h1>
             <div className="flex items-center justify-start mt-6 w-full">
@@ -57,7 +57,7 @@ export default function Home() {
 
               <Link
                 href={'https://github.com/RobPruzan/Algoviz'}
-                className="w-fit h-fit  sm:p-4 border-2 rounded-md hover:bg-accent"
+                className="w-fit h-fit   p-[6px] sm:p-4  border-2 rounded-md hover:bg-accent"
               >
                 <Github />
               </Link>
