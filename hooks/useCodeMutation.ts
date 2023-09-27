@@ -6,7 +6,7 @@ import { z } from 'zod';
 import * as Graph from '@/lib/graph';
 import { AlgoType, ArrayItem } from '@/lib/types';
 import { P, match } from 'ts-pattern';
-import { getSelectedItems } from '@/lib/utils';
+import { getSelectedItems, getValidatorLensSelectedIds } from '@/lib/utils';
 import { useGetAlgorithmsQuery } from './useGetAlgorithmsQuery';
 import { CanvasActions, ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 import { useMeta } from '@/hooks/useMeta';
@@ -40,9 +40,17 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
           )
         );
 
-  const getAdjacenyList: (selectAll: boolean) => Record<string, string[]> = (
-    selectAll: boolean
-  ) =>
+  console.log('oyoy', validatorLensContainer);
+  // const selectedIds = getValidatorLensSelectedIds({
+  //   attachableLines,
+  //   circles,
+  //   validatorLensContainer,
+  // }).join(',');
+  const getAdjacenyList: (
+    selectAll: boolean,
+    type: AlgoType
+  ) => Record<string, string[]> = (selectAll: boolean) =>
+    // #TODO, need to run the mutation by passing in the selected ids for the individual validator, and then push the result again for that specific validator
     [
       ...Graph.getAdjacencyList({
         edges: selectedAttachableLines.concat(
@@ -81,7 +89,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         try {
           const result = await runJavascriptWithWorker(
             algo.code,
-            getAdjacenyList(selectAll)
+            getAdjacenyList(selectAll, type)
           );
         } catch (error) {}
         return;
@@ -90,12 +98,14 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
       if (!url) Promise.reject();
 
+      // const conditionalAdjList: Record<string, string> = {}
+
       const res = await axios.post(url, {
         code: algo.code,
         lang: language,
         type,
         env: {
-          ADJACENCY_LIST: JSON.stringify(getAdjacenyList(selectAll)),
+          ADJACENCY_LIST: JSON.stringify(getAdjacenyList(selectAll, type)),
           START_NODE: JSON.stringify(startNode ?? 'NO-START-NODE-SELECTED'),
         },
       });

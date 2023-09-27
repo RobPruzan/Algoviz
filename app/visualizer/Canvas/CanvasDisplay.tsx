@@ -624,7 +624,7 @@ const CanvasDisplay = ({
             >
               Set as starting node
             </ContextMenuItem>
-            <ContextMenuItem
+            {/* <ContextMenuItem
               onClick={() => {
                 if (selectedCircleID) {
                   dispatch(CanvasActions.setEndNode(selectedCircleID));
@@ -634,7 +634,7 @@ const CanvasDisplay = ({
               inset
             >
               Set as ending node
-            </ContextMenuItem>
+            </ContextMenuItem> */}
 
             {isGodMode && (
               <ContextMenuSub>

@@ -267,7 +267,7 @@ const CodeExecutionControlBar = ({
                     <AlgoComboBox
                       className="w-[150px]"
                       algorithms={[]}
-                      defaultPlaceholder="Loading"
+                      defaultPlaceholder="Loading..."
                       setValue={() => null}
                       value={null}
                     />
@@ -496,7 +496,9 @@ const CodeExecutionControlBar = ({
                   variant="outline"
                   type="submit"
                 >
-                  {saveAlgorithmMutation.isLoading ? 'Loading' : 'Confirm Save'}
+                  {saveAlgorithmMutation.isLoading
+                    ? 'Saving...'
+                    : 'Confirm Save'}
                 </Button>
               </DialogFooter>
             </DialogContent>
