@@ -26,7 +26,12 @@ import { useAppDispatch, useAppSelector } from '@/redux/store';
 
 import { Algorithm } from '@prisma/client';
 import { Label } from '@/components/ui/label';
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import {
   Popover,
   PopoverContent,
@@ -240,7 +245,7 @@ const CodeExecutionControlBar = ({
   return (
     <>
       <div className="w-full  ">
-        <div className="  prevent-select h-[60px] overflow-x-scroll p-3 flex w-full border-secondary justify-evenly items-center border-b-2 ">
+        <div className="   h-[60px] overflow-x-scroll p-3 flex w-full border-secondary justify-evenly items-center border-b-2 ">
           <Popover>
             <PopoverTrigger
               asChild
@@ -289,68 +294,6 @@ const CodeExecutionControlBar = ({
                     />
                   )}
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    // value={codeExecParameters.passStartNode}
-                    // onChange={(e) => setCodeExecParameters}
-                    checked={codeExecParameters.passStartNode}
-                    onCheckedChange={(checkedState) =>
-                      typeof checkedState == 'boolean' &&
-                      setCodeExecParameters((prev) => {
-                        setUserAlgorithm((prev) => ({
-                          ...prev,
-                          code: parseCode({
-                            code: codeInfo.code,
-                            passEndNode: codeExecParameters.passEndNode,
-                            passStartNode: checkedState,
-                          }),
-                        }));
-                        return {
-                          ...prev,
-                          passStartNode: checkedState,
-                        };
-                      })
-                    }
-                    id="start-node"
-                  />
-                  <label
-                    htmlFor="start-node"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Pass start node
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="end-node"
-                    checked={codeExecParameters.passEndNode}
-                    onCheckedChange={(checkedState) =>
-                      typeof checkedState == 'boolean' &&
-                      setCodeExecParameters((prev) => {
-                        setUserAlgorithm((prev) => ({
-                          ...prev,
-                          code: parseCode({
-                            code: codeInfo.code,
-                            passEndNode: checkedState,
-                            passStartNode: codeExecParameters.passStartNode,
-                          }),
-                        }));
-                        return {
-                          ...prev,
-                          passEndNode: checkedState,
-                        };
-                      })
-                    }
-                  />
-
-                  <label
-                    htmlFor="end-node"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Pass end node
-                  </label>
-                </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     checked={autoSelectAll}
@@ -388,74 +331,103 @@ const CodeExecutionControlBar = ({
             }}
             value={language}
           />
-          <Button
-            onClick={() => {
-              if (!codeInfo) {
-                toast({
-                  title: `You haven't written any code yet`,
-                  description: 'Lets write some code first',
-                });
-                return;
-              }
-              if (!selectedIds) {
-                setTabValue('output');
-                codeMutation.mutate({
-                  type:
-                    codeInfo.type === AlgoType.Validator
-                      ? AlgoType.Validator
-                      : AlgoType.Visualizer,
-                  algo: { code: codeInfo.code },
-                  language,
-                  selectAll: autoSelectAll,
-                  endNode,
-                  startNode,
-                });
-              } else {
-                toast({
-                  title: 'No graph selected',
-                  description:
-                    'You must have at least one node selected. You can select nodes by adding them, and then drag + mouse down',
-                });
-              }
-            }}
-            variant="outline"
-            className="w-fit  flex items-center justify-center h-[30px]   font-bold"
-          >
-            <Bug />
-          </Button>
-          <Button
-            onClick={async (e) => {
-              setTabValue('output');
-              await codeMutation.mutateAsync({
-                type: AlgoType.Visualizer,
-                algo: { code: codeInfo.code },
-                endNode,
-                startNode,
-                language,
-                selectAll: autoSelectAll,
-              });
-              dispatch(CodeExecActions.toggleIsApplyingAlgorithm());
-            }}
-            variant="outline"
-            className="w-fit flex items-center justify-center h-[30px]   font-bold"
-          >
-            {/* {isApplyingAlgorithm ? 'Pause' : 'Apply'} */}
-            {/* icon version */}
-            {isApplyingAlgorithm ? (
-              <Pause className="w-[20px] h-[20px]" />
-            ) : (
-              <Play className="w-[20px] h-[20px]" />
-            )}
-          </Button>
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger className="ml-2" asChild>
+                <Button
+                  onClick={() => {
+                    if (!codeInfo) {
+                      toast({
+                        title: `You haven't written any code yet`,
+                        description: 'Lets write some code first',
+                      });
+                      return;
+                    }
+                    if (!selectedIds) {
+                      setTabValue('output');
+                      codeMutation.mutate({
+                        type:
+                          codeInfo.type === AlgoType.Validator
+                            ? AlgoType.Validator
+                            : AlgoType.Visualizer,
+                        algo: { code: codeInfo.code },
+                        language,
+                        selectAll: autoSelectAll,
+                        endNode,
+                        startNode,
+                      });
+                    } else {
+                      toast({
+                        title: 'No graph selected',
+                        description:
+                          'You must have at least one node selected. You can select nodes by adding them, and then drag + mouse down',
+                      });
+                    }
+                  }}
+                  variant="outline"
+                  className="w-fit  flex items-center justify-center h-[30px]   font-bold"
+                >
+                  <Bug />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[300px]">
+                <p>Debug code and view output</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger className="ml-2" asChild>
+                <Button
+                  onClick={async (e) => {
+                    setTabValue('output');
+                    await codeMutation.mutateAsync({
+                      type: AlgoType.Visualizer,
+                      algo: { code: codeInfo.code },
+                      endNode,
+                      startNode,
+                      language,
+                      selectAll: autoSelectAll,
+                    });
+                    dispatch(CodeExecActions.toggleIsApplyingAlgorithm());
+                  }}
+                  variant="outline"
+                  className="w-fit flex items-center justify-center h-[30px]   font-bold"
+                >
+                  {/* {isApplyingAlgorithm ? 'Pause' : 'Apply'} */}
+                  {/* icon version */}
+                  {isApplyingAlgorithm ? (
+                    <Pause className="w-[20px] h-[20px]" />
+                  ) : (
+                    <Play className="w-[20px] h-[20px]" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[300px]">
+                <p>Run algorithm on graph</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button
-                className="w-fit flex items-center justify-center h-[30px]   font-bold"
-                variant="outline"
-              >
-                <Save />
-              </Button>
-            </DialogTrigger>
+            <TooltipProvider>
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger className="ml-2" asChild>
+                  <DialogTrigger asChild>
+                    <Button
+                      className="w-fit flex items-center justify-center h-[30px]   font-bold"
+                      variant="outline"
+                    >
+                      <Save />
+                    </Button>
+                  </DialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[300px]">
+                  <p>Save algorithm as</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Save Algorithm</DialogTitle>

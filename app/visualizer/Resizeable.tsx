@@ -128,7 +128,7 @@ const Resizable = (props: Props) => {
         // padding: `${padding}px`,
         // paddingTop: '10px',
       }}
-      className="prevent-select"
+      // className="prevent-select"
       ref={parentDivRef}
     >
       <div
@@ -167,7 +167,7 @@ const Resizable = (props: Props) => {
         width: '100%',
         height: '100%',
       }}
-      className="prevent-select"
+      className=""
       ref={parentDivRef}
     >
       <div

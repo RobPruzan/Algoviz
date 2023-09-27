@@ -114,6 +114,9 @@ const CodeExecution = ({
   const code = userAlgorithm.code ? languageSnippets[language] : '';
 
   const execMode = useAppSelector((store) => store.codeExec.mode);
+  // if (codeMutation.data?.type === 'error') {
+  //   console.log(codeMutation.data.output.map((o) => o.split('\n')));
+  // }
 
   return (
     <div style={{ height: 'calc(100% - 60px)' }} className="w-full ">
@@ -175,7 +178,7 @@ const CodeExecution = ({
           </div>
         }
         bottomDiv={
-          <div className="h-full w-full    prevent-select flex flex-col justify-start overflow-x-scroll overflow-y-hidden items-center">
+          <div className="h-full w-full     flex flex-col justify-start overflow-x-scroll overflow-y-hidden items-center">
             <Tabs
               value={tabValue}
               onValueChange={(v) =>
@@ -252,11 +255,19 @@ const CodeExecution = ({
                         (codeMutation.data?.type === 'Visualizer' &&
                           codeMutation.data?.output.map((log) => (
                             <div
-                              key={JSON.stringify(log)}
+                              key={JSON.stringify(log).replace(`"`, '')}
                               className="flex items-center justify-start "
                             >
-                              <div className="text-sm">
-                                {JSON.stringify(log)}
+                              <div className="text-sm flex flex-col">
+                                {JSON.stringify(log)
+                                  .replace(`"`, '')
+                                  .trim()
+                                  .split('\\n')
+                                  .map((l) => (
+                                    <div className="mt-2" key={l}>
+                                      {l}
+                                    </div>
+                                  ))}
                               </div>
                             </div>
                           )))}
@@ -269,7 +280,17 @@ const CodeExecution = ({
                               className="flex items-center justify-start "
                             >
                               <div className="text-sm text-red-500">
-                                {JSON.stringify(log)}
+                                {JSON.stringify(log)
+                                  .replace(`"`, '')
+                                  .trim()
+                                  .split('\\n')
+                                  .map((l) => {
+                                    return (
+                                      <div key={l} className="mt-2">
+                                        {l}
+                                      </div>
+                                    );
+                                  })}
                               </div>
                             </div>
                           </>

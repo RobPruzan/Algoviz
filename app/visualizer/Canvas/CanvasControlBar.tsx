@@ -15,6 +15,12 @@ import {
   Edge,
   TaggedDrawTypes,
 } from '@/lib/types';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { CanvasActions } from '@/redux/slices/canvasSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import {
@@ -61,103 +67,172 @@ const CanvasControlBar = ({
   const { handleAddValidatorLens } = useAddGeometry();
   return (
     <>
-      <div className="w-full items-center prevent-select overflow-x-scroll overflow-y-hidden  h-14 flex justify-evenly ">
-        <Button
-          onClick={() => dispatch(CanvasActions.resetState(undefined))}
-          variant={'outline'}
-          className="px-2 mb-0"
-        >
-          <Trash />
-        </Button>
-        <Button
-          onClick={() => {
-            dispatch(ActionCreators.undo());
-          }}
-          variant={'outline'}
-        >
-          <Undo />
-        </Button>
-        <Button
-          onClick={() => {
-            dispatch(ActionCreators.redo());
-          }}
-          variant={'outline'}
-        >
-          <RedoIcon />
-        </Button>
+      <div className="w-full items-center overflow-x-scroll overflow-y-hidden  h-14 flex justify-evenly ">
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger className="ml-2" asChild>
+              <Button
+                onClick={() => dispatch(CanvasActions.resetState(undefined))}
+                variant={'outline'}
+                className="px-2 mb-0"
+              >
+                <Trash />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[300px]">
+              <p>Delete everything</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger className="ml-2" asChild>
+              <Button
+                onClick={() => {
+                  dispatch(ActionCreators.undo());
+                }}
+                variant={'outline'}
+              >
+                <Undo />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[300px]">
+              <p>Undo</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger className="ml-2" asChild>
+              <Button
+                onClick={() => {
+                  dispatch(ActionCreators.redo());
+                }}
+                variant={'outline'}
+              >
+                <RedoIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[300px]">
+              <p>Undo</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
         <div className="border-r  h-full"></div>
-        <Toggle
-          pressed={selectedControlBarAction?.tag === 'undirected-edge-toggle'}
-          // onClick={handleAddUndirectedEdge}
-          onPressedChange={(pressed) => {
-            if (pressed) {
-              setSelectedControlBarAction({ tag: 'undirected-edge-toggle' });
-            } else {
-              setSelectedControlBarAction(null);
-            }
-          }}
-          variant={'outline'}
-          className="px-2 mb-0"
-        >
-          {/* <RectangleHorizontal /> */}
-          <UndirectedEdgeIcon />
-        </Toggle>
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger className="ml-2" asChild>
+              <Toggle
+                pressed={
+                  selectedControlBarAction?.tag === 'undirected-edge-toggle'
+                }
+                // onClick={handleAddUndirectedEdge}
+                onPressedChange={(pressed) => {
+                  if (pressed) {
+                    setSelectedControlBarAction({
+                      tag: 'undirected-edge-toggle',
+                    });
+                  } else {
+                    setSelectedControlBarAction(null);
+                  }
+                }}
+                variant={'outline'}
+                className="px-2 mb-0"
+              >
+                {/* <RectangleHorizontal /> */}
+                <UndirectedEdgeIcon />
+              </Toggle>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[300px]">
+              <p>Toggle undirected edge</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger className="ml-2" asChild>
+              <Toggle
+                // onClick={handleAddDirectedEdge}
+                onPressedChange={(pressed) => {
+                  if (pressed) {
+                    setSelectedControlBarAction({
+                      tag: 'directed-edge-toggle',
+                    });
+                  } else {
+                    setSelectedControlBarAction(null);
+                  }
+                }}
+                pressed={
+                  selectedControlBarAction?.tag === 'directed-edge-toggle'
+                }
+                variant={'outline'}
+                className="px-2 min-w-fit"
+              >
+                <DirectedEdgeIcon />
+              </Toggle>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[300px]">
+              <p>Toggle directed edge</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-        <Toggle
-          // onClick={handleAddDirectedEdge}
-          onPressedChange={(pressed) => {
-            if (pressed) {
-              setSelectedControlBarAction({ tag: 'directed-edge-toggle' });
-            } else {
-              setSelectedControlBarAction(null);
-            }
-          }}
-          pressed={selectedControlBarAction?.tag === 'directed-edge-toggle'}
-          variant={'outline'}
-          className="px-2 min-w-fit"
-        >
-          <DirectedEdgeIcon />
-        </Toggle>
-        <Toggle
-          // onClick={() => {
-          //   setSelectedControlBarAction('circle-toggle');
-          //   // handleAddCircle();
-
-          // }}
-          onPressedChange={(pressed) => {
-            if (pressed) {
-              setSelectedControlBarAction({ tag: 'circle-toggle' });
-            } else {
-              setSelectedControlBarAction(null);
-            }
-          }}
-          pressed={selectedControlBarAction?.tag === 'circle-toggle'}
-          variant={'outline'}
-          className="px-2"
-        >
-          <CircleDot />
-        </Toggle>
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger className="ml-2" asChild>
+              <Toggle
+                onPressedChange={(pressed) => {
+                  if (pressed) {
+                    setSelectedControlBarAction({ tag: 'circle-toggle' });
+                  } else {
+                    setSelectedControlBarAction(null);
+                  }
+                }}
+                pressed={selectedControlBarAction?.tag === 'circle-toggle'}
+                variant={'outline'}
+                className="px-2"
+              >
+                <CircleDot />
+              </Toggle>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[300px]">
+              <p>Toggle node</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         <div className="border-r  h-full"></div>
 
         <DropdownMenu>
-          <DropdownMenuTrigger
-            className={twCond({
-              cases: [
-                {
-                  cond:
-                    selectedControlBarAction?.tag === 'validator-lens-select',
-                  className: 'bg-secondary',
-                },
-              ],
-              base: 'border-2 w-32 flex items-center justify-evenly font-bold rounded-md text-sm p-2',
-            })}
-          >
-            {getAlgorithmsQuery.data?.find(
-              (algoInfo) => algoInfo.id === itemChecked
-            )?.title ?? 'Validators'}
-            <ChevronDown size={20} />
-          </DropdownMenuTrigger>
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger className="ml-2" asChild>
+                <DropdownMenuTrigger
+                  className={twCond({
+                    cases: [
+                      {
+                        cond:
+                          selectedControlBarAction?.tag ===
+                          'validator-lens-select',
+                        className: 'bg-secondary',
+                      },
+                    ],
+                    base: 'border-2 w-32 flex items-center justify-evenly font-bold rounded-md text-sm p-2',
+                  })}
+                >
+                  {getAlgorithmsQuery.data?.find(
+                    (algoInfo) => algoInfo.id === itemChecked
+                  )?.title ?? 'Validators'}
+                  <ChevronDown size={20} />
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[300px]">
+                <p>Select validator lens</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <DropdownMenuContent>
             {getAlgorithmsQuery.data?.map((algo) =>
               algo.type === AlgoType.Validator ? (
@@ -184,10 +259,20 @@ const CanvasControlBar = ({
         </DropdownMenu>
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="border-2 w-32 flex items-center justify-evenly font-bold rounded-md text-sm p-2">
-            Presets
-            <ChevronDown size={20} />
-          </DropdownMenuTrigger>
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger className="ml-2" asChild>
+                <DropdownMenuTrigger className="border-2 w-32 flex items-center justify-evenly font-bold rounded-md text-sm p-2">
+                  Presets
+                  <ChevronDown size={20} />
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[300px]">
+                <p>Select pre-made data-structure</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <DropdownMenuContent>
             {getPresetsQuery.data?.presets.map((preset) => (
               <div

@@ -28,7 +28,7 @@ export type Languages = (typeof languages)[number]['value'];
 export type LanguageSnippets = { [Key in Languages]: string };
 
 export const languageSnippets: LanguageSnippets = {
-  python: `def algorithm(adjList):
+  python: `def algorithm(adjList, start_node: str):
     # your code here
     pass
   `,

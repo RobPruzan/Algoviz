@@ -96,6 +96,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         type,
         env: {
           ADJACENCY_LIST: JSON.stringify(getAdjacenyList(selectAll)),
+          START_NODE: JSON.stringify(startNode ?? 'NO-START-NODE-SELECTED'),
         },
       });
 
