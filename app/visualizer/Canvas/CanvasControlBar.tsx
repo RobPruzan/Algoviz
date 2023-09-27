@@ -120,88 +120,83 @@ const CanvasControlBar = ({
         </TooltipProvider>
 
         <div className="border-r  h-full"></div>
-        <TooltipProvider>
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger className="ml-2" asChild>
-              <Toggle
-                pressed={
-                  selectedControlBarAction?.tag === 'undirected-edge-toggle'
-                }
-                // onClick={handleAddUndirectedEdge}
-                onPressedChange={(pressed) => {
-                  if (pressed) {
-                    setSelectedControlBarAction({
-                      tag: 'undirected-edge-toggle',
-                    });
-                  } else {
-                    setSelectedControlBarAction(null);
-                  }
-                }}
-                variant={'outline'}
-                className="px-2 mb-0"
-              >
+        <Toggle
+          pressed={selectedControlBarAction?.tag === 'undirected-edge-toggle'}
+          // onClick={handleAddUndirectedEdge}
+          onPressedChange={(pressed) => {
+            if (pressed) {
+              setSelectedControlBarAction({
+                tag: 'undirected-edge-toggle',
+              });
+            } else {
+              setSelectedControlBarAction(null);
+            }
+          }}
+          variant={'outline'}
+          className="px-2 mb-0"
+        >
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger className="ml-2" asChild>
                 {/* <RectangleHorizontal /> */}
                 <UndirectedEdgeIcon />
-              </Toggle>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-[300px]">
-              <p>Toggle undirected edge</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger className="ml-2" asChild>
-              <Toggle
-                // onClick={handleAddDirectedEdge}
-                onPressedChange={(pressed) => {
-                  if (pressed) {
-                    setSelectedControlBarAction({
-                      tag: 'directed-edge-toggle',
-                    });
-                  } else {
-                    setSelectedControlBarAction(null);
-                  }
-                }}
-                pressed={
-                  selectedControlBarAction?.tag === 'directed-edge-toggle'
-                }
-                variant={'outline'}
-                className="px-2 min-w-fit"
-              >
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[300px]">
+                <p>Toggle undirected edge</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </Toggle>
+        <Toggle
+          // onClick={handleAddDirectedEdge}
+          onPressedChange={(pressed) => {
+            if (pressed) {
+              setSelectedControlBarAction({
+                tag: 'directed-edge-toggle',
+              });
+            } else {
+              setSelectedControlBarAction(null);
+            }
+          }}
+          pressed={selectedControlBarAction?.tag === 'directed-edge-toggle'}
+          variant={'outline'}
+          className="px-2 min-w-fit"
+        >
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger className="ml-2" asChild>
                 <DirectedEdgeIcon />
-              </Toggle>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-[300px]">
-              <p>Toggle directed edge</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[300px]">
+                <p>Toggle directed edge</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </Toggle>
 
-        <TooltipProvider>
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger className="ml-2" asChild>
-              <Toggle
-                onPressedChange={(pressed) => {
-                  if (pressed) {
-                    setSelectedControlBarAction({ tag: 'circle-toggle' });
-                  } else {
-                    setSelectedControlBarAction(null);
-                  }
-                }}
-                pressed={selectedControlBarAction?.tag === 'circle-toggle'}
-                variant={'outline'}
-                className="px-2"
-              >
-                <CircleDot />
-              </Toggle>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-[300px]">
-              <p>Toggle node</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Toggle
+          onPressedChange={(pressed) => {
+            if (pressed) {
+              setSelectedControlBarAction({ tag: 'circle-toggle' });
+            } else {
+              setSelectedControlBarAction(null);
+            }
+          }}
+          pressed={selectedControlBarAction?.tag === 'circle-toggle'}
+          variant={'outline'}
+          className="px-2"
+        >
+          <CircleDot />
 
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger className="ml-2" asChild></TooltipTrigger>
+              <TooltipContent className="max-w-[300px]">
+                <p>Toggle node</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </Toggle>
         <div className="border-r  h-full"></div>
 
         <DropdownMenu>
