@@ -94,36 +94,67 @@ func algorithm(adjList AdjacencyList) Visualization {
   Select: '',
 };
 
+// self.postMessage({type: 'algorithm(${JSON.stringify(workerData)})})
+
 export function runJavascriptWithWorker(
   workerCode: string,
   workerData: Record<string, string[]>
 ) {
-  return new Promise((resolve, reject) => {
-    let worker = new Worker(
-      URL.createObjectURL(
-        new Blob(
-          [
-            workerCode +
-              `self.postMessage(algorithm(${JSON.stringify(workerData)}))`,
-          ],
-          {
-            type: 'text/javascript',
-          }
+  const logs: Array<string> = [];
+  return new Promise<{ output: unknown; logs: Array<string> }>(
+    (resolve, reject) => {
+      let worker = new Worker(
+        URL.createObjectURL(
+          new Blob(
+            [
+              workerCode +
+                `
+                let console = {
+                  log: function (...message) {
+                    self.postMessage({ type: 'log', log: String(message) });
+                  },
+                };
+                self.console = console;
+                self.postMessage({
+                  type: 'output',
+                  output: algorithm(${JSON.stringify(workerData)})
+                })`,
+            ],
+            {
+              type: 'text/javascript',
+            }
+          )
         )
-      )
-    );
+      );
 
-    worker.onmessage = function (e) {
-      console.log('Main script received message:', e.data);
-      resolve(e.data);
-    };
+      worker.onmessage = function (e) {
+        switch (e.data.type) {
+          case 'log': {
+            resolve({ ...e.data, logs });
+          }
+          case 'output': {
+            resolve({ ...e.data, logs });
+          }
+        }
+        // if (e.data.type === 'log') {
+        //   console.log('Main script received message:', e.data);
+        //   resolve({ output: e.data, logs });
+        // }
+      };
+      worker.addEventListener('message', function (event) {
+        if (event.data.type === 'log') {
+          const log = event.data.log;
+          // console.log('From worker:', log);
+          logs.push(log);
+        }
+      });
+      worker.onerror = function (error) {
+        // console.error('Worker error:', error);
+        reject(error);
+      };
 
-    worker.onerror = function (error) {
-      console.error('Worker error:', error);
-      reject(error);
-    };
-
-    console.log('Main script sending message to worker');
-    worker.postMessage('Hello from main script!');
-  });
+      console.log('Main script sending message to worker');
+      worker.postMessage('Hello from main script!');
+    }
+  );
 }

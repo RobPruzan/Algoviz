@@ -4,7 +4,7 @@ Algoviz is a playground designed to enable both physical and programmatic intera
 
 ## Key Features
 
-- **Execution of Python (significantly more languages coming soon):** Algoviz uses a custom code execution server to enable users to execute Python code directly in the browser. This feature allows users to visualize the effects of their code in real-time.
+- **Execution of Python and Javascript (significantly more languages coming soon):** Algoviz uses a custom code execution server to enable users to execute code directly in the browser. This feature allows users to visualize the effects of their code in real-time.
 
 - **Interactive Geometry:** Algoviz leverages the power of native web canvas to render fully interactive geometric structures. This allows for real-time visualization and interaction with the underlying data structures.
 

@@ -14,6 +14,53 @@ import { Languages, runJavascriptWithWorker } from '@/lib/language-snippets';
 import _logger from 'next-auth/utils/logger';
 import { useState } from 'react';
 import { useGetSelectedItems } from './useGetSelectedItems';
+type AlteredOutputUnion =
+  | {
+      output: Array<Array<string>>;
+      logs: string;
+      type: AlgoType.Visualizer;
+    }
+  | {
+      output: boolean;
+      logs: string;
+      type: AlgoType.Validator;
+    }
+  | {
+      output: Array<string>;
+
+      type: 'error';
+    };
+
+const visualizerSchema = z.object({
+  output: z.union([z.array(z.array(z.string())), z.array(z.string())]),
+  logs: z.string(),
+  type: z.literal(AlgoType.Visualizer),
+});
+
+const validatorSchema = z.object({
+  output: z.boolean(),
+  logs: z.string(),
+  type: z.literal(AlgoType.Validator),
+});
+
+const errorSchema = z.object({
+  output: z.array(z.string()),
+  type: z.literal('error'),
+});
+
+const dataSchema = z.union([visualizerSchema, validatorSchema, errorSchema]);
+const unFlattened = (parsedOutput: z.infer<typeof dataSchema>) => {
+  return (
+    parsedOutput.type === AlgoType.Visualizer
+      ? {
+          ...parsedOutput,
+          output: (parsedOutput.output as Array<any> | null | undefined)?.map(
+            (o) => (o instanceof Array ? o : [o])
+          ),
+        }
+      : parsedOutput
+  ) as AlteredOutputUnion;
+};
 
 export const useCodeMutation = (onError?: (error: unknown) => any) => {
   const dispatch = useAppDispatch();
@@ -40,7 +87,6 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
           )
         );
 
-  console.log('oyoy', validatorLensContainer);
   // const selectedIds = getValidatorLensSelectedIds({
   //   attachableLines,
   //   circles,
@@ -84,81 +130,66 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       lens?: ValidatorLensInfo;
       startNode: string | null;
       endNode: string | null;
-    }) => {
+    }): Promise<AlteredOutputUnion> => {
       if (language === 'javascript') {
         try {
           const result = await runJavascriptWithWorker(
             algo.code,
             getAdjacenyList(selectAll)
           );
-        } catch (error) {}
-        return;
-      }
 
-      const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
-      if (!url) Promise.reject();
-
-      // const conditionalAdjList: Record<string, string> = {}
-
-      const res = await axios.post(url, {
-        code: algo.code,
-        lang: language,
-        type,
-        env: {
-          ADJACENCY_LIST: JSON.stringify(getAdjacenyList(selectAll)),
-          START_NODE: JSON.stringify(startNode ?? 'NO-START-NODE-SELECTED'),
-        },
-      });
-
-      const dataSchema = z.union([
-        z.object({
-          output: z.union([z.array(z.array(z.string())), z.array(z.string())]),
-          logs: z.string(),
-          type: z.literal(AlgoType.Visualizer),
-        }),
-        z.object({
-          output: z.boolean(),
-          logs: z.string(),
-          type: z.literal(AlgoType.Validator),
-        }),
-        z.object({
-          output: z.array(z.string()),
-          type: z.literal('error'),
-        }),
-      ]);
-
-      type AlteredOutputUnion =
-        | {
-            output: Array<Array<string>>;
-            logs: string;
-            type: AlgoType.Visualizer;
-          }
-        | {
-            output: boolean;
-            logs: string;
-            type: AlgoType.Validator;
-          }
-        | {
-            output: Array<string>;
-
-            type: 'error';
-          };
-
-      const outputWithType = { type, ...res.data };
-
-      const parsedOutput = dataSchema.parse(outputWithType);
-
-      const unFlatten =
-        parsedOutput.type === AlgoType.Visualizer
-          ? {
-              ...parsedOutput,
-              output: (
-                parsedOutput.output as Array<any> | null | undefined
-              )?.map((o) => (o instanceof Array ? o : [o])),
+          switch (type) {
+            case AlgoType.Validator: {
+              const parsed = validatorSchema.parse({
+                ...result,
+                type,
+              });
+              return unFlattened(parsed);
             }
-          : parsedOutput;
+            case AlgoType.Visualizer: {
+              const parsed = visualizerSchema.parse({
+                output: result.output,
+                logs: result.logs.join('\n'),
+                type,
+              });
 
-      return unFlatten as AlteredOutputUnion;
+              return unFlattened(parsed);
+            }
+          }
+        } catch (error) {
+          if (error instanceof ErrorEvent) {
+            console.log('da error', error);
+            return {
+              type: 'error',
+              output: [error.message],
+            };
+          } else {
+            return {
+              type: 'error',
+              output: [JSON.stringify(error)],
+            };
+          }
+        }
+      } else {
+        const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
+        if (!url) Promise.reject();
+
+        const res = await axios.post(url, {
+          code: algo.code,
+          lang: language,
+          type,
+          env: {
+            ADJACENCY_LIST: JSON.stringify(getAdjacenyList(selectAll)),
+            START_NODE: JSON.stringify(startNode ?? 'NO-START-NODE-SELECTED'),
+          },
+        });
+
+        const outputWithType = { type, ...res.data };
+
+        const parsedOutput = dataSchema.parse(outputWithType);
+
+        return unFlattened(parsedOutput);
+      }
     },
     onSuccess: (data, ctx) => {
       match(data)
