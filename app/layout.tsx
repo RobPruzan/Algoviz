@@ -22,6 +22,7 @@ import ConnectedUsers from './ConnectedUsers';
 import { CanvasContext } from '@/context/CanvasContext';
 import { Providers } from './Providers';
 import AdminNav from '@/components/AdminNav';
+import HomeButton from './HomeButton';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -48,11 +49,7 @@ export default function RootLayout({
             <div className="h-[5%] w-full flex items-center justify-center">
               <nav className="w-screen pt-[25px] px-[25px] flex justify-end items-center top-full">
                 <div className="w-3/6 flex justify-start items-center ">
-                  <Link href="/">
-                    <Button className="mr-2" variant="outline">
-                      Home
-                    </Button>
-                  </Link>
+                  <HomeButton />
 
                   <PlaygroundsButton />
                   <AdminNav className="mx-2" />
