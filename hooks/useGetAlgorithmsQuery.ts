@@ -19,10 +19,11 @@ export const useGetAlgorithmsQuery = () =>
         isGodMode: z.boolean(),
         language: z.union([
           z.literal('javascript'),
+          z.literal('typescript'),
           z.literal('python'),
           z.literal('java'),
           z.literal('rust'),
-          z.literal('go'),
+          // z.literal('go'),
         ]),
       });
       const res = (await axios.get(`${API_URL}/algo/getall`)).data;
