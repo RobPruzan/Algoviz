@@ -74,7 +74,7 @@ export default function RootLayout({
                 </div>
               </nav>
             </div>
-            <div className="h-[95%] w-full flex flex-col items-center justify-evenly">
+            <div className="h-[95%] w-full flex flex-col items-center justify-evenly overflow-hidden">
               {children}
               <Toaster />
             </div>

@@ -12,6 +12,7 @@ module.exports = {
       padding: '2rem',
       screens: {
         '2xl': '1400px',
+        tall: { raw: '(min-height: 800px)' },
       },
     },
     extend: {

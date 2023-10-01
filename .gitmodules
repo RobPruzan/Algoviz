@@ -4,3 +4,6 @@
 [submodule "playground-sockets"]
 	path = playground-sockets
 	url = git@github.com:RobPruzan/playground-sockets.git
+[submodule "code-runner"]
+	path = code-runner
+	url = https://github.com/RobPruzan/code-runner.git

@@ -214,3 +214,16 @@
 }
 
 
+
+
+.tall-show {
+  display: none;
+}
+
+@media (min-height: 875px) {
+  .tall-show {
+    display: flex;
+  }
+}
+
+

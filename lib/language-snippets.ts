@@ -9,6 +9,10 @@ export const languages = [
     label: 'JavaScript',
   },
   {
+    value: 'typescript',
+    label: 'Typescript',
+  },
+  {
     value: 'java',
     label: 'Java',
   },
@@ -17,10 +21,10 @@ export const languages = [
     value: 'rust',
     label: 'Rust',
   },
-  {
-    value: 'go',
-    label: 'Go',
-  },
+  // {
+  //   value: 'go',
+  //   label: 'Go',
+  // },
 ] as const;
 
 export type Languages = (typeof languages)[number]['value'];
@@ -74,21 +78,15 @@ fn algorithm(adj_list: AdjacencyList) -> Visualization {
     Vec::new()
 }
   `,
-  go: `package main
+  typescript: `// string that represents a given node's id
+type NodeID = string;
+type AdjacencyList = Record<string, Array<string>>;
+// Each element of the first array will be what's lit up in each step
+type ValidOutputs = Array<string> | Array<Array<string>>;
 
-// NodeID: string (uuid representing a node)
-// AdjacencyList: map with NodeID keys and slice of NodeID values
-// VisitedIDs: slice of NodeID
-// Visualization: slice of VisitedIDs
-
-type NodeID string
-type AdjacencyList map[NodeID][]NodeID
-type VisitedIDs []NodeID
-type Visualization []VisitedIDs
-
-func algorithm(adjList AdjacencyList) Visualization {
-    // your code here
-    return nil
+function algorithm(adjList: AdjacencyList): ValidOutputs {
+  // Your algorithm here
+  return Object.keys(adjList);
 }
   `,
   Select: '',
