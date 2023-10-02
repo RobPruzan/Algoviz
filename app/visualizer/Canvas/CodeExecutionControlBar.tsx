@@ -627,12 +627,12 @@ const CodeExecutionControlBar = ({
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          {/* <Button
+          {/* <Buttonpu
             variant={'outline'}
             onClick={() => setShowAlgoHistorySlider((prev) => !prev)}
           >
             {showAlgoHistorySlider ? <ChevronUp /> : <ChevronDown />}
-          </Button> */}
+          </Buttonpu> */}
         </div>
       </div>
     </>

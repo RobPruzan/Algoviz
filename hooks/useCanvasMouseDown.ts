@@ -95,6 +95,7 @@ export const useCanvasMouseDown = ({
       )
     ) {
       dispatch(CanvasActions.nullifySelectedGeometryInfo(undefined, meta));
+
       return;
     }
 
@@ -165,10 +166,12 @@ export const useCanvasMouseDown = ({
           event.nativeEvent.offsetY - cameraCoordinate[1],
         ];
 
-        setSelectBox({
-          p1: initialMouseCoordinate,
-          p2: initialMouseCoordinate,
-          type: 'selectBox',
+        setSelectBox((prev) => {
+          return {
+            p1: initialMouseCoordinate,
+            p2: initialMouseCoordinate,
+            type: 'selectBox',
+          };
         });
       });
   };

@@ -137,25 +137,9 @@ const canvasSlice = createSlice({
       state.circles.push(...action.payload.circles);
       state.presetCode = action.payload.code;
       if (action.payload.startNode) {
-        console.log('setting the start node', action.payload.startNode);
         state.startNode = action.payload.startNode;
       }
     }),
-    // addPreset: (
-    //   state,
-    //   action: PayloadAction<{
-    //     circles: CircleReceiver[];
-    //     attachableLines: Edge[];
-    //     type: string;
-    //     // realCenter: [number, number];
-    //   }>
-    // ) => {
-    //   // const zoomedAttachableLines = action.payload.attachableLines.map(line => {
-    //   //   const zoomedLine = Draw.zooj
-    //   // })
-    //   state.attachableLines.push(...action.payload.attachableLines);
-    //   state.circles.push(...action.payload.circles);
-    // },
     synchronizeObjectState: (
       state,
       action: PayloadAction<{
@@ -849,25 +833,9 @@ const canvasSlice = createSlice({
         const { selectedGeometryInfo, shift } = action.payload;
         const shiftedCircle = Canvas.shiftCircle({ circle, shift });
         if (selectedGeometryInfo.selectedIds.includes(circle.id)) {
-          return {
-            ...shiftedCircle,
-            nodeReceiver: {
-              ...shiftedCircle.nodeReceiver,
-              attachedIds: circle.nodeReceiver.attachedIds.filter((id) =>
-                selectedGeometryInfo.selectedIds.includes(id)
-              ),
-            },
-          };
+          return shiftedCircle;
         } else {
-          return {
-            ...circle,
-            nodeReceiver: {
-              ...circle.nodeReceiver,
-              attachedIds: circle.nodeReceiver.attachedIds.filter((id) =>
-                selectedGeometryInfo.selectedIds.includes(id)
-              ),
-            },
-          };
+          return circle;
         }
       });
 
@@ -887,39 +855,33 @@ const canvasSlice = createSlice({
             selectedGeometryInfo.selectedIds.includes(line.attachNodeOne.id) ||
             selectedGeometryInfo.selectedIds.includes(line.attachNodeTwo.id)
           ) {
-            const nodeOneConnectedToId =
-              line.attachNodeOne.connectedToId &&
-              selectedGeometryInfo.selectedIds.includes(
-                line.attachNodeOne.connectedToId
-              )
-                ? line.attachNodeOne.connectedToId
-                : null;
-
-            const nodeTwoConnectedToId =
-              line.attachNodeTwo.connectedToId &&
-              selectedGeometryInfo.selectedIds.includes(
-                line.attachNodeTwo.connectedToId
-              )
-                ? line.attachNodeTwo.connectedToId
-                : null;
-            // need to deduplicate this
             const shiftedLine = Canvas.shiftLine({
               line,
               shift: action.payload.shift,
             });
-            const newLine: Edge = {
-              ...shiftedLine,
-              attachNodeOne: {
-                ...shiftedLine.attachNodeOne,
-                connectedToId: nodeOneConnectedToId,
-              },
-              attachNodeTwo: {
-                ...shiftedLine.attachNodeTwo,
-                connectedToId: nodeTwoConnectedToId,
-              },
-            };
 
-            return newLine;
+            if (
+              shiftedLine.attachNodeOne.connectedToId &&
+              !selectedGeometryInfo.selectedIds.includes(
+                shiftedLine.attachNodeOne.connectedToId
+              )
+            ) {
+              shiftedLine.attachNodeOne.center = line.attachNodeOne.center;
+              shiftedLine.x1 = line.x1;
+              shiftedLine.y1 = line.y1;
+            }
+            if (
+              shiftedLine.attachNodeTwo.connectedToId &&
+              !selectedGeometryInfo.selectedIds.includes(
+                shiftedLine.attachNodeTwo.connectedToId
+              )
+            ) {
+              shiftedLine.attachNodeTwo.center = line.attachNodeTwo.center;
+              shiftedLine.x2 = line.x2;
+              shiftedLine.y2 = line.y2;
+            }
+
+            return shiftedLine;
           }
           return line;
         });
@@ -936,20 +898,7 @@ const canvasSlice = createSlice({
         });
       }
     },
-    // shiftValidatorLens: withCanvasMeta<Shift & { validatorLensId: string }>(
-    //   (state, action) => {
-    //     state.validatorLensContainer.find((lens, index) => {
-    //       if (lens.id === action.payload.validatorLensId) {
-    //         state.validatorLensContainer[index] ==
-    //           Canvas.shiftValidatorLens({
-    //             shift: action.payload.shift,
-    //             validatorLens: lens,
-    //           });
-    //         return true;
-    //       }
-    //     });
-    //   }
-    // ),
+
     shiftValidatorLensContainer: withCanvasMeta<Shift>((state, action) => {
       state.validatorLensContainer.forEach((lens, index) => {
         state.validatorLensContainer[index] = Canvas.shiftValidatorLens({

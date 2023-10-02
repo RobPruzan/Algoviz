@@ -70,9 +70,7 @@ export type CircleConnector = {
   id: string;
   type: 'circle';
   value: number;
-  // center: [number, number];
   color: string;
-  // radius: number;
   nodeConnector: NodeConnector;
 } & GeoCircle;
 
@@ -81,12 +79,11 @@ export type GeoCircle = {
   radius: number;
 };
 
-export type CircleReceiver = Prettify<
-  Omit<CircleConnector, 'nodeConnector'> & {
-    nodeReceiver: NodeReceiver;
-    algorithmMetadata: AlgorithmMetadata;
-  }
->;
+export type CircleReceiver = Omit<CircleConnector, 'nodeConnector'> & {
+  nodeReceiver: NodeReceiver;
+  algorithmMetadata: AlgorithmMetadata;
+};
+// >;
 
 export type Rect = {
   id: string;

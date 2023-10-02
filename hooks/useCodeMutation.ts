@@ -222,8 +222,6 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
           }
         })
         .with({ type: AlgoType.Visualizer }, ({ output, logs }) => {
-          console.log('setting da vis', output);
-
           dispatch(CodeExecActions.setVisitedVisualization(output));
         })
         .with({ type: 'error' }, (errorInfo) => {

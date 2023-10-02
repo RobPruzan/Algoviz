@@ -139,6 +139,32 @@ export const useCanvasMouseMove = ({
               meta
             )
           );
+          // console.log('wohoo');
+
+          // setSelectBox((prev) => {
+          //   const mousePositionX =
+          //     event.nativeEvent.offsetX - cameraCoordinate[0];
+          //   const mousePositionY =
+          //     event.nativeEvent.offsetY - cameraCoordinate[1];
+          //   const adjustableCord: [number, number] = [
+          //     mousePositionX,
+          //     mousePositionY,
+          //   ];
+          //   const selectedGeo = Canvas.getSelectedGeometry({
+          //     edges: attachableLines,
+          //     vertices: circles,
+          //     selectBox: prev?.p1 ? { ...prev, p2: adjustableCord } : null,
+          //   });
+          //   // return prev?.p1 ? { ...prev, p2: adjustableCord } : null;
+          //   console.log('very much running', selectedGeo);
+          //   return selectedGeo
+          //     ? {
+          //         p1: selectedGeo?.maxPoints.closestToOrigin,
+          //         p2: selectedGeo?.maxPoints.furthestFromOrigin,
+          //         type: 'selectBox',
+          //       }
+          //     : prev;
+          // });
           dispatch(CanvasActions.shiftLines({ shift }, meta));
           dispatch(CanvasActions.shiftSelectBox({ shift }));
           dispatch(CanvasActions.update());
@@ -254,16 +280,17 @@ export const useCanvasMouseMove = ({
                   vertices: circles,
                   selectBox: prev?.p1 ? { ...prev, p2: adjustableCord } : null,
                 });
-
+                // console.log('moving', selectedGeometryInfo);
                 dispatch(
                   CanvasActions.setSelectedGeometryInfo(selectedGeometryInfo)
                 );
-                dispatch(CanvasActions.update());
+                // dispatch(CanvasActions.update());
                 return prev?.p1 ? { ...prev, p2: adjustableCord } : null;
               });
             }
             break;
         }
+
         previousMousePositionRef.current = [mousePositionX, mousePositionY];
         dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
         dispatch(CanvasActions.update());

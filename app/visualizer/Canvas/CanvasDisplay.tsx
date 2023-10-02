@@ -312,6 +312,10 @@ const CanvasDisplay = ({
     handleAddUndirectedEdge,
   } = useAddGeometry();
 
+  useEffect(() => {
+    setSelectBox(null);
+  }, []);
+
   useCanvasWheel();
 
   useApplyAlgorithm();
