@@ -833,6 +833,31 @@ const canvasSlice = createSlice({
         const { selectedGeometryInfo, shift } = action.payload;
         const shiftedCircle = Canvas.shiftCircle({ circle, shift });
         if (selectedGeometryInfo.selectedIds.includes(circle.id)) {
+          // if (selectedGeometryInfo.selectedIds.includes())
+
+          shiftedCircle.nodeReceiver.attachedIds.forEach((id) => {
+            if (selectedGeometryInfo.selectedIds.includes(id)) {
+              return;
+            }
+            // need to move the connected nodeConnector
+            const lineOne = state.attachableLines.find(
+              (l) => l.attachNodeOne.id === id
+            );
+            const lineTwo = state.attachableLines.find(
+              (l) => l.attachNodeTwo.id === id
+            );
+
+            if (lineOne) {
+              lineOne.attachNodeOne.center = shiftedCircle.center;
+              lineOne.x1 = shiftedCircle.center[0];
+              lineOne.y1 = shiftedCircle.center[1];
+            }
+            if (lineTwo) {
+              lineTwo.attachNodeTwo.center = shiftedCircle.center;
+              lineTwo.x2 = shiftedCircle.center[0];
+              lineTwo.y2 = shiftedCircle.center[1];
+            }
+          });
           return shiftedCircle;
         } else {
           return circle;
