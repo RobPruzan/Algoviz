@@ -40,6 +40,7 @@ const UpgradePlayground = (props: Props) => {
   }
   return (
     <Button
+      aria-label="convert-to-playground"
       className="min-w-fit mx-2"
       onClick={async () => {
         const url = new URL(window.location.href);

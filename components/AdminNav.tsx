@@ -19,7 +19,7 @@ const AdminNav = ({ className }: Props) => {
 
   return (
     session.data?.user.email === process.env.NEXT_PUBLIC_GOD_MODE && (
-      <Link href="/admin">
+      <Link aria-label="admin" href="/admin">
         <Button
           className={twMerge([isAdmin ? 'mr-2 bg-accent' : 'mr-2', className])}
           variant="outline"

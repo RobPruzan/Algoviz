@@ -320,6 +320,7 @@ const CodeExecutionControlBar = ({
               className="min-w-fit flex items-center  justify-center h-[30px] font-bold"
             >
               <Button
+                aria-label="code-options"
                 variant={'outline'}
                 className="w-[90px]  flex items-center justify-center h-[30px]   font-bold"
               >
@@ -407,6 +408,7 @@ const CodeExecutionControlBar = ({
             <Tooltip delayDuration={0}>
               <TooltipTrigger className="ml-2" asChild>
                 <Button
+                  aria-label="debug-algorithm"
                   onClick={() => {
                     if (!codeInfo) {
                       toast({
@@ -452,6 +454,7 @@ const CodeExecutionControlBar = ({
             <Tooltip delayDuration={0}>
               <TooltipTrigger className="ml-2" asChild>
                 <Button
+                  aria-label="toggle-algorithm-visualization"
                   onClick={async (e) => {
                     setTabValue('output');
                     const presetResult = searchParams.get('preset');
@@ -534,6 +537,7 @@ const CodeExecutionControlBar = ({
                 <TooltipTrigger className="ml-2" asChild>
                   <DialogTrigger asChild>
                     <Button
+                      aria-label="save-algorithm"
                       className="w-fit flex items-center justify-center h-[30px]   font-bold"
                       variant="outline"
                     >
@@ -600,6 +604,7 @@ const CodeExecutionControlBar = ({
               </div>
               <DialogFooter>
                 <Button
+                  aria-label="confirm-save-algorithm"
                   onClick={async () => {
                     // i need to clean up this logic, and also invalidate the validators in the validators part of the canvas control bar
                     await saveAlgorithmMutation.mutateAsync({

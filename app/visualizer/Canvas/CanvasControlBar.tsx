@@ -113,6 +113,7 @@ const CanvasControlBar = ({
           <Tooltip delayDuration={0}>
             <TooltipTrigger className="ml-2" asChild>
               <Button
+                aria-label="delete-all-playground-objects"
                 onClick={() => dispatch(CanvasActions.resetState(undefined))}
                 variant={'outline'}
                 className="px-2 mb-0"
@@ -129,6 +130,7 @@ const CanvasControlBar = ({
           <Tooltip delayDuration={0}>
             <TooltipTrigger className="ml-2" asChild>
               <Button
+                aria-label="undo-playground-action"
                 onClick={() => {
                   dispatch(ActionCreators.undo());
                 }}
@@ -146,6 +148,7 @@ const CanvasControlBar = ({
           <Tooltip delayDuration={0}>
             <TooltipTrigger className="ml-2" asChild>
               <Button
+                aria-label="redo-playground-action"
                 onClick={() => {
                   dispatch(ActionCreators.redo());
                 }}

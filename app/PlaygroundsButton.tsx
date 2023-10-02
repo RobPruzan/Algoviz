@@ -17,7 +17,7 @@ const PlaygroundsButton = ({ className }: Props) => {
   const isPlaygrounds = path.includes('create');
 
   return session.status === 'authenticated' ? (
-    <Link href="/create">
+    <Link aria-label="playgrounds" href="/create">
       <Button
         className={twMerge([
           isPlaygrounds ? 'mx-2 bg-accent' : 'mx-2',

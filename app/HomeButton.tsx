@@ -17,7 +17,7 @@ const HomeButton = (props: Props) => {
   const getPresetsQuery = useGetPresets();
   const isHome = path === '/';
   return (
-    <Link href="/" className="mr-2">
+    <Link aria-label="home-button" href="/" className="mr-2">
       <Button className={isHome ? 'bg-accent' : ''} variant="outline">
         Home
       </Button>

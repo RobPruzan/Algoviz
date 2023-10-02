@@ -61,7 +61,7 @@ const ShareableLink = () => {
     Boolean(searchParams.get('playground-id')) ? (
     <div className="mx-2 min-w-fit">
       <Dialog>
-        <DialogTrigger asChild>
+        <DialogTrigger aria-label="generate-shareable-link" asChild>
           <Button variant="outline">Generate Sharable Link</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">

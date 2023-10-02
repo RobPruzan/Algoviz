@@ -62,6 +62,7 @@ export default function RootLayout({
                 <div className="w-[60%] flex justify-end items-center">
                   <UpgradePlayground />
                   <Link
+                    aria-label="github-repo"
                     href={'https://github.com/RobPruzan/Algoviz'}
                     className="w-fit h-fit  p-[.4rem] mx-2 border-2 rounded-md hover:bg-accent"
                   >
