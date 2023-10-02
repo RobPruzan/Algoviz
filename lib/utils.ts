@@ -103,10 +103,13 @@ export const dispatchPreset = <
       },
     })),
   };
-  // const updatedStartNode = preset.circles.find
   dispatcher(newPreset);
 };
-
+export const GREEN_BLINKING_PRESETS = [
+  'depth-first-search',
+  'breadth-first-search',
+  'backtracking',
+];
 export const getCode = (
   userAlgo: RealMessedUpAlgoType,
   presetCode: string | null
@@ -114,11 +117,14 @@ export const getCode = (
   if (typeof window === 'undefined') {
     return userAlgo.code;
   }
+  // probably should just prompt user that defaultng currently selected algo not preset algo
+  if (userAlgo !== defaultAlgo) {
+    return userAlgo.code;
+  }
 
   if (presetCode) {
     return presetCode;
   }
-
   const storageCode = CodeStorage.getCode().code;
   if (userAlgo === defaultAlgo && storageCode) {
     return storageCode;

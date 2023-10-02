@@ -30,7 +30,7 @@ import { Button } from '@/components/ui/button';
 import { useDispatch } from 'react-redux';
 import { CanvasActions, canvasReducer } from '@/redux/slices/canvasSlice';
 import { ActionCreators } from 'redux-undo';
-import AlgoHistorySlider from './Sort/AlgoHistorySlider';
+
 import { Algorithm } from '@prisma/client';
 type Props = {
   setSelectedValidatorLens: React.Dispatch<

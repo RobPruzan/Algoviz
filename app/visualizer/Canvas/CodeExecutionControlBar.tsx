@@ -3,6 +3,7 @@ import React, {
   Dispatch,
   SetStateAction,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -41,6 +42,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { match } from 'ts-pattern';
 import {
   DEFAULT_VISUALIZATION_CODE,
+  GREEN_BLINKING_PRESETS,
   getCode,
   getSelectedItems,
   getValidatorLensSelectedIds,
@@ -51,8 +53,16 @@ import {
 import { AlgoType, Prettify, SelectedValidatorLens } from '@/lib/types';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/components/ui/use-toast';
-import AlgoHistorySlider from '../Sort/AlgoHistorySlider';
-import { Bug, ChevronDown, Pause, Play, Save, SaveAll } from 'lucide-react';
+
+import {
+  ArrowDown,
+  Bug,
+  ChevronDown,
+  Pause,
+  Play,
+  Save,
+  SaveAll,
+} from 'lucide-react';
 import { ChevronUp } from 'lucide-react';
 import { LanguageComboBox } from '../LanguageComboBox';
 import { Languages, languageSnippets } from '@/lib/language-snippets';
@@ -61,6 +71,8 @@ import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 import { useSaveAlgorithmMutation } from '@/hooks/useSaveAlgorithmMutation';
 import { AlgoComboBox } from '../Sort/AlgoComboBox';
 import { CodeStorage } from '@/hooks/codeStorage';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { getAdjacencyList } from '@/lib/graph';
 
 const startNodeAnnotation = ', startNode: NodeID';
 const endNodeAnnotation = ', endNode: NodeID';
@@ -69,7 +81,7 @@ type CodeExecParameters = {
   passStartNode: boolean;
   passEndNode: boolean;
 };
-
+const DONT_PURGE_IT_TAILWIND_AHHHHHHHHHHHHHHHHHH = 'animate-pulse bg-green-600';
 const parseCode = ({
   code,
   passEndNode,
@@ -206,6 +218,9 @@ const CodeExecutionControlBar = ({
     startNode,
   } = useAppSelector((store) => store.canvas.present);
   const presetCode = useAppSelector((store) => store.canvas.present.presetCode);
+  const searchParams = useSearchParams();
+
+  const lastInput = useRef('');
   const selectedIds = getValidatorLensSelectedIds({
     attachableLines,
     circles,
@@ -228,15 +243,8 @@ const CodeExecutionControlBar = ({
       };
     }
   });
-  // const codeInfo =
-  //   userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE
-  //     ? { ...userAlgorithm, id: null }
-  //     : currentAlgorithm ?? {
-  //         code: DEFAULT_VISUALIZATION_CODE,
-  //         type: AlgoType.Visualizer,
-  //         id: null,
-  //       };
 
+  const { getAdjacenyList } = useCodeMutation();
   useEffect(() => {
     validatorLensContainer.forEach((lens) => {
       if (lens.selectedIds.length > 0) {
@@ -260,6 +268,31 @@ const CodeExecutionControlBar = ({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedIds]);
+  const [shouldBounceGreen, setShouldBounceGreen] = useState(false);
+  // const visualization = useAppSelector((store) => store.codeExec.visualization);
+  useEffect(() => {
+    if (
+      !GREEN_BLINKING_PRESETS.includes(searchParams.get('preset') ?? 'nope')
+    ) {
+      setShouldBounceGreen(false);
+      return;
+    }
+    const cond =
+      searchParams.get('preset') &&
+      JSON.parse(
+        localStorage.getItem(
+          searchParams
+            // lol
+            .get('preset')!
+        ) ?? '{"firstTime":true}'
+      ).firstTime;
+
+    setShouldBounceGreen(cond);
+  }, [searchParams]);
+
+  // console.log('SHOULD IT BOUNCE DO', shouldBounceGreen);
+
+  // console.log('booo', shouldBounceGreen, searchParams.includes('preset'));
 
   return (
     <>
@@ -405,18 +438,64 @@ const CodeExecutionControlBar = ({
                 <Button
                   onClick={async (e) => {
                     setTabValue('output');
-                    await codeMutation.mutateAsync({
-                      type: AlgoType.Visualizer,
-                      algo: { code: codeInfo.code },
-                      endNode,
+                    const presetResult = searchParams.get('preset');
+                    if (presetResult) {
+                      setShouldBounceGreen(false);
+                      localStorage.setItem(
+                        presetResult,
+                        JSON.stringify({
+                          // ...JSON.parse(presetResult),
+                          firstTime: false,
+                        })
+                      );
+                    }
+                    const code = getCode(userAlgorithm, presetCode);
+                    const currentCacheKey = JSON.stringify([
+                      getAdjacenyList(autoSelectAll),
+                      code,
                       startNode,
-                      language,
-                      selectAll: autoSelectAll,
-                    });
+                    ]);
+
+                    const previousCacheKey = lastInput.current;
+
+                    if (currentCacheKey !== previousCacheKey) {
+                      const res = await codeMutation.mutateAsync({
+                        type: AlgoType.Visualizer,
+                        algo: { code: getCode(userAlgorithm, presetCode) },
+                        endNode,
+                        startNode,
+                        language,
+                        selectAll: autoSelectAll,
+                      });
+
+                      if (res?.type === 'error') {
+                        dispatch(CodeExecActions.setVisitedVisualization([]));
+                        dispatch(CodeExecActions.setIsApplyingAlgorithm(false));
+                        dispatch(CodeExecActions.resetVisitedPointer());
+
+                        return;
+                      }
+
+                      // literally a cache key
+                      lastInput.current = JSON.stringify([
+                        getAdjacenyList(autoSelectAll),
+                        code,
+                        startNode,
+                      ]);
+                      dispatch(CodeExecActions.resetVisitedPointer());
+                      dispatch(CodeExecActions.setIsApplyingAlgorithm(true));
+                      return;
+                    }
+
                     dispatch(CodeExecActions.toggleIsApplyingAlgorithm());
+                    // localStorage.setItem;
                   }}
                   variant="outline"
-                  className="w-fit flex items-center justify-center h-[30px]   font-bold"
+                  className={`w-fit flex items-center justify-center h-[30px]     font-bold ${
+                    shouldBounceGreen
+                      ? 'animate-pulse bg-green-600 DONT PURGE IT YOO'
+                      : ''
+                  }`}
                 >
                   {/* {isApplyingAlgorithm ? 'Pause' : 'Apply'} */}
                   {/* icon version */}

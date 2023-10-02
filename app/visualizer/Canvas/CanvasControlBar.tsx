@@ -63,6 +63,7 @@ const CanvasControlBar = ({
   selectedControlBarAction,
 }: Props) => {
   const visualization = useAppSelector((store) => store.codeExec.visualization);
+
   const getPresetsQuery = useGetPresets();
 
   const [itemChecked, setItemChecked] = useState<null | string>(null);

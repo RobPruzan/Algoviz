@@ -14,6 +14,7 @@ import { Languages, runJavascriptWithWorker } from '@/lib/language-snippets';
 import _logger from 'next-auth/utils/logger';
 import { useState } from 'react';
 import { useGetSelectedItems } from './useGetSelectedItems';
+import { useToast } from '@/components/ui/use-toast';
 type AlteredOutputUnion =
   | {
       output: Array<Array<string>>;
@@ -86,7 +87,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
             lens.selectedIds.includes(circle.id)
           )
         );
-
+  const { toast } = useToast();
   // const selectedIds = getValidatorLensSelectedIds({
   //   attachableLines,
   //   circles,
@@ -109,6 +110,23 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
     }, {});
   const codeMutation = useMutation({
     onError: (error) => {
+      if (error instanceof Error) {
+        toast({
+          variant: 'destructive',
+          title: 'Likely a network error',
+          description: error.message,
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Likely a network error',
+          description: JSON.stringify(error),
+        });
+      }
+
+      dispatch(CodeExecActions.setVisitedVisualization([]));
+      dispatch(CodeExecActions.setIsApplyingAlgorithm(false));
+      dispatch(CodeExecActions.resetVisitedPointer());
       onError?.(error);
     },
     mutationFn: async ({
@@ -204,9 +222,14 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
           }
         })
         .with({ type: AlgoType.Visualizer }, ({ output, logs }) => {
+          console.log('setting da vis', output);
+
           dispatch(CodeExecActions.setVisitedVisualization(output));
         })
         .with({ type: 'error' }, (errorInfo) => {
+          dispatch(CodeExecActions.setVisitedVisualization([]));
+          dispatch(CodeExecActions.setIsApplyingAlgorithm(false));
+          dispatch(CodeExecActions.resetVisitedPointer());
           dispatch(
             CodeExecActions.setError({
               logs: errorInfo.output.map((log) => JSON.stringify(log)),
