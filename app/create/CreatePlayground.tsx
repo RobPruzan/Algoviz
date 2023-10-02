@@ -32,7 +32,7 @@ const CreatePlayground = () => {
         <div className="bg-gray-800 h-1/4"></div>
       </Card>
       {createPlaygroundMutation.isLoading && (
-        <Card className="w-72 h-64 ml-5 mt-5 animate-pulse" />
+        <Card className="w-72 h-64 ml-5 mt-5 animate-pulse transition" />
       )}
     </>
   );
