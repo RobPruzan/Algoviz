@@ -66,7 +66,7 @@ const ShareableLink = () => {
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Those with link can</DialogTitle>
+            <DialogTitle>Generate shareable link</DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
