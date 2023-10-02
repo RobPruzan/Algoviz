@@ -11,7 +11,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
     <AuthProvider>
       <QueryProvider>
         <ReduxProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <CanvasProvider>{children}</CanvasProvider>
           </ThemeProvider>
         </ReduxProvider>

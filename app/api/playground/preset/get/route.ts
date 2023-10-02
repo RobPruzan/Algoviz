@@ -5,12 +5,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 export const GET = async () => {
-  const session = await getServerSession(authOptions);
-  if (!session?.user)
-    return NextResponse.json({
-      msg: 'Must be signed in',
-      status: 401,
-    });
+  // const session = await getServerSession(authOptions);
+  // if (!session?.user) {
+
+  //   const data = await prisma.preset.findMany({
+  //     where: {
+
+  //     }
+  //   });
+  //   return NextResponse.json({
+  //     msg: 'Must be signed in',
+  //     status: 401,
+  //   });
+  // }
+
   const data = await prisma.preset.findMany();
 
   return NextResponse.json({

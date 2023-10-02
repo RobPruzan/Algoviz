@@ -7,7 +7,6 @@ import { SignInButton } from '@/components/Auth/AuthButtons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-import { ThemeProvider } from '@/components/ThemeProvider';
 import { ModeToggle } from '@/components/ui/mode-toggle';
 import ShareableLink from '@/components/ShareableLink';
 import React from 'react';
