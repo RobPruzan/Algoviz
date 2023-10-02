@@ -62,14 +62,14 @@ const ConnectedUsers = () => {
             </div>
           ) : (
             <div key={collab.id}>
-              <div className="border border-black rounded-md p-2 text-sm">
-                <Image
-                  alt="user avatar"
-                  src={collab.image ?? '/default-avatar.png'}
-                  width={25}
-                  height={25}
-                />
-              </div>
+              {/* <div className="border border-black rounded-md p-2 text-sm min-w-fit min-h-fit"> */}
+              <Image
+                alt="user avatar"
+                src={collab.image ?? '/default-avatar.png'}
+                width={25}
+                height={25}
+              />
+              {/* </div> */}
             </div>
           )
         )}
