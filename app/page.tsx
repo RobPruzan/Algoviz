@@ -105,7 +105,10 @@ export default function Home() {
                   className="w-full flex items-center justify-center"
                   href={'/visualizer?preset=breadth-first-search'}
                 >
-                  <Button className="w-3/4 text-md" variant={'outline'}>
+                  <Button
+                    className="w-3/4 text-md hover:scale-105 transition"
+                    variant={'outline'}
+                  >
                     View
                   </Button>
                 </Link>
@@ -120,7 +123,10 @@ export default function Home() {
                   className="w-full flex items-center justify-center"
                   href={'/visualizer?preset=depth-first-search'}
                 >
-                  <Button className="w-3/4 text-md" variant={'outline'}>
+                  <Button
+                    className="w-3/4 text-md hover:scale-105 transition"
+                    variant={'outline'}
+                  >
                     View
                   </Button>
                 </Link>
@@ -135,7 +141,10 @@ export default function Home() {
                   className="w-full flex items-center justify-center"
                   href={'/visualizer?preset=backtracking'}
                 >
-                  <Button className="w-3/4 text-md" variant={'outline'}>
+                  <Button
+                    className="w-3/4 text-md hover:scale-105 transition"
+                    variant={'outline'}
+                  >
                     View
                   </Button>
                 </Link>
@@ -153,7 +162,10 @@ export default function Home() {
                   className="w-full flex items-center justify-center"
                   href={'/visualizer?preset=red-black-tree'}
                 >
-                  <Button className="w-3/4 text-md" variant={'outline'}>
+                  <Button
+                    className="w-3/4 text-md hover:scale-105 transition"
+                    variant={'outline'}
+                  >
                     View
                   </Button>
                 </Link>
@@ -168,7 +180,10 @@ export default function Home() {
                   className="w-full flex items-center justify-center"
                   href={'/visualizer?preset=binary-search-tree'}
                 >
-                  <Button className="w-3/4 text-md" variant={'outline'}>
+                  <Button
+                    className="w-3/4 text-md hover:scale-105 transition"
+                    variant={'outline'}
+                  >
                     View
                   </Button>
                 </Link>
@@ -183,7 +198,10 @@ export default function Home() {
                   className="w-full flex items-center justify-center"
                   href={'/visualizer?prest=heap'}
                 >
-                  <Button className="w-3/4 text-md" variant={'outline'}>
+                  <Button
+                    className="w-3/4 text-md hover:scale-105 transition"
+                    variant={'outline'}
+                  >
                     View
                   </Button>
                 </Link>
