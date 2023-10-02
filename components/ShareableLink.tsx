@@ -77,14 +77,14 @@ const ShareableLink = () => {
               }}
               defaultValue="comfortable"
             >
-              <div className="flex items-center space-x-2">
+              {/* <div className="flex items-center space-x-2">
                 <RadioGroupItem value={'EDIT'} id="r1" />
                 <Label htmlFor="r1">Edit</Label>
-              </div>
-              <div className="flex items-center space-x-2">
+              </div> */}
+              {/* <div className="flex items-center space-x-2">
                 <RadioGroupItem value={'READ-ONLY'} id="r2" />
                 <Label htmlFor="r2">Read-only</Label>
-              </div>
+              </div> */}
             </RadioGroup>
             <div className="grid grid-cols-4 items-center gap-4">
               <CopyButton
