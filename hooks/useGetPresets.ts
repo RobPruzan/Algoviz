@@ -1,7 +1,12 @@
-import { API_URL } from '@/lib/utils';
+import { API_URL, dispatchPreset } from '@/lib/utils';
+import { CanvasActions } from '@/redux/slices/canvasSlice';
+import { useAppDispatch } from '@/redux/store';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 import { z } from 'zod';
+import { useMeta } from './useMeta';
 
 export const useGetPresets = () => {
   const getPresetQuery = useQuery({
@@ -18,6 +23,7 @@ export const useGetPresets = () => {
           circles: z.array(z.any()),
           lines: z.array(z.any()),
           zoomAmount: z.number(),
+          startNode: z.string().optional().nullable(),
         })
       );
 
@@ -25,5 +31,6 @@ export const useGetPresets = () => {
       return data;
     },
   });
+
   return getPresetQuery;
 };

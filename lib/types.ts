@@ -1,5 +1,5 @@
 import { Meta } from '@/redux/slices/canvasSlice';
-import { Playground } from '@prisma/client';
+import { Algorithm, Playground } from '@prisma/client';
 import { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { io } from 'socket.io-client';
 import { string } from 'zod';
@@ -12,6 +12,10 @@ export type NodeMetadata = {
   color: string;
 };
 
+export type RealMessedUpAlgoType = Pick<
+  Algorithm,
+  'title' | 'code' | 'description' | 'type' | 'language'
+>;
 // Array list of array lists, each inner array list is a specific state during the sort
 // in inner array list links represent if they are split into new arrays or not
 // quick sort is inplace, so its always in one array, but merge sort creates sub array

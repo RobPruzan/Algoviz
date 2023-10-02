@@ -15,10 +15,15 @@ import React, {
 } from 'react';
 import { match } from 'ts-pattern';
 import { nightOwlTheme } from './theme';
-import { Percentage, SelectedValidatorLens } from '@/lib/types';
+import {
+  Percentage,
+  RealMessedUpAlgoType,
+  SelectedValidatorLens,
+} from '@/lib/types';
 import {
   DEFAULT_VALIDATOR_CODE,
   DEFAULT_VISUALIZATION_CODE,
+  getCode,
   getSelectedItems,
   run,
 } from '@/lib/utils';
@@ -41,15 +46,8 @@ import { CodeStorage } from '@/hooks/codeStorage';
 import { defaultAlgo } from '../ContentWrapper';
 
 type Props = {
-  setUserAlgorithm: React.Dispatch<
-    React.SetStateAction<
-      Pick<Algorithm, 'title' | 'code' | 'description' | 'type' | 'language'>
-    >
-  >;
-  userAlgorithm: Pick<
-    Algorithm,
-    'title' | 'code' | 'description' | 'type' | 'language'
-  >;
+  setUserAlgorithm: React.Dispatch<React.SetStateAction<RealMessedUpAlgoType>>;
+  userAlgorithm: RealMessedUpAlgoType;
   setSelectedValidatorLens: React.Dispatch<
     React.SetStateAction<SelectedValidatorLens | null>
   >;
@@ -81,6 +79,7 @@ const CodeExecution = ({
     // to really fix this need to do it in the css with a calc minus for the h-10 and padding
     '37.5%'
   );
+  const presetCode = useAppSelector((store) => store.canvas.present.presetCode);
 
   // const ioPanelRef = useRef<ElementRef<'div'>>(null);
 
@@ -161,17 +160,7 @@ const CodeExecution = ({
                     ? 'light'
                     : 'vs-dark'
                 }
-                value={run(() => {
-                  if (typeof window === 'undefined') {
-                    return userAlgorithm.code;
-                  }
-                  const storageCode = CodeStorage.getCode().code;
-                  if (userAlgorithm === defaultAlgo && storageCode) {
-                    return storageCode;
-                  } else {
-                    return userAlgorithm.code;
-                  }
-                })}
+                value={getCode(userAlgorithm, presetCode)}
                 // this doesn't make sense without edit functionality will do that next
                 onChange={(value) => {
                   if (value) {

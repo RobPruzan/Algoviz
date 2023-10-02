@@ -169,6 +169,7 @@ const ContentWrapper = ({ data }: Props) => {
             setSelectedValidatorLens={setSelectedValidatorLens}
             canvasWidth={canvasWidth}
             setUserAlgorithm={setUserAlgorithm}
+            userAlgorithm={userAlgorithm}
           />
         </>
       }

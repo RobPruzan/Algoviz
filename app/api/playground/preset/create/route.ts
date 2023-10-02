@@ -19,6 +19,7 @@ export const POST = async (res: NextRequest) => {
     name: z.string(),
     type: z.string(),
     code: z.string().optional(),
+    startNode: z.string().optional(),
   });
 
   const json = await res.json();
@@ -33,6 +34,8 @@ export const POST = async (res: NextRequest) => {
       zoomAmount: data.zoomAmount,
       type: data.type,
       code: data.code,
+
+      ...(data.startNode && { startNode: data.startNode }),
     },
   });
 

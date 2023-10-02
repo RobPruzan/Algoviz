@@ -92,5 +92,6 @@ model Preset {
   circles    Json
   lines      Json
   zoomAmount Float
+  startNode  String?
   // code String @default("")
 }

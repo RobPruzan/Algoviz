@@ -41,8 +41,10 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { match } from 'ts-pattern';
 import {
   DEFAULT_VISUALIZATION_CODE,
+  getCode,
   getSelectedItems,
   getValidatorLensSelectedIds,
+  run,
   twCond,
 } from '@/lib/utils';
 
@@ -203,21 +205,37 @@ const CodeExecutionControlBar = ({
     endNode,
     startNode,
   } = useAppSelector((store) => store.canvas.present);
-
+  const presetCode = useAppSelector((store) => store.canvas.present.presetCode);
   const selectedIds = getValidatorLensSelectedIds({
     attachableLines,
     circles,
     validatorLensContainer,
   }).join(',');
-
-  const codeInfo =
-    userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE
-      ? { ...userAlgorithm, id: null }
-      : currentAlgorithm ?? {
-          code: DEFAULT_VISUALIZATION_CODE,
-          type: AlgoType.Visualizer,
-          id: null,
-        };
+  const codeInfo = run(() => {
+    if (presetCode) {
+      return { code: presetCode, type: AlgoType.Visualizer, id: null };
+    }
+    if (userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE) {
+      return { ...userAlgorithm, id: null };
+    }
+    if (currentAlgorithm) {
+      return currentAlgorithm;
+    } else {
+      return {
+        code: DEFAULT_VISUALIZATION_CODE,
+        type: AlgoType.Visualizer,
+        id: null,
+      };
+    }
+  });
+  // const codeInfo =
+  //   userAlgorithm.code !== DEFAULT_VISUALIZATION_CODE
+  //     ? { ...userAlgorithm, id: null }
+  //     : currentAlgorithm ?? {
+  //         code: DEFAULT_VISUALIZATION_CODE,
+  //         type: AlgoType.Visualizer,
+  //         id: null,
+  //       };
 
   useEffect(() => {
     validatorLensContainer.forEach((lens) => {
@@ -350,6 +368,7 @@ const CodeExecutionControlBar = ({
                     }
                     if (!selectedIds) {
                       setTabValue('output');
+                      const code = getCode(userAlgorithm, presetCode);
                       codeMutation.mutate({
                         type:
                           codeInfo.type === AlgoType.Validator

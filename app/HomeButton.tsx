@@ -1,5 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
+import { useGetPresets } from '@/hooks/useGetPresets';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -12,6 +13,8 @@ type Props = {};
 const HomeButton = (props: Props) => {
   const path = usePathname();
 
+  // temporary location to prefetch queries
+  const getPresetsQuery = useGetPresets();
   const isHome = path === '/';
   return (
     <Link href="/" className="mr-2">

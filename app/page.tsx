@@ -128,12 +128,12 @@ export default function Home() {
             </div>
             <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 hidden  w-64 sm:w-72 lg:w-[16.5rem] h-32 sm:h-40 sm:flex flex-col">
               <div className="h-full w-full  text-2xl flex justify-center items-center text-foreground font-bold">
-                {"Dijkstra's"}
+                {'Backtracing'}
               </div>
               <div className="h-full w-full  flex items-center justify-center ">
                 <Link
                   className="w-full flex items-center justify-center"
-                  href={'/visualizer?preset=dijkstra'}
+                  href={'/visualizer?preset=backtracking'}
                 >
                   <Button className="w-3/4 text-md" variant={'outline'}>
                     View

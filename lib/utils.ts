@@ -7,13 +7,22 @@ import {
   HistoryNode,
   IO,
   NodeMetadata,
+  RealMessedUpAlgoType,
   SelectedGeometryInfo,
   SerializedPlayground,
 } from './types';
 import { z } from 'zod';
 import ky from 'ky';
 import { useRef } from 'react';
-import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
+import {
+  CanvasActions,
+  Meta,
+  ValidatorLensInfo,
+} from '@/redux/slices/canvasSlice';
+import { CodeStorage } from '@/hooks/codeStorage';
+import { defaultAlgo } from '@/app/visualizer/ContentWrapper';
+// import { type AppDispatch } from '@/redux/store';
+import { useGetPresets } from '@/hooks/useGetPresets';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -34,27 +43,92 @@ export const getNodeArray = (nodeRow: NodeMetadata[]) => {
   });
   return arrays;
 };
+type BuildParams<T extends ReturnType<typeof useGetPresets>['data']> = {
+  preset: T extends { presets: Array<infer R> } ? R : never;
+  currentZoomFactor: number;
+
+  dispatcher: Function;
+};
+
+export const dispatchPreset = <
+  T extends ReturnType<typeof useGetPresets>['data']
+>({
+  currentZoomFactor,
+  dispatcher,
+
+  preset,
+}: BuildParams<T>) => {
+  // trivial offset to add to the UUID, works fine
+  const offset = String(Date.now());
+  const newZoom = preset.zoomAmount * currentZoomFactor;
+  // need to do a mouse centered zoom on the coordinates for that to work
+  // everything also needs to be integrated to the selected item flow, get the mouse pos, mouse center zoom every single item and then place, no other odd scaling. Works for the circle, doesn't work for the line since before we just hardcoded it
+  // dispatch(
+  //   CanvasActions.addPreset(
+
+  const newPreset = {
+    type: preset.type,
+    code: preset.code,
+    startNode: preset.startNode + offset,
+    // offset mapping is necessary to allow multiple presets to be made in the same playground
+    attachableLines: (preset.lines as Edge[]).map((line) => ({
+      ...line,
+      id: line.id + offset,
+      width: line.width * newZoom,
+      attachNodeOne: {
+        ...line.attachNodeOne,
+        id: line.attachNodeOne.id + offset,
+        radius: line.attachNodeOne.radius * newZoom,
+        connectedToId: line.attachNodeOne.connectedToId + offset,
+      },
+      attachNodeTwo: {
+        ...line.attachNodeTwo,
+        radius: line.attachNodeTwo.radius * newZoom,
+        id: line.attachNodeTwo.id + offset,
+        connectedToId: line.attachNodeTwo.connectedToId + offset,
+      },
+    })),
+    circles: (preset.circles as CircleReceiver[]).map((circle) => ({
+      ...circle,
+      id: circle.id + offset,
+
+      radius: circle.radius * newZoom,
+      nodeReceiver: {
+        ...circle.nodeReceiver,
+        radius: circle.nodeReceiver.radius * newZoom,
+        id: circle.nodeReceiver.id + offset,
+        attachedIds: circle.nodeReceiver.attachedIds.map(
+          (nrID: string) => nrID + offset
+        ),
+      },
+    })),
+  };
+  // const updatedStartNode = preset.circles.find
+  dispatcher(newPreset);
+};
+
+export const getCode = (
+  userAlgo: RealMessedUpAlgoType,
+  presetCode: string | null
+) => {
+  if (typeof window === 'undefined') {
+    return userAlgo.code;
+  }
+
+  if (presetCode) {
+    return presetCode;
+  }
+
+  const storageCode = CodeStorage.getCode().code;
+  if (userAlgo === defaultAlgo && storageCode) {
+    return storageCode;
+  } else {
+    return userAlgo.code;
+  }
+};
 
 export const API_URL =
   typeof window !== 'undefined' ? window.origin + '/api' : '';
-// export const algorithmsInfo: AlgorithmInfo[] = [
-//   {
-//     value: 'merge sort',
-//     label: 'Merge Sort',
-//   },
-//   {
-//     value: 'quick sort',
-//     label: 'Quick Sort',
-//   },
-//   {
-//     value: 'breadth first search',
-//     label: 'Breadth First Search',
-//   },
-//   {
-//     value: 'depth first search',
-//     label: 'Depth First Search',
-//   },
-// ];
 
 export const DEFAULT_VISUALIZATION_CODE = `type NodeID = string // uuid representing a node
 type AdjacencyList = Record<NodeID, NodeID[]>

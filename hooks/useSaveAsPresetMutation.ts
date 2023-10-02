@@ -1,3 +1,4 @@
+import { useToast } from '@/components/ui/use-toast';
 import { CircleReceiver, Edge } from '@/lib/types';
 import { API_URL } from '@/lib/utils';
 import { useMutation } from '@tanstack/react-query';
@@ -17,12 +18,26 @@ type TypeMutation =
       code: string;
     };
 export const useSaveAsPresetMutation = () => {
+  const { toast } = useToast();
   const saveAsPresetMutation = useMutation({
-    onError: (d, e) => console.log('fdasfd', d, e),
+    onError: (error) =>
+      toast({
+        title: 'Ahh something went wrong creating preset',
+        description: JSON.stringify(error),
+        variant: 'destructive',
+      }),
+    onSuccess: (res, context) => {
+      toast({
+        title: 'Success!',
+        description: `Preset: ${context.name} has been saved`,
+      });
+    },
     mutationFn: async ({
       shapes,
       name,
       typeData,
+      code,
+      startNode,
     }: {
       shapes: {
         circles?: CircleReceiver[];
@@ -30,42 +45,17 @@ export const useSaveAsPresetMutation = () => {
         zoomAmount: number;
       };
       name: string;
+      code: string;
       typeData: TypeMutation;
+      startNode?: string;
     }) => {
-      // if (shapes.circles) {
-      //   console.log('sending this out', {
-      //     circles: shapes.circles,
-      //     name: name,
-      //     zoomAmount: shapes.zoomAmount,
-      //     ...typeData,
-      //   });
-      //   await axios.post(`${API_URL}/playground/preset/create`, {
-      //     circles: shapes.circles,
-      //     name: name,
-      //     zoomAmount: shapes.zoomAmount,
-      //     ...typeData,
-      //   });
-      // }
-      // if (shapes.lines) {
-      //   console.log('sending this out', {
-      //     lines: shapes.lines,
-      //     name: name,
-      //     zoomAmount: shapes.zoomAmount,
-      //     ...typeData,
-      //   });
-      //   await axios.post(`${API_URL}/playground/preset/create`, {
-      //     lines: shapes.lines,
-      //     name: name,
-      //     zoomAmount: shapes.zoomAmount,
-      //     ...typeData,
-      //   });
-      // }
-
       return await axios.post(API_URL + '/playground/preset/create', {
         circles: shapes.circles ?? [],
         lines: shapes.lines ?? [],
         name: name,
         zoomAmount: shapes.zoomAmount,
+        code,
+        startNode,
         ...typeData,
       });
     },

@@ -14,6 +14,7 @@ import {
   DrawTypes,
   IO,
   Percentage,
+  RealMessedUpAlgoType,
   SelectedGeometryInfo,
   SelectedValidatorLens,
   TaggedDrawTypes,
@@ -37,17 +38,16 @@ type Props = {
   >;
   selectedValidatorLens: SelectedValidatorLens | null;
   canvasWidth: number | Percentage;
-  setUserAlgorithm: React.Dispatch<
-    React.SetStateAction<
-      Pick<Algorithm, 'title' | 'code' | 'description' | 'type' | 'language'>
-    >
-  >;
+  setUserAlgorithm: React.Dispatch<React.SetStateAction<RealMessedUpAlgoType>>;
+
+  userAlgorithm: RealMessedUpAlgoType;
 };
 
 const Visualize = ({
   canvasWidth,
   selectedValidatorLens,
   setUserAlgorithm,
+  userAlgorithm,
   setSelectedValidatorLens,
 }: Props) => {
   const [selectedControlBarAction, setSelectedControlBarAction] =
@@ -78,6 +78,7 @@ const Visualize = ({
           selectedValidatorLens={selectedValidatorLens}
           setSelectedValidatorLens={setSelectedValidatorLens}
           canvasWrapperRef={canvasWrapperRef}
+          userAlgorithm={userAlgorithm}
           canvasWidth={width ?? 1000}
           canvasHeight={height ?? 1000}
           selectedControlBarAction={selectedControlBarAction}

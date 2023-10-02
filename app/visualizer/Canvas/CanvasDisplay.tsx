@@ -8,6 +8,7 @@ import {
   SelectedValidatorLens,
   SelectedValidatorLensResizeCircle,
   TaggedDrawTypes,
+  RealMessedUpAlgoType,
 } from '@/lib/types';
 import React, {
   useRef,
@@ -34,12 +35,13 @@ import { Button } from '@/components/ui/button';
 
 import {
   Command,
+  CommandDialog,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
 } from '@/components/ui/command';
-import { getSelectedItems, run } from '@/lib/utils';
+import { getCode, getSelectedItems, run } from '@/lib/utils';
 
 import { useTheme } from 'next-themes';
 import { useSearchParams } from 'next/navigation';
@@ -71,6 +73,8 @@ import {
 } from '@/hooks/useSaveAsPresetMutation';
 import { useGetSelectedItems } from '@/hooks/useGetSelectedItems';
 import { useGetPresets } from '@/hooks/useGetPresets';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
 export type Props = {
   selectedControlBarAction: TaggedDrawTypes | null;
   setSelectedControlBarAction: Dispatch<SetStateAction<TaggedDrawTypes | null>>;
@@ -81,11 +85,8 @@ export type Props = {
   setSelectedValidatorLens: React.Dispatch<
     React.SetStateAction<SelectedValidatorLens | null>
   >;
-  setUserAlgorithm: React.Dispatch<
-    React.SetStateAction<
-      Pick<Algorithm, 'title' | 'code' | 'description' | 'type' | 'language'>
-    >
-  >;
+  setUserAlgorithm: React.Dispatch<React.SetStateAction<RealMessedUpAlgoType>>;
+  userAlgorithm: RealMessedUpAlgoType;
   selectedValidatorLens: SelectedValidatorLens | null;
 };
 
@@ -93,6 +94,7 @@ const CanvasDisplay = ({
   selectedControlBarAction,
   setSelectedControlBarAction,
   canvasWrapperRef,
+  userAlgorithm,
   selectedValidatorLens,
   canvasHeight,
   canvasWidth,
@@ -125,7 +127,7 @@ const CanvasDisplay = ({
   const { collabInfos, ownerID } = useAppSelector(
     (store) => store.collaborationState
   );
-
+  // const startNode = useAppSelector((store) => store.canvas.present.startNode);
   const isMouseDownRef = useRef(false);
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
@@ -157,7 +159,7 @@ const CanvasDisplay = ({
       cameraCoordinate[1] + canvasHeight / 2,
     ],
   };
-
+  const { toast } = useToast();
   // const isGod = session.data?.user.email === process.env.NEXT_PUBLIC_GOD_MODE;
 
   const cursorImgRef = useRef<HTMLImageElement | null>(null);
@@ -236,6 +238,7 @@ const CanvasDisplay = ({
   });
 
   const getPresetsQuery = useGetPresets();
+  const presetCode = useAppSelector((store) => store.canvas.present.presetCode);
 
   const algos = useGetAlgorithmsQuery();
 
@@ -626,6 +629,7 @@ const CanvasDisplay = ({
             >
               Set as starting node
             </ContextMenuItem>
+            {/* keep this for now if i think of a better way to introduce this since it does work */}
             {/* <ContextMenuItem
               onClick={() => {
                 if (selectedCircleID) {
@@ -642,14 +646,21 @@ const CanvasDisplay = ({
               <ContextMenuSub>
                 <ContextMenuSubTrigger inset>Save Preset</ContextMenuSubTrigger>
                 <ContextMenuSubContent className=" ">
-                  <Command>
-                    <CommandInput
+                  <Input
+                    value={presetName}
+                    onChange={(e) => {
+                      setPresetName(e.target.value);
+                    }}
+                  />
+                  {/* <CommandInput
                       onValueChange={(v) => {
                         setPresetName(v);
                       }}
                       placeholder="Name"
-                    />
-                  </Command>
+                    /> */}
+
+                  <Command></Command>
+
                   <Button
                     onClick={() => {
                       saveAsPresetMutation.mutate({
@@ -659,9 +670,11 @@ const CanvasDisplay = ({
                           lines: selectedValues.selectedAttachableLines,
                           zoomAmount: currentZoomFactor,
                         },
+                        code: getCode(userAlgorithm, presetCode),
                         typeData: {
                           type: PresetType.DataStructure,
                         },
+                        startNode: startNode ?? undefined,
                       });
                       getPresetsQuery.refetch();
                     }}

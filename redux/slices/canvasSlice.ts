@@ -64,6 +64,7 @@ export type CanvasState = {
   cameraCoordinate: [number, number];
   notSignedInUserID: string | null;
   lastUpdate: number;
+  presetCode: string | null;
   // canvasRef: React.RefObject<HTMLCanvasElement>
   // canvasRef: RefObject<ElementRef<'canvas'>>
   // canvasRef: RefObject<ElementRef<'canvas'>> | null;
@@ -88,6 +89,7 @@ const initialState: CanvasState = {
   cameraCoordinate: [0, 0],
   notSignedInUserID: null,
   lastUpdate: Date.now(),
+  presetCode: null,
 };
 
 export type ObjectState = Pick<
@@ -128,18 +130,16 @@ const canvasSlice = createSlice({
       circles: CircleReceiver[];
       attachableLines: Edge[];
       type: string;
-      // realCenter: [number, number];
+      code: string;
+      startNode?: string;
     }>((state, action) => {
-      // const zoomedAttachableLines = action.payload.attachableLines.map(line => {
-      //   const zoomedLine = Draw.zooj
-      // })
-      const idMap = new Map<string, string>();
-      // action.payload.attachableLines.map(edge => ({
-      //   ...edge,
-      // id: crypto.ra}))
-
       state.attachableLines.push(...action.payload.attachableLines);
       state.circles.push(...action.payload.circles);
+      state.presetCode = action.payload.code;
+      if (action.payload.startNode) {
+        console.log('setting the start node', action.payload.startNode);
+        state.startNode = action.payload.startNode;
+      }
     }),
     // addPreset: (
     //   state,

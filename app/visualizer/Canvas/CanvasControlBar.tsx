@@ -31,7 +31,14 @@ import {
   Trash,
   Undo,
 } from 'lucide-react';
-import React, { Dispatch, SetStateAction, useContext, useState } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { DirectedEdgeIcon } from '@/components/icons/DirectedEdge';
 import { UndirectedEdgeIcon } from '@/components/icons/UndirectedEdge';
 import { BINARY_SEARCH_TREE } from '@/lib/presets/binary-search-tree';
@@ -41,9 +48,10 @@ import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 import { useAddGeometry } from '@/hooks/useAddGeomotry';
 import { CanvasContext } from '@/context/CanvasContext';
 import { useCanvasRef } from '@/hooks/useCanvasRef';
-import { run, twCond } from '@/lib/utils';
+import { dispatchPreset as dispatchPreset, run, twCond } from '@/lib/utils';
 import { useGetPresets } from '@/hooks/useGetPresets';
 import { useMeta } from '@/hooks/useMeta';
+import { useSearchParams } from 'next/navigation';
 
 type Props = {
   setSelectedControlBarAction: Dispatch<SetStateAction<TaggedDrawTypes | null>>;
@@ -65,6 +73,38 @@ const CanvasControlBar = ({
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
   const meta = useMeta();
   const { handleAddValidatorLens } = useAddGeometry();
+
+  const searchParams = useSearchParams();
+
+  const hasSetRef = useRef(false);
+  useEffect(() => {
+    const currentPresetName = searchParams.get('preset');
+
+    if (!hasSetRef.current && currentPresetName) {
+      const preset = getPresetsQuery.data?.presets.find(
+        (p) => p.name === currentPresetName
+      );
+      if (!preset) {
+        return;
+      }
+
+      dispatchPreset({
+        currentZoomFactor,
+
+        preset,
+        // cause next sux
+        dispatcher: (data: unknown) =>
+          dispatch(CanvasActions.addPreset(data as any, meta)),
+      });
+      hasSetRef.current = true;
+    }
+  }, [
+    currentZoomFactor,
+    dispatch,
+    getPresetsQuery.data?.presets,
+    meta,
+    searchParams,
+  ]);
   return (
     <>
       <div className="w-full items-center overflow-x-scroll overflow-y-hidden  h-14 flex justify-evenly ">
@@ -277,69 +317,14 @@ const CanvasControlBar = ({
                 <DropdownMenuItem
                   className="w-full"
                   onClick={() => {
-                    const offset = String(Date.now());
-                    const newZoom = preset.zoomAmount * currentZoomFactor;
-                    // need to do a mouse centered zoom on the coordinates for that to work
-                    // everything also needs to be integrated to the selected item flow, get the mouse pos, mouse center zoom every single item and then place, no other odd scaling. Works for the circle, doesn't work for the line since before we just hardcoded it
-                    dispatch(
-                      CanvasActions.addPreset(
-                        {
-                          type: preset.type,
-                          // offset mapping is necessary to allow multiple presets to be made in the same playground
-                          attachableLines: (preset.lines as Edge[]).map(
-                            (line) => ({
-                              ...line,
-                              id: line.id + offset,
-                              // x1: line.x1 * newZoom,
-                              // x2: line.x2 * newZoom,
-                              // y1: line.y1 * newZoom,
-                              // y2: line.y2 * newZoom,
-                              width: line.width * newZoom,
-                              attachNodeOne: {
-                                ...line.attachNodeOne,
-                                // center: [
-                                //   line.attachNodeOne.center[0] * newZoom,
-                                //   line.attachNodeOne.center[1] * newZoom,
-                                // ],
-                                id: line.attachNodeOne.id + offset,
-                                radius: line.attachNodeOne.radius * newZoom,
-                                connectedToId:
-                                  line.attachNodeOne.connectedToId + offset,
-                              },
-                              attachNodeTwo: {
-                                ...line.attachNodeTwo,
-                                // center: [
-                                //   line.attachNodeTwo.center[0] * newZoom,
-                                //   line.attachNodeTwo.center[1] * newZoom,
-                                // ],
-                                radius: line.attachNodeTwo.radius * newZoom,
-                                id: line.attachNodeTwo.id + offset,
-                                connectedToId:
-                                  line.attachNodeTwo.connectedToId + offset,
-                              },
-                            })
-                          ),
-                          circles: (preset.circles as CircleReceiver[]).map(
-                            (circle) => ({
-                              ...circle,
-                              id: circle.id + offset,
+                    dispatchPreset({
+                      currentZoomFactor,
 
-                              radius: circle.radius * newZoom,
-                              nodeReceiver: {
-                                ...circle.nodeReceiver,
-                                radius: circle.nodeReceiver.radius * newZoom,
-                                id: circle.nodeReceiver.id + offset,
-                                attachedIds:
-                                  circle.nodeReceiver.attachedIds.map(
-                                    (nrID: string) => nrID + offset
-                                  ),
-                              },
-                            })
-                          ),
-                        },
-                        meta
-                      )
-                    );
+                      preset,
+                      // cause next sux
+                      dispatcher: (data: unknown) =>
+                        dispatch(CanvasActions.addPreset(data as any, meta)),
+                    });
                   }}
                 >
                   {preset.name}
