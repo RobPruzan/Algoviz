@@ -92,4 +92,5 @@ model Preset {
   circles    Json
   lines      Json
   zoomAmount Float
+  // code String @default("")
 }

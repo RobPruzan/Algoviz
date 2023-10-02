@@ -165,8 +165,9 @@ const CodeExecution = ({
                   if (typeof window === 'undefined') {
                     return userAlgorithm.code;
                   }
-                  if (userAlgorithm === defaultAlgo) {
-                    return CodeStorage.getCode().code;
+                  const storageCode = CodeStorage.getCode().code;
+                  if (userAlgorithm === defaultAlgo && storageCode) {
+                    return storageCode;
                   } else {
                     return userAlgorithm.code;
                   }
