@@ -271,12 +271,6 @@ const CodeExecutionControlBar = ({
   const [shouldBounceGreen, setShouldBounceGreen] = useState(false);
   // const visualization = useAppSelector((store) => store.codeExec.visualization);
   useEffect(() => {
-    if (
-      !GREEN_BLINKING_PRESETS.includes(searchParams.get('preset') ?? 'nope')
-    ) {
-      setShouldBounceGreen(false);
-      return;
-    }
     const cond =
       searchParams.get('preset') &&
       JSON.parse(
@@ -287,8 +281,30 @@ const CodeExecutionControlBar = ({
         ) ?? '{"firstTime":true}'
       ).firstTime;
 
+    if (
+      cond &&
+      !GREEN_BLINKING_PRESETS.includes(searchParams.get('preset') ?? 'nope')
+    ) {
+      toast({
+        title: 'Welcome!',
+        duration: 10000,
+        description:
+          'You can pan/zoom around to get a better view, or move the nodes around by dragging them. You can also write code to operate on the data structure/s with the built in code editor!',
+      });
+      setShouldBounceGreen(false);
+      return;
+    }
+    if (cond) {
+      // const descriptions =  searchParams.get('preset') ===
+      toast({
+        title: 'Welcome!',
+        duration: 15000,
+        description:
+          'Click the pulsing green play button to see a visualization. You can pan/zoom around to get a better view, or move the nodes/edges by dragging them',
+      });
+    }
     setShouldBounceGreen(cond);
-  }, [searchParams]);
+  }, [searchParams, toast]);
 
   // console.log('SHOULD IT BOUNCE DO', shouldBounceGreen);
 
