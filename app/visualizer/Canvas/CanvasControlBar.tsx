@@ -165,6 +165,7 @@ const CanvasControlBar = ({
 
         <div className="border-r  h-full"></div>
         <Toggle
+          aria-label="undirected-edge-toggle"
           pressed={selectedControlBarAction?.tag === 'undirected-edge-toggle'}
           // onClick={handleAddUndirectedEdge}
           onPressedChange={(pressed) => {
@@ -192,6 +193,7 @@ const CanvasControlBar = ({
           </TooltipProvider>
         </Toggle>
         <Toggle
+          aria-label="toggle-directed-edge"
           // onClick={handleAddDirectedEdge}
           onPressedChange={(pressed) => {
             if (pressed) {
@@ -219,6 +221,7 @@ const CanvasControlBar = ({
         </Toggle>
 
         <Toggle
+          aria-label="add-node"
           onPressedChange={(pressed) => {
             if (pressed) {
               setSelectedControlBarAction({ tag: 'circle-toggle' });
@@ -246,7 +249,11 @@ const CanvasControlBar = ({
         <DropdownMenu>
           <TooltipProvider>
             <Tooltip delayDuration={0}>
-              <TooltipTrigger className="ml-2" asChild>
+              <TooltipTrigger
+                aria-label="add-datastructures-validator"
+                className="ml-2"
+                asChild
+              >
                 <DropdownMenuTrigger
                   className={twCond({
                     cases: [
@@ -300,7 +307,11 @@ const CanvasControlBar = ({
         <DropdownMenu>
           <TooltipProvider>
             <Tooltip delayDuration={0}>
-              <TooltipTrigger className="ml-2" asChild>
+              <TooltipTrigger
+                aria-label="select-pre-made-data-structure"
+                className="ml-2"
+                asChild
+              >
                 <DropdownMenuTrigger className="border-2 w-32 flex items-center justify-evenly font-bold rounded-md text-sm p-2">
                   Presets
                   <ChevronDown size={20} />
