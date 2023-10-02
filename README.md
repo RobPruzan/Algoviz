@@ -9,7 +9,8 @@ Algoviz is a playground designed to enable both physical and programmatic intera
 - **Interactive Geometry:** Algoviz leverages the power of native web canvas to render fully interactive geometric structures. This allows for real-time visualization and interaction with the underlying data structures.
 
 - **Preset Algorithms Library:** Algoviz comes with a pre-built library of algorithms. This feature enables users to quickly load and visualize standard algorithms without the need for manual implementation.
-- <img width="1512" alt="image" src="https://github.com/RobPruzan/Algoviz/assets/97781863/a5fc8e65-fffd-497c-a70a-c44d91e7dbe8">
+<img width="1510" alt="image" src="https://github.com/RobPruzan/Algoviz/assets/97781863/eb0db113-8bad-4308-8974-7b722ed6aca2">
+
 
 Immerse yourself in the world of algorithms with Algoviz!
 
