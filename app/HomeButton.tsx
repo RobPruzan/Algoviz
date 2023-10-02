@@ -9,11 +9,9 @@ import { twMerge } from 'tailwind-merge';
 
 type Props = {};
 
-// const ahhhhhhhhhhhhhhhhhhhhhhhhh = 'isHome'
-
 const HomeButton = (props: Props) => {
   const path = usePathname();
-  // console.log('woohoo', path);
+
   const isHome = path === '/';
   return (
     <Link href="/" className="mr-2">

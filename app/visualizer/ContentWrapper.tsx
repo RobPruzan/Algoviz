@@ -31,8 +31,17 @@ import { useCodeMutation } from '@/hooks/useCodeMutation';
 import { AxiosError } from 'axios';
 import { useIsGodMode } from '@/hooks/isGodMode';
 import { useSession } from 'next-auth/react';
+import { CodeStorage } from '@/hooks/codeStorage';
 type Props = {
   data: PickedPlayground | null;
+};
+
+export const defaultAlgo = {
+  code: languageSnippets['python'],
+  description: '',
+  title: '',
+  type: AlgoType.Visualizer,
+  language: 'python',
 };
 
 const ContentWrapper = ({ data }: Props) => {
@@ -45,16 +54,16 @@ const ContentWrapper = ({ data }: Props) => {
 
   const [openLanguageComboBox, setOpenLanguageComboBox] = useState(false);
   const [language, setLanguage] = useState<Languages>('python');
+  // next is annoying sometimes
+  useEffect(() => {
+    setLanguage(CodeStorage.getCode().language);
+  }, []);
+
   const dispatch = useDispatch();
-  const [userAlgorithm, setUserAlgorithm] = useState<
-    Pick<Algorithm, 'code' | 'description' | 'title' | 'type' | 'language'>
-  >({
-    code: languageSnippets[language],
-    description: '',
-    title: '',
-    type: AlgoType.Visualizer,
-    language,
-  });
+  const [userAlgorithm, setUserAlgorithm] =
+    useState<
+      Pick<Algorithm, 'code' | 'description' | 'title' | 'type' | 'language'>
+    >(defaultAlgo);
 
   const { toast } = useToast();
   const isGodMode = useIsGodMode();
@@ -191,7 +200,6 @@ const ContentWrapper = ({ data }: Props) => {
             openLanguageComboBox={openLanguageComboBox}
             setOpenLanguageComboBox={setOpenLanguageComboBox}
             language={language}
-            setLanguage={setLanguage}
           />
         </div>
       }

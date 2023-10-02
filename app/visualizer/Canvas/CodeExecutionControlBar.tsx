@@ -58,6 +58,7 @@ import { useCodeMutation } from '@/hooks/useCodeMutation';
 import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 import { useSaveAlgorithmMutation } from '@/hooks/useSaveAlgorithmMutation';
 import { AlgoComboBox } from '../Sort/AlgoComboBox';
+import { CodeStorage } from '@/hooks/codeStorage';
 
 const startNodeAnnotation = ', startNode: NodeID';
 const endNodeAnnotation = ', endNode: NodeID';
@@ -321,6 +322,10 @@ const CodeExecutionControlBar = ({
                   ? ('' as Languages)
                   : (currentValue as Languages)
               );
+              CodeStorage.setCode((prev) => ({
+                ...prev,
+                language: currentValue,
+              }));
               setOpenLanguageComboBox(false);
 
               setUserAlgorithm((prev) => ({

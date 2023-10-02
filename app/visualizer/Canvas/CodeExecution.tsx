@@ -20,6 +20,7 @@ import {
   DEFAULT_VALIDATOR_CODE,
   DEFAULT_VISUALIZATION_CODE,
   getSelectedItems,
+  run,
 } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Algorithm } from '@prisma/client';
@@ -36,6 +37,8 @@ import { Languages, languageSnippets } from '@/lib/language-snippets';
 import { useCodeMutation } from '@/hooks/useCodeMutation';
 import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
 import Loading from '../loading';
+import { CodeStorage } from '@/hooks/codeStorage';
+import { defaultAlgo } from '../ContentWrapper';
 
 type Props = {
   setUserAlgorithm: React.Dispatch<
@@ -56,7 +59,6 @@ type Props = {
   openLanguageComboBox: boolean;
   setOpenLanguageComboBox: Dispatch<SetStateAction<boolean>>;
   language: Languages;
-  setLanguage: Dispatch<SetStateAction<Languages>>;
   tabValue: 'output' | 'input';
   setTabValue: Dispatch<SetStateAction<Props['tabValue']>>;
   adjacencyList: Record<string, string[]>;
@@ -70,7 +72,6 @@ const CodeExecution = ({
   language,
   openLanguageComboBox,
   selectedValidatorLens,
-  setLanguage,
   tabValue,
   setTabValue,
   adjacencyList,
@@ -81,27 +82,22 @@ const CodeExecution = ({
     '37.5%'
   );
 
-  const ioPanelRef = useRef<ElementRef<'div'>>(null);
+  // const ioPanelRef = useRef<ElementRef<'div'>>(null);
 
-  const width = ioPanelRef.current?.offsetWidth;
-  const height = ioPanelRef.current?.offsetHeight;
+  // const width = ioPanelRef.current?.offsetWidth;
+  // const height = ioPanelRef.current?.offsetHeight;
 
   const selectedAlgorithm = useAppSelector(
     (store) => store.codeExec.selectedAlgorithm
   );
 
-  const {
-    attachableLines,
-    circles,
-    selectedGeometryInfo,
-    validatorLensContainer,
-  } = useAppSelector((store) => store.canvas.present);
+  const circles = useAppSelector((store) => store.canvas.present.circles);
 
-  const { selectedAttachableLines, selectedCircles } = getSelectedItems({
-    attachableLines,
-    circles,
-    selectedGeometryInfo,
-  });
+  // const { selectedAttachableLines, selectedCircles } = getSelectedItems({
+  //   attachableLines,
+  //   circles,
+  //   selectedGeometryInfo,
+  // });
 
   const themeInfo = useTheme();
 
@@ -111,12 +107,12 @@ const CodeExecution = ({
     (d) => d.id === selectedAlgorithm
   );
 
-  const code = userAlgorithm.code ? languageSnippets[language] : '';
+  // const code = userAlgorithm.code ? languageSnippets[language] : '';
 
-  const execMode = useAppSelector((store) => store.codeExec.mode);
-  // if (codeMutation.data?.type === 'error') {
-  //   console.log(codeMutation.data.output.map((o) => o.split('\n')));
-  // }
+  // const execMode = useAppSelector((store) => store.codeExec.mode);
+  // // if (codeMutation.data?.type === 'error') {
+  // //   console.log(codeMutation.data.output.map((o) => o.split('\n')));
+  // // }
 
   return (
     <div style={{ height: 'calc(100% - 60px)' }} className="w-full ">
@@ -148,7 +144,16 @@ const CodeExecution = ({
                   // vercel thing, basename type gets widened when building prod
                   m.editor.defineTheme('night-owl', nightOwlTheme as any);
                 }}
-                language={language}
+                language={run(() => {
+                  if (typeof window === 'undefined') {
+                    return userAlgorithm.language;
+                  }
+                  if (userAlgorithm === defaultAlgo) {
+                    return CodeStorage.getCode().language;
+                  } else {
+                    return userAlgorithm.language;
+                  }
+                })}
                 theme={
                   themeInfo.theme === 'dark'
                     ? 'vs-dark'
@@ -156,11 +161,25 @@ const CodeExecution = ({
                     ? 'light'
                     : 'vs-dark'
                 }
-                value={userAlgorithm.code}
+                value={run(() => {
+                  if (typeof window === 'undefined') {
+                    return userAlgorithm.code;
+                  }
+                  if (userAlgorithm === defaultAlgo) {
+                    return CodeStorage.getCode().code;
+                  } else {
+                    return userAlgorithm.code;
+                  }
+                })}
                 // this doesn't make sense without edit functionality will do that next
                 onChange={(value) => {
                   if (value) {
                     // setCode(e);
+
+                    CodeStorage.setCode({
+                      code: value,
+                      language,
+                    });
                     setUserAlgorithm((prev) => ({ ...prev, code: value }));
                   }
                 }}
