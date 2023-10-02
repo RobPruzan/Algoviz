@@ -1,7 +1,4 @@
 import React from 'react';
-import ContentWrapper from '../visualizer/ContentWrapper';
-import { useSession } from 'next-auth/react';
-import { redirect } from 'next/dist/server/api-utils';
 import PageWrapper from './PageWrapper';
 
 const page = () => {

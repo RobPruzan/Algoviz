@@ -53,25 +53,27 @@ const ConnectedUsers = () => {
   if (pathname !== '/visualizer') return null;
 
   return (
-    <div className="flex  items-center justify-center overflow-y-scroll border-2 h-[40px] min-w-[40px]  rounded-md px-2">
-      {collabInfoState.map((collab, index) =>
-        index > 3 ? null : index > 2 ? (
-          <div className=" w-1/4 text-sm" key={collab.id}>
-            and {usersAboveThree} more
-          </div>
-        ) : (
-          <div key={collab.id}>
-            <div className="border border-black rounded-md p-2 text-sm">
-              <Image
-                alt="user avatar"
-                src={collab.image ?? '/default-avatar.png'}
-                width={25}
-                height={25}
-              />
+    <div className="mx-2">
+      <div className="flex  items-center justify-center overflow-y-scroll border-2 h-[40px] min-w-[40px]  rounded-md px-2">
+        {collabInfoState.map((collab, index) =>
+          index > 3 ? null : index > 2 ? (
+            <div className=" w-1/4 text-sm" key={collab.id}>
+              and {usersAboveThree} more
             </div>
-          </div>
-        )
-      )}
+          ) : (
+            <div key={collab.id}>
+              <div className="border border-black rounded-md p-2 text-sm">
+                <Image
+                  alt="user avatar"
+                  src={collab.image ?? '/default-avatar.png'}
+                  width={25}
+                  height={25}
+                />
+              </div>
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
 };

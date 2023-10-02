@@ -30,6 +30,7 @@ import { Languages, languageSnippets } from '@/lib/language-snippets';
 import { useCodeMutation } from '@/hooks/useCodeMutation';
 import { AxiosError } from 'axios';
 import { useIsGodMode } from '@/hooks/isGodMode';
+import { useSession } from 'next-auth/react';
 type Props = {
   data: PickedPlayground | null;
 };
@@ -76,6 +77,19 @@ const ContentWrapper = ({ data }: Props) => {
   const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
 
   const meta = useMeta();
+  const notSignedInUserId = useAppSelector(
+    (store) => store.canvas.present.notSignedInUserID
+  );
+  const session = useSession();
+  useEffect(() => {
+    if (
+      !notSignedInUserId &&
+      !(session.status === 'loading') &&
+      session.status === 'unauthenticated'
+    ) {
+      dispatch(CanvasActions.setNotSignedInUserId(crypto.randomUUID()));
+    }
+  }, [dispatch, notSignedInUserId, session.status]);
 
   useEffect(() => {
     // #TODO need to do zod validation

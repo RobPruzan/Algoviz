@@ -23,6 +23,8 @@ import { CanvasContext } from '@/context/CanvasContext';
 import { Providers } from './Providers';
 import AdminNav from '@/components/AdminNav';
 import HomeButton from './HomeButton';
+import { Github } from 'lucide-react';
+import UpgradePlayground from './UpgradePlayground';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -58,14 +60,21 @@ export default function RootLayout({
                 <div className="w-2/6 " />
 
                 <div className="w-[60%] flex justify-end items-center">
-                  <div className="mr-2">
-                    <ConnectedUsers />
-                  </div>
+                  <UpgradePlayground />
+                  <Link
+                    href={'https://github.com/RobPruzan/Algoviz'}
+                    className="w-fit h-fit  p-[.4rem] mx-2 border-2 rounded-md hover:bg-accent"
+                  >
+                    <Github />
+                  </Link>
+
+                  <ConnectedUsers />
+
                   <ShareableLink />
                   <div className="mx-2">
                     <ModeToggle />
                   </div>
-                  <div className="ml-2">
+                  <div className="mx-2">
                     <SignInButton />
                   </div>
                 </div>

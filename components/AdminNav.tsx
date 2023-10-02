@@ -13,6 +13,7 @@ type Props = {
 
 const AdminNav = ({ className }: Props) => {
   const session = useSession();
+
   const path = usePathname();
   const isAdmin = path.split('/').includes('admin');
 

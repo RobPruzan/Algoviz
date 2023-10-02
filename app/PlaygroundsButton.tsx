@@ -13,7 +13,7 @@ type Props = {
 const PlaygroundsButton = ({ className }: Props) => {
   const session = useSession();
   const path = usePathname().split('/');
-  console.log('object', path);
+
   const isPlaygrounds = path.includes('create');
 
   return session.status === 'authenticated' ? (

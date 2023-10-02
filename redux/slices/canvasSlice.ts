@@ -62,7 +62,7 @@ export type CanvasState = {
   startNode: string | null;
   endNode: string | null;
   cameraCoordinate: [number, number];
-  notSignedInUserID: string;
+  notSignedInUserID: string | null;
   lastUpdate: number;
   // canvasRef: React.RefObject<HTMLCanvasElement>
   // canvasRef: RefObject<ElementRef<'canvas'>>
@@ -86,7 +86,7 @@ const initialState: CanvasState = {
   endNode: null,
   startNode: null,
   cameraCoordinate: [0, 0],
-  notSignedInUserID: crypto.randomUUID(),
+  notSignedInUserID: null,
   lastUpdate: Date.now(),
 };
 
@@ -115,6 +115,9 @@ const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    setNotSignedInUserId: (state, action: PayloadAction<string>) => {
+      state.notSignedInUserID = action.payload;
+    },
     // setCanvasRef: (state, action: PayloadAction<CanvasState['canvasRef']>) => {
     //   state.canvasRef
     // },

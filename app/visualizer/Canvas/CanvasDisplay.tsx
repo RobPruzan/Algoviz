@@ -158,6 +158,8 @@ const CanvasDisplay = ({
     ],
   };
 
+  // const isGod = session.data?.user.email === process.env.NEXT_PUBLIC_GOD_MODE;
+
   const cursorImgRef = useRef<HTMLImageElement | null>(null);
   useEffect(() => {
     // putting a condition here of session.status === 'loading' still breaks even with the updated cleanup logic
@@ -201,7 +203,7 @@ const CanvasDisplay = ({
   }, []);
 
   useEffect(() => {
-    if (session.status === 'loading') return;
+    if (session.status === 'loading' || !userID) return;
     const item: FirstParameter<typeof CollaborationActions.addCollabInfo> = {
       user: {
         ...session.data?.user,

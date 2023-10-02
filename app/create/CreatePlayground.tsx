@@ -1,6 +1,7 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useCreatePlaygroundMutation } from '@/hooks/useCreatePlaygroundMutation';
 import { SerializedPlayground } from '@/lib/types';
 import { API_URL, serializedPlaygroundSchema } from '@/lib/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -11,30 +12,7 @@ import React from 'react';
 import { z } from 'zod';
 
 const CreatePlayground = () => {
-  const queryClient = useQueryClient();
-
-  const createPlaygroundMutation = useMutation({
-    mutationFn: async () => {
-      await queryClient.cancelQueries({ queryKey: ['todos'] });
-      const json = await ky.post(`${API_URL}/playground/create`).json();
-
-      const resPlaygroundSchema = z.object({
-        playground: serializedPlaygroundSchema,
-      });
-
-      return resPlaygroundSchema.parse(json);
-    },
-    onSuccess: (data) => {
-      queryClient.setQueryData<SerializedPlayground[]>(
-        ['getPlaygrounds'],
-        (playground) =>
-          playground ? [data.playground, ...playground] : playground
-      );
-    },
-    // onSuccess: (data) => {
-    //   queryClient.setQueryData(['getPlaygrounds'], (spaces) => {});
-    // },
-  });
+  const createPlaygroundMutation = useCreatePlaygroundMutation();
   return (
     <>
       <Card className="w-72 h-64 ml-5 mt-5 border-dashed flex items-center justify-center">
