@@ -51,7 +51,7 @@ export function AlgoComboBox({
           {(value
             ? algorithms.find((a) => a.id === value)?.title
             : defaultPlaceholder ?? 'Select Algorithm'
-          )?.slice(0, 8)}
+          )?.slice(0, 15)}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
