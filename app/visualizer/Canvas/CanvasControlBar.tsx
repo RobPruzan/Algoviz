@@ -116,7 +116,7 @@ const CanvasControlBar = ({
                 aria-label="delete-all-playground-objects"
                 onClick={() => dispatch(CanvasActions.resetState(undefined))}
                 variant={'outline'}
-                className="px-2 mb-0"
+                className="px-2 mb-0 border-2"
               >
                 <Trash />
               </Button>
@@ -134,6 +134,7 @@ const CanvasControlBar = ({
                 onClick={() => {
                   dispatch(ActionCreators.undo());
                 }}
+                className="border-2"
                 variant={'outline'}
               >
                 <Undo />
@@ -152,6 +153,7 @@ const CanvasControlBar = ({
                 onClick={() => {
                   dispatch(ActionCreators.redo());
                 }}
+                className="border-2"
                 variant={'outline'}
               >
                 <RedoIcon />
@@ -163,7 +165,7 @@ const CanvasControlBar = ({
           </Tooltip>
         </TooltipProvider>
 
-        <div className="border-r  h-full"></div>
+        <div className="border-r-2 border-secondary  h-full"></div>
         <Toggle
           aria-label="undirected-edge-toggle"
           pressed={selectedControlBarAction?.tag === 'undirected-edge-toggle'}
@@ -178,7 +180,7 @@ const CanvasControlBar = ({
             }
           }}
           variant={'outline'}
-          className="px-2 mb-0"
+          className="px-2 border-2 mb-0"
         >
           <TooltipProvider>
             <Tooltip delayDuration={0}>
@@ -206,7 +208,7 @@ const CanvasControlBar = ({
           }}
           pressed={selectedControlBarAction?.tag === 'directed-edge-toggle'}
           variant={'outline'}
-          className="px-2 min-w-fit"
+          className="px-2 border-2 min-w-fit"
         >
           <TooltipProvider>
             <Tooltip delayDuration={0}>
@@ -231,7 +233,7 @@ const CanvasControlBar = ({
           }}
           pressed={selectedControlBarAction?.tag === 'circle-toggle'}
           variant={'outline'}
-          className="px-2"
+          className="px-2 border-2"
         >
           <CircleDot />
 
@@ -244,7 +246,7 @@ const CanvasControlBar = ({
             </Tooltip>
           </TooltipProvider>
         </Toggle>
-        <div className="border-r  h-full"></div>
+        <div className="border-r-2 border-secondary  h-full"></div>
 
         <DropdownMenu>
           <TooltipProvider>
