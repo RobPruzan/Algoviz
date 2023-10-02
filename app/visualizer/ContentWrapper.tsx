@@ -72,6 +72,7 @@ const ContentWrapper = ({ data }: Props) => {
   const { codeMutation, getAdjacenyList } = useCodeMutation((error) => {
     if (error instanceof AxiosError) {
       return toast({
+        variant: 'destructive',
         title: 'Error',
         description: error.message,
       });

@@ -523,7 +523,7 @@ const CanvasDisplay = ({
                 isMouseDownRef.current = false;
               }}
               className={`
-              outline-none 
+              outline-none  relative
                 `}
               ref={canvasRef}
               onMouseDown={handleMouseDown}
@@ -535,6 +535,10 @@ const CanvasDisplay = ({
               width={canvasWidth}
               height={canvasHeight}
             />
+
+            <div className="absolute w-16 text-md bg-primary  font-bold text-foreground flex items-center justify-center h-12 -translate-y-12 border-r-2 border-t-2  rounded-r-md rounded-l-none rounded-t-md border-secondary">
+              {(currentZoomFactor * 100).toFixed(0)}%
+            </div>
           </ContextMenuTrigger>
           <ContextMenuContent className="w-64">
             <ContextMenuItem
