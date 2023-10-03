@@ -268,10 +268,15 @@ const CodeExecution = ({
                               className="flex items-center justify-start "
                             >
                               <div className="text-sm flex flex-col">
-                                {JSON.stringify(log)
-                                  .replace(`"`, '')
-                                  .trim()
-                                  .split('\\n')
+                                {log
+                                  .map(
+                                    (id) =>
+                                      circles.find((c) => c.id === id)?.value
+                                  )
+                                  .filter(Boolean)
+                                  // .map(id => id === `"` ? '': id)
+                                  // .trim()
+                                  // .split('\\n')
                                   .map((l) => (
                                     <div className="mt-2" key={l}>
                                       {l}
