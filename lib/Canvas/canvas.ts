@@ -828,6 +828,28 @@ export const getSelectedGeometry = ({
   selectBox: SelectBox | null;
 }) => {
   if (!selectBox) return null;
+
+  const filteredEdges = edges.filter((edge) => {
+    const oneIsInside = vertices.find(
+      (vertex) => vertex.nodeReceiver.id === edge.attachNodeOne.connectedToId
+    );
+    const twoIsInside = vertices.find((vertex) =>
+      vertex.nodeReceiver.attachedIds.includes(
+        edge.attachNodeTwo.connectedToId ?? 'nope'
+      )
+    );
+    let shouldKeep = true;
+    if (edge.attachNodeOne.connectedToId !== null && !oneIsInside) {
+      shouldKeep = false;
+    }
+
+    if (edge.attachNodeTwo.connectedToId !== null && !twoIsInside) {
+      shouldKeep = false;
+    }
+
+    return shouldKeep;
+  });
+
   // the circles will have hit boxes for select
   // these will be rendered when selected
   // we will need geo math for if 2 rects intersect
@@ -845,7 +867,7 @@ export const getSelectedGeometry = ({
   let maxY = -Infinity;
   const selectedIds: string[] = [];
   // if edge node is selected, so is attach node
-  edges.forEach((edge) => {
+  filteredEdges.forEach((edge) => {
     const topLeft: [number, number] = selectBox.p1;
     const bottomRight: [number, number] = selectBox.p2;
 
