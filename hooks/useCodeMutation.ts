@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { z } from 'zod';
 import * as Graph from '@/lib/graph';
-import { AlgoType, ArrayItem } from '@/lib/types';
+import { AlgoType, ArrayItem, CircleReceiver, Edge } from '@/lib/types';
 import { P, match } from 'ts-pattern';
 import { getSelectedItems, getValidatorLensSelectedIds } from '@/lib/utils';
 import { useGetAlgorithmsQuery } from './useGetAlgorithmsQuery';
@@ -99,23 +99,28 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
   //   circles,
   //   validatorLensContainer,
   // }).join(',');
-  const getAdjacenyList: (
-    selectAll: boolean
+  const getAdjacenyList = (
+    edges: Array<Edge>,
+    vertices: Array<CircleReceiver>,
+    lens?: ValidatorLensInfo
     // type: AlgoType
-  ) => Record<string, string[]> = (selectAll: boolean) =>
+  ): Record<string, string[]> =>
     // #TODO, need to run the mutation by passing in the selected ids for the individual validator, and then push the result again for that specific validator
     [
       ...Graph.getAdjacencyList({
-        edges: selectedAttachableLines.concat(
-          selectedAttachableLinesThroughLens(selectAll)
-        ),
-        vertices: selectedCircles.concat(selectedCirclesThroughLens(selectAll)),
+        edges: lens
+          ? edges.filter((edge) => lens.selectedIds.includes(edge.id))
+          : edges,
+        vertices: lens
+          ? vertices.filter((vertex) => lens.selectedIds.includes(vertex.id))
+          : vertices,
       }).entries(),
     ].reduce<Record<string, string[]>>((prev, [id, neighbors]) => {
       return { ...prev, [id]: neighbors };
     }, {});
   const codeMutation = useMutation({
     onError: (error, d) => {
+      // console.log('dat err', error);
       if (error instanceof Error) {
         toast({
           variant: 'destructive',
@@ -142,6 +147,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       startNode,
       language,
       selectAll,
+      lens,
     }: {
       algo: Pick<
         ArrayItem<ReturnType<typeof useGetAlgorithmsQuery>['data']>,
@@ -158,13 +164,15 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       if (language === 'javascript') {
         try {
           const newAdjList = Object.fromEntries(
-            Object.entries(getAdjacenyList(selectAll)).map(([k, v]) => [
-              k,
-              v.map((id) => ({
-                ID: circles.find((c) => c.id === id)?.id!,
-                value: circles.find((c) => c.id === id)?.value!,
-              })),
-            ])
+            Object.entries(getAdjacenyList(attachableLines, circles, lens)).map(
+              ([k, v]) => [
+                k,
+                v.map((id) => ({
+                  ID: circles.find((c) => c.id === id)?.id!,
+                  value: circles.find((c) => c.id === id)?.value!,
+                })),
+              ]
+            )
           );
 
           const result = await runJavascriptWithWorker(algo.code, newAdjList);
@@ -189,7 +197,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
           }
         } catch (error) {
           if (error instanceof ErrorEvent) {
-            console.log('da error', error);
+            console.log('error', error);
             return {
               type: 'error',
               output: [error.message],
@@ -212,18 +220,18 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
           env: {
             ADJACENCY_LIST: JSON.stringify(
               Object.fromEntries(
-                Object.entries(getAdjacenyList(selectAll)).map(
-                  ([id, neighbors]) => {
-                    const circle = circles.find((c) => c.id === id);
-                    return [
-                      [circle?.id, circle?.value],
-                      neighbors.map((n) => [
-                        n,
-                        circles.find((c) => c.id === n)?.value,
-                      ]),
-                    ];
-                  }
-                )
+                Object.entries(
+                  getAdjacenyList(attachableLines, circles, lens)
+                ).map(([id, neighbors]) => {
+                  const circle = circles.find((c) => c.id === id);
+                  return [
+                    [circle?.id, circle?.value],
+                    neighbors.map((n) => [
+                      n,
+                      circles.find((c) => c.id === n)?.value,
+                    ]),
+                  ];
+                })
               )
             ),
             START_NODE: JSON.stringify(startNode ?? 'NO-START-NODE-SELECTED'),

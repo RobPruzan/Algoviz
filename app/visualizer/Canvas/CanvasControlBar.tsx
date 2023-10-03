@@ -71,7 +71,14 @@ const CanvasControlBar = ({
   const currentZoomFactor = useAppSelector(
     (store) => store.canvas.present.currentZoomFactor
   );
+  useEffect(
+    () => () => {
+      dispatch(CanvasActions.resetCurrentZoomFactor());
+    },
+    [dispatch]
+  );
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
+  // console.log('hola', getAlgorithmsQuery);
   const meta = useMeta();
   const { handleAddValidatorLens } = useAddGeometry();
 

@@ -113,7 +113,6 @@ export function runJavascriptWithWorker(
   const logs: Array<string> = [];
   return new Promise<{ output: unknown; logs: Array<string> }>(
     (resolve, reject) => {
-      console.log('dat worker data', workerData);
       let worker = new Worker(
         URL.createObjectURL(
           new Blob(
@@ -144,7 +143,6 @@ export function runJavascriptWithWorker(
             resolve({ ...e.data, logs });
           }
           case 'output': {
-            console.log('yipee!', { ...e.data, logs });
             resolve({ ...e.data, logs });
           }
         }

@@ -420,7 +420,7 @@ const CodeExecutionControlBar = ({
                     if (!selectedIds) {
                       setTabValue('output');
                       const code = getCode(userAlgorithm, presetCode);
-                      console.log('hola amigo', code);
+                      // console.log('hola amigo', code);
                       codeMutation.mutate({
                         type:
                           codeInfo.type === AlgoType.Validator
@@ -471,7 +471,7 @@ const CodeExecutionControlBar = ({
                     }
                     const code = getCode(userAlgorithm, presetCode);
                     const currentCacheKey = JSON.stringify([
-                      getAdjacenyList(autoSelectAll),
+                      getAdjacenyList(attachableLines, circles),
                       code,
                       startNode,
                     ]);
@@ -498,7 +498,7 @@ const CodeExecutionControlBar = ({
 
                       // literally a cache key
                       lastInput.current = JSON.stringify([
-                        getAdjacenyList(autoSelectAll),
+                        getAdjacenyList(attachableLines, circles),
                         code,
                         startNode,
                       ]);

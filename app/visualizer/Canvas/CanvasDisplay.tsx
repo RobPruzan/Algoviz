@@ -698,7 +698,7 @@ const CanvasDisplay = ({
           </ContextMenuContent>
         </ContextMenu>
 
-        <ContextMenuTrigger></ContextMenuTrigger>
+        {/* <ContextMenuTrigger></ContextMenuTrigger> */}
       </ContextMenu>
     </>
   );

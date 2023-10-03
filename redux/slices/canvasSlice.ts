@@ -728,6 +728,9 @@ const canvasSlice = createSlice({
     updateCreationZoomFactor: (state, action: PayloadAction<number>) => {
       state.currentZoomFactor *= action.payload;
     },
+    resetCurrentZoomFactor: (state) => {
+      state.currentZoomFactor = 1;
+    },
     deleteCircle: withCanvasMeta<string>(
       (state, action: PayloadAction<string>) => {
         state.circles = state.circles.filter(

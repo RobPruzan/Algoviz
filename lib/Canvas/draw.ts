@@ -70,11 +70,11 @@ export const drawNodes = ({
           ctx.fillStyle = 'red';
         } else {
           ctx.fillStyle = 'green';
-          ctx.fillText(
-            'valid',
-            node.center[0] - 10,
-            node.center[1] - node.radius - 10
-          );
+          // ctx.fillText(
+          //   'valid',
+          //   node.center[0] - 10,
+          //   node.center[1] - node.radius - 10
+          // );
         }
         break;
       case 'object':

@@ -68,7 +68,9 @@ const ContentWrapper = ({ data }: Props) => {
   const { toast } = useToast();
   const isGodMode = useIsGodMode();
   const [autoSelectAll, setAutoSelectAll] = useState(!isGodMode);
-
+  const { attachableLines, circles } = useAppSelector(
+    (store) => store.canvas.present
+  );
   const { codeMutation, getAdjacenyList } = useCodeMutation((error) => {
     if (error instanceof AxiosError) {
       return toast({
@@ -190,7 +192,7 @@ const ContentWrapper = ({ data }: Props) => {
             setLanguage={setLanguage}
           />
           <CodeExecution
-            adjacencyList={getAdjacenyList(autoSelectAll)}
+            adjacencyList={getAdjacenyList(attachableLines, circles)}
             setTabValue={setTabValue}
             tabValue={tabValue}
             autoSelectAll={autoSelectAll}
