@@ -16,6 +16,7 @@ import React, {
   useEffect,
   SetStateAction,
   Dispatch,
+  useMemo,
 } from 'react';
 import * as Draw from '@/lib/Canvas/draw';
 import * as Graph from '@/lib/graph';
@@ -108,6 +109,7 @@ const CanvasDisplay = ({
   const [selectBox, setSelectBox] = useState<SelectBox | null>(null);
   const [selectedCircleID, setSelectedCircleID] = useState<string | null>(null);
   const previousMousePositionRef = useRef<[number, number]>();
+
   const lastMouseDownTime = useRef(0);
   const [presetName, setPresetName] = useState('');
   const selectedGeometryInfo = useAppSelector(
@@ -150,7 +152,13 @@ const CanvasDisplay = ({
   const saveAsPresetMutation = useSaveAsPresetMutation();
   const selectedValues = useGetSelectedItems();
   const isGodMode = useIsGodMode();
-
+  const [tempCircleValue, setTempCircleValue] = useState('');
+  const currentCircleValue = useMemo(() => {
+    return circles.find((c) => c.id === selectedCircleID)?.value;
+  }, [circles, selectedCircleID]);
+  useEffect(() => {
+    setTempCircleValue(currentCircleValue ? String(currentCircleValue) : '');
+  }, [currentCircleValue]);
   const baseMeta = useMeta();
   const meta: Meta = {
     ...baseMeta,
@@ -320,7 +328,7 @@ const CanvasDisplay = ({
 
   useApplyAlgorithm();
 
-  const handleKeyDown = useCanvasKeyDown(meta);
+  const handleKeyDown = useCanvasKeyDown(setSelectedControlBarAction, meta);
 
   const handleFullyConnect = useFullyConnect(meta);
   const themeInfo = useTheme();
@@ -649,6 +657,55 @@ const CanvasDisplay = ({
             >
               Set as ending node
             </ContextMenuItem> */}
+            {selectedCircleID && (
+              <ContextMenuSub>
+                <ContextMenuSubTrigger inset>
+                  Edit Node Value
+                </ContextMenuSubTrigger>
+                <ContextMenuSubContent className=" ">
+                  <Input
+                    // type="number"
+                    // asserting because of selectedCircleId check above
+                    value={tempCircleValue}
+                    onChange={(e) => {
+                      setTempCircleValue(e.target.value);
+
+                      // const selectedNode = selectedCircleID
+                      // setPresetName(e.target.value);
+                    }}
+                  />
+
+                  <Button
+                    onClick={() => {
+                      if (Number(tempCircleValue) > 9999) {
+                        toast({
+                          variant: 'destructive',
+                          title: 'Little bit lower',
+                          description:
+                            "Id prefer the UI doesn't break too much, enter a number below 10000",
+                        });
+                        return;
+                      }
+                      dispatch(
+                        CanvasActions.editNodeValue({
+                          value:
+                            tempCircleValue === ''
+                              ? 0
+                              : Number(tempCircleValue),
+                          nodeID: selectedCircleID,
+                        })
+                      );
+                    }}
+                    className="bg-secondary mt-3 ring-0 hover: hover:border-2 hover:border-secondary w-full"
+                  >
+                    Update
+                    {/* {saveAsPresetMutation.isLoading
+                      ? 'Saving ...'
+                      : 'Save Preset'} */}
+                  </Button>
+                </ContextMenuSubContent>
+              </ContextMenuSub>
+            )}
 
             {isGodMode && (
               <ContextMenuSub>
@@ -660,14 +717,6 @@ const CanvasDisplay = ({
                       setPresetName(e.target.value);
                     }}
                   />
-                  {/* <CommandInput
-                      onValueChange={(v) => {
-                        setPresetName(v);
-                      }}
-                      placeholder="Name"
-                    /> */}
-
-                  <Command></Command>
 
                   <Button
                     onClick={() => {

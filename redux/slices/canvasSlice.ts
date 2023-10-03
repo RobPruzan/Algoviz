@@ -123,6 +123,14 @@ const canvasSlice = createSlice({
     // setCanvasRef: (state, action: PayloadAction<CanvasState['canvasRef']>) => {
     //   state.canvasRef
     // },
+    editNodeValue: withCanvasMeta<{ nodeID: string; value: number }>(
+      (state, action) => {
+        const updatedIndex = state.circles.findIndex(
+          (circle) => circle.id === action.payload.nodeID
+        );
+        state.circles[updatedIndex].value = action.payload.value;
+      }
+    ),
     update: (state) => {
       state.lastUpdate = Date.now();
     },
@@ -786,28 +794,48 @@ const canvasSlice = createSlice({
         const filtered = state.circles.filter(
           (circle) => !idSet.has(circle.id)
         );
-
+        console.log('fil len', filtered.length);
         state.attachableLines.forEach((line) => {
           if (
             line.attachNodeOne.connectedToId &&
             idSet.has(line.attachNodeOne.connectedToId)
           ) {
-            line.attachNodeOne = {
-              ...line.attachNodeOne,
-              connectedToId: null,
-            };
+            state.attachableLines = state.attachableLines.filter(
+              (l) => l.attachNodeOne.id !== line.id
+            );
+            // line.attachNodeOne = {
+            //   ...line.attachNodeOne,
+            //   connectedToId: null,
+            // };
           }
 
           if (
             line.attachNodeTwo.connectedToId &&
             idSet.has(line.attachNodeTwo.connectedToId)
           ) {
-            line.attachNodeTwo = {
-              ...line.attachNodeTwo,
-              connectedToId: null,
-            };
+            state.attachableLines = state.attachableLines.filter(
+              (l) => l.attachNodeTwo.id !== line.id
+            );
+            // line.attachNodeTwo = {
+            //   ...line.attachNodeTwo,
+            //   connectedToId: null,
+            // };
           }
         });
+        // if circle connected and not line, delete line
+        // give up for now, delete behavior can be better
+        // filtered.forEach((circle, idx) => {
+        //   // if (idSet.has(circle.id)) {
+        //   console.log('pre', state.attachableLines.length);
+        //   const leftOver = state.attachableLines.filter(
+        //     (l) =>
+        //       !(l.attachNodeOne.connectedToId === circle.nodeReceiver.id) &&
+        //       !(l.attachNodeOne.connectedToId === circle.nodeReceiver.id)
+        //   );
+        //   console.log('left over doo', state.attachableLines.length);
+        //   state.attachableLines = leftOver;
+        //   // }
+        // });
 
         state.circles = filtered;
       }
@@ -815,8 +843,22 @@ const canvasSlice = createSlice({
 
     deleteLines: withCanvasMeta<string[]>(
       (state, action: PayloadAction<string[]>) => {
+        console.log(
+          'origi',
+          state.attachableLines.map((l) => l.id)
+        );
+        console.log('has', action.payload);
         const filtered = state.attachableLines.filter(
-          (line) => !action.payload.includes(line.id)
+          (line) =>
+            !action.payload.includes(line.id) &&
+            !action.payload.includes(
+              line.attachNodeOne.connectedToId ?? 'no'
+            ) &&
+            !action.payload.includes(line.attachNodeOne.connectedToId ?? 'no')
+        );
+        console.log(
+          'filtered',
+          filtered.map((f) => f.id)
         );
         const idSet = new Set<string>(action.payload);
 

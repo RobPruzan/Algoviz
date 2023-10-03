@@ -4,6 +4,7 @@ import {
   SelectBox,
   SelectedAttachableLine,
   SelectedGeometryInfo,
+  TaggedDrawTypes,
 } from '@/lib/types';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import * as Canvas from '@/lib/Canvas/canvas';
@@ -19,7 +20,12 @@ import {
 import { match } from 'ts-pattern';
 import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
 
-export const useCanvasKeyDown = (meta: Meta) => {
+export const useCanvasKeyDown = (
+  setSelectedControlBarAction: React.Dispatch<
+    React.SetStateAction<TaggedDrawTypes>
+  >,
+  meta: Meta
+) => {
   const dispatch = useAppDispatch();
   const [copied, setCopied] = useState<Array<string>>([]);
   const {
@@ -33,6 +39,7 @@ export const useCanvasKeyDown = (meta: Meta) => {
     // e.preventDefault();
     if (e.key === 'Backspace') {
       if (selectedGeometryInfo) {
+        // const orig = circles
         dispatch(CanvasActions.deleteCircles(selectedGeometryInfo.selectedIds));
         dispatch(CanvasActions.deleteLines(selectedGeometryInfo.selectedIds));
       }
@@ -44,6 +51,9 @@ export const useCanvasKeyDown = (meta: Meta) => {
     e;
     if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedGeometryInfo) {
       setCopied(selectedGeometryInfo.selectedIds);
+    }
+    if (e.key === 'Escape' || e.key === 'Backspace') {
+      setSelectedControlBarAction(null);
     }
     if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
       // can refactor cause this is pretty heavy

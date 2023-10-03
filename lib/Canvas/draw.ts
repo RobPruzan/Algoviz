@@ -222,7 +222,8 @@ export const drawNodeReceivers = ({
 
     // Draw the text
     // This will draw the text in the center of the node
-    var text = node.value.toString();
+    var text = node.value.toString() === 'NaN' ? '0' : node.value.toString();
+
     ctx.fillText(text, Math.floor(node.center[0]), Math.floor(node.center[1]));
     ctx.canvas.style.zIndex = '100';
   });

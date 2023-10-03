@@ -245,7 +245,9 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         });
 
         const outputWithType = { type, ...res.data };
-
+        // if (process.env.NODE_ENV === 'development') {
+        //   console.log('code output', outputWithType);
+        // }
         const parsedOutput = dataSchema.parse(outputWithType);
 
         return unFlattened(parsedOutput);
