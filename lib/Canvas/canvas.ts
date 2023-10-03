@@ -830,8 +830,10 @@ export const getSelectedGeometry = ({
   if (!selectBox) return null;
 
   const filteredEdges = edges.filter((edge) => {
-    const oneIsInside = vertices.find(
-      (vertex) => vertex.nodeReceiver.id === edge.attachNodeOne.connectedToId
+    const oneIsInside = vertices.find((vertex) =>
+      vertex.nodeReceiver.attachedIds.includes(
+        edge.attachNodeTwo.connectedToId ?? 'nope'
+      )
     );
     const twoIsInside = vertices.find((vertex) =>
       vertex.nodeReceiver.attachedIds.includes(
