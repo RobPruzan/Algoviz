@@ -15,6 +15,7 @@ import _logger from 'next-auth/utils/logger';
 import { useState } from 'react';
 import { useGetSelectedItems } from './useGetSelectedItems';
 import { useToast } from '@/components/ui/use-toast';
+import { start } from 'repl';
 type AlteredOutputUnion =
   | {
       output: Array<Array<string>>;
@@ -32,8 +33,13 @@ type AlteredOutputUnion =
       type: 'error';
     };
 
+const nodeSchema = z.object({
+  value: z.number(),
+  ID: z.string(),
+});
+
 const visualizerSchema = z.object({
-  output: z.union([z.array(z.array(z.string())), z.array(z.string())]),
+  output: z.union([z.array(z.array(nodeSchema)), z.array(nodeSchema)]),
   logs: z.string(),
   type: z.literal(AlgoType.Visualizer),
 });
@@ -45,7 +51,7 @@ const validatorSchema = z.object({
 });
 
 const errorSchema = z.object({
-  output: z.array(z.string()),
+  output: z.array(nodeSchema),
   type: z.literal('error'),
 });
 
@@ -56,7 +62,7 @@ const unFlattened = (parsedOutput: z.infer<typeof dataSchema>) => {
       ? {
           ...parsedOutput,
           output: (parsedOutput.output as Array<any> | null | undefined)?.map(
-            (o) => (o instanceof Array ? o : [o])
+            (o) => (o instanceof Array ? o.map((o) => o.ID) : [o.ID])
           ),
         }
       : parsedOutput
@@ -109,7 +115,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       return { ...prev, [id]: neighbors };
     }, {});
   const codeMutation = useMutation({
-    onError: (error) => {
+    onError: (error, d) => {
       if (error instanceof Error) {
         toast({
           variant: 'destructive',
@@ -151,10 +157,17 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
     }): Promise<AlteredOutputUnion> => {
       if (language === 'javascript') {
         try {
-          const result = await runJavascriptWithWorker(
-            algo.code,
-            getAdjacenyList(selectAll)
+          const newAdjList = Object.fromEntries(
+            Object.entries(getAdjacenyList(selectAll)).map(([k, v]) => [
+              k,
+              v.map((id) => ({
+                ID: circles.find((c) => c.id === id)?.id!,
+                value: circles.find((c) => c.id === id)?.value!,
+              })),
+            ])
           );
+
+          const result = await runJavascriptWithWorker(algo.code, newAdjList);
 
           switch (type) {
             case AlgoType.Validator: {
@@ -197,8 +210,29 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
           lang: language,
           type,
           env: {
-            ADJACENCY_LIST: JSON.stringify(getAdjacenyList(selectAll)),
+            ADJACENCY_LIST: JSON.stringify(
+              Object.fromEntries(
+                Object.entries(getAdjacenyList(selectAll)).map(
+                  ([id, neighbors]) => {
+                    const circle = circles.find((c) => c.id === id);
+                    return [
+                      [circle?.id, circle?.value],
+                      neighbors.map((n) => [
+                        n,
+                        circles.find((c) => c.id === n)?.value,
+                      ]),
+                    ];
+                  }
+                )
+              )
+            ),
             START_NODE: JSON.stringify(startNode ?? 'NO-START-NODE-SELECTED'),
+            START_NODE_VALUE: JSON.stringify(
+              circles.find((c) => c.id === startNode)?.value
+            ),
+            START_NODE_NEIGHBORS: JSON.stringify(
+              circles.find((c) => c.id === startNode)?.nodeReceiver.attachedIds
+            ),
           },
         });
 

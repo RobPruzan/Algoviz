@@ -420,12 +420,13 @@ const CodeExecutionControlBar = ({
                     if (!selectedIds) {
                       setTabValue('output');
                       const code = getCode(userAlgorithm, presetCode);
+                      console.log('hola amigo', code);
                       codeMutation.mutate({
                         type:
                           codeInfo.type === AlgoType.Validator
                             ? AlgoType.Validator
                             : AlgoType.Visualizer,
-                        algo: { code: codeInfo.code },
+                        algo: { code: code },
                         language,
                         selectAll: autoSelectAll,
                         endNode,

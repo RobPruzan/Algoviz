@@ -32,10 +32,17 @@ export type Languages = (typeof languages)[number]['value'];
 export type LanguageSnippets = { [Key in Languages]: string };
 
 export const languageSnippets: LanguageSnippets = {
-  python: `def algorithm(adjList, start_node: str):
+  python: `from dataclasses import dataclass
+from typing import List, Dict
+  
+@dataclass(eq=True, frozen=True)
+class Node:
+    ID: str
+    value: int
+
+def algorithm(adjList: Dict[Node, Node], start_node: Node):
     # your code here
-    pass
-  `,
+    pass`,
   javascript: `// NodeID: string (uuid representing a node)
 // AdjacencyList: Object with NodeID keys and array of NodeID values
 // VisitedIDs: array of NodeID
@@ -92,15 +99,21 @@ function algorithm(adjList: AdjacencyList): ValidOutputs {
   Select: '',
 };
 
+export type Node = {
+  ID: string;
+  value: number;
+};
+
 // self.postMessage({type: 'algorithm(${JSON.stringify(workerData)})})
 
 export function runJavascriptWithWorker(
   workerCode: string,
-  workerData: Record<string, string[]>
+  workerData: Record<string, Array<Node>>
 ) {
   const logs: Array<string> = [];
   return new Promise<{ output: unknown; logs: Array<string> }>(
     (resolve, reject) => {
+      console.log('dat worker data', workerData);
       let worker = new Worker(
         URL.createObjectURL(
           new Blob(
@@ -131,6 +144,7 @@ export function runJavascriptWithWorker(
             resolve({ ...e.data, logs });
           }
           case 'output': {
+            console.log('yipee!', { ...e.data, logs });
             resolve({ ...e.data, logs });
           }
         }
