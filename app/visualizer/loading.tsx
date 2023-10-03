@@ -21,7 +21,7 @@ const Loading = () => {
 
           {/* <div className="border-2 animate-pulse w-full h-full" /> */}
         </div>
-        <div className="border-2 h-full w-[1%] rounded-none border-x-0" />
+        <div className="border-2 border-accent animate-pulse h-full w-[1%] rounded-none border-x-0" />
         <div className="w-2/5 h-full rounded-none  border-0 animate-pulse flex flex-col justify-center">
           <div className="border-2 h-[7%] w-full border-b-0 rounded-none"></div>
           <div className="border-2 h-[57%] w-full border-b-0 rounded-none"></div>
