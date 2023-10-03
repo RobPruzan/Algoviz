@@ -50,13 +50,19 @@ const errorSchema = z.object({
 });
 
 const dataSchema = z.union([visualizerSchema, validatorSchema, errorSchema]);
-const unFlattened = (parsedOutput: z.infer<typeof dataSchema>) => {
+const unFlattened = (
+  parsedOutput: z.infer<typeof dataSchema>,
+  ids: Array<string>
+) => {
   return (
     parsedOutput.type === AlgoType.Visualizer
       ? {
           ...parsedOutput,
           output: (parsedOutput.output as Array<any> | null | undefined)?.map(
-            (o) => (o instanceof Array ? o : [o])
+            (o) =>
+              o instanceof Array
+                ? o.map((dude) => ids.find((i) => dude === i))
+                : [ids.find((i) => o === i)]
           ),
         }
       : parsedOutput
@@ -162,7 +168,10 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
                 ...result,
                 type,
               });
-              return unFlattened(parsed);
+              return unFlattened(
+                parsed,
+                circles.flatMap((c) => c.id)
+              );
             }
             case AlgoType.Visualizer: {
               const parsed = visualizerSchema.parse({
@@ -171,7 +180,10 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
                 type,
               });
 
-              return unFlattened(parsed);
+              return unFlattened(
+                parsed,
+                circles.flatMap((c) => c.id)
+              );
             }
           }
         } catch (error) {
@@ -206,7 +218,10 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
 
         const parsedOutput = dataSchema.parse(outputWithType);
 
-        return unFlattened(parsedOutput);
+        return unFlattened(
+          parsedOutput,
+          circles.flatMap((c) => c.id)
+        );
       }
     },
     onSuccess: (data, ctx) => {
