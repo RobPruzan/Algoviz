@@ -64,7 +64,7 @@ const ShareableLink = () => {
         <DialogTrigger aria-label="generate-shareable-link" asChild>
           <Button variant="outline">Generate Sharable Link</Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] bg-opacity-100">
           <DialogHeader>
             <DialogTitle>Generate shareable link</DialogTitle>
             <DialogDescription></DialogDescription>
