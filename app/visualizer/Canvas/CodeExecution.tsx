@@ -271,16 +271,14 @@ const CodeExecution = ({
                               key={JSON.stringify(log).replace(`"`, '')}
                               className="flex items-center justify-start "
                             >
-                              <div className="text-sm flex flex-col">
+                              <div className="text-md flex flex-col">
                                 {log
                                   .map(
                                     (id) =>
                                       circles.find((c) => c.id === id)?.value
                                   )
                                   .filter(Boolean)
-                                  // .map(id => id === `"` ? '': id)
-                                  // .trim()
-                                  // .split('\\n')
+
                                   .map((l) => (
                                     <div className="mt-2" key={l}>
                                       {l}
