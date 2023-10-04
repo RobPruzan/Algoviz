@@ -35,14 +35,36 @@ export const languageSnippets: LanguageSnippets = {
   python: `from dataclasses import dataclass
 from typing import List, Dict
   
-@dataclass(eq=True, frozen=True)
+@dataclass(eq=True, frozen=True) # so you can use as key of a dict
 class Node:
     ID: str
     value: int
 
-def algorithm(adjList: Dict[Node, Node], start_node: Node):
-    # your code here
-    pass`,
+def algorithm(adjList: Dict[Node, List[Node]], start_node: Node):
+"""
+- adjList is an adjaceny list representation of the
+graph in the playground (Dict[Node, List[Node]])
+
+- Mark a node as start node by right clicking one 
+and selecting "Set as starting node"
+
+- To create a visualazation, return a list of nodes, or a list
+of list of nodes. The app will step through the array and 
+visualize each element. If there is a sublist, it will visualize 
+every node within it all in one step
+
+- To create a validator, just return a boolean! Everything
+in this validator window will either turn red or green
+based on the boolean value returned by the code. You must
+save the algorithm to use it as a validator in the validators
+drop down.
+
+- To use pre-made algorithms, click options and select an
+algorithm :)
+
+- To run your code, click the debug or play button
+"""
+  pass`,
   javascript: `// NodeID: string (uuid representing a node)
 // AdjacencyList: Object with NodeID keys and array of NodeID values
 // VisitedIDs: array of NodeID

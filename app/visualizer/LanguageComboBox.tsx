@@ -32,6 +32,7 @@ export function LanguageComboBox({ open, setOpen, onSelect, value }: Props) {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          disabled
           variant="outline"
           role="combobox"
           aria-expanded={open}
