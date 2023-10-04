@@ -96,7 +96,7 @@ export default function Home() {
         </div>
         <div className="w-4/5 h-1/2 hidden sm:flex flex-wrap justify-around items-center ">
           <div className="items-center justify-center sm:justify-between sm:items-center h-1/2 w-full tall-show">
-            <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 w-64 sm:w-72 lg:w-[16.5rem] h-40 hidden lg:flex flex-col">
+            <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 w-64 sm:w-72 lg:w-[18rem] h-40 hidden lg:flex flex-col">
               <div className="h-full w-full  text-2xl flex justify-center items-center text-foreground font-bold ">
                 Breadth First Search
               </div>
@@ -114,7 +114,7 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-            <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 w-64 sm:w-72 lg:w-[16.5rem] h-40 hidden sm:flex  flex-col">
+            <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 w-64 sm:w-72 lg:w-[18rem] h-40 hidden sm:flex  flex-col">
               <div className="h-full w-full  text-2xl flex justify-center items-center text-foreground font-bold">
                 Depth First Search
               </div>
@@ -132,7 +132,7 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-            <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 hidden  w-64 sm:w-72 lg:w-[16.5rem] h-32 sm:h-40 sm:flex flex-col">
+            <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 hidden  w-64 sm:w-72 lg:w-[18rem] h-32 sm:h-40 sm:flex flex-col">
               <div className="h-full w-full  text-2xl flex justify-center items-center text-foreground font-bold">
                 {'Backtracking'}
               </div>
@@ -153,14 +153,14 @@ export default function Home() {
           </div>
 
           <div className=" justify-between items-center h-1/2 w-full hidden sm:flex">
-            <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 w-64 sm:w-72 lg:w-[16.5rem] h-40 hidden lg:flex   flex-col ">
+            <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 w-64 sm:w-72 lg:w-[18rem] h-40 hidden lg:flex   flex-col ">
               <div className="h-full w-full  text-2xl flex justify-center items-center text-foreground font-bold ">
-                Red-black Tree
+                Directed Acyclic Graph
               </div>
               <div className="h-full w-full  flex items-center justify-center ">
                 <Link
                   className="w-full flex items-center justify-center"
-                  href={'/visualizer?preset=red-black-tree'}
+                  href={'/visualizer?preset=directed-acyclic-graph'}
                 >
                   <Button
                     className="w-3/4 text-md hover:scale-105 transition"
@@ -171,7 +171,7 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-            <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 w-64 sm:w-72 lg:w-[16.5rem] h-40 flex flex-col">
+            <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 w-64 sm:w-72 lg:w-[18rem] h-40 flex flex-col">
               <div className="h-full w-full  text-2xl flex justify-center items-center text-foreground font-bold">
                 Binary Search Tree
               </div>
@@ -189,7 +189,7 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-            <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 w-64 sm:w-72 lg:w-[16.5rem] h-40 flex flex-col">
+            <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 w-64 sm:w-72 lg:w-[18rem] h-40 flex flex-col">
               <div className="h-full w-full  text-2xl flex justify-center items-center text-foreground font-bold">
                 Heap
               </div>

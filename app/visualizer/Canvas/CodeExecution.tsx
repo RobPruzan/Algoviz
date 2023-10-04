@@ -232,19 +232,23 @@ const CodeExecution = ({
                         </div>
                       </>
                     )}
-                    {Object.entries(adjacencyList).map(([k, v]) => (
-                      <div className="flex text-2xl" key={k}>
-                        <div className="">
-                          {circles.find((c) => c.id === k)?.value}
+                    {Object.entries({ ...adjacencyList })
+                      .sort((a, b) => Number(a[0]) - Number(b[0]))
+                      .map(([k, v]) => (
+                        <div className="flex text-2xl" key={k}>
+                          <div className="">
+                            {circles.find((c) => c.id === k)?.value}
+                          </div>
+                          :
+                          <div className="">
+                            {JSON.stringify(
+                              v.map(
+                                (v) => circles.find((c) => c.id === v)?.value
+                              )
+                            )}
+                          </div>
                         </div>
-                        :
-                        <div className="">
-                          {JSON.stringify(
-                            v.map((v) => circles.find((c) => c.id === v)?.value)
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                      ))}
                   </>
                 ))
                 .with('output', () =>

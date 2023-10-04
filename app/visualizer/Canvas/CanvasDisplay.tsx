@@ -484,7 +484,8 @@ const CanvasDisplay = ({
     currentZoomFactor,
     canvasRef,
   ]);
-
+  console.log('ul', canvasWidth);
+  const lol = 'left-';
   return (
     <>
       <ContextMenu>
@@ -544,6 +545,16 @@ const CanvasDisplay = ({
               height={canvasHeight}
             />
 
+            <div
+              style={{
+                // 12 is resize bar size - 4, should just export (4 is because the gnome requires a 4 shmeckle toll to let the code compile)) :p
+                left: canvasWidth - 96 + 12 - 4,
+              }}
+              className=" absolute text-sm   w-28 text-md bg-primary font-bold text-foreground flex items-center justify-center h-12 -translate-y-12 border-l-2 border-t-2   rounded-r-none rounded-t-md border-secondary"
+            >
+              ({(cameraCoordinate[0] / 10).toFixed(0)},
+              {(cameraCoordinate[1] / 10).toFixed(0)})
+            </div>
             <div className="absolute w-16 text-md bg-primary font-bold text-foreground flex items-center justify-center h-12 -translate-y-12 border-r-2 border-t-2  rounded-r-md rounded-l-none rounded-t-md border-secondary">
               {(currentZoomFactor * 100).toFixed(0)}%
             </div>

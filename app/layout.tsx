@@ -24,7 +24,8 @@ import AdminNav from '@/components/AdminNav';
 import HomeButton from './HomeButton';
 import { Github } from 'lucide-react';
 import UpgradePlayground from './UpgradePlayground';
-const inter = Inter({ subsets: ['latin'] });
+import { CommandDialogDemo } from '@/components/ui/CommandDialog';
+// const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
   title: 'AlgoViz',
@@ -59,6 +60,7 @@ export default function RootLayout({
                 <div className="w-2/6 " />
 
                 <div className="w-[60%] flex justify-end items-center">
+                  {/* <CommandDialogDemo /> */}
                   <UpgradePlayground />
                   <Link
                     aria-label="github-repo"
