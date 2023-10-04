@@ -582,6 +582,9 @@ const CanvasDisplay = ({
           if (isGodMode) {
             return true;
           }
+          if (selectedValidatorLens) {
+            return true;
+          }
 
           if (process.env.NODE_ENV === 'development') {
             console.log('You may have forgot to add it to this condition');
