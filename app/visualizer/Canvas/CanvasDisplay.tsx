@@ -592,7 +592,11 @@ const CanvasDisplay = ({
           return false;
         }) && (
           <ContextMenuContent className="w-64 ">
-            {!!(selectedCircleID || selectedAttachableLine) && (
+            {!!(
+              selectedCircleID ||
+              selectedAttachableLine ||
+              selectedValidatorLens
+            ) && (
               <ContextMenuItem
                 onClick={() => {
                   if (selectedCircleID) {
