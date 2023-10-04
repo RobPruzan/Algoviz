@@ -196,7 +196,7 @@ export default function Home() {
               <div className="h-full w-full  flex items-center justify-center ">
                 <Link
                   className="w-full flex items-center justify-center"
-                  href={'/visualizer?prest=heap'}
+                  href={'/visualizer?preset=heap'}
                 >
                   <Button
                     className="w-3/4 text-md hover:scale-105 transition"

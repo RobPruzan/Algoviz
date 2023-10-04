@@ -484,140 +484,176 @@ const CanvasDisplay = ({
     currentZoomFactor,
     canvasRef,
   ]);
-  console.log('ul', canvasWidth);
-  const lol = 'left-';
+
   return (
     <>
-      <ContextMenu>
-        <ContextMenu>
-          <ContextMenuTrigger>
-            <canvas
-              onClick={(event) => {
-                const mousePositionX =
-                  event.nativeEvent.offsetX - cameraCoordinate[0];
-                const mousePositionY =
-                  event.nativeEvent.offsetY - cameraCoordinate[1];
+      <ContextMenu
+        onOpenChange={(open) => {
+          if (!open) {
+            // lol this is so stupid
+            setSelectedAttachableLine(null);
+            setSelectBox(null);
+            setSelectedCircleID(null);
+            setSelectedControlBarAction(null);
+            setSelectedControlBarAction(null);
+            setSelectedResizeValidatorLensCircle(null);
+            setSelectedValidatorLens(null);
+          }
+        }}
+      >
+        <ContextMenuTrigger>
+          <canvas
+            onClick={(event) => {
+              const mousePositionX =
+                event.nativeEvent.offsetX - cameraCoordinate[0];
+              const mousePositionY =
+                event.nativeEvent.offsetY - cameraCoordinate[1];
 
-                match(selectedControlBarAction)
-                  .with({ tag: 'circle-toggle' }, () => {
-                    handleAddCircle([mousePositionX, mousePositionY]);
-                  })
-                  .with({ tag: 'directed-edge-toggle' }, () => {
-                    handleAddDirectedEdge([mousePositionX, mousePositionY]);
-                  })
-                  .with({ tag: 'undirected-edge-toggle' }, () => {
-                    handleAddUndirectedEdge([mousePositionX, mousePositionY]);
-                  })
-                  .with({ tag: 'validator-lens-select' }, ({ state: id }) => {
-                    // we cant just trivially pass the crypto random, we need the uuid of what we just added
-                    if (!id) {
-                      throw new Error('something went wrong pal');
-                    }
-                    handleAddValidatorLens(id, [
-                      mousePositionX,
-                      mousePositionY,
-                    ]);
-                    setSelectedControlBarAction(null);
-                  })
-                  // // remeber to add validator lens oops
-                  .otherwise((action) => {
-                    //  #TODO
-                  });
-              }}
-              style={{
-                width: canvasWidth,
-                height: canvasHeight,
-              }}
-              onMouseLeave={() => {
-                isMouseDownRef.current = false;
-              }}
-              className={`
+              match(selectedControlBarAction)
+                .with({ tag: 'circle-toggle' }, () => {
+                  handleAddCircle([mousePositionX, mousePositionY]);
+                })
+                .with({ tag: 'directed-edge-toggle' }, () => {
+                  handleAddDirectedEdge([mousePositionX, mousePositionY]);
+                })
+                .with({ tag: 'undirected-edge-toggle' }, () => {
+                  handleAddUndirectedEdge([mousePositionX, mousePositionY]);
+                })
+                .with({ tag: 'validator-lens-select' }, ({ state: id }) => {
+                  // we cant just trivially pass the crypto random, we need the uuid of what we just added
+                  if (!id) {
+                    throw new Error('something went wrong pal');
+                  }
+                  handleAddValidatorLens(id, [mousePositionX, mousePositionY]);
+                  setSelectedControlBarAction(null);
+                })
+                // // remeber to add validator lens oops
+                .otherwise((action) => {
+                  //  #TODO
+                });
+            }}
+            style={{
+              width: canvasWidth,
+              height: canvasHeight,
+            }}
+            onMouseLeave={() => {
+              isMouseDownRef.current = false;
+            }}
+            className={`
               outline-none   z-50
                 `}
-              ref={canvasRef}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              tabIndex={-1}
-              onContextMenu={handleContextMenu}
-              onMouseUp={handleMouseUp}
-              onKeyDown={handleKeyDown}
-              width={canvasWidth}
-              height={canvasHeight}
-            />
+            ref={canvasRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            tabIndex={-1}
+            onContextMenu={handleContextMenu}
+            onMouseUp={handleMouseUp}
+            onKeyDown={handleKeyDown}
+            width={canvasWidth}
+            height={canvasHeight}
+          />
 
-            <div
-              style={{
-                // 12 is resize bar size - 4, should just export (4 is because the gnome requires a 4 shmeckle toll to let the code compile)) :p
-                left: canvasWidth - 96 + 12 - 4,
-              }}
-              className=" absolute text-sm   w-28 text-md bg-primary font-bold text-foreground flex items-center justify-center h-12 -translate-y-12 border-l-2 border-t-2   rounded-r-none rounded-t-md border-secondary"
-            >
-              ({(cameraCoordinate[0] / 10).toFixed(0)},
-              {(cameraCoordinate[1] / 10).toFixed(0)})
-            </div>
-            <div className="absolute w-16 text-md bg-primary font-bold text-foreground flex items-center justify-center h-12 -translate-y-12 border-r-2 border-t-2  rounded-r-md rounded-l-none rounded-t-md border-secondary">
-              {(currentZoomFactor * 100).toFixed(0)}%
-            </div>
-          </ContextMenuTrigger>
+          <div
+            style={{
+              // 12 is resize bar size - 4, should just export (4 is because the gnome requires a 4 shmeckle toll to let the code compile)) :p
+              left: canvasWidth - 96 + 12 - 4,
+            }}
+            className=" absolute text-sm   w-28 text-md bg-primary font-bold text-foreground flex items-center justify-center h-12 -translate-y-12 border-l-2 border-t-2   rounded-r-none rounded-t-md border-secondary"
+          >
+            ({(cameraCoordinate[0] / 10).toFixed(0)},
+            {(cameraCoordinate[1] / 10).toFixed(0)})
+          </div>
+          <div className="absolute w-16 text-md bg-primary font-bold text-foreground flex items-center justify-center h-12 -translate-y-12 border-r-2 border-t-2  rounded-r-md rounded-l-none rounded-t-md border-secondary">
+            {(currentZoomFactor * 100).toFixed(0)}%
+          </div>
+        </ContextMenuTrigger>
+        {run(() => {
+          if (selectedCircleID || selectedAttachableLine) {
+            return true;
+          }
+          if (selectedCircles.length > 0) {
+            return true;
+          }
+
+          if (selectedCircleID) {
+            return true;
+          }
+
+          if (isGodMode) {
+            return true;
+          }
+
+          if (process.env.NODE_ENV === 'development') {
+            console.log('You may have forgot to add it to this condition');
+          }
+          return false;
+        }) && (
           <ContextMenuContent className="w-64 ">
-            <ContextMenuItem
-              onClick={() => {
-                if (selectedCircleID) {
-                  if (playgroundID) {
-                    dispatch(
-                      CanvasActions.deleteCircle(selectedCircleID, meta)
-                    );
-                  } else {
-                    dispatch(CanvasActions.deleteCircle(selectedCircleID));
+            {!!(selectedCircleID || selectedAttachableLine) && (
+              <ContextMenuItem
+                onClick={() => {
+                  if (selectedCircleID) {
+                    if (playgroundID) {
+                      dispatch(
+                        CanvasActions.deleteCircle(selectedCircleID, meta)
+                      );
+                    } else {
+                      dispatch(CanvasActions.deleteCircle(selectedCircleID));
+                    }
+
+                    setSelectedCircleID(null);
                   }
 
-                  setSelectedCircleID(null);
-                }
+                  if (selectedAttachableLine) {
+                    if (playgroundID) {
+                      dispatch(
+                        CanvasActions.deleteAttachableLine(
+                          selectedAttachableLine,
+                          meta
+                        )
+                      );
+                    } else {
+                      dispatch(
+                        CanvasActions.deleteAttachableLine(
+                          selectedAttachableLine
+                        )
+                      );
+                    }
 
-                if (selectedAttachableLine) {
-                  if (playgroundID) {
-                    dispatch(
-                      CanvasActions.deleteAttachableLine(
-                        selectedAttachableLine,
-                        meta
-                      )
-                    );
-                  } else {
-                    dispatch(
-                      CanvasActions.deleteAttachableLine(selectedAttachableLine)
-                    );
+                    setSelectedAttachableLine(null);
                   }
 
-                  setSelectedAttachableLine(null);
-                }
+                  if (selectedValidatorLens) {
+                    if (playgroundID) {
+                      dispatch(
+                        CanvasActions.deleteValidatorLens(
+                          { validatorLensId: selectedValidatorLens.id },
+                          meta
+                        )
+                      );
+                    } else {
+                      dispatch(
+                        CanvasActions.deleteValidatorLens({
+                          validatorLensId: selectedValidatorLens.id,
+                        })
+                      );
+                    }
 
-                if (selectedValidatorLens) {
-                  if (playgroundID) {
-                    dispatch(
-                      CanvasActions.deleteValidatorLens(
-                        { validatorLensId: selectedValidatorLens.id },
-                        meta
-                      )
-                    );
-                  } else {
-                    dispatch(
-                      CanvasActions.deleteValidatorLens({
-                        validatorLensId: selectedValidatorLens.id,
-                      })
-                    );
+                    setSelectedValidatorLens(null);
                   }
+                }}
+                inset
+              >
+                Delete
+              </ContextMenuItem>
+            )}
+            {selectedCircles.length > 0 && (
+              <ContextMenuItem onClick={handleFullyConnect} inset>
+                Fully Connect Nodes
+              </ContextMenuItem>
+            )}
 
-                  setSelectedValidatorLens(null);
-                }
-              }}
-              inset
-            >
-              Delete
-            </ContextMenuItem>
-            <ContextMenuItem onClick={handleFullyConnect} inset>
-              Fully Connect Nodes
-            </ContextMenuItem>
-            {selectedValidatorLens && (
+            {!!selectedValidatorLens && (
               <ContextMenuItem
                 onClick={() => {
                   const validatorLens = validatorLensContainer.find(
@@ -645,17 +681,20 @@ const CanvasDisplay = ({
                 Show code
               </ContextMenuItem>
             )}
-            <ContextMenuItem
-              onClick={() => {
-                if (selectedCircleID) {
-                  dispatch(CanvasActions.setStartNode(selectedCircleID));
-                  setSelectedCircleID(null);
-                }
-              }}
-              inset
-            >
-              Set as starting node
-            </ContextMenuItem>
+            {!!selectedCircleID && (
+              <ContextMenuItem
+                onClick={() => {
+                  if (selectedCircleID) {
+                    dispatch(CanvasActions.setStartNode(selectedCircleID));
+                    setSelectedCircleID(null);
+                  }
+                }}
+                inset
+              >
+                Set as starting node
+              </ContextMenuItem>
+            )}
+
             {/* keep this for now if i think of a better way to introduce this since it does work */}
             {/* <ContextMenuItem
               onClick={() => {
@@ -668,7 +707,7 @@ const CanvasDisplay = ({
             >
               Set as ending node
             </ContextMenuItem> */}
-            {selectedCircleID && (
+            {!!selectedCircleID && (
               <ContextMenuSub>
                 <ContextMenuSubTrigger inset>
                   Edit Node Value
@@ -756,10 +795,10 @@ const CanvasDisplay = ({
               </ContextMenuSub>
             )}
           </ContextMenuContent>
-        </ContextMenu>
-
-        {/* <ContextMenuTrigger></ContextMenuTrigger> */}
+        )}
       </ContextMenu>
+
+      {/* <ContextMenuTrigger></ContextMenuTrigger> */}
     </>
   );
 };

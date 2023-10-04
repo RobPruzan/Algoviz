@@ -51,7 +51,7 @@ const validatorSchema = z.object({
 });
 
 const errorSchema = z.object({
-  output: z.array(nodeSchema),
+  output: z.array(z.string()),
   type: z.literal('error'),
 });
 
@@ -161,97 +161,98 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       startNode: string | null;
       endNode: string | null;
     }): Promise<AlteredOutputUnion> => {
-      if (language === 'javascript') {
-        try {
-          const newAdjList = Object.fromEntries(
-            Object.entries(getAdjacenyList(attachableLines, circles, lens)).map(
-              ([k, v]) => [
-                k,
-                v.map((id) => ({
-                  ID: circles.find((c) => c.id === id)?.id!,
-                  value: circles.find((c) => c.id === id)?.value!,
-                })),
-              ]
+      // if (language === 'javascript') {
+      //   try {
+      //     const newAdjList = Object.fromEntries(
+      //       Object.entries(getAdjacenyList(attachableLines, circles, lens)).map(
+      //         ([k, v]) => [
+      //           k,
+      //           v.map((id) => ({
+      //             ID: circles.find((c) => c.id === id)?.id!,
+      //             value: circles.find((c) => c.id === id)?.value!,
+      //           })),
+      //         ]
+      //       )
+      //     );
+
+      //     const result = await runJavascriptWithWorker(algo.code, newAdjList);
+
+      //     switch (type) {
+      //       case AlgoType.Validator: {
+      //         const parsed = validatorSchema.parse({
+      //           ...result,
+      //           type,
+      //         });
+      //         return unFlattened(parsed);
+      //       }
+      //       case AlgoType.Visualizer: {
+      //         const parsed = visualizerSchema.parse({
+      //           output: result.output,
+      //           logs: result.logs.join('\n'),
+      //           type,
+      //         });
+
+      //         return unFlattened(parsed);
+      //       }
+      //     }
+      //   } catch (error) {
+      //     if (error instanceof ErrorEvent) {
+      //       console.log('error', error);
+      //       return {
+      //         type: 'error',
+      //         output: [error.message],
+      //       };
+      //     } else {
+      //       return {
+      //         type: 'error',
+      //         output: [JSON.stringify(error)],
+      //       };
+      //     }
+      //   }
+      // } else {
+      const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
+      if (!url) Promise.reject();
+
+      const res = await axios.post(url, {
+        code: algo.code,
+        lang: language,
+        type,
+        env: {
+          ADJACENCY_LIST: JSON.stringify(
+            Object.fromEntries(
+              Object.entries(
+                getAdjacenyList(attachableLines, circles, lens)
+              ).map(([id, neighbors]) => {
+                const circle = circles.find((c) => c.id === id);
+                return [
+                  [circle?.id, circle?.value],
+                  neighbors.map((n) => [
+                    n,
+                    circles.find((c) => c.id === n)?.value,
+                  ]),
+                ];
+              })
             )
-          );
+          ),
+          START_NODE: JSON.stringify(startNode ?? 'NO-START-NODE-SELECTED'),
+          START_NODE_VALUE: JSON.stringify(
+            circles.find((c) => c.id === startNode)?.value
+          ),
+          START_NODE_NEIGHBORS: JSON.stringify(
+            circles.find((c) => c.id === startNode)?.nodeReceiver.attachedIds
+          ),
+        },
+      });
 
-          const result = await runJavascriptWithWorker(algo.code, newAdjList);
+      const outputWithType = { type, ...res.data };
 
-          switch (type) {
-            case AlgoType.Validator: {
-              const parsed = validatorSchema.parse({
-                ...result,
-                type,
-              });
-              return unFlattened(parsed);
-            }
-            case AlgoType.Visualizer: {
-              const parsed = visualizerSchema.parse({
-                output: result.output,
-                logs: result.logs.join('\n'),
-                type,
-              });
-
-              return unFlattened(parsed);
-            }
-          }
-        } catch (error) {
-          if (error instanceof ErrorEvent) {
-            console.log('error', error);
-            return {
-              type: 'error',
-              output: [error.message],
-            };
-          } else {
-            return {
-              type: 'error',
-              output: [JSON.stringify(error)],
-            };
-          }
-        }
-      } else {
-        const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
-        if (!url) Promise.reject();
-
-        const res = await axios.post(url, {
-          code: algo.code,
-          lang: language,
-          type,
-          env: {
-            ADJACENCY_LIST: JSON.stringify(
-              Object.fromEntries(
-                Object.entries(
-                  getAdjacenyList(attachableLines, circles, lens)
-                ).map(([id, neighbors]) => {
-                  const circle = circles.find((c) => c.id === id);
-                  return [
-                    [circle?.id, circle?.value],
-                    neighbors.map((n) => [
-                      n,
-                      circles.find((c) => c.id === n)?.value,
-                    ]),
-                  ];
-                })
-              )
-            ),
-            START_NODE: JSON.stringify(startNode ?? 'NO-START-NODE-SELECTED'),
-            START_NODE_VALUE: JSON.stringify(
-              circles.find((c) => c.id === startNode)?.value
-            ),
-            START_NODE_NEIGHBORS: JSON.stringify(
-              circles.find((c) => c.id === startNode)?.nodeReceiver.attachedIds
-            ),
-          },
-        });
-
-        const outputWithType = { type, ...res.data };
-        // if (process.env.NODE_ENV === 'development') {
-        //   console.log('code output', outputWithType);
-        // }
-        const parsedOutput = dataSchema.parse(outputWithType);
-
-        return unFlattened(parsedOutput);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('code output', outputWithType);
       }
+      const parsedOutput = dataSchema.parse(outputWithType);
+
+      return unFlattened(parsedOutput);
+      // }
     },
     onSuccess: (data, ctx) => {
       match(data)
