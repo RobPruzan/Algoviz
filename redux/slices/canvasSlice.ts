@@ -74,7 +74,7 @@ const initialState: CanvasState = {
   attachableLines: [],
   circles: [],
   validatorLensContainer: [],
-  currentZoomFactor: 0.75,
+  currentZoomFactor: 1,
   selectedGeometryInfo: null,
   pencilCoordinates: {
     drawingCoordinates: [],
@@ -794,7 +794,6 @@ const canvasSlice = createSlice({
         const filtered = state.circles.filter(
           (circle) => !idSet.has(circle.id)
         );
-        console.log('fil len', filtered.length);
         state.attachableLines.forEach((line) => {
           if (
             line.attachNodeOne.connectedToId &&
@@ -803,10 +802,6 @@ const canvasSlice = createSlice({
             state.attachableLines = state.attachableLines.filter(
               (l) => l.attachNodeOne.id !== line.id
             );
-            // line.attachNodeOne = {
-            //   ...line.attachNodeOne,
-            //   connectedToId: null,
-            // };
           }
 
           if (
@@ -816,26 +811,8 @@ const canvasSlice = createSlice({
             state.attachableLines = state.attachableLines.filter(
               (l) => l.attachNodeTwo.id !== line.id
             );
-            // line.attachNodeTwo = {
-            //   ...line.attachNodeTwo,
-            //   connectedToId: null,
-            // };
           }
         });
-        // if circle connected and not line, delete line
-        // give up for now, delete behavior can be better
-        // filtered.forEach((circle, idx) => {
-        //   // if (idSet.has(circle.id)) {
-        //   console.log('pre', state.attachableLines.length);
-        //   const leftOver = state.attachableLines.filter(
-        //     (l) =>
-        //       !(l.attachNodeOne.connectedToId === circle.nodeReceiver.id) &&
-        //       !(l.attachNodeOne.connectedToId === circle.nodeReceiver.id)
-        //   );
-        //   console.log('left over doo', state.attachableLines.length);
-        //   state.attachableLines = leftOver;
-        //   // }
-        // });
 
         state.circles = filtered;
       }
@@ -843,11 +820,6 @@ const canvasSlice = createSlice({
 
     deleteLines: withCanvasMeta<string[]>(
       (state, action: PayloadAction<string[]>) => {
-        console.log(
-          'origi',
-          state.attachableLines.map((l) => l.id)
-        );
-        console.log('has', action.payload);
         const filtered = state.attachableLines.filter(
           (line) =>
             !action.payload.includes(line.id) &&
@@ -856,10 +828,7 @@ const canvasSlice = createSlice({
             ) &&
             !action.payload.includes(line.attachNodeOne.connectedToId ?? 'no')
         );
-        console.log(
-          'filtered',
-          filtered.map((f) => f.id)
-        );
+
         const idSet = new Set<string>(action.payload);
 
         state.circles.forEach((circle) => {
