@@ -109,6 +109,7 @@ export const GREEN_BLINKING_PRESETS = [
   'depth-first-search',
   'breadth-first-search',
   'backtracking',
+  'topological-sort',
 ];
 export const getCode = (
   userAlgo: RealMessedUpAlgoType,

@@ -357,7 +357,8 @@ const CodeExecutionControlBar = ({
                             code: algo.code,
                             language: algo.language,
                           }));
-                          setLanguage(algo.language);
+                          // tempoary assertion
+                          setLanguage(algo.language as Languages);
                         }
                       }}
                     />

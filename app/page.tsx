@@ -155,12 +155,12 @@ export default function Home() {
           <div className=" justify-between items-center h-1/2 w-full hidden sm:flex">
             <div className="border-2 shadow-2 shadow-accent shadow-md rounded-md p-3 w-64 sm:w-72 lg:w-[18rem] h-40 hidden lg:flex   flex-col ">
               <div className="h-full w-full  text-2xl flex justify-center items-center text-foreground font-bold ">
-                Directed Acyclic Graph
+                Topological Sort
               </div>
               <div className="h-full w-full  flex items-center justify-center ">
                 <Link
                   className="w-full flex items-center justify-center"
-                  href={'/visualizer?preset=directed-acyclic-graph'}
+                  href={'/visualizer?preset=topological-sort'}
                 >
                   <Button
                     className="w-3/4 text-md hover:scale-105 transition"
