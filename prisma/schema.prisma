@@ -84,14 +84,15 @@ model Playground {
 }
 
 model Preset {
-  id         String   @id @default(cuid())
-  type       String
-  code       String?
-  name       String
-  createdAt  DateTime @default(now())
-  circles    Json
-  lines      Json
-  zoomAmount Float
-  startNode  String?
+  id            String   @id @default(cuid())
+  type          String
+  code          String?
+  name          String
+  createdAt     DateTime @default(now())
+  circles       Json
+  lines         Json
+  validatorLens Json     @default("{}")
+  zoomAmount    Float
+  startNode     String?
   // code String @default("")
 }
