@@ -65,11 +65,23 @@ export const dispatchPreset = <
   // everything also needs to be integrated to the selected item flow, get the mouse pos, mouse center zoom every single item and then place, no other odd scaling. Works for the circle, doesn't work for the line since before we just hardcoded it
   // dispatch(
   //   CanvasActions.addPreset(
+  // i know what im doing move on pal
+  const valLens =
+    JSON.stringify(preset.validatorLens) === '{}' ? [] : preset.validatorLens;
+
+  const copiedLens: ValidatorLensInfo[] = (valLens as ValidatorLensInfo[]).map(
+    (lens) => ({
+      ...lens,
+      id: lens.id + offset,
+      selectedIds: lens.selectedIds.map((id) => id + offset),
+    })
+  );
 
   const newPreset = {
     type: preset.type,
     code: preset.code,
     startNode: preset.startNode + offset,
+    validatorLens: copiedLens,
     // offset mapping is necessary to allow multiple presets to be made in the same playground
     attachableLines: (preset.lines as Edge[]).map((line) => ({
       ...line,
@@ -164,6 +176,7 @@ export const serializedPlaygroundSchema = z.object({
   pencil: z.array(z.any()),
   userId: z.string(),
   name: z.string(),
+  validatorLens: z.array(z.any()),
   zoomAmount: z.number(),
 });
 

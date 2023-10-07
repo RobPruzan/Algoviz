@@ -22,11 +22,12 @@ export const useGetPresets = () => {
           createdAt: z.string(),
           circles: z.array(z.any()),
           lines: z.array(z.any()),
+          validatorLens: z.array(z.any()).optional().or(z.object({})),
           zoomAmount: z.number(),
           startNode: z.string().optional().nullable(),
         })
       );
-
+      console.log('data wee', res.data);
       const data = z.object({ presets: dataSchema }).parse(res.data);
       return data;
     },

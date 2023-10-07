@@ -136,6 +136,7 @@ const canvasSlice = createSlice({
     },
     addPreset: withCanvasMeta<{
       circles: CircleReceiver[];
+      validatorLens: ValidatorLensInfo[];
       attachableLines: Edge[];
       type: string;
       code: string;
@@ -143,6 +144,9 @@ const canvasSlice = createSlice({
     }>((state, action) => {
       state.attachableLines.push(...action.payload.attachableLines);
       state.circles.push(...action.payload.circles);
+      state.validatorLensContainer = state.validatorLensContainer.concat(
+        action.payload.validatorLens
+      );
       state.presetCode = action.payload.code;
       if (action.payload.startNode) {
         state.startNode = action.payload.startNode;

@@ -15,6 +15,7 @@ export const POST = async (res: NextRequest) => {
   const dataSchema = z.object({
     circles: z.array(z.any()).optional(),
     lines: z.array(z.any()).optional(),
+    validatorLens: z.array(z.any()).optional(),
     zoomAmount: z.number(),
     name: z.string(),
     type: z.string(),
@@ -31,6 +32,7 @@ export const POST = async (res: NextRequest) => {
       name: data.name,
       circles: data.circles ?? [],
       lines: data.lines ?? [],
+      validatorLens: data.validatorLens,
       zoomAmount: data.zoomAmount,
       type: data.type,
       code: data.code,

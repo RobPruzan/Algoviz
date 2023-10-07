@@ -49,6 +49,7 @@ const getCases = async ({
           select: {
             id: true,
             circles: true,
+            validatorLens: true,
             lines: true,
             pencil: true,
             userId: true,
@@ -65,6 +66,7 @@ const getCases = async ({
             id: true,
             circles: true,
             lines: true,
+            validatorLens: true,
             pencil: true,
             userId: true,
           },

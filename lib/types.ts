@@ -204,6 +204,6 @@ export type ArrayItem<T> = T extends (infer U)[] ? U : never;
 
 export type PickedPlayground = Pick<
   Playground,
-  'id' | 'circles' | 'lines' | 'pencil' | 'userId'
+  'id' | 'circles' | 'lines' | 'pencil' | 'userId' | 'validatorLens'
 >;
 let test = {} as PickedPlayground;

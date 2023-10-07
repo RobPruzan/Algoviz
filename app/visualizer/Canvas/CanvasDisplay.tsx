@@ -782,6 +782,7 @@ const CanvasDisplay = ({
                         shapes: {
                           circles: selectedValues.selectedCircles,
                           lines: selectedValues.selectedAttachableLines,
+                          validatorLens: validatorLensContainer,
                           zoomAmount: currentZoomFactor,
                         },
                         code: getCode(userAlgorithm, presetCode),

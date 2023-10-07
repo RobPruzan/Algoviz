@@ -1,6 +1,7 @@
 import { useToast } from '@/components/ui/use-toast';
 import { CircleReceiver, Edge } from '@/lib/types';
 import { API_URL } from '@/lib/utils';
+import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import ky from 'ky';
@@ -42,6 +43,7 @@ export const useSaveAsPresetMutation = () => {
       shapes: {
         circles?: CircleReceiver[];
         lines?: Edge[];
+        validatorLens: ValidatorLensInfo[];
         zoomAmount: number;
       };
       name: string;
@@ -52,6 +54,8 @@ export const useSaveAsPresetMutation = () => {
       return await axios.post(API_URL + '/playground/preset/create', {
         circles: shapes.circles ?? [],
         lines: shapes.lines ?? [],
+        validatorLens: shapes.validatorLens ?? [],
+        // validatorLens: shapes
         name: name,
         zoomAmount: shapes.zoomAmount,
         code,
