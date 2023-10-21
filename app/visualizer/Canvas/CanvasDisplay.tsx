@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   SelectedAttachableLine,
@@ -9,7 +9,7 @@ import {
   SelectedValidatorLensResizeCircle,
   TaggedDrawTypes,
   RealMessedUpAlgoType,
-} from '@/lib/types';
+} from "@/lib/types";
 import React, {
   useRef,
   useState,
@@ -17,12 +17,12 @@ import React, {
   SetStateAction,
   Dispatch,
   useMemo,
-} from 'react';
-import * as Draw from '@/lib/Canvas/draw';
-import * as Graph from '@/lib/graph';
+} from "react";
+import * as Draw from "@/lib/Canvas/draw";
+import * as Graph from "@/lib/graph";
 
-import { useAppDispatch, useAppSelector } from '@/redux/store';
-import { CanvasActions, Meta, ObjectState } from '@/redux/slices/canvasSlice';
+import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { CanvasActions, Meta, ObjectState } from "@/redux/slices/canvasSlice";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -31,8 +31,8 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
   ContextMenuTrigger,
-} from '@/components/ui/context-menu';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/context-menu";
+import { Button } from "@/components/ui/button";
 
 import {
   Command,
@@ -41,41 +41,41 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
-} from '@/components/ui/command';
-import { getCode, getSelectedItems, run } from '@/lib/utils';
+} from "@/components/ui/command";
+import { getCode, getSelectedItems, run } from "@/lib/utils";
 
-import { useTheme } from 'next-themes';
-import { useSearchParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { CollaborationActions } from '@/redux/slices/colloborationSlice';
-import { match } from 'ts-pattern';
-import { CodeExecActions } from '@/redux/slices/codeExecSlice';
-import { socketManager } from '@/lib/socket/socket-utils';
-import { useMeta } from '@/hooks/useMeta';
-import { useInterval } from '@/hooks/useInterval';
-import { useApplyAlgorithm } from '@/hooks/useApplyAlgorithm';
-import { useCanvasContextMenu } from '@/hooks/useCanvasContextMenu';
-import { useHandleMouseUp } from '@/hooks/useCanvasHandleMouseUp';
-import { useCanvasKeyDown } from '@/hooks/useCanvasKeyDown';
-import { useCanvasMouseDown } from '@/hooks/useCanvasMouseDown';
-import { useCanvasMouseMove } from '@/hooks/useCanvasMouseMove';
-import { useCanvasWheel } from '@/hooks/useCanvasWheel';
-import { useClearCanvasState } from '@/hooks/useClearCanvasState';
-import { useFullyConnect } from '@/hooks/useFullyConnect';
-import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
-import { useServerUpdateShapes } from '@/hooks/useServerUpdateShapes';
-import { useAddGeometry } from '@/hooks/useAddGeomotry';
-import { useCanvasRef } from '@/hooks/useCanvasRef';
-import { Algorithm } from '@prisma/client';
-import { useIsGodMode } from '@/hooks/isGodMode';
+import { useTheme } from "next-themes";
+import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { CollaborationActions } from "@/redux/slices/colloborationSlice";
+import { match } from "ts-pattern";
+import { CodeExecActions } from "@/redux/slices/codeExecSlice";
+import { socketManager } from "@/lib/socket/socket-utils";
+import { useMeta } from "@/hooks/useMeta";
+import { useInterval } from "@/hooks/useInterval";
+import { useApplyAlgorithm } from "@/hooks/useApplyAlgorithm";
+import { useCanvasContextMenu } from "@/hooks/useCanvasContextMenu";
+import { useHandleMouseUp } from "@/hooks/useCanvasHandleMouseUp";
+import { useCanvasKeyDown } from "@/hooks/useCanvasKeyDown";
+import { useCanvasMouseDown } from "@/hooks/useCanvasMouseDown";
+import { useCanvasMouseMove } from "@/hooks/useCanvasMouseMove";
+import { useCanvasWheel } from "@/hooks/useCanvasWheel";
+import { useClearCanvasState } from "@/hooks/useClearCanvasState";
+import { useFullyConnect } from "@/hooks/useFullyConnect";
+import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
+import { useServerUpdateShapes } from "@/hooks/useServerUpdateShapes";
+import { useAddGeometry } from "@/hooks/useAddGeomotry";
+import { useCanvasRef } from "@/hooks/useCanvasRef";
+import { Algorithm } from "@prisma/client";
+import { useIsGodMode } from "@/hooks/isGodMode";
 import {
   PresetType,
   useSaveAsPresetMutation,
-} from '@/hooks/useSaveAsPresetMutation';
-import { useGetSelectedItems } from '@/hooks/useGetSelectedItems';
-import { useGetPresets } from '@/hooks/useGetPresets';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
+} from "@/hooks/useSaveAsPresetMutation";
+import { useGetSelectedItems } from "@/hooks/useGetSelectedItems";
+import { useGetPresets } from "@/hooks/useGetPresets";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 export type Props = {
   selectedControlBarAction: TaggedDrawTypes | null;
   setSelectedControlBarAction: Dispatch<SetStateAction<TaggedDrawTypes | null>>;
@@ -111,7 +111,7 @@ const CanvasDisplay = ({
   const previousMousePositionRef = useRef<[number, number]>();
 
   const lastMouseDownTime = useRef(0);
-  const [presetName, setPresetName] = useState('');
+  const [presetName, setPresetName] = useState("");
   const selectedGeometryInfo = useAppSelector(
     (store) => store.canvas.present.selectedGeometryInfo
   );
@@ -139,25 +139,25 @@ const CanvasDisplay = ({
   );
 
   if (error) {
-    console.error('error', error);
+    console.error("error", error);
   }
   const isContextMenuActiveRef = useRef(false);
 
   const searchParams = useSearchParams();
   const session = useSession();
   session.data?.user;
-  const playgroundID = searchParams.get('playground-id');
+  const playgroundID = searchParams.get("playground-id");
 
   const userID = session.data?.user.id ?? notSignedInUserID;
   const saveAsPresetMutation = useSaveAsPresetMutation();
   const selectedValues = useGetSelectedItems();
   const isGodMode = useIsGodMode();
-  const [tempCircleValue, setTempCircleValue] = useState('');
+  const [tempCircleValue, setTempCircleValue] = useState("");
   const currentCircleValue = useMemo(() => {
     return circles.find((c) => c.id === selectedCircleID)?.value;
   }, [circles, selectedCircleID]);
   useEffect(() => {
-    setTempCircleValue(currentCircleValue ? String(currentCircleValue) : '');
+    setTempCircleValue(currentCircleValue ? String(currentCircleValue) : "");
   }, [currentCircleValue]);
   const baseMeta = useMeta();
   const meta: Meta = {
@@ -177,14 +177,14 @@ const CanvasDisplay = ({
     if (!playgroundID) return;
 
     dispatch({
-      type: 'socket/connect',
+      type: "socket/connect",
       meta,
     });
     // need to understand the problem with waiting for the session to load :/
     return () => {
       if (!playgroundID) return;
       dispatch({
-        type: 'socket/disconnect',
+        type: "socket/disconnect",
         meta,
       });
     };
@@ -204,7 +204,7 @@ const CanvasDisplay = ({
 
   useEffect(() => {
     const img = new Image(20, 20);
-    img.src = 'joint-cursor.png';
+    img.src = "joint-cursor.png";
 
     // if (!cursorImgRef.current) return;
     img.onload = function () {
@@ -213,7 +213,7 @@ const CanvasDisplay = ({
   }, []);
 
   useEffect(() => {
-    if (session.status === 'loading' || !userID) return;
+    if (session.status === "loading" || !userID) return;
     const item: FirstParameter<typeof CollaborationActions.addCollabInfo> = {
       user: {
         ...session.data?.user,
@@ -238,7 +238,7 @@ const CanvasDisplay = ({
       playgroundID
     );
   }, 5000);
-
+  console.log("what", process.env.NEXT_PUBLIC_CODE_RUNNER);
   const { selectedAttachableLines, selectedCircles } = getSelectedItems({
     attachableLines,
     circles,
@@ -337,7 +337,7 @@ const CanvasDisplay = ({
     const visualizationNodes = visualization?.at(visualizationPointer);
 
     const canvas = canvasRef?.current;
-    const ctx = canvas?.getContext('2d');
+    const ctx = canvas?.getContext("2d");
     if (!ctx) return;
     if (!canvas) return;
     Draw.updateCanvasEnvironment({
@@ -394,7 +394,7 @@ const CanvasDisplay = ({
           p1: selectedGeometryInfo?.maxPoints.closestToOrigin,
           p2: selectedGeometryInfo?.maxPoints.furthestFromOrigin,
         },
-        theme: themeInfo.theme ?? 'dark',
+        theme: themeInfo.theme ?? "dark",
       });
     }
 
@@ -413,7 +413,7 @@ const CanvasDisplay = ({
       selectedCircleID,
       selectedIDs,
       visualizationNodes: visualizationNodes ?? [],
-      theme: themeInfo.theme ?? 'dark',
+      theme: themeInfo.theme ?? "dark",
       // validationNodes: validation,
       validatorLensContainer,
       endNode,
@@ -422,7 +422,7 @@ const CanvasDisplay = ({
     Draw.drawValidatorLens({
       ctx,
       selectedIds: selectedGeometryInfo?.selectedIds,
-      theme: themeInfo.theme ?? 'dark',
+      theme: themeInfo.theme ?? "dark",
       validatorLensContainer,
       selectedValidatorLens,
       algos: algos.data ?? [],
@@ -434,7 +434,7 @@ const CanvasDisplay = ({
         ctx,
         box: selectBox,
         fill: true,
-        theme: themeInfo.theme ?? 'dark',
+        theme: themeInfo.theme ?? "dark",
       });
     }
 
@@ -446,7 +446,7 @@ const CanvasDisplay = ({
     Draw.drawNodeReceivers({
       ctx,
       nodes: circles,
-      theme: themeInfo.theme ?? 'dark',
+      theme: themeInfo.theme ?? "dark",
     });
 
     if (pencilCoordinates) {
@@ -510,19 +510,19 @@ const CanvasDisplay = ({
                 event.nativeEvent.offsetY - cameraCoordinate[1];
 
               match(selectedControlBarAction)
-                .with({ tag: 'circle-toggle' }, () => {
+                .with({ tag: "circle-toggle" }, () => {
                   handleAddCircle([mousePositionX, mousePositionY]);
                 })
-                .with({ tag: 'directed-edge-toggle' }, () => {
+                .with({ tag: "directed-edge-toggle" }, () => {
                   handleAddDirectedEdge([mousePositionX, mousePositionY]);
                 })
-                .with({ tag: 'undirected-edge-toggle' }, () => {
+                .with({ tag: "undirected-edge-toggle" }, () => {
                   handleAddUndirectedEdge([mousePositionX, mousePositionY]);
                 })
-                .with({ tag: 'validator-lens-select' }, ({ state: id }) => {
+                .with({ tag: "validator-lens-select" }, ({ state: id }) => {
                   // we cant just trivially pass the crypto random, we need the uuid of what we just added
                   if (!id) {
-                    throw new Error('something went wrong pal');
+                    throw new Error("something went wrong pal");
                   }
                   handleAddValidatorLens(id, [mousePositionX, mousePositionY]);
                   setSelectedControlBarAction(null);
@@ -586,8 +586,8 @@ const CanvasDisplay = ({
             return true;
           }
 
-          if (process.env.NODE_ENV === 'development') {
-            console.log('You may have forgot to add it to this condition');
+          if (process.env.NODE_ENV === "development") {
+            console.log("You may have forgot to add it to this condition");
           }
           return false;
         }) && (
@@ -736,8 +736,8 @@ const CanvasDisplay = ({
                     onClick={() => {
                       if (Number(tempCircleValue) > 9999) {
                         toast({
-                          variant: 'destructive',
-                          title: 'Little bit lower',
+                          variant: "destructive",
+                          title: "Little bit lower",
                           description:
                             "Id prefer the UI doesn't break too much, enter a number below 10000",
                         });
@@ -746,7 +746,7 @@ const CanvasDisplay = ({
                       dispatch(
                         CanvasActions.editNodeValue({
                           value:
-                            tempCircleValue === ''
+                            tempCircleValue === ""
                               ? 0
                               : Number(tempCircleValue),
                           nodeID: selectedCircleID,
@@ -796,8 +796,8 @@ const CanvasDisplay = ({
                     className="bg-secondary mt-3 ring-0 hover: hover:border-2 hover:border-secondary w-full"
                   >
                     {saveAsPresetMutation.isLoading
-                      ? 'Saving ...'
-                      : 'Save Preset'}
+                      ? "Saving ..."
+                      : "Save Preset"}
                   </Button>
                 </ContextMenuSubContent>
               </ContextMenuSub>

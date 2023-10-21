@@ -1,9 +1,9 @@
-import axios from 'axios';
-import { NextResponse } from 'next/server';
-import { z } from 'zod';
+import axios from "axios";
+import { NextResponse } from "next/server";
+import { z } from "zod";
 
 export async function POST(request: Request) {
-  const url = process.env.NEXT_PUBLIC_CODE_EXEC_URL;
+  const url = process.env.NEXT_PUBLIC_CODE_RUNNER;
   const globalVarSchema = z.record(z.array(z.string()));
   const codeSchema = z.object({
     code: z.string(),
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ data });
     } else {
       return NextResponse.json({
-        msg: 'could not find server exec url',
+        msg: "could not find server exec url",
         status: 400,
       });
     }
