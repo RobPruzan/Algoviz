@@ -1,12 +1,12 @@
-import { Button } from '@/components/ui/button';
-import { Toggle } from '@/components/ui/toggle';
-import * as Draw from '@/lib/Canvas/draw';
+import { Button } from "@/components/ui/button";
+import { Toggle } from "@/components/ui/toggle";
+import * as Draw from "@/lib/Canvas/draw";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 
 import {
   AlgoType,
@@ -14,15 +14,15 @@ import {
   DrawTypes,
   Edge,
   TaggedDrawTypes,
-} from '@/lib/types';
+} from "@/lib/types";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { CanvasActions } from '@/redux/slices/canvasSlice';
-import { useAppDispatch, useAppSelector } from '@/redux/store';
+} from "@/components/ui/tooltip";
+import { CanvasActions } from "@/redux/slices/canvasSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   ChevronDown,
   CircleDot,
@@ -30,7 +30,7 @@ import {
   RedoIcon,
   Trash,
   Undo,
-} from 'lucide-react';
+} from "lucide-react";
 import React, {
   Dispatch,
   SetStateAction,
@@ -38,20 +38,20 @@ import React, {
   useEffect,
   useRef,
   useState,
-} from 'react';
-import { DirectedEdgeIcon } from '@/components/icons/DirectedEdge';
-import { UndirectedEdgeIcon } from '@/components/icons/UndirectedEdge';
-import { BINARY_SEARCH_TREE } from '@/lib/presets/binary-search-tree';
-import { ActionCreators } from 'redux-undo';
-import AlgoHistorySlider from '../Sort/AlgoHistorySlider';
-import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
-import { useAddGeometry } from '@/hooks/useAddGeomotry';
-import { CanvasContext } from '@/context/CanvasContext';
-import { useCanvasRef } from '@/hooks/useCanvasRef';
-import { dispatchPreset as dispatchPreset, run, twCond } from '@/lib/utils';
-import { useGetPresets } from '@/hooks/useGetPresets';
-import { useMeta } from '@/hooks/useMeta';
-import { useSearchParams } from 'next/navigation';
+} from "react";
+import { DirectedEdgeIcon } from "@/components/icons/DirectedEdge";
+import { UndirectedEdgeIcon } from "@/components/icons/UndirectedEdge";
+import { BINARY_SEARCH_TREE } from "@/lib/presets/binary-search-tree";
+import { ActionCreators } from "redux-undo";
+import AlgoHistorySlider from "../Sort/AlgoHistorySlider";
+import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
+import { useAddGeometry } from "@/hooks/useAddGeomotry";
+import { CanvasContext } from "@/context/CanvasContext";
+import { useCanvasRef } from "@/hooks/useCanvasRef";
+import { dispatchPreset as dispatchPreset, run, twCond } from "@/lib/utils";
+import { useGetPresets } from "@/hooks/useGetPresets";
+import { useMeta } from "@/hooks/useMeta";
+import { useSearchParams } from "next/navigation";
 
 type Props = {
   setSelectedControlBarAction: Dispatch<SetStateAction<TaggedDrawTypes | null>>;
@@ -62,7 +62,7 @@ const CanvasControlBar = ({
   setSelectedControlBarAction,
   selectedControlBarAction,
 }: Props) => {
-  const visualization = useAppSelector((store) => store.codeExec.visualization);
+  const visualization = useAppSelector((store) => store.codeExec.algoOutput);
 
   const getPresetsQuery = useGetPresets();
 
@@ -86,7 +86,7 @@ const CanvasControlBar = ({
 
   const hasSetRef = useRef(false);
   useEffect(() => {
-    const currentPresetName = searchParams.get('preset');
+    const currentPresetName = searchParams.get("preset");
 
     if (!hasSetRef.current && currentPresetName) {
       const preset = getPresetsQuery.data?.presets.find(
@@ -122,7 +122,7 @@ const CanvasControlBar = ({
               <Button
                 aria-label="delete-all-playground-objects"
                 onClick={() => dispatch(CanvasActions.resetState(undefined))}
-                variant={'outline'}
+                variant={"outline"}
                 className="px-2 mb-0 border-2"
               >
                 <Trash />
@@ -142,7 +142,7 @@ const CanvasControlBar = ({
                   dispatch(ActionCreators.undo());
                 }}
                 className="border-2"
-                variant={'outline'}
+                variant={"outline"}
               >
                 <Undo />
               </Button>
@@ -161,7 +161,7 @@ const CanvasControlBar = ({
                   dispatch(ActionCreators.redo());
                 }}
                 className="border-2"
-                variant={'outline'}
+                variant={"outline"}
               >
                 <RedoIcon />
               </Button>
@@ -175,18 +175,18 @@ const CanvasControlBar = ({
         <div className="border-r-2 border-secondary  h-full"></div>
         <Toggle
           aria-label="undirected-edge-toggle"
-          pressed={selectedControlBarAction?.tag === 'undirected-edge-toggle'}
+          pressed={selectedControlBarAction?.tag === "undirected-edge-toggle"}
           // onClick={handleAddUndirectedEdge}
           onPressedChange={(pressed) => {
             if (pressed) {
               setSelectedControlBarAction({
-                tag: 'undirected-edge-toggle',
+                tag: "undirected-edge-toggle",
               });
             } else {
               setSelectedControlBarAction(null);
             }
           }}
-          variant={'outline'}
+          variant={"outline"}
           className="px-2 border-2 mb-0"
         >
           <TooltipProvider>
@@ -207,14 +207,14 @@ const CanvasControlBar = ({
           onPressedChange={(pressed) => {
             if (pressed) {
               setSelectedControlBarAction({
-                tag: 'directed-edge-toggle',
+                tag: "directed-edge-toggle",
               });
             } else {
               setSelectedControlBarAction(null);
             }
           }}
-          pressed={selectedControlBarAction?.tag === 'directed-edge-toggle'}
-          variant={'outline'}
+          pressed={selectedControlBarAction?.tag === "directed-edge-toggle"}
+          variant={"outline"}
           className="px-2 border-2 min-w-fit"
         >
           <TooltipProvider>
@@ -233,13 +233,13 @@ const CanvasControlBar = ({
           aria-label="add-node"
           onPressedChange={(pressed) => {
             if (pressed) {
-              setSelectedControlBarAction({ tag: 'circle-toggle' });
+              setSelectedControlBarAction({ tag: "circle-toggle" });
             } else {
               setSelectedControlBarAction(null);
             }
           }}
-          pressed={selectedControlBarAction?.tag === 'circle-toggle'}
-          variant={'outline'}
+          pressed={selectedControlBarAction?.tag === "circle-toggle"}
+          variant={"outline"}
           className="px-2 border-2"
         >
           <CircleDot />
@@ -269,16 +269,16 @@ const CanvasControlBar = ({
                       {
                         cond:
                           selectedControlBarAction?.tag ===
-                          'validator-lens-select',
-                        className: 'bg-secondary',
+                          "validator-lens-select",
+                        className: "bg-secondary",
                       },
                     ],
-                    base: 'border-2 w-32 flex items-center justify-evenly font-bold rounded-md text-sm p-2',
+                    base: "border-2 w-32 flex items-center justify-evenly font-bold rounded-md text-sm p-2",
                   })}
                 >
                   {getAlgorithmsQuery.data?.find(
                     (algoInfo) => algoInfo.id === itemChecked
-                  )?.title ?? 'Validators'}
+                  )?.title ?? "Validators"}
                   <ChevronDown size={20} />
                 </DropdownMenuTrigger>
               </TooltipTrigger>
@@ -300,7 +300,7 @@ const CanvasControlBar = ({
                     onClick={(e) => {
                       setItemChecked(algo.algoID);
                       setSelectedControlBarAction({
-                        tag: 'validator-lens-select',
+                        tag: "validator-lens-select",
                         state: algo.algoID,
                       });
                     }}
@@ -363,7 +363,7 @@ const CanvasControlBar = ({
 
       <AlgoHistorySlider
         // or true for debug remove this
-        show={(visualization?.length ?? 0) > 0}
+        show={(visualization?.flattenedOutput.length ?? 0) > 0}
       />
     </>
   );

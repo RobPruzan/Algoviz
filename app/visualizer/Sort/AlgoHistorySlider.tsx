@@ -1,10 +1,10 @@
-import { Button } from '@/components/ui/button';
-import { Undo, RedoIcon } from 'lucide-react';
-import React, { useState } from 'react';
-import { ActionCreators } from 'redux-undo';
-import { SpeedSlider } from './SpeedSlider';
-import { useAppDispatch, useAppSelector } from '@/redux/store';
-import { CodeExecActions } from '@/redux/slices/codeExecSlice';
+import { Button } from "@/components/ui/button";
+import { Undo, RedoIcon } from "lucide-react";
+import React, { useState } from "react";
+import { ActionCreators } from "redux-undo";
+import { SpeedSlider } from "./SpeedSlider";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { CodeExecActions } from "@/redux/slices/codeExecSlice";
 
 type Props = {
   show?: boolean;
@@ -13,7 +13,7 @@ type Props = {
 const AlgoHistorySlider = ({ show = false }: Props) => {
   const dispatch = useAppDispatch();
   const visualizationLength = useAppSelector(
-    (store) => store.codeExec.visualization?.length
+    (store) => store.codeExec.algoOutput?.flattenedOutput.length
   );
   const visualizationPointer = useAppSelector(
     (store) => store.codeExec.visualizationPointer

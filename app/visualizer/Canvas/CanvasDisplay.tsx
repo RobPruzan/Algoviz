@@ -134,9 +134,11 @@ const CanvasDisplay = ({
   const [selectedAttachableLine, setSelectedAttachableLine] =
     useState<SelectedAttachableLine | null>(null);
 
-  const { visualization, visualizationPointer, error } = useAppSelector(
-    (store) => store.codeExec
-  );
+  const {
+    algoOutput: visualization,
+    visualizationPointer,
+    error,
+  } = useAppSelector((store) => store.codeExec);
 
   // if (error) {
   //   console.error("error", error);
@@ -334,7 +336,8 @@ const CanvasDisplay = ({
   const themeInfo = useTheme();
   // don't mutate anything or query/disable them if the playground is is undefined (unless they are joining a playground)
   useEffect(() => {
-    const visualizationNodes = visualization?.at(visualizationPointer);
+    const visualizationNodes =
+      visualization?.flattenedOutput.at(visualizationPointer);
 
     const canvas = canvasRef?.current;
     const ctx = canvas?.getContext("2d");

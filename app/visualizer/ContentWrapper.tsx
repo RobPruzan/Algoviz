@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import {
   AlgoType,
   CircleReceiver,
@@ -7,53 +7,53 @@ import {
   PickedPlayground,
   SelectedGeometryInfo,
   SelectedValidatorLens,
-} from '@/lib/types';
-import React, { useEffect, useState } from 'react';
-import CodeExecution from './Canvas/CodeExecution';
-import Resizable from './Resizeable';
-import Visualize from './Visualize';
-import { Algorithm, Prisma } from '@prisma/client';
-import CodeExecutionControlBar from './Canvas/CodeExecutionControlBar';
+} from "@/lib/types";
+import React, { useEffect, useState } from "react";
+import CodeExecution from "./Canvas/CodeExecution";
+import Resizable from "./Resizeable";
+import Visualize from "./Visualize";
+import { Algorithm, Prisma } from "@prisma/client";
+import CodeExecutionControlBar from "./Canvas/CodeExecutionControlBar";
 import {
   DEFAULT_VALIDATOR_CODE,
   DEFAULT_VISUALIZATION_CODE,
-} from '@/lib/utils';
-import { useDispatch } from 'react-redux';
-import { CanvasActions } from '@/redux/slices/canvasSlice';
-import { useAppSelector } from '@/redux/store';
-import { match } from 'ts-pattern';
+} from "@/lib/utils";
+import { useDispatch } from "react-redux";
+import { CanvasActions } from "@/redux/slices/canvasSlice";
+import { useAppSelector } from "@/redux/store";
+import { match } from "ts-pattern";
 
-import { CollaborationActions } from '@/redux/slices/colloborationSlice';
-import { useMeta } from '@/hooks/useMeta';
-import { useToast } from '@/components/ui/use-toast';
-import { Languages, languageSnippets } from '@/lib/language-snippets';
-import { useCodeMutation } from '@/hooks/useCodeMutation';
-import { AxiosError } from 'axios';
-import { useIsGodMode } from '@/hooks/isGodMode';
-import { useSession } from 'next-auth/react';
-import { CodeStorage } from '@/hooks/codeStorage';
+import { CollaborationActions } from "@/redux/slices/colloborationSlice";
+import { useMeta } from "@/hooks/useMeta";
+import { useToast } from "@/components/ui/use-toast";
+import { Languages, languageSnippets } from "@/lib/language-snippets";
+import { useCodeMutation } from "@/hooks/useCodeMutation";
+import { AxiosError } from "axios";
+import { useIsGodMode } from "@/hooks/isGodMode";
+import { useSession } from "next-auth/react";
+import { CodeStorage } from "@/hooks/codeStorage";
 type Props = {
   data: PickedPlayground | null;
 };
 
 export const defaultAlgo = {
-  code: languageSnippets['python'],
-  description: '',
-  title: '',
+  code: languageSnippets["python"],
+  description: "",
+  title: "",
   type: AlgoType.Visualizer,
-  language: 'python',
+  language: "python",
 };
 
 const ContentWrapper = ({ data }: Props) => {
-  const [canvasWidth, setCanvasWidth] = useState<number | Percentage>('59.2%');
+  const [canvasWidth, setCanvasWidth] = useState<number | Percentage>("59.2%");
   const [codeExecWidth, setCodeExecWidth] = useState<number | Percentage>(
-    '40%'
+    "40%"
   );
   const [selectedValidatorLens, setSelectedValidatorLens] =
     useState<SelectedValidatorLens | null>(null);
 
   const [openLanguageComboBox, setOpenLanguageComboBox] = useState(false);
-  const [language, setLanguage] = useState<Languages>('python');
+  const [language, setLanguage] = useState<Languages>("python");
   // next is annoying sometimes
   useEffect(() => {
     setLanguage(CodeStorage.getCode().language);
@@ -62,7 +62,7 @@ const ContentWrapper = ({ data }: Props) => {
   const dispatch = useDispatch();
   const [userAlgorithm, setUserAlgorithm] =
     useState<
-      Pick<Algorithm, 'code' | 'description' | 'title' | 'type' | 'language'>
+      Pick<Algorithm, "code" | "description" | "title" | "type" | "language">
     >(defaultAlgo);
 
   const { toast } = useToast();
@@ -74,19 +74,21 @@ const ContentWrapper = ({ data }: Props) => {
   const { codeMutation, getAdjacenyList } = useCodeMutation((error) => {
     if (error instanceof AxiosError) {
       return toast({
-        variant: 'destructive',
-        title: 'Error',
+        variant: "destructive",
+        title: "Error",
         description: error.message,
       });
     }
     const data = JSON.stringify(error);
 
     toast({
-      title: 'Error',
+      title: "Error",
       description: data,
     });
   });
-  const [tabValue, setTabValue] = useState<'output' | 'input'>('input');
+  const [tabValue, setTabValue] = useState<"output" | "input" | "stack">(
+    "input"
+  );
 
   const meta = useMeta();
   const notSignedInUserId = useAppSelector(
@@ -96,8 +98,8 @@ const ContentWrapper = ({ data }: Props) => {
   useEffect(() => {
     if (
       !notSignedInUserId &&
-      !(session.status === 'loading') &&
-      session.status === 'unauthenticated'
+      !(session.status === "loading") &&
+      session.status === "unauthenticated"
     ) {
       dispatch(CanvasActions.setNotSignedInUserId(crypto.randomUUID()));
     }
@@ -149,13 +151,13 @@ const ContentWrapper = ({ data }: Props) => {
       }
     };
 
-    document.addEventListener('keydown', keyDownHandler);
-    document.addEventListener('keypress', keyDownHandler);
+    document.addEventListener("keydown", keyDownHandler);
+    document.addEventListener("keypress", keyDownHandler);
 
     // cleanup function
     return () => {
-      document.removeEventListener('keydown', keyDownHandler);
-      document.removeEventListener('keypress', keyDownHandler);
+      document.removeEventListener("keydown", keyDownHandler);
+      document.removeEventListener("keypress", keyDownHandler);
     };
   }, []);
   return (

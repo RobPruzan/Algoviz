@@ -5,11 +5,11 @@ import React, {
   useEffect,
   useRef,
   useState,
-} from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
+} from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
 import {
   DialogHeader,
@@ -19,27 +19,27 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { MODES, Modes, CodeExecActions } from '@/redux/slices/codeExecSlice';
+} from "@/components/ui/dialog";
+import { MODES, Modes, CodeExecActions } from "@/redux/slices/codeExecSlice";
 
-import { Input } from '@/components/ui/input';
-import { useAppDispatch, useAppSelector } from '@/redux/store';
+import { Input } from "@/components/ui/input";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
 
-import { Algorithm } from '@prisma/client';
-import { Label } from '@/components/ui/label';
+import { Algorithm } from "@prisma/client";
+import { Label } from "@/components/ui/label";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from "@/components/ui/tooltip";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { match } from 'ts-pattern';
+} from "@/components/ui/popover";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { match } from "ts-pattern";
 import {
   DEFAULT_VISUALIZATION_CODE,
   GREEN_BLINKING_PRESETS,
@@ -48,11 +48,11 @@ import {
   getValidatorLensSelectedIds,
   run,
   twCond,
-} from '@/lib/utils';
+} from "@/lib/utils";
 
-import { AlgoType, Prettify, SelectedValidatorLens } from '@/lib/types';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useToast } from '@/components/ui/use-toast';
+import { AlgoType, Prettify, SelectedValidatorLens } from "@/lib/types";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/components/ui/use-toast";
 
 import {
   ArrowDown,
@@ -62,26 +62,26 @@ import {
   Play,
   Save,
   SaveAll,
-} from 'lucide-react';
-import { ChevronUp } from 'lucide-react';
-import { LanguageComboBox } from '../LanguageComboBox';
-import { Languages, languageSnippets } from '@/lib/language-snippets';
-import { useCodeMutation } from '@/hooks/useCodeMutation';
-import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
-import { useSaveAlgorithmMutation } from '@/hooks/useSaveAlgorithmMutation';
-import { AlgoComboBox } from '../Sort/AlgoComboBox';
-import { CodeStorage } from '@/hooks/codeStorage';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { getAdjacencyList } from '@/lib/graph';
+} from "lucide-react";
+import { ChevronUp } from "lucide-react";
+import { LanguageComboBox } from "../LanguageComboBox";
+import { Languages, languageSnippets } from "@/lib/language-snippets";
+import { useCodeMutation } from "@/hooks/useCodeMutation";
+import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
+import { useSaveAlgorithmMutation } from "@/hooks/useSaveAlgorithmMutation";
+import { AlgoComboBox } from "../Sort/AlgoComboBox";
+import { CodeStorage } from "@/hooks/codeStorage";
+import { usePathname, useSearchParams } from "next/navigation";
+import { getAdjacencyList } from "@/lib/graph";
 
-const startNodeAnnotation = ', startNode: NodeID';
-const endNodeAnnotation = ', endNode: NodeID';
+const startNodeAnnotation = ", startNode: NodeID";
+const endNodeAnnotation = ", endNode: NodeID";
 
 type CodeExecParameters = {
   passStartNode: boolean;
   passEndNode: boolean;
 };
-const DONT_PURGE_IT_TAILWIND_AHHHHHHHHHHHHHHHHHH = 'animate-pulse bg-green-600';
+const DONT_PURGE_IT_TAILWIND_AHHHHHHHHHHHHHHHHHH = "animate-pulse bg-green-600";
 const parseCode = ({
   code,
   passEndNode,
@@ -96,14 +96,14 @@ const parseCode = ({
   if (!passStartNode) {
     codeWithAddedParameters = codeWithAddedParameters.replace(
       startNodeAnnotation,
-      ''
+      ""
     );
   }
 
   if (!passEndNode) {
     codeWithAddedParameters = codeWithAddedParameters.replace(
       endNodeAnnotation,
-      ''
+      ""
     );
   }
 
@@ -115,17 +115,17 @@ const parseCodeAndAddParameters = ({
   passStartNode,
   code,
 }: CodeExecParameters & { code: string }) => {
-  let newCode: string = '';
+  let newCode: string = "";
   let pointer = 0;
 
-  const tokens = code.split(' ');
-  const hasStartNode = tokens.some((token) => token === 'startNode:');
-  const hasEndNode = tokens.some((token) => token === 'endNode:');
-  const startNodeText = !hasStartNode ? startNodeAnnotation : '';
-  const endNodeText = !hasEndNode ? endNodeAnnotation : '';
+  const tokens = code.split(" ");
+  const hasStartNode = tokens.some((token) => token === "startNode:");
+  const hasEndNode = tokens.some((token) => token === "endNode:");
+  const startNodeText = !hasStartNode ? startNodeAnnotation : "";
+  const endNodeText = !hasEndNode ? endNodeAnnotation : "";
 
   while (pointer + 1 < code.length) {
-    if (code[pointer] === ')' && code[pointer + 1] === ':') {
+    if (code[pointer] === ")" && code[pointer + 1] === ":") {
       if (passStartNode && passEndNode) {
         newCode += startNodeText;
         newCode += endNodeText;
@@ -149,22 +149,24 @@ const parseCodeAndAddParameters = ({
 type Props = {
   userAlgorithm: Pick<
     Algorithm,
-    'title' | 'code' | 'description' | 'type' | 'language'
+    "title" | "code" | "description" | "type" | "language"
   >;
   setUserAlgorithm: React.Dispatch<
     React.SetStateAction<
-      Pick<Algorithm, 'title' | 'code' | 'description' | 'type' | 'language'>
+      Pick<Algorithm, "title" | "code" | "description" | "type" | "language">
     >
   >;
-  codeMutation: ReturnType<typeof useCodeMutation>['codeMutation'];
+  codeMutation: ReturnType<typeof useCodeMutation>["codeMutation"];
   autoSelectAll: boolean;
   setAutoSelectAll: Dispatch<SetStateAction<boolean>>;
   openLanguageComboBox: boolean;
   setOpenLanguageComboBox: Dispatch<SetStateAction<boolean>>;
   language: Languages;
   setLanguage: Dispatch<SetStateAction<Languages>>;
-  setTabValue: React.Dispatch<React.SetStateAction<'output' | 'input'>>;
-  tabValue: 'output' | 'input';
+  setTabValue: React.Dispatch<
+    React.SetStateAction<"output" | "input" | "stack">
+  >;
+  tabValue: "output" | "input" | "stack";
 };
 
 const CodeExecutionControlBar = ({
@@ -220,12 +222,12 @@ const CodeExecutionControlBar = ({
   const presetCode = useAppSelector((store) => store.canvas.present.presetCode);
   const searchParams = useSearchParams();
 
-  const lastInput = useRef('');
+  const lastInput = useRef("");
   const selectedIds = getValidatorLensSelectedIds({
     attachableLines,
     circles,
     validatorLensContainer,
-  }).join(',');
+  }).join(",");
   const codeInfo = run(() => {
     if (presetCode) {
       return { code: presetCode, type: AlgoType.Visualizer, id: null };
@@ -272,24 +274,24 @@ const CodeExecutionControlBar = ({
   // const visualization = useAppSelector((store) => store.codeExec.visualization);
   useEffect(() => {
     const cond =
-      searchParams.get('preset') &&
+      searchParams.get("preset") &&
       JSON.parse(
         localStorage.getItem(
           searchParams
             // lol
-            .get('preset')!
+            .get("preset")!
         ) ?? '{"firstTime":true}'
       ).firstTime;
 
     if (
       cond &&
-      !GREEN_BLINKING_PRESETS.includes(searchParams.get('preset') ?? 'nope')
+      !GREEN_BLINKING_PRESETS.includes(searchParams.get("preset") ?? "nope")
     ) {
       toast({
-        title: 'Welcome!',
+        title: "Welcome!",
         duration: 10000,
         description:
-          'You can pan/zoom around to get a better view, or move the nodes around by dragging them. You can also write code to operate on the data structure/s with the built in code editor!',
+          "You can pan/zoom around to get a better view, or move the nodes around by dragging them. You can also write code to operate on the data structure/s with the built in code editor!",
       });
       setShouldBounceGreen(false);
       return;
@@ -297,10 +299,10 @@ const CodeExecutionControlBar = ({
     if (cond) {
       // const descriptions =  searchParams.get('preset') ===
       toast({
-        title: 'Welcome!',
+        title: "Welcome!",
         duration: 15000,
         description:
-          'Click the pulsing green play button to see a visualization. You can pan/zoom around to get a better view, or move the nodes/edges by dragging them',
+          "Click the pulsing green play button to see a visualization. You can pan/zoom around to get a better view, or move the nodes/edges by dragging them",
       });
     }
     setShouldBounceGreen(cond);
@@ -321,7 +323,7 @@ const CodeExecutionControlBar = ({
             >
               <Button
                 aria-label="code-options"
-                variant={'outline'}
+                variant={"outline"}
                 className="w-[90px]  flex items-center justify-center h-[30px]   font-bold"
               >
                 Options
@@ -368,7 +370,7 @@ const CodeExecutionControlBar = ({
                   <Checkbox
                     checked={autoSelectAll}
                     onCheckedChange={(v) => {
-                      v !== 'indeterminate' && setAutoSelectAll(v);
+                      v !== "indeterminate" && setAutoSelectAll(v);
                     }}
                     id="auto-select-all"
                   />
@@ -388,7 +390,7 @@ const CodeExecutionControlBar = ({
             onSelect={(currentValue) => {
               setLanguage(
                 currentValue === language
-                  ? ('' as Languages)
+                  ? ("" as Languages)
                   : (currentValue as Languages)
               );
               CodeStorage.setCode((prev) => ({
@@ -414,12 +416,12 @@ const CodeExecutionControlBar = ({
                     if (!codeInfo) {
                       toast({
                         title: `You haven't written any code yet`,
-                        description: 'Lets write some code first',
+                        description: "Lets write some code first",
                       });
                       return;
                     }
                     if (!selectedIds) {
-                      setTabValue('output');
+                      setTabValue("output");
                       const code = getCode(userAlgorithm, presetCode);
                       // console.log('hola amigo', code);
                       codeMutation.mutate({
@@ -435,9 +437,9 @@ const CodeExecutionControlBar = ({
                       });
                     } else {
                       toast({
-                        title: 'No graph selected',
+                        title: "No graph selected",
                         description:
-                          'You must have at least one node selected. You can select nodes by adding them, and then drag + mouse down',
+                          "You must have at least one node selected. You can select nodes by adding them, and then drag + mouse down",
                       });
                     }
                   }}
@@ -458,8 +460,8 @@ const CodeExecutionControlBar = ({
                 <Button
                   aria-label="toggle-algorithm-visualization"
                   onClick={async (e) => {
-                    setTabValue('output');
-                    const presetResult = searchParams.get('preset');
+                    setTabValue("output");
+                    const presetResult = searchParams.get("preset");
                     if (presetResult) {
                       setShouldBounceGreen(false);
                       localStorage.setItem(
@@ -489,8 +491,8 @@ const CodeExecutionControlBar = ({
                         selectAll: autoSelectAll,
                       });
 
-                      if (res?.type === 'error') {
-                        dispatch(CodeExecActions.setVisitedVisualization([]));
+                      if (res?.flattenedVis.type === "error") {
+                        dispatch(CodeExecActions.setVisitedVisualization(null));
                         dispatch(CodeExecActions.setIsApplyingAlgorithm(false));
                         dispatch(CodeExecActions.resetVisitedPointer());
 
@@ -514,8 +516,8 @@ const CodeExecutionControlBar = ({
                   variant="outline"
                   className={`w-fit flex items-center justify-center h-[30px]     font-bold ${
                     shouldBounceGreen
-                      ? 'animate-pulse bg-green-600 DONT PURGE IT YOO'
-                      : ''
+                      ? "animate-pulse bg-green-600 DONT PURGE IT YOO"
+                      : ""
                   }`}
                 >
                   {/* {isApplyingAlgorithm ? 'Pause' : 'Apply'} */}
@@ -558,7 +560,7 @@ const CodeExecutionControlBar = ({
                 <DialogTitle>Save Algorithm</DialogTitle>
                 <DialogDescription>
                   {
-                    'Enter the information about your algorithm. Click confirm save when done.'
+                    "Enter the information about your algorithm. Click confirm save when done."
                   }
                 </DialogDescription>
               </DialogHeader>
@@ -623,8 +625,8 @@ const CodeExecutionControlBar = ({
                   type="submit"
                 >
                   {saveAlgorithmMutation.isLoading
-                    ? 'Saving...'
-                    : 'Confirm Save'}
+                    ? "Saving..."
+                    : "Confirm Save"}
                 </Button>
               </DialogFooter>
             </DialogContent>

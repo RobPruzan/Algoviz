@@ -57,7 +57,7 @@ type Props = {
   openLanguageComboBox: boolean;
   setOpenLanguageComboBox: Dispatch<SetStateAction<boolean>>;
   language: Languages;
-  tabValue: "output" | "input";
+  tabValue: "output" | "input" | "stack";
   setTabValue: Dispatch<SetStateAction<Props["tabValue"]>>;
   adjacencyList: Record<string, string[]>;
 };
@@ -191,7 +191,7 @@ const CodeExecution = ({
             <Tabs
               value={tabValue}
               onValueChange={(v) =>
-                setTabValue((prev) => (prev === "output" ? "input" : "output"))
+                setTabValue(() => v as "input" | "output" | "stack")
               }
               defaultValue="input"
               className=" flex p-1 justify-evenly items-center  w-full  "
@@ -216,6 +216,16 @@ const CodeExecution = ({
                   value="output"
                 >
                   Output
+                </TabsTrigger>
+                <TabsTrigger
+                  className={`w-1/5 ${
+                    tabValue === "stack"
+                      ? "border-2 rounded-md  bg-secondary"
+                      : "border-2 rounded-md border-secondary"
+                  }`}
+                  value="stack"
+                >
+                  Stack
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -258,62 +268,71 @@ const CodeExecution = ({
                     </div>
                   ) : (
                     <div>
-                      {codeMutation.data?.type === "Validator" ||
-                        (codeMutation.data?.type === "Visualizer" && (
+                      {codeMutation.data?.flattenedVis.type === "Validator" ||
+                        (codeMutation.data?.flattenedVis.type ===
+                          "Visualizer" && (
                           <div className="flex flex-col items-start justify-start text-sm">
-                            {codeMutation.data.logs}
+                            {codeMutation.data?.flattenedVis.logs}
                           </div>
                         ))}
-                      {codeMutation.data?.type === "Validator" ||
-                        (codeMutation.data?.type === "Visualizer" &&
-                          codeMutation.data?.output.map((log, indexxx) => (
-                            <div
-                              key={indexxx}
-                              className="flex items-center justify-start "
-                            >
-                              <div className="text-md flex flex-col">
-                                {log
-                                  .map(
-                                    (id) =>
-                                      circles.find((c) => c.id === id)?.value
-                                  )
-                                  .filter(Boolean)
+                      {codeMutation.data?.flattenedVis.type === "Validator" ||
+                        (codeMutation.data?.flattenedVis.type ===
+                          "Visualizer" &&
+                          codeMutation.data?.flattenedVis.flattenedOutput.map(
+                            (log, indexxx) => (
+                              <div
+                                key={indexxx}
+                                className="flex items-center justify-start "
+                              >
+                                <div className="text-md flex flex-col">
+                                  {log
+                                    .map(
+                                      (id) =>
+                                        circles.find((c) => c.id === id)?.value
+                                    )
+                                    .filter(Boolean)
 
-                                  .map((l, index) => (
-                                    <div className="mt-2" key={index}>
-                                      {l}
-                                    </div>
-                                  ))}
-                              </div>
-                            </div>
-                          )))}
-
-                      {codeMutation.data?.type === "error" &&
-                        codeMutation.data.logs.map((log, index) => (
-                          <>
-                            <div
-                              key={index}
-                              className="flex items-center justify-start "
-                            >
-                              <div className="text-sm text-red-500">
-                                {JSON.stringify(log)
-                                  .replace(`"`, "")
-                                  .trim()
-                                  .split("\\n")
-                                  .map((l, idx) => {
-                                    return (
-                                      <div key={idx} className="mt-2">
+                                    .map((l, index) => (
+                                      <div className="mt-2" key={index}>
                                         {l}
                                       </div>
-                                    );
-                                  })}
+                                    ))}
+                                </div>
                               </div>
-                            </div>
-                          </>
-                        ))}
+                            )
+                          ))}
+
+                      {codeMutation.data?.flattenedVis.type === "error" &&
+                        codeMutation.data?.flattenedVis.logs.map(
+                          (log, index) => (
+                            <>
+                              <div
+                                key={index}
+                                className="flex items-center justify-start "
+                              >
+                                <div className="text-sm text-red-500">
+                                  {JSON.stringify(log)
+                                    .replace(`"`, "")
+                                    .trim()
+                                    .split("\\n")
+                                    .map((l, idx) => {
+                                      return (
+                                        <div key={idx} className="mt-2">
+                                          {l}
+                                        </div>
+                                      );
+                                    })}
+                                </div>
+                              </div>
+                            </>
+                          )
+                        )}
                     </div>
                   )
                 )
+                .with("stack", () => {
+                  return <>Stack stuff</>;
+                })
                 .run()}
             </div>
           </div>

@@ -6,7 +6,11 @@ import { z } from "zod";
 import * as Graph from "@/lib/graph";
 import { AlgoType, ArrayItem, CircleReceiver, Edge } from "@/lib/types";
 import { P, match } from "ts-pattern";
-import { getSelectedItems, getValidatorLensSelectedIds } from "@/lib/utils";
+import {
+  getSelectedItems,
+  getValidatorLensSelectedIds,
+  run,
+} from "@/lib/utils";
 import { useGetAlgorithmsQuery } from "./useGetAlgorithmsQuery";
 import { CanvasActions, ValidatorLensInfo } from "@/redux/slices/canvasSlice";
 import { useMeta } from "@/hooks/useMeta";
@@ -16,30 +20,37 @@ import { useState } from "react";
 import { useGetSelectedItems } from "./useGetSelectedItems";
 import { useToast } from "@/components/ui/use-toast";
 import { start } from "repl";
-type AlteredOutputUnion =
-  | {
-      output: Array<Array<string>>;
-      logs: string;
-      type: AlgoType.Visualizer;
-    }
-  | {
-      output: boolean;
-      logs: string;
-      type: AlgoType.Validator;
-    }
-  | {
-      logs: Array<string>;
+type AlteredOutputUnion = {
+  flattenedVis:
+    | AlgoFlattenedVis
+    | {
+        logs: Array<string>;
 
-      type: "error";
-    };
-
+        type: "error";
+      }
+    | { type: AlgoType.Validator; fullOutput: boolean };
+};
+export type AlgoFlattenedVis = {
+  fullOutput: Array<ParsedVisOutput>;
+  flattenedOutput: Array<Array<string>>;
+  logs: string;
+  type: AlgoType.Visualizer;
+};
 const VisualizationElement = z.object({
   ID: z.string(),
   value: z.number(),
 });
 
-type Vis = z.infer<typeof VisualizationElement>;
+export type VisualizationElement = z.infer<typeof VisualizationElement>;
 type Validator = z.infer<typeof validatorSchema>;
+
+export type ParsedVisOutput = {
+  frames: Array<z.infer<typeof Frame>>;
+  line: number;
+  tag: string;
+  output: Array<Array<z.infer<typeof VisualizationElement>>>;
+  visualization: Array<Array<z.infer<typeof VisualizationElement>>>;
+};
 
 const FrameArgs = z.object({
   args: z.array(z.string()),
@@ -85,7 +96,11 @@ const errorSchema = z.object({
   logs: z.array(z.string()).optional(),
 });
 
-const dataSchema = z.union([visualizerSchema, validatorSchema, errorSchema]);
+export const dataSchema = z.union([
+  visualizerSchema,
+  validatorSchema,
+  errorSchema,
+]);
 
 type ParsedOutput = z.infer<typeof dataSchema>;
 
@@ -93,16 +108,33 @@ type ParsedOutput = z.infer<typeof dataSchema>;
 const unFlattened = (parsedOutput: z.infer<typeof dataSchema>) => {
   return (
     parsedOutput.type === AlgoType.Visualizer
-      ? {
-          ...parsedOutput,
-          output: (
+      ? run(() => {
+          const flat = (
             parsedOutput.output.map((opt) => opt.visualization) as
               | Array<any>
               | null
               | undefined
-          )?.map((o) => (o instanceof Array ? o.map((o) => o.ID) : [o.ID])),
-        }
-      : parsedOutput
+          )?.map((o) => (o instanceof Array ? o.map((o) => o.ID) : [o.ID]));
+          const logs = parsedOutput.output.map((opt) => opt.frames);
+          return {
+            flattenedVis: {
+              ...parsedOutput,
+              fullOutput: parsedOutput.output,
+              flattenedOutput: flat as Array<Array<string>>,
+            },
+          };
+        })
+      : // {
+        //     ...parsedOutput,
+        //     flattenedOutput: (
+        //       parsedOutput.output.map((opt) => opt.visualization) as
+        //         | Array<any>
+        //         | null
+        //         | undefined
+        //     )?.map((o) => (o instanceof Array ? o.map((o) => o.ID) : [o.ID])),
+        //     output: {...parsedOutput},
+        //   }
+        { flattenedVis: parsedOutput, fullOutput: [] }
   ) as AlteredOutputUnion;
 };
 
@@ -172,7 +204,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         });
       }
 
-      dispatch(CodeExecActions.setVisitedVisualization([]));
+      dispatch(CodeExecActions.setVisitedVisualization(null));
       dispatch(CodeExecActions.setIsApplyingAlgorithm(false));
       dispatch(CodeExecActions.resetVisitedPointer());
       onError?.(error);
@@ -295,29 +327,37 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
     },
     onSuccess: (data, ctx) => {
       match(data)
-        .with({ type: AlgoType.Validator }, ({ output, logs }) => {
-          if (ctx.lens?.id) {
-            dispatch(
-              CanvasActions.setValidationVisualization({
-                id: ctx.lens.id,
-                result: output,
-              })
-            );
+        .with(
+          { flattenedVis: { type: AlgoType.Validator } },
+          ({ flattenedVis }) => {
+            if (ctx.lens?.id) {
+              dispatch(
+                CanvasActions.setValidationVisualization({
+                  id: ctx.lens.id,
+                  result: flattenedVis.fullOutput,
+                })
+              );
+            }
           }
-        })
+        )
 
-        .with({ type: AlgoType.Visualizer }, ({ output, logs }) => {
-          console.log("dispatching output", output);
-          dispatch(CodeExecActions.setVisitedVisualization(output));
-        })
-        .with({ type: "error" }, (errorInfo) => {
-          dispatch(CodeExecActions.setVisitedVisualization([]));
+        .with(
+          { flattenedVis: { type: AlgoType.Visualizer } },
+          ({ flattenedVis }) => {
+            flattenedVis.fullOutput;
+            dispatch(CodeExecActions.setVisitedVisualization(flattenedVis));
+          }
+        )
+        .with({ flattenedVis: { type: "error" } }, (errorInfo) => {
+          dispatch(CodeExecActions.setVisitedVisualization(null));
           dispatch(CodeExecActions.setIsApplyingAlgorithm(false));
           dispatch(CodeExecActions.resetVisitedPointer());
           dispatch(
             CodeExecActions.setError({
-              logs: errorInfo.logs.map((log) => JSON.stringify(log)),
-              message: errorInfo.logs.join(" "), // what da hell am i doing here
+              logs: errorInfo.flattenedVis.logs.map((log) =>
+                JSON.stringify(log)
+              ),
+              message: errorInfo.flattenedVis.logs.join(" "), // what da hell am i doing here
             })
           );
         })

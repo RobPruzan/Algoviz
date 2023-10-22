@@ -1,9 +1,10 @@
-import { SelectedValidatorLens } from '@/lib/types';
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { boolean } from 'zod';
+import { AlgoFlattenedVis, ParsedVisOutput } from "@/hooks/useCodeMutation";
+import { SelectedValidatorLens } from "@/lib/types";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { boolean } from "zod";
 
 type NodeID = string;
-export const MODES = ['visualizer', 'validator'] as const;
+export const MODES = ["visualizer", "validator"] as const;
 export type Modes = (typeof MODES)[number];
 
 export type NodeValidation = {
@@ -12,7 +13,7 @@ export type NodeValidation = {
 };
 
 type InitialState = {
-  visualization: NodeID[][] | null | undefined;
+  algoOutput: AlgoFlattenedVis | null | undefined;
 
   visualizationPointer: number;
   isApplyingAlgorithm: boolean;
@@ -26,17 +27,17 @@ type InitialState = {
   } | null;
 };
 const initialState: InitialState = {
-  visualization: [],
+  algoOutput: null,
   visualizationPointer: 0,
   isApplyingAlgorithm: false,
-  mode: 'visualizer',
+  mode: "visualizer",
   appliedToWholeApp: false,
   // validation: null,
   selectedAlgorithm: null,
   error: null,
 };
 const codeExecSlice = createSlice({
-  name: 'codeExec',
+  name: "codeExec",
   initialState,
   reducers: {
     cleanUp: (state) => {
@@ -45,13 +46,13 @@ const codeExecSlice = createSlice({
     setVisualizationPointer: (state, action: PayloadAction<number>) => {
       if (
         action.payload >= 0 &&
-        action.payload <= (state.visualization?.length ?? 0)
+        action.payload <= (state.algoOutput?.flattenedOutput.length ?? 0)
       ) {
         state.visualizationPointer = action.payload;
       }
     },
 
-    setError: (state, action: PayloadAction<InitialState['error']>) => {
+    setError: (state, action: PayloadAction<InitialState["error"]>) => {
       state.error = action.payload;
     },
 
@@ -61,12 +62,15 @@ const codeExecSlice = createSlice({
 
     setVisitedVisualization: (
       state,
-      action: PayloadAction<InitialState['visualization']>
+      action: PayloadAction<InitialState["algoOutput"]>
     ) => {
-      state.visualization = action.payload;
+      state.algoOutput = action.payload;
     },
     incrementVisualizationPointer: (state) => {
-      if (state.visualizationPointer < (state.visualization?.length ?? 0)) {
+      if (
+        state.visualizationPointer <
+        (state.algoOutput?.flattenedOutput.length ?? 0)
+      ) {
         state.visualizationPointer++;
       }
     },
