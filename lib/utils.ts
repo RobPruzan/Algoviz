@@ -1,5 +1,5 @@
-import { ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 import {
   // AlgorithmInfo,
   CircleReceiver,
@@ -10,19 +10,19 @@ import {
   RealMessedUpAlgoType,
   SelectedGeometryInfo,
   SerializedPlayground,
-} from './types';
-import { z } from 'zod';
-import ky from 'ky';
-import { useRef } from 'react';
+} from "./types";
+import { z } from "zod";
+import ky from "ky";
+import { useRef } from "react";
 import {
   CanvasActions,
   Meta,
   ValidatorLensInfo,
-} from '@/redux/slices/canvasSlice';
-import { CodeStorage } from '@/hooks/codeStorage';
-import { defaultAlgo } from '@/app/visualizer/ContentWrapper';
+} from "@/redux/slices/canvasSlice";
+import { CodeStorage } from "@/hooks/codeStorage";
+import { defaultAlgo } from "@/app/visualizer/ContentWrapper";
 // import { type AppDispatch } from '@/redux/store';
-import { useGetPresets } from '@/hooks/useGetPresets';
+import { useGetPresets } from "@/hooks/useGetPresets";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -43,7 +43,7 @@ export const getNodeArray = (nodeRow: NodeMetadata[]) => {
   });
   return arrays;
 };
-type BuildParams<T extends ReturnType<typeof useGetPresets>['data']> = {
+type BuildParams<T extends ReturnType<typeof useGetPresets>["data"]> = {
   preset: T extends { presets: Array<infer R> } ? R : never;
   currentZoomFactor: number;
 
@@ -51,7 +51,7 @@ type BuildParams<T extends ReturnType<typeof useGetPresets>['data']> = {
 };
 
 export const dispatchPreset = <
-  T extends ReturnType<typeof useGetPresets>['data']
+  T extends ReturnType<typeof useGetPresets>["data"]
 >({
   currentZoomFactor,
   dispatcher,
@@ -60,14 +60,14 @@ export const dispatchPreset = <
 }: BuildParams<T>) => {
   // trivial offset to add to the UUID, works fine
   const offset = String(Date.now());
-  const newZoom = preset.zoomAmount * currentZoomFactor;
+  // const newZoom = preset.zoomAmount * currentZoomFactor;
   // need to do a mouse centered zoom on the coordinates for that to work
   // everything also needs to be integrated to the selected item flow, get the mouse pos, mouse center zoom every single item and then place, no other odd scaling. Works for the circle, doesn't work for the line since before we just hardcoded it
   // dispatch(
   //   CanvasActions.addPreset(
   // i know what im doing move on pal
   const valLens =
-    JSON.stringify(preset.validatorLens) === '{}' ? [] : preset.validatorLens;
+    JSON.stringify(preset.validatorLens) === "{}" ? [] : preset.validatorLens;
 
   const copiedLens: ValidatorLensInfo[] = (valLens as ValidatorLensInfo[]).map(
     (lens) => ({
@@ -78,6 +78,7 @@ export const dispatchPreset = <
   );
 
   const newPreset = {
+    zoomAmount: preset.zoomAmount,
     type: preset.type,
     code: preset.code,
     startNode: preset.startNode + offset,
@@ -86,16 +87,16 @@ export const dispatchPreset = <
     attachableLines: (preset.lines as Edge[]).map((line) => ({
       ...line,
       id: line.id + offset,
-      width: line.width * newZoom,
+      width: line.width,
       attachNodeOne: {
         ...line.attachNodeOne,
         id: line.attachNodeOne.id + offset,
-        radius: line.attachNodeOne.radius * newZoom,
+        radius: line.attachNodeOne.radius,
         connectedToId: line.attachNodeOne.connectedToId + offset,
       },
       attachNodeTwo: {
         ...line.attachNodeTwo,
-        radius: line.attachNodeTwo.radius * newZoom,
+        radius: line.attachNodeTwo.radius,
         id: line.attachNodeTwo.id + offset,
         connectedToId: line.attachNodeTwo.connectedToId + offset,
       },
@@ -104,10 +105,10 @@ export const dispatchPreset = <
       ...circle,
       id: circle.id + offset,
 
-      radius: circle.radius * newZoom,
+      radius: circle.radius,
       nodeReceiver: {
         ...circle.nodeReceiver,
-        radius: circle.nodeReceiver.radius * newZoom,
+        radius: circle.nodeReceiver.radius,
         id: circle.nodeReceiver.id + offset,
         attachedIds: circle.nodeReceiver.attachedIds.map(
           (nrID: string) => nrID + offset
@@ -118,16 +119,16 @@ export const dispatchPreset = <
   dispatcher(newPreset);
 };
 export const GREEN_BLINKING_PRESETS = [
-  'depth-first-search',
-  'breadth-first-search',
-  'backtracking',
-  'topological-sort',
+  "depth-first-search",
+  "breadth-first-search",
+  "backtracking",
+  "topological-sort",
 ];
 export const getCode = (
   userAlgo: RealMessedUpAlgoType,
   presetCode: string | null
 ) => {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return userAlgo.code;
   }
   // probably should just prompt user that defaultng currently selected algo not preset algo
@@ -147,7 +148,7 @@ export const getCode = (
 };
 
 export const API_URL =
-  typeof window !== 'undefined' ? window.origin + '/api' : '';
+  typeof window !== "undefined" ? window.origin + "/api" : "";
 
 export const DEFAULT_VISUALIZATION_CODE = `type NodeID = string // uuid representing a node
 type AdjacencyList = Record<NodeID, NodeID[]>
@@ -212,27 +213,27 @@ export const sendUpdate = (
   state:
     | {
         roomID: string;
-        type: 'circleReciever';
+        type: "circleReciever";
         state: CircleReceiver;
         senderID: string;
       }
-    | { roomID: string; type: 'edge'; state: Edge; senderID: string },
+    | { roomID: string; type: "edge"; state: Edge; senderID: string },
   socketRef: ReturnType<typeof useRef<IO>>
 ) => {
-  socketRef.current?.emit('update', state);
+  socketRef.current?.emit("update", state);
 };
 
 export const sendCreate = (
   state:
-    | { roomID: string; type: 'circleReciever'; state: CircleReceiver }
-    | { roomID: string; type: 'edge'; state: Edge },
+    | { roomID: string; type: "circleReciever"; state: CircleReceiver }
+    | { roomID: string; type: "edge"; state: Edge },
   socketRef: ReturnType<typeof useRef<IO>>
 ) => {
-  socketRef.current?.emit('create', state);
+  socketRef.current?.emit("create", state);
 };
 
 export const twCond = ({
-  base = '',
+  base = "",
   cases,
   fallback,
 }: {
@@ -241,7 +242,7 @@ export const twCond = ({
   fallback?: string;
 }): string => {
   return (
-    base + ' ' + cases.find((cond) => cond.cond)?.className ?? fallback ?? ''
+    base + " " + cases.find((cond) => cond.cond)?.className ?? fallback ?? ""
   );
 };
 

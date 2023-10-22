@@ -60,7 +60,7 @@ import { useCanvasKeyDown } from "@/hooks/useCanvasKeyDown";
 import { useCanvasMouseDown } from "@/hooks/useCanvasMouseDown";
 import { useCanvasMouseMove } from "@/hooks/useCanvasMouseMove";
 import { useCanvasWheel } from "@/hooks/useCanvasWheel";
-import { useClearCanvasState } from "@/hooks/useClearCanvasState";
+
 import { useFullyConnect } from "@/hooks/useFullyConnect";
 import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
 import { useServerUpdateShapes } from "@/hooks/useServerUpdateShapes";
@@ -158,6 +158,7 @@ const CanvasDisplay = ({
   const currentCircleValue = useMemo(() => {
     return circles.find((c) => c.id === selectedCircleID)?.value;
   }, [circles, selectedCircleID]);
+
   useEffect(() => {
     setTempCircleValue(currentCircleValue ? String(currentCircleValue) : "");
   }, [currentCircleValue]);
@@ -170,6 +171,12 @@ const CanvasDisplay = ({
     ],
   };
   const { toast } = useToast();
+
+  // useEffect(() => {
+  //   dispatch(CanvasActions.resetCircles(undefined));
+  //   dispatch(CanvasActions.resetLines(undefined));
+  //   dispatch(CanvasActions.resetCurrentZoomFactor());
+  // }, []);
   // const isGod = session.data?.user.email === process.env.NEXT_PUBLIC_GOD_MODE;
 
   const cursorImgRef = useRef<HTMLImageElement | null>(null);
@@ -259,7 +266,7 @@ const CanvasDisplay = ({
     [dispatch]
   );
 
-  useClearCanvasState(meta);
+  // useClearCanvasState(meta);
 
   useServerUpdateShapes();
 

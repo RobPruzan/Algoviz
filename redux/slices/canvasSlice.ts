@@ -9,19 +9,19 @@ import {
   PencilCoordinates,
   CanvasControlBarActions,
   NodeReceiver,
-} from '@/lib/types';
-import { enableMapSet } from 'immer';
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import * as Canvas from '@/lib/Canvas/canvas';
-import * as Draw from '@/lib/Canvas/draw';
-import { ImmutableQueue } from '@/lib/graph';
-import { store, withMeta } from '../store';
-import { match } from 'ts-pattern';
-import { NodeValidation } from './codeExecSlice';
-import { User } from 'next-auth';
+} from "@/lib/types";
+import { enableMapSet } from "immer";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import * as Canvas from "@/lib/Canvas/canvas";
+import * as Draw from "@/lib/Canvas/draw";
+import { ImmutableQueue } from "@/lib/graph";
+import { store, withMeta } from "../store";
+import { match } from "ts-pattern";
+import { NodeValidation } from "./codeExecSlice";
+import { User } from "next-auth";
 
-import undoable from 'redux-undo';
-import { ElementRef, RefObject } from 'react';
+import undoable from "redux-undo";
+import { ElementRef, RefObject } from "react";
 
 // this validatorLens will have code attached to it
 // it should probably extend the selectedGeomotryInfo
@@ -45,7 +45,7 @@ export type ValidatorLensInfo = {
   code: string | null;
   selectedIds: string[];
   result: (NodeValidation[] | boolean) | null | undefined;
-  type: 'validator-lens';
+  type: "validator-lens";
 };
 
 export type CanvasState = {
@@ -56,7 +56,7 @@ export type CanvasState = {
   currentZoomFactor: number;
   pencilCoordinates: PencilCoordinates;
   selectedAction: {
-    type: 'canvas-action';
+    type: "canvas-action";
     actionType: CanvasControlBarActions | null;
   };
   startNode: string | null;
@@ -74,7 +74,7 @@ const initialState: CanvasState = {
   attachableLines: [],
   circles: [],
   validatorLensContainer: [],
-  currentZoomFactor: 1,
+  currentZoomFactor: 0.75,
   selectedGeometryInfo: null,
   pencilCoordinates: {
     drawingCoordinates: [],
@@ -82,7 +82,7 @@ const initialState: CanvasState = {
   },
   selectedAction: {
     actionType: null,
-    type: 'canvas-action',
+    type: "canvas-action",
   },
   endNode: null,
   startNode: null,
@@ -94,7 +94,7 @@ const initialState: CanvasState = {
 
 export type ObjectState = Pick<
   CanvasState,
-  'attachableLines' | 'circles' | 'pencilCoordinates' | 'validatorLensContainer'
+  "attachableLines" | "circles" | "pencilCoordinates" | "validatorLensContainer"
 >;
 
 export type Meta = {
@@ -114,7 +114,7 @@ const withCanvasMeta = <TPayload>(args: MetaParams<TPayload>) =>
   withMeta<TPayload, CanvasState>(args);
 
 const canvasSlice = createSlice({
-  name: 'canvas',
+  name: "canvas",
   initialState,
   reducers: {
     setNotSignedInUserId: (state, action: PayloadAction<string>) => {
@@ -140,9 +140,12 @@ const canvasSlice = createSlice({
       attachableLines: Edge[];
       type: string;
       code: string;
+      zoomAmount: number;
       startNode?: string;
     }>((state, action) => {
+      console.log("got the action!", action.payload);
       state.attachableLines.push(...action.payload.attachableLines);
+      state.currentZoomFactor = action.payload.zoomAmount;
       state.circles.push(...action.payload.circles);
       state.validatorLensContainer = state.validatorLensContainer.concat(
         action.payload.validatorLens
@@ -426,12 +429,12 @@ const canvasSlice = createSlice({
         const nodeOneConnectedLine = Canvas.getLineAttachedToNodeReciever({
           attachableLines: state.attachableLines,
           activeCircle,
-          nodeConnectedSide: 'one',
+          nodeConnectedSide: "one",
         });
         const nodeTwoConnectedLine = Canvas.getLineAttachedToNodeReciever({
           attachableLines: state.attachableLines,
           activeCircle,
-          nodeConnectedSide: 'two',
+          nodeConnectedSide: "two",
         });
 
         const shiftX = action.meta?.fromServer
@@ -466,7 +469,7 @@ const canvasSlice = createSlice({
           const newAttachedLine = Canvas.builtUpdatedAttachedLine({
             circleReciever: newCircle,
             currentLine: nodeOneConnectedLine,
-            nodeRecieverType: 'one',
+            nodeRecieverType: "one",
           });
 
           state.attachableLines = Canvas.replaceCanvasElement({
@@ -478,7 +481,7 @@ const canvasSlice = createSlice({
           const newAttachedLine = Canvas.builtUpdatedAttachedLine({
             circleReciever: newCircle,
             currentLine: nodeTwoConnectedLine,
-            nodeRecieverType: 'two',
+            nodeRecieverType: "two",
           });
           state.attachableLines = Canvas.replaceCanvasElement({
             oldArray: state.attachableLines,
@@ -502,7 +505,7 @@ const canvasSlice = createSlice({
 
     setValidationVisualization: (
       state,
-      action: PayloadAction<Pick<ValidatorLensInfo, 'id' | 'result'>>
+      action: PayloadAction<Pick<ValidatorLensInfo, "id" | "result">>
     ) => {
       // state.validation = action.payload;
       const lens = state.validatorLensContainer.find(
@@ -514,7 +517,7 @@ const canvasSlice = createSlice({
       }
     },
     resetState: withCanvasMeta<undefined>(() => initialState),
-    setSelectedAction: withCanvasMeta<CanvasState['selectedAction']>(
+    setSelectedAction: withCanvasMeta<CanvasState["selectedAction"]>(
       (state, action) => {
         state.selectedAction = action.payload;
       }
@@ -546,7 +549,7 @@ const canvasSlice = createSlice({
           selectBox: {
             p1: selectedValidatorLens?.rect.bottomRight,
             p2: selectedValidatorLens?.rect.topLeft,
-            type: 'selectBox',
+            type: "selectBox",
           },
         });
         if (!selectedGeometry) return;
@@ -563,7 +566,7 @@ const canvasSlice = createSlice({
             selectBox: {
               p1: lens?.rect.bottomRight,
               p2: lens?.rect.topLeft,
-              type: 'selectBox',
+              type: "selectBox",
             },
           });
           if (!selectedGeometry) {
@@ -631,7 +634,7 @@ const canvasSlice = createSlice({
     ),
     resizeValidatorLens: withCanvasMeta<{
       lens: ValidatorLensInfo;
-      side: 'bottom-left' | 'bottom-right' | 'top-right' | 'top-left';
+      side: "bottom-left" | "bottom-right" | "top-right" | "top-left";
       mousePos: [number, number];
     }>((state, action) => {
       const lens = state.validatorLensContainer.find(
@@ -640,7 +643,7 @@ const canvasSlice = createSlice({
       if (!lens) return;
       // state.validatorLensContainer[lensIndex].rect.bottomRight
       match(action.payload.side)
-        .with('bottom-left', () => {
+        .with("bottom-left", () => {
           // its just adjusting the bottomRights y
           // adjusting the topLefts x
           const newBottomRight: [number, number] = [
@@ -655,13 +658,13 @@ const canvasSlice = createSlice({
           lens.rect.bottomRight = newBottomRight;
           lens.rect.topLeft = newTopLeft;
         })
-        .with('bottom-right', () => {
+        .with("bottom-right", () => {
           lens.rect.bottomRight = action.payload.mousePos;
         })
-        .with('top-left', () => {
+        .with("top-left", () => {
           lens.rect.topLeft = action.payload.mousePos;
         })
-        .with('top-right', () => {
+        .with("top-right", () => {
           const newBottomRight: [number, number] = [
             action.payload.mousePos[0],
             lens.rect.bottomRight[1],
@@ -828,9 +831,9 @@ const canvasSlice = createSlice({
           (line) =>
             !action.payload.includes(line.id) &&
             !action.payload.includes(
-              line.attachNodeOne.connectedToId ?? 'no'
+              line.attachNodeOne.connectedToId ?? "no"
             ) &&
-            !action.payload.includes(line.attachNodeOne.connectedToId ?? 'no')
+            !action.payload.includes(line.attachNodeOne.connectedToId ?? "no")
         );
 
         const idSet = new Set<string>(action.payload);
@@ -953,7 +956,7 @@ const canvasSlice = createSlice({
 
     setSelectedGeometryInfo: (
       state,
-      action: PayloadAction<CanvasState['selectedGeometryInfo']>
+      action: PayloadAction<CanvasState["selectedGeometryInfo"]>
     ) => {
       state.selectedGeometryInfo = action.payload;
     },

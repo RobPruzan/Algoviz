@@ -3,30 +3,30 @@ import {
   Middleware,
   PayloadAction,
   configureStore,
-} from '@reduxjs/toolkit';
+} from "@reduxjs/toolkit";
 import {
   CanvasActions,
   Meta,
   ObjectState,
   canvasReducer,
-} from './slices/canvasSlice';
+} from "./slices/canvasSlice";
 import {
   useDispatch,
   useSelector,
   type TypedUseSelectorHook,
-} from 'react-redux';
-import { dfsReducer } from './slices/dfsSlice';
-import { codeExecReducer } from './slices/codeExecSlice';
-import { SocketIO, socketManager } from '@/lib/socket/socket-utils';
-import { SocketAction, UntypedData } from '@/lib/types';
+} from "react-redux";
+import { dfsReducer } from "./slices/dfsSlice";
+import { codeExecReducer } from "./slices/codeExecSlice";
+import { SocketIO, socketManager } from "@/lib/socket/socket-utils";
+import { SocketAction, UntypedData } from "@/lib/types";
 import {
   CollaborationActions,
   collaborationReducer,
   collaborationStateReducer,
-} from './slices/colloborationSlice';
-import { io } from 'socket.io-client';
-import { type User } from 'next-auth';
-import undoable from 'redux-undo';
+} from "./slices/colloborationSlice";
+import { io } from "socket.io-client";
+import { type User } from "next-auth";
+import undoable from "redux-undo";
 
 export function withMeta<TPayload, TState>(
   reducer: (
@@ -52,11 +52,11 @@ export const socketMiddleware =
   (next) =>
   (action: SocketAction & { meta: Meta | undefined }) => {
     const isSharedAction =
-      action.type.startsWith('canvas/') ||
-      action.type.startsWith('collaborationState/');
+      action.type.startsWith("canvas/") ||
+      action.type.startsWith("collaborationState/");
 
     switch (action.type) {
-      case 'socket/connect':
+      case "socket/connect":
         if (action.meta?.playgroundID) {
           socketManager.socket = io(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL);
           socketManager
@@ -74,7 +74,7 @@ export const socketMiddleware =
             }
           });
         }
-        socketManager.socket?.on('user joined', (user: User) => {
+        socketManager.socket?.on("user joined", (user: User) => {
           dispatch(collaborationStateReducer.actions.addUser(user));
           // user meta is a closure over the original connect dispatch at page mount
 
@@ -93,7 +93,7 @@ export const socketMiddleware =
           }
         });
         socketManager.socket?.on(
-          'synchronize',
+          "synchronize",
           (
             state: ObjectState,
             cameraCoordinate: [number, number],
@@ -112,7 +112,7 @@ export const socketMiddleware =
           }
         );
         break;
-      case 'socket/disconnect':
+      case "socket/disconnect":
         if (action.meta?.playgroundID) {
           socketManager.disconnect();
         }
@@ -122,7 +122,7 @@ export const socketMiddleware =
           isSharedAction &&
           action.meta &&
           !action.meta.fromServer &&
-          !(action.type === 'canvas/update')
+          !(action.type === "canvas/update")
         ) {
           socketManager.sendSocketAction(action);
         }
@@ -136,23 +136,23 @@ const undoableCanvasReducer = undoable(
   {
     limit: 100,
     filter: (action, state) => {
-      if (action.type.split('/')[0] != 'canvas') return false;
+      if (action.type.split("/")[0] != "canvas") return false;
 
       const debounceReducerNames = [
-        'handleMoveCircle',
-        'setPencilDrawingCoordinates',
-        'shiftLines',
-        'shiftSelectBox',
-        'resizeValidatorLens',
-        'setValidatorLensSelectedIds',
-        'shiftValidatorLens',
-        'handleMoveLine',
-        'handleMoveNodeOne',
-        'handleMoveNodeTwo',
-        'staticLensSetValidatorLensIds',
-        'setSelectedGeometryInfo',
-        'update',
-        'setSelectedAction',
+        "handleMoveCircle",
+        "setPencilDrawingCoordinates",
+        "shiftLines",
+        "shiftSelectBox",
+        "resizeValidatorLens",
+        "setValidatorLensSelectedIds",
+        "shiftValidatorLens",
+        "handleMoveLine",
+        "handleMoveNodeOne",
+        "handleMoveNodeTwo",
+        "staticLensSetValidatorLensIds",
+        "setSelectedGeometryInfo",
+        "update",
+        "setSelectedAction",
       ];
 
       const debouncedActionTypes = debounceReducerNames.map(

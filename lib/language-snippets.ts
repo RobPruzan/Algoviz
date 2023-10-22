@@ -1,8 +1,8 @@
 export const languages = [
-  { value: 'Select', label: 'Select' },
+  { value: "Select", label: "Select" },
   {
-    value: 'python',
-    label: 'Python',
+    value: "python",
+    label: "Python",
   },
   // {
   //   value: 'javascript',
@@ -27,7 +27,7 @@ export const languages = [
   // },
 ] as const;
 
-export type Languages = (typeof languages)[number]['value'];
+export type Languages = (typeof languages)[number]["value"];
 
 export type LanguageSnippets = { [Key in Languages]: string };
 
@@ -41,31 +41,32 @@ class Node(NamedTuple):
     value: int
 
 def algorithm(visualization: List[Union[Node, List[Node]]], adjList: Dict[Node, List[Node]], start_node: Node):
-"""
-- visualization is a list of nodes, or a list
-of list of nodes. You must mutate it in place. The app
-will step through the array and visualize each element.
-If there is a sub-list, it will visualize every node within
-it all in one step
+  """
+  - visualization is a list of nodes, or a list
+  of list of nodes. You must mutate it in place. The app
+  will step through the array and visualize each element.
+  If there is a sub-list, it will visualize every node within
+  it all in one step
 
-- adjList is an adjaceny list representation of the
-graph in the playground (Dict[Node, List[Node]])
+  - adjList is an adjaceny list representation of the
+  graph in the playground (Dict[Node, List[Node]])
 
-- Mark a node as start node by right clicking one 
-and selecting "Set as starting node"
+  - Mark a node as start node by right clicking one 
+  and selecting "Set as starting node"
 
-- To create a validator, just return a boolean! Everything
-in this validator window will either turn red or green
-based on the boolean value returned by the code. You must
-save the algorithm to use it as a validator in the validators
-drop down.
+  - To create a validator, just return a boolean! Everything
+  in this validator window will either turn red or green
+  based on the boolean value returned by the code. You must
+  save the algorithm to use it as a validator in the validators
+  drop down.
 
-- To use pre-made algorithms, click options and select an
-algorithm :)
+  - To use pre-made algorithms, click options and select an
+  algorithm :)
 
-- To run your code, click the debug or play button
-"""
-  pass`,
+  - To run your code, click the debug or play button
+  """
+  pass
+  `,
   //   javascript: `// NodeID: string (uuid representing a node)
   // // AdjacencyList: Object with NodeID keys and array of NodeID values
   // // VisitedIDs: array of NodeID
@@ -119,7 +120,7 @@ algorithm :)
   //   return Object.keys(adjList);
   // }
   //   `,
-  Select: '',
+  Select: "",
 };
 
 export type Node = {
@@ -154,7 +155,7 @@ export function runJavascriptWithWorker(
                 })`,
             ],
             {
-              type: 'text/javascript',
+              type: "text/javascript",
             }
           )
         )
@@ -162,10 +163,10 @@ export function runJavascriptWithWorker(
 
       worker.onmessage = function (e) {
         switch (e.data.type) {
-          case 'log': {
+          case "log": {
             resolve({ ...e.data, logs });
           }
-          case 'output': {
+          case "output": {
             resolve({ ...e.data, logs });
           }
         }
@@ -174,8 +175,8 @@ export function runJavascriptWithWorker(
         //   resolve({ output: e.data, logs });
         // }
       };
-      worker.addEventListener('message', function (event) {
-        if (event.data.type === 'log') {
+      worker.addEventListener("message", function (event) {
+        if (event.data.type === "log") {
           const log = event.data.log;
           // console.log('From worker:', log);
           logs.push(log);
@@ -186,8 +187,8 @@ export function runJavascriptWithWorker(
         reject(error);
       };
 
-      console.log('Main script sending message to worker');
-      worker.postMessage('Hello from main script!');
+      console.log("Main script sending message to worker");
+      worker.postMessage("Hello from main script!");
     }
   );
 }

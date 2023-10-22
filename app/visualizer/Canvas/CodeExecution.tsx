@@ -121,7 +121,7 @@ const CodeExecution = ({
       const lastChild = frameRef.current.lastElementChild;
       if (lastChild) {
         lastChild.scrollIntoView({
-          behavior: "smooth",
+          behavior: "auto",
           block: "end",
           inline: "nearest",
         });
@@ -280,6 +280,7 @@ const CodeExecution = ({
                 >
                   Output
                 </TabsTrigger>
+                {/* stack should be ascending in the future */}
                 <TabsTrigger
                   className={`w-1/5 ${
                     tabValue === "stack"
@@ -289,6 +290,17 @@ const CodeExecution = ({
                   value="stack"
                 >
                   Stack
+                </TabsTrigger>
+                {/* Lines will be for stepping through the program */}
+                <TabsTrigger
+                  className={`w-1/5 ${
+                    tabValue === "stack"
+                      ? "border-2 rounded-md  bg-secondary"
+                      : "border-2 rounded-md border-secondary"
+                  }`}
+                  value="stack"
+                >
+                  Lines
                 </TabsTrigger>
               </TabsList>
             </Tabs>

@@ -67,6 +67,7 @@ const codeExecSlice = createSlice({
       state.algoOutput = action.payload;
     },
     incrementVisualizationPointer: (state) => {
+      // const TEMP_FILTERED_REVERT_THIS = state.algoOutput?.fullOutput.filter(o => o.tag !== 'Line')
       if (
         state.visualizationPointer <
         (state.algoOutput?.flattenedOutput.length ?? 0)

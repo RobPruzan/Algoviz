@@ -71,12 +71,7 @@ const CanvasControlBar = ({
   const currentZoomFactor = useAppSelector(
     (store) => store.canvas.present.currentZoomFactor
   );
-  useEffect(
-    () => () => {
-      dispatch(CanvasActions.resetCurrentZoomFactor());
-    },
-    [dispatch]
-  );
+
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
   // console.log('hola', getAlgorithmsQuery);
   const meta = useMeta();
@@ -84,14 +79,26 @@ const CanvasControlBar = ({
 
   const searchParams = useSearchParams();
 
+  useEffect(() => {
+    if ([...searchParams.entries()].length === 0) {
+      // means its an empty playground
+      // doing a cleanup for all playgrounds is too messy unforunately
+      dispatch(CanvasActions.resetCircles(undefined));
+      dispatch(CanvasActions.resetLines(undefined));
+      dispatch(CanvasActions.resetCurrentZoomFactor());
+      return;
+    }
+  }, [dispatch, searchParams, searchParams.keys, searchParams.keys.length]);
+
   const hasSetRef = useRef(false);
   useEffect(() => {
     const currentPresetName = searchParams.get("preset");
-
     if (!hasSetRef.current && currentPresetName) {
       const preset = getPresetsQuery.data?.presets.find(
         (p) => p.name === currentPresetName
       );
+      dispatch(CanvasActions.resetCircles(undefined));
+      dispatch(CanvasActions.resetLines(undefined));
       if (!preset) {
         return;
       }
@@ -101,10 +108,13 @@ const CanvasControlBar = ({
 
         preset,
         // cause next sux
-        dispatcher: (data: unknown) =>
-          dispatch(CanvasActions.addPreset(data as any, meta)),
+        dispatcher: (data: unknown) => {
+          dispatch(CanvasActions.addPreset(data as any, meta));
+        },
       });
       hasSetRef.current = true;
+    } else {
+      // ...
     }
   }, [
     currentZoomFactor,
