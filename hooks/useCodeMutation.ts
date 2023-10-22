@@ -28,7 +28,7 @@ type AlteredOutputUnion =
       type: AlgoType.Validator;
     }
   | {
-      output: Array<string>;
+      logs: Array<string>;
 
       type: "error";
     };
@@ -39,7 +39,7 @@ const VisualizationElement = z.object({
 });
 
 type Vis = z.infer<typeof VisualizationElement>;
-type Validator = z.infer<typeof ValidatorOutput>;
+type Validator = z.infer<typeof validatorSchema>;
 
 const FrameArgs = z.object({
   args: z.array(z.string()),
@@ -70,18 +70,24 @@ const VisualizerOutput = z.object({
     .optional(),
 });
 
-const ValidatorOutput = z.object({
+const validatorSchema = z.object({
   type: z.literal("Validator"),
   output: z.boolean(),
   logs: z.string().optional(),
 });
 
-const ErrorOutput = z.object({
-  type: z.literal("error"),
+const visualizerSchema = z.object({
+  type: z.literal("Visualizer"),
+  output: VisualizerOutput,
   logs: z.string().optional(),
 });
 
-const dataSchema = z.union([VisualizerOutput, ValidatorOutput, ErrorOutput]);
+const errorSchema = z.object({
+  type: z.literal("error"),
+  logs: z.array(z.string()).optional(),
+});
+
+const dataSchema = z.union([visualizerSchema, validatorSchema, errorSchema]);
 
 type ParsedOutput = z.infer<typeof dataSchema>;
 
@@ -91,9 +97,9 @@ const unFlattened = (parsedOutput: z.infer<typeof dataSchema>) => {
     parsedOutput.type === AlgoType.Visualizer
       ? {
           ...parsedOutput,
-          output: (parsedOutput.output as Array<any> | null | undefined)?.map(
-            (o) => (o instanceof Array ? o.map((o) => o.ID) : [o.ID])
-          ),
+          output: (
+            parsedOutput.output.visualization as Array<any> | null | undefined
+          )?.map((o) => (o instanceof Array ? o.map((o) => o.ID) : [o.ID])),
         }
       : parsedOutput
   ) as AlteredOutputUnion;
@@ -307,8 +313,8 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
           dispatch(CodeExecActions.resetVisitedPointer());
           dispatch(
             CodeExecActions.setError({
-              logs: errorInfo.output.map((log) => JSON.stringify(log)),
-              message: errorInfo.output.join(" "),
+              logs: errorInfo.logs.map((log) => JSON.stringify(log)),
+              message: errorInfo.logs.join(" "), // what da hell am i doing here
             })
           );
         })

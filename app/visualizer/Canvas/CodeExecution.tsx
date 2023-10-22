@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useAppSelector } from '@/redux/store';
-import Editor from '@monaco-editor/react';
+import { useAppSelector } from "@/redux/store";
+import Editor from "@monaco-editor/react";
 
-import * as Graph from '@/lib/graph';
+import * as Graph from "@/lib/graph";
 // import * as DialogPrimitive from '@radix-ui/react-dialog';
 import React, {
   Dispatch,
@@ -12,38 +12,38 @@ import React, {
   useEffect,
   useRef,
   useState,
-} from 'react';
-import { match } from 'ts-pattern';
-import { nightOwlTheme } from './theme';
+} from "react";
+import { match } from "ts-pattern";
+import { nightOwlTheme } from "./theme";
 import {
   Percentage,
   RealMessedUpAlgoType,
   SelectedValidatorLens,
-} from '@/lib/types';
+} from "@/lib/types";
 import {
   DEFAULT_VALIDATOR_CODE,
   DEFAULT_VISUALIZATION_CODE,
   getCode,
   getSelectedItems,
   run,
-} from '@/lib/utils';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Algorithm } from '@prisma/client';
-import Resizable from '../Resizeable';
+} from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Algorithm } from "@prisma/client";
+import Resizable from "../Resizeable";
 
-import { useTheme } from 'next-themes';
+import { useTheme } from "next-themes";
 
-import { Switch } from '@/components/ui/switch';
-import { Check, Loader } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { LanguageComboBox } from '../LanguageComboBox';
-import { Languages, languageSnippets } from '@/lib/language-snippets';
-import { useCodeMutation } from '@/hooks/useCodeMutation';
-import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
-import Loading from '../loading';
-import { CodeStorage } from '@/hooks/codeStorage';
-import { defaultAlgo } from '../ContentWrapper';
+import { Switch } from "@/components/ui/switch";
+import { Check, Loader } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { LanguageComboBox } from "../LanguageComboBox";
+import { Languages, languageSnippets } from "@/lib/language-snippets";
+import { useCodeMutation } from "@/hooks/useCodeMutation";
+import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
+import Loading from "../loading";
+import { CodeStorage } from "@/hooks/codeStorage";
+import { defaultAlgo } from "../ContentWrapper";
 
 type Props = {
   setUserAlgorithm: React.Dispatch<React.SetStateAction<RealMessedUpAlgoType>>;
@@ -52,13 +52,13 @@ type Props = {
     React.SetStateAction<SelectedValidatorLens | null>
   >;
   selectedValidatorLens: SelectedValidatorLens | null;
-  codeMutation: ReturnType<typeof useCodeMutation>['codeMutation'];
+  codeMutation: ReturnType<typeof useCodeMutation>["codeMutation"];
   autoSelectAll: boolean;
   openLanguageComboBox: boolean;
   setOpenLanguageComboBox: Dispatch<SetStateAction<boolean>>;
   language: Languages;
-  tabValue: 'output' | 'input';
-  setTabValue: Dispatch<SetStateAction<Props['tabValue']>>;
+  tabValue: "output" | "input";
+  setTabValue: Dispatch<SetStateAction<Props["tabValue"]>>;
   adjacencyList: Record<string, string[]>;
 };
 
@@ -74,10 +74,10 @@ const CodeExecution = ({
   setTabValue,
   adjacencyList,
 }: Props) => {
-  const [editorHeight, setEditorHeight] = useState<number | Percentage>('60%');
+  const [editorHeight, setEditorHeight] = useState<number | Percentage>("60%");
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
     // to really fix this need to do it in the css with a calc minus for the h-10 and padding
-    '37.5%'
+    "37.5%"
   );
   const presetCode = useAppSelector((store) => store.canvas.present.presetCode);
 
@@ -114,7 +114,7 @@ const CodeExecution = ({
   // // }
 
   return (
-    <div style={{ height: 'calc(100% - 60px)' }} className="w-full ">
+    <div style={{ height: "calc(100% - 60px)" }} className="w-full ">
       <Resizable
         canvasSize={editorHeight}
         codeExecSize={outputHeight}
@@ -124,16 +124,16 @@ const CodeExecution = ({
         topDiv={
           <div
             className={`w-full h-full ${
-              themeInfo.theme === 'dark'
-                ? 'bg-[#1E1E1E]'
-                : themeInfo.theme === 'light'
-                ? 'bg-[#FFFFFE]'
-                : 'bg-[#1E1E1E]'
+              themeInfo.theme === "dark"
+                ? "bg-[#1E1E1E]"
+                : themeInfo.theme === "light"
+                ? "bg-[#FFFFFE]"
+                : "bg-[#1E1E1E]"
             }`}
           >
             <div
               style={{
-                margin: '0px !important ',
+                margin: "0px !important ",
               }}
               className="max-w-[95%]  w-full  h-full"
             >
@@ -141,10 +141,10 @@ const CodeExecution = ({
                 className="flex items-center justify-center"
                 beforeMount={(m) => {
                   // vercel thing, basename type gets widened when building prod
-                  m.editor.defineTheme('night-owl', nightOwlTheme as any);
+                  m.editor.defineTheme("night-owl", nightOwlTheme as any);
                 }}
                 language={run(() => {
-                  if (typeof window === 'undefined') {
+                  if (typeof window === "undefined") {
                     return userAlgorithm.language;
                   }
                   if (userAlgorithm === defaultAlgo) {
@@ -154,11 +154,11 @@ const CodeExecution = ({
                   }
                 })}
                 theme={
-                  themeInfo.theme === 'dark'
-                    ? 'vs-dark'
-                    : themeInfo.theme === 'light'
-                    ? 'light'
-                    : 'vs-dark'
+                  themeInfo.theme === "dark"
+                    ? "vs-dark"
+                    : themeInfo.theme === "light"
+                    ? "light"
+                    : "vs-dark"
                 }
                 value={getCode(userAlgorithm, presetCode)}
                 // this doesn't make sense without edit functionality will do that next
@@ -178,8 +178,8 @@ const CodeExecution = ({
                   minimap: { enabled: false },
                   folding: false,
                   scrollbar: {
-                    vertical: 'hidden',
-                    horizontal: 'hidden', // This hides the horizontal scrollbar
+                    vertical: "hidden",
+                    horizontal: "hidden", // This hides the horizontal scrollbar
                   },
                 }}
               />
@@ -191,7 +191,7 @@ const CodeExecution = ({
             <Tabs
               value={tabValue}
               onValueChange={(v) =>
-                setTabValue((prev) => (prev === 'output' ? 'input' : 'output'))
+                setTabValue((prev) => (prev === "output" ? "input" : "output"))
               }
               defaultValue="input"
               className=" flex p-1 justify-evenly items-center  w-full  "
@@ -199,9 +199,9 @@ const CodeExecution = ({
               <TabsList className="w-full dark:bg-primary  p-3 flex justify-evenly items-center">
                 <TabsTrigger
                   className={`w-1/5 ${
-                    tabValue === 'input'
-                      ? 'border-2 rounded-md  bg-secondary '
-                      : 'border-2 rounded-md border-secondary'
+                    tabValue === "input"
+                      ? "border-2 rounded-md  bg-secondary "
+                      : "border-2 rounded-md border-secondary"
                   }`}
                   value="input"
                 >
@@ -209,9 +209,9 @@ const CodeExecution = ({
                 </TabsTrigger>
                 <TabsTrigger
                   className={`w-1/5 ${
-                    tabValue === 'output'
-                      ? 'border-2 rounded-md  bg-secondary'
-                      : 'border-2 rounded-md border-secondary'
+                    tabValue === "output"
+                      ? "border-2 rounded-md  bg-secondary"
+                      : "border-2 rounded-md border-secondary"
                   }`}
                   value="output"
                 >
@@ -222,7 +222,7 @@ const CodeExecution = ({
             {/* should represent the input of the adjlist as interactivable divs with data with examples on how to access them */}
             <div className="  pl-5 pt-3 w-full border-t-2   border-secondary flex flex-col items-start justify-start text-white  h-full overflow-y-scroll">
               {match(tabValue)
-                .with('input', () => (
+                .with("input", () => (
                   <>
                     {Object.entries(adjacencyList).length === 0 && (
                       <>
@@ -251,24 +251,24 @@ const CodeExecution = ({
                       ))}
                   </>
                 ))
-                .with('output', () =>
+                .with("output", () =>
                   codeMutation.isLoading ? (
                     <div className="w-full h-full flex items-center justify-center">
                       <Loader className="animate-spin" />
                     </div>
                   ) : (
                     <div>
-                      {codeMutation.data?.type === 'Validator' ||
-                        (codeMutation.data?.type === 'Visualizer' && (
+                      {codeMutation.data?.type === "Validator" ||
+                        (codeMutation.data?.type === "Visualizer" && (
                           <div className="flex flex-col items-start justify-start text-sm">
                             {codeMutation.data.logs}
                           </div>
                         ))}
-                      {codeMutation.data?.type === 'Validator' ||
-                        (codeMutation.data?.type === 'Visualizer' &&
+                      {codeMutation.data?.type === "Validator" ||
+                        (codeMutation.data?.type === "Visualizer" &&
                           codeMutation.data?.output.map((log) => (
                             <div
-                              key={JSON.stringify(log).replace(`"`, '')}
+                              key={JSON.stringify(log).replace(`"`, "")}
                               className="flex items-center justify-start "
                             >
                               <div className="text-md flex flex-col">
@@ -288,8 +288,8 @@ const CodeExecution = ({
                             </div>
                           )))}
 
-                      {codeMutation.data?.type === 'error' &&
-                        codeMutation.data.output.map((log) => (
+                      {codeMutation.data?.type === "error" &&
+                        codeMutation.data.logs.map((log) => (
                           <>
                             <div
                               key={JSON.stringify(log)}
@@ -297,9 +297,9 @@ const CodeExecution = ({
                             >
                               <div className="text-sm text-red-500">
                                 {JSON.stringify(log)
-                                  .replace(`"`, '')
+                                  .replace(`"`, "")
                                   .trim()
-                                  .split('\\n')
+                                  .split("\\n")
                                   .map((l) => {
                                     return (
                                       <div key={l} className="mt-2">
