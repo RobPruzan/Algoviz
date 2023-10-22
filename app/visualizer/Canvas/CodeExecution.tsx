@@ -81,7 +81,7 @@ const CodeExecution = ({
     "37.5%"
   );
   const presetCode = useAppSelector((store) => store.canvas.present.presetCode);
-
+  const frameRef = useRef<HTMLDivElement>(null);
   // const ioPanelRef = useRef<ElementRef<'div'>>(null);
 
   // const width = ioPanelRef.current?.offsetWidth;
@@ -116,8 +116,42 @@ const CodeExecution = ({
   const visualizationPointer = useAppSelector(
     (store) => store.codeExec.visualizationPointer
   );
+  useEffect(() => {
+    if (frameRef.current) {
+      const lastChild = frameRef.current.lastElementChild;
+      if (lastChild) {
+        lastChild.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+          inline: "nearest",
+        });
+      }
+    }
+  }, [visualizationPointer]);
 
-  console.log("fsdaf", tabValue);
+  const getLinesChanged = () => {
+    const lines: Array<number> = [];
+    let prev = "";
+    if (codeMutation.data?.flattenedVis.type !== AlgoType.Visualizer) {
+      return [];
+    }
+
+    codeMutation.data?.flattenedVis.fullOutput
+      .slice(0, visualizationPointer)
+      .forEach((frame, idx) => {
+        // frame.visualization.map(v => v.)
+        const currVis = JSON.stringify(frame.visualization);
+        if (prev !== currVis) {
+          lines.push(idx);
+        }
+        prev = currVis;
+      });
+
+    return lines;
+  };
+
+  // console.log("fsdaf", tabValue);
+  console.log(getLinesChanged());
   return (
     <div style={{ height: "calc(100% - 60px)" }} className="w-full ">
       <Resizable
@@ -341,22 +375,35 @@ const CodeExecution = ({
                     <>
                       {codeMutation.data.flattenedVis.fullOutput
                         .slice(0, visualizationPointer)
-                        .map((output) => {
+                        .map((output, index) => {
                           // need [0] because of lame serialization, its only every gonna be [data] form
                           const currentFrame = output.frames[0];
                           if (output.tag === "Line") {
                             return (
                               <div
+                                ref={frameRef}
                                 key={
                                   currentFrame.name +
                                   currentFrame.line +
                                   JSON.stringify(currentFrame.args)
                                 }
-                                className="flex flex-col items-center justify-center border-2 text-sm"
+                                className={`
+                                ${
+                                  getLinesChanged().some(
+                                    (line) => line === index
+                                  )
+                                    ? "bg-green-700"
+                                    : ""
+                                }
+                                flex flex-col rounded-md p-3 w-full items-center justify-center border-2 text-sm`}
                               >
                                 <div>Line: {output.line}</div>
-                                {output.tag}
-                                {output.line}
+                                {/* {output.tag} */}
+                                <div>
+                                  {getLinesChanged().some(
+                                    (line) => line === index
+                                  ) && <>Updated Vis</>}
+                                </div>
 
                                 {/* {JSON.stringify(output.frames[0].args.locals)} */}
                               </div>
@@ -369,12 +416,13 @@ const CodeExecution = ({
 
                           return (
                             <div
+                              ref={frameRef}
                               key={
                                 currentFrame.name +
                                 JSON.stringify(currentFrame.args) +
                                 currentFrame.line
                               }
-                              className="flex flex-col items-center justify-center border-2 "
+                              className="flex flex-col items-center justify-center border-2 w-full bg-secondary"
                             >
                               <div className="flex items-center justify-center">
                                 Function Name: {currentFrame.name}
