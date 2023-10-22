@@ -1,21 +1,21 @@
-import { CodeExecActions } from '@/redux/slices/codeExecSlice';
-import { useAppDispatch, useAppSelector } from '@/redux/store';
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
-import { z } from 'zod';
-import * as Graph from '@/lib/graph';
-import { AlgoType, ArrayItem, CircleReceiver, Edge } from '@/lib/types';
-import { P, match } from 'ts-pattern';
-import { getSelectedItems, getValidatorLensSelectedIds } from '@/lib/utils';
-import { useGetAlgorithmsQuery } from './useGetAlgorithmsQuery';
-import { CanvasActions, ValidatorLensInfo } from '@/redux/slices/canvasSlice';
-import { useMeta } from '@/hooks/useMeta';
-import { Languages, runJavascriptWithWorker } from '@/lib/language-snippets';
-import _logger from 'next-auth/utils/logger';
-import { useState } from 'react';
-import { useGetSelectedItems } from './useGetSelectedItems';
-import { useToast } from '@/components/ui/use-toast';
-import { start } from 'repl';
+import { CodeExecActions } from "@/redux/slices/codeExecSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { z } from "zod";
+import * as Graph from "@/lib/graph";
+import { AlgoType, ArrayItem, CircleReceiver, Edge } from "@/lib/types";
+import { P, match } from "ts-pattern";
+import { getSelectedItems, getValidatorLensSelectedIds } from "@/lib/utils";
+import { useGetAlgorithmsQuery } from "./useGetAlgorithmsQuery";
+import { CanvasActions, ValidatorLensInfo } from "@/redux/slices/canvasSlice";
+import { useMeta } from "@/hooks/useMeta";
+import { Languages, runJavascriptWithWorker } from "@/lib/language-snippets";
+import _logger from "next-auth/utils/logger";
+import { useState } from "react";
+import { useGetSelectedItems } from "./useGetSelectedItems";
+import { useToast } from "@/components/ui/use-toast";
+import { start } from "repl";
 type AlteredOutputUnion =
   | {
       output: Array<Array<string>>;
@@ -30,32 +30,62 @@ type AlteredOutputUnion =
   | {
       output: Array<string>;
 
-      type: 'error';
+      type: "error";
     };
 
-const nodeSchema = z.object({
-  value: z.number(),
+const VisualizationElement = z.object({
   ID: z.string(),
+  value: z.number(),
 });
 
-const visualizerSchema = z.object({
-  output: z.union([z.array(z.array(nodeSchema)), z.array(nodeSchema)]),
-  logs: z.string(),
-  type: z.literal(AlgoType.Visualizer),
+type Vis = z.infer<typeof VisualizationElement>;
+type Validator = z.infer<typeof ValidatorOutput>;
+
+const FrameArgs = z.object({
+  args: z.array(z.string()),
+  keywords: z
+    .record(z.union([z.string(), z.number(), z.boolean()]))
+    .or(z.null()),
+  locals: z.record(z.any()),
+  varargs: z.array(z.union([z.string(), z.number(), z.boolean()])).or(z.null()),
 });
 
-const validatorSchema = z.object({
+const Frame = z.object({
+  args: FrameArgs,
+  line: z.number(),
+  name: z.string(),
+});
+
+const VisualizerOutput = z.object({
+  type: z.literal("Visualizer"),
+  frames: z.array(Frame),
+  line: z.number(),
+  tag: z.string(),
+  logs: z.string().optional(),
+  output: z
+    .array(z.union([VisualizationElement, z.array(VisualizationElement)]))
+    .optional(),
+  visualization: z
+    .array(z.union([VisualizationElement, z.array(VisualizationElement)]))
+    .optional(),
+});
+
+const ValidatorOutput = z.object({
+  type: z.literal("Validator"),
   output: z.boolean(),
-  logs: z.string(),
-  type: z.literal(AlgoType.Validator),
+  logs: z.string().optional(),
 });
 
-const errorSchema = z.object({
-  output: z.array(z.string()),
-  type: z.literal('error'),
+const ErrorOutput = z.object({
+  type: z.literal("error"),
+  logs: z.string().optional(),
 });
 
-const dataSchema = z.union([visualizerSchema, validatorSchema, errorSchema]);
+const dataSchema = z.union([VisualizerOutput, ValidatorOutput, ErrorOutput]);
+
+type ParsedOutput = z.infer<typeof dataSchema>;
+
+// const dataSchema = z.union([visualizerSchema, validatorSchema, errorSchema]);
 const unFlattened = (parsedOutput: z.infer<typeof dataSchema>) => {
   return (
     parsedOutput.type === AlgoType.Visualizer
@@ -123,14 +153,14 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       // console.log('dat err', error);
       if (error instanceof Error) {
         toast({
-          variant: 'destructive',
-          title: 'Likely a network error',
+          variant: "destructive",
+          title: "Likely a network error",
           description: error.message,
         });
       } else {
         toast({
-          variant: 'destructive',
-          title: 'Likely a network error',
+          variant: "destructive",
+          title: "Likely a network error",
           description: JSON.stringify(error),
         });
       }
@@ -150,8 +180,8 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       lens,
     }: {
       algo: Pick<
-        ArrayItem<ReturnType<typeof useGetAlgorithmsQuery>['data']>,
-        'code'
+        ArrayItem<ReturnType<typeof useGetAlgorithmsQuery>["data"]>,
+        "code"
       >;
 
       type: AlgoType;
@@ -212,28 +242,20 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
       // } else {
       const url = process.env.NEXT_PUBLIC_CODE_RUNNER;
       if (!url) Promise.reject();
-      const adjList: Record<string, unknown> = {};
+      const adjList: Array<unknown> = [];
       for (const [id, neighbors] of Object.entries(
         getAdjacenyList(attachableLines, circles, lens)
       )) {
         const circle = circles.find((c) => c.id === id);
         [
-          {
+          adjList.push({
             id: circle?.id,
             value: circle?.value,
             neighbors: neighbors.map(
-              (n) => circles.find((c) => c.id === n)?.value
+              (n) => circles.find((c) => c.id === n)?.id
             ),
-          },
+          }),
         ];
-        if (circle?.id) {
-          adjList[circle?.id] = {
-            value: circle?.value,
-            neighbors: neighbors.map(
-              (n) => circles.find((c) => c.id === n)?.value
-            ),
-          };
-        }
       }
 
       console.log(JSON.stringify(adjList));
@@ -244,7 +266,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         type,
         env: {
           ADJACENCY_LIST: JSON.stringify(adjList),
-          START_NODE: JSON.stringify(startNode ?? 'NO-START-NODE-SELECTED'),
+          START_NODE: JSON.stringify(startNode ?? "NO-START-NODE-SELECTED"),
           START_NODE_VALUE: JSON.stringify(
             circles.find((c) => c.id === startNode)?.value
           ),
@@ -256,8 +278,8 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
 
       const outputWithType = { type, ...res.data };
 
-      if (process.env.NODE_ENV === 'development') {
-        console.log('code output', outputWithType);
+      if (process.env.NODE_ENV === "development") {
+        console.log("code output", outputWithType);
       }
       const parsedOutput = dataSchema.parse(outputWithType);
 
@@ -279,14 +301,14 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         .with({ type: AlgoType.Visualizer }, ({ output, logs }) => {
           dispatch(CodeExecActions.setVisitedVisualization(output));
         })
-        .with({ type: 'error' }, (errorInfo) => {
+        .with({ type: "error" }, (errorInfo) => {
           dispatch(CodeExecActions.setVisitedVisualization([]));
           dispatch(CodeExecActions.setIsApplyingAlgorithm(false));
           dispatch(CodeExecActions.resetVisitedPointer());
           dispatch(
             CodeExecActions.setError({
               logs: errorInfo.output.map((log) => JSON.stringify(log)),
-              message: errorInfo.output.join(' '),
+              message: errorInfo.output.join(" "),
             })
           );
         })
