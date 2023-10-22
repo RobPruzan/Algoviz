@@ -421,7 +421,7 @@ const CodeExecutionControlBar = ({
                       return;
                     }
                     if (!selectedIds) {
-                      setTabValue("output");
+                      setTabValue("stack");
                       const code = getCode(userAlgorithm, presetCode);
                       // console.log('hola amigo', code);
                       codeMutation.mutate({
@@ -460,7 +460,7 @@ const CodeExecutionControlBar = ({
                 <Button
                   aria-label="toggle-algorithm-visualization"
                   onClick={async (e) => {
-                    setTabValue("output");
+                    setTabValue("stack");
                     const presetResult = searchParams.get("preset");
                     if (presetResult) {
                       setShouldBounceGreen(false);

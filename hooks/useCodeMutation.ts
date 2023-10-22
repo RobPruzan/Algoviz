@@ -28,7 +28,7 @@ type AlteredOutputUnion = {
 
         type: "error";
       }
-    | { type: AlgoType.Validator; fullOutput: boolean };
+    | { type: AlgoType.Validator; output: boolean; logs: string };
 };
 export type AlgoFlattenedVis = {
   fullOutput: Array<ParsedVisOutput>;
@@ -297,7 +297,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         ];
       }
 
-      console.log(JSON.stringify(adjList));
+      // console.log(JSON.stringify(adjList));
 
       const res = await axios.post(url, {
         code: algo.code,
@@ -334,7 +334,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
               dispatch(
                 CanvasActions.setValidationVisualization({
                   id: ctx.lens.id,
-                  result: flattenedVis.fullOutput,
+                  result: flattenedVis.output,
                 })
               );
             }

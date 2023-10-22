@@ -10,10 +10,10 @@
 ::-webkit-scrollbar-track-piece {
   background-color: #000000;
 }
-::-webkit-scrollbar-thumb:vertical {
+/* ::-webkit-scrollbar-thumb:vertical {
   height: 0px;
   background-color: #131313;
-}
+} */
 
 @layer base {
   :root {

@@ -18,7 +18,6 @@ const envSchema = z.object({
   NEXT_PUBLIC_GOD_MODE: z.string(),
 });
 
-console.log(process.env);
 declare global {
   namespace NodeJS {
     interface ProcessEnv extends z.infer<typeof envSchema> {}

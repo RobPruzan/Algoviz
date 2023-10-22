@@ -121,7 +121,7 @@ const CodeExecution = ({
       const lastChild = frameRef.current.lastElementChild;
       if (lastChild) {
         lastChild.scrollIntoView({
-          behavior: "instant",
+          behavior: "smooth",
           block: "end",
           inline: "nearest",
         });
@@ -146,36 +146,6 @@ const CodeExecution = ({
     return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
-  useEffect(() => {
-    console.log(editorInstance, monacoRef);
-    if (editorInstance && monacoRef.current) {
-      const range = new monacoRef.current.Range(3, 1, 5, 1);
-      const options = { isWholeLine: true, className: "highlighted-line" };
-      (editorInstance as any).deltaDecorations(
-        [],
-        [{ range: range, options: options }]
-      );
-    }
-  }, [editorInstance]);
-  console.log(editorInstance, monacoRef);
-  // const handleBeforeMount = (monaco:any) => {
-  //     monacoRef.current = monaco;
-  // };
-  //   const handleEditorDidMount = (editor, monaco) => {
-  //     editorRef.current = editor;
-  //     monacoRef.current = monaco;  // Store the monaco instance
-  // };
-  //   const editorRef = useRef<any>(null);
-
-  //     useEffect(() => {
-  //       if (editorRef.current) {
-  //           const range = new monaco.Range(3,1,5,1);  // Highlights lines 3 to 5
-  //           const options = { isWholeLine: true, className: 'bg-red-500' };
-  //           editorRef.current.deltaDecorations([], [
-  //               { range: range, options: options },
-  //           ]);
-  //       }
-  //   }, [editorRef]);
   const getLinesChanged = () => {
     const lines: Array<number> = [];
     let prev = "";
@@ -233,9 +203,7 @@ const CodeExecution = ({
                 beforeMount={(m) => {
                   // vercel thing, basename type gets widened when building prod
                   m.editor.defineTheme("night-owl", nightOwlTheme as any);
-                  console.log("em", Object.keys(m));
 
-                  monacoRef.current = m;
                   // monacoRef.current = m.monaco; // Store the monaco instance
                 }}
                 language={run(() => {
@@ -370,7 +338,7 @@ const CodeExecution = ({
                             {codeMutation.data?.flattenedVis.logs}
                           </div>
                         ))}
-                      {codeMutation.data?.flattenedVis.type === "Validator" ||
+                      {/* {codeMutation.data?.flattenedVis.type === "Validator" ||
                         (codeMutation.data?.flattenedVis.type ===
                           "Visualizer" &&
                           codeMutation.data?.flattenedVis.flattenedOutput.map(
@@ -388,14 +356,14 @@ const CodeExecution = ({
                                     .filter(Boolean)
 
                                     .map((l, index) => (
-                                      <div className="mt-2" key={index}>
+                                      <div className="mt-2" key={indexxx}>
                                         {l}
                                       </div>
                                     ))}
                                 </div>
                               </div>
                             )
-                          ))}
+                          ))} */}
 
                       {codeMutation.data?.flattenedVis.type === "error" &&
                         codeMutation.data?.flattenedVis.logs.map(
@@ -426,6 +394,12 @@ const CodeExecution = ({
                   )
                 )
                 .with("stack", () => {
+                  if (codeMutation.isLoading) {
+                    return <Loader className="animate-spin" />;
+                  }
+                  if (codeMutation.data?.flattenedVis.type === "error") {
+                    setTabValue("output");
+                  }
                   return codeMutation.data?.flattenedVis.type ===
                     AlgoType.Visualizer ? (
                     <>
@@ -463,6 +437,7 @@ const CodeExecution = ({
                                 ref={frameRef}
                                 key={`outter-${index} ${currentFrame.line}`}
                                 className={`
+
                                 ${
                                   getLinesChanged().some(
                                     (line) => line === index
@@ -470,14 +445,34 @@ const CodeExecution = ({
                                     ? "bg-green-700"
                                     : ""
                                 }
-                                flex flex-col rounded-md p-3 w-full items-center justify-center border-2 text-sm`}
+                                flex   mt-2 flex-col rounded-md p-2 w-full items-center justify-center border-2 text-xs`}
                               >
-                                <div>Line: {output.line}</div>
+                                <div className="text-md font-bold">
+                                  Line: {output.line}
+                                </div>
                                 {/* {output.tag} */}
                                 <div>
                                   {getLinesChanged().some(
                                     (line) => line === index
                                   ) && <>Updated Vis</>}
+                                </div>
+                                <div className="flex mt-2 flex-col  items-center justify-center text-xs gap-2 overflow-x-scroll">
+                                  <p className="text-md font-bold">Locals:</p>
+                                  {Object.entries(currentFrame.args.locals).map(
+                                    ([k, v], index) => (
+                                      <div
+                                        className="w-full flex border rounded-md p-3"
+                                        key={`${k} ${index}`}
+                                      >
+                                        <div className="font-bold text-md flex w-1/2 ">
+                                          {k}
+                                        </div>
+                                        <div className="flex w-1/2 h-12 overflow-y-scroll">
+                                          {JSON.stringify(v)}
+                                        </div>
+                                      </div>
+                                    )
+                                  )}
                                 </div>
 
                                 {/* {JSON.stringify(output.frames[0].args.locals)} */}
@@ -493,13 +488,13 @@ const CodeExecution = ({
                             <div
                               ref={frameRef}
                               key={`inner-${index} ${currentFrame.line}`}
-                              className="flex flex-col items-center justify-center border-2 w-full bg-secondary"
+                              className="flex  rounded-md flex-col items-center justify-center border-2 w-full bg-secondary"
                             >
-                              <div className="flex items-center justify-center">
+                              <div className="flex items-center justify-center font-bold text-xl ">
                                 Function Name: {currentFrame.name}
                               </div>
-                              <div className="flex items-center justify-center text-sm ">
-                                Locals:
+                              <div className="flex flex-col items-center justify-center text-xs p-3 gap-2 ">
+                                <p className="text-lg font-bold">Locals:</p>
                                 {
                                   // weird
                                   // Object.entries(currentFrame.args.locals).map(
@@ -510,6 +505,21 @@ const CodeExecution = ({
                                   //   )
                                   // )
                                 }
+                                {Object.entries(currentFrame.args.locals).map(
+                                  ([k, v], index) => (
+                                    <div
+                                      className="w-full flex border rounded-md p-3"
+                                      key={`${k} ${index}`}
+                                    >
+                                      <div className="font-bold text-md flex w-1/2 ">
+                                        {k}
+                                      </div>
+                                      <div className="flex w-1/2  h-16 overflow-y-scroll">
+                                        {JSON.stringify(v)}
+                                      </div>
+                                    </div>
+                                  )
+                                )}
                               </div>
                               <div className="w-full flex items-center justify-center">
                                 Line Number:
