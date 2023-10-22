@@ -238,7 +238,7 @@ const CanvasDisplay = ({
       playgroundID
     );
   }, 5000);
-  console.log("what", process.env.NEXT_PUBLIC_CODE_RUNNER);
+
   const { selectedAttachableLines, selectedCircles } = getSelectedItems({
     attachableLines,
     circles,
@@ -587,7 +587,7 @@ const CanvasDisplay = ({
           }
 
           if (process.env.NODE_ENV === "development") {
-            console.log("You may have forgot to add it to this condition");
+            // console.log("You may have forgot to add it to this condition");
           }
           return false;
         }) && (

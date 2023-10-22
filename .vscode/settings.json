@@ -3,6 +3,7 @@
     "Adjaceny",
     "Collab",
     "datastructures",
+    "firstlineno",
     "jsonify",
     "lucide",
     "moogly",
@@ -15,5 +16,6 @@
     "unselectable",
     "yoinked"
   ],
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "python.analysis.typeCheckingMode": "basic"
 }
