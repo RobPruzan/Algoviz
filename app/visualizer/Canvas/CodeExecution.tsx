@@ -16,6 +16,7 @@ import React, {
 import { match } from "ts-pattern";
 import { nightOwlTheme } from "./theme";
 import {
+  AlgoType,
   Percentage,
   RealMessedUpAlgoType,
   SelectedValidatorLens,
@@ -112,7 +113,11 @@ const CodeExecution = ({
   // // if (codeMutation.data?.type === 'error') {
   // //   console.log(codeMutation.data.output.map((o) => o.split('\n')));
   // // }
+  const visualizationPointer = useAppSelector(
+    (store) => store.codeExec.visualizationPointer
+  );
 
+  console.log("fsdaf", tabValue);
   return (
     <div style={{ height: "calc(100% - 60px)" }} className="w-full ">
       <Resizable
@@ -331,8 +336,77 @@ const CodeExecution = ({
                   )
                 )
                 .with("stack", () => {
-                  return <>Stack stuff</>;
+                  return codeMutation.data?.flattenedVis.type ===
+                    AlgoType.Visualizer ? (
+                    <>
+                      {codeMutation.data.flattenedVis.fullOutput
+                        .slice(0, visualizationPointer)
+                        .map((output) => {
+                          // need [0] because of lame serialization, its only every gonna be [data] form
+                          const currentFrame = output.frames[0];
+                          if (output.tag === "Line") {
+                            return (
+                              <div
+                                key={
+                                  currentFrame.name +
+                                  currentFrame.line +
+                                  JSON.stringify(currentFrame.args)
+                                }
+                                className="flex flex-col items-center justify-center border-2 text-sm"
+                              >
+                                <div>Line: {output.line}</div>
+                                {output.tag}
+                                {output.line}
+
+                                {/* {JSON.stringify(output.frames[0].args.locals)} */}
+                              </div>
+                            );
+                          }
+                          // const currentFrame = output.frames[0];
+                          // if (output.tag === 'Line') {
+                          // return
+                          // }
+
+                          return (
+                            <div
+                              key={
+                                currentFrame.name +
+                                JSON.stringify(currentFrame.args) +
+                                currentFrame.line
+                              }
+                              className="flex flex-col items-center justify-center border-2 "
+                            >
+                              <div className="flex items-center justify-center">
+                                Function Name: {currentFrame.name}
+                              </div>
+                              <div className="flex items-center justify-center text-sm ">
+                                Locals:
+                                {
+                                  // weird
+                                  // Object.entries(currentFrame.args.locals).map(
+                                  //   ([k, v]) => (
+                                  //     <div key={k}>
+                                  //       {k}={v}
+                                  //     </div>
+                                  //   )
+                                  // )
+                                }
+                              </div>
+                              <div className="w-full flex items-center justify-center">
+                                Line Number:
+                                {currentFrame.line}
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </>
+                  ) : undefined;
+
+                  // return codeMutation.data?.flattenedVis.type === AlgoType.Visualizer ? (
+
+                  //   ) : <></>
                 })
+
                 .run()}
             </div>
           </div>
@@ -343,3 +417,5 @@ const CodeExecution = ({
 };
 
 export default CodeExecution;
+
+export const StackFrame = () => {};
