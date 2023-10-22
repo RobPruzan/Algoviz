@@ -121,7 +121,7 @@ const CodeExecution = ({
       const lastChild = frameRef.current.lastElementChild;
       if (lastChild) {
         lastChild.scrollIntoView({
-          behavior: "smooth",
+          behavior: "instant",
           block: "end",
           inline: "nearest",
         });
@@ -129,6 +129,53 @@ const CodeExecution = ({
     }
   }, [visualizationPointer]);
 
+  const editorContainerRef = useRef<any>(null);
+  const monacoRef = useRef<any>(null); // Reference to store the monaco subset
+  const [editorInstance, setEditorInstance] = useState(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Attempt to find the editor instance
+      const editor = editorContainerRef.current?.__editorInstance;
+      if (editor) {
+        setEditorInstance(editor);
+        clearInterval(interval);
+      }
+    }, 100); // poll every 100ms
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
+  useEffect(() => {
+    console.log(editorInstance, monacoRef);
+    if (editorInstance && monacoRef.current) {
+      const range = new monacoRef.current.Range(3, 1, 5, 1);
+      const options = { isWholeLine: true, className: "highlighted-line" };
+      (editorInstance as any).deltaDecorations(
+        [],
+        [{ range: range, options: options }]
+      );
+    }
+  }, [editorInstance]);
+  console.log(editorInstance, monacoRef);
+  // const handleBeforeMount = (monaco:any) => {
+  //     monacoRef.current = monaco;
+  // };
+  //   const handleEditorDidMount = (editor, monaco) => {
+  //     editorRef.current = editor;
+  //     monacoRef.current = monaco;  // Store the monaco instance
+  // };
+  //   const editorRef = useRef<any>(null);
+
+  //     useEffect(() => {
+  //       if (editorRef.current) {
+  //           const range = new monaco.Range(3,1,5,1);  // Highlights lines 3 to 5
+  //           const options = { isWholeLine: true, className: 'bg-red-500' };
+  //           editorRef.current.deltaDecorations([], [
+  //               { range: range, options: options },
+  //           ]);
+  //       }
+  //   }, [editorRef]);
   const getLinesChanged = () => {
     const lines: Array<number> = [];
     let prev = "";
@@ -150,8 +197,6 @@ const CodeExecution = ({
     return lines;
   };
 
-  // console.log("fsdaf", tabValue);
-  console.log(getLinesChanged());
   return (
     <div style={{ height: "calc(100% - 60px)" }} className="w-full ">
       <Resizable
@@ -177,10 +222,21 @@ const CodeExecution = ({
               className="max-w-[95%]  w-full  h-full"
             >
               <Editor
+                //             ={(editor, monaco) => {
+
+                // editorRef.current = editor;
+                // monacoRef.current = monaco;  // Store the monaco instance
+
+                //             }}
+
                 className="flex items-center justify-center"
                 beforeMount={(m) => {
                   // vercel thing, basename type gets widened when building prod
                   m.editor.defineTheme("night-owl", nightOwlTheme as any);
+                  console.log("em", Object.keys(m));
+
+                  monacoRef.current = m;
+                  // monacoRef.current = m.monaco; // Store the monaco instance
                 }}
                 language={run(() => {
                   if (typeof window === "undefined") {
@@ -378,15 +434,34 @@ const CodeExecution = ({
                         .map((output, index) => {
                           // need [0] because of lame serialization, its only every gonna be [data] form
                           const currentFrame = output.frames[0];
+                          // console.log(output.tag);
+                          if (output.tag === "Return") {
+                            <div
+                              ref={frameRef}
+                              key={
+                                currentFrame.name +
+                                currentFrame.line +
+                                JSON.stringify(currentFrame.args)
+                              }
+                              className={`
+                            flex flex-col bg-red-700 rounded-md p-3 w-full items-center justify-center border-2 text-sm`}
+                            >
+                              <div>Line: {output.line}</div>
+                              {/* {output.tag} */}
+                              <div>
+                                {getLinesChanged().some(
+                                  (line) => line === index
+                                ) && <>Updated Vis</>}
+                              </div>
+
+                              {/* {JSON.stringify(output.frames[0].args.locals)} */}
+                            </div>;
+                          }
                           if (output.tag === "Line") {
                             return (
                               <div
                                 ref={frameRef}
-                                key={
-                                  currentFrame.name +
-                                  currentFrame.line +
-                                  JSON.stringify(currentFrame.args)
-                                }
+                                key={`outter-${index} ${currentFrame.line}`}
                                 className={`
                                 ${
                                   getLinesChanged().some(
@@ -417,11 +492,7 @@ const CodeExecution = ({
                           return (
                             <div
                               ref={frameRef}
-                              key={
-                                currentFrame.name +
-                                JSON.stringify(currentFrame.args) +
-                                currentFrame.line
-                              }
+                              key={`inner-${index} ${currentFrame.line}`}
                               className="flex flex-col items-center justify-center border-2 w-full bg-secondary"
                             >
                               <div className="flex items-center justify-center">
@@ -442,7 +513,7 @@ const CodeExecution = ({
                               </div>
                               <div className="w-full flex items-center justify-center">
                                 Line Number:
-                                {currentFrame.line}
+                                {index}
                               </div>
                             </div>
                           );
