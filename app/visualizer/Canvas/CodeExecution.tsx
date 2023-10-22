@@ -266,9 +266,9 @@ const CodeExecution = ({
                         ))}
                       {codeMutation.data?.type === "Validator" ||
                         (codeMutation.data?.type === "Visualizer" &&
-                          codeMutation.data?.output.map((log) => (
+                          codeMutation.data?.output.map((log, indexxx) => (
                             <div
-                              key={JSON.stringify(log).replace(`"`, "")}
+                              key={indexxx}
                               className="flex items-center justify-start "
                             >
                               <div className="text-md flex flex-col">
@@ -279,8 +279,8 @@ const CodeExecution = ({
                                   )
                                   .filter(Boolean)
 
-                                  .map((l) => (
-                                    <div className="mt-2" key={l}>
+                                  .map((l, index) => (
+                                    <div className="mt-2" key={index}>
                                       {l}
                                     </div>
                                   ))}
@@ -289,10 +289,10 @@ const CodeExecution = ({
                           )))}
 
                       {codeMutation.data?.type === "error" &&
-                        codeMutation.data.logs.map((log) => (
+                        codeMutation.data.logs.map((log, index) => (
                           <>
                             <div
-                              key={JSON.stringify(log)}
+                              key={index}
                               className="flex items-center justify-start "
                             >
                               <div className="text-sm text-red-500">
@@ -300,9 +300,9 @@ const CodeExecution = ({
                                   .replace(`"`, "")
                                   .trim()
                                   .split("\\n")
-                                  .map((l) => {
+                                  .map((l, idx) => {
                                     return (
-                                      <div key={l} className="mt-2">
+                                      <div key={idx} className="mt-2">
                                         {l}
                                       </div>
                                     );

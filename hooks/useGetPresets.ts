@@ -1,18 +1,18 @@
-import { API_URL, dispatchPreset } from '@/lib/utils';
-import { CanvasActions } from '@/redux/slices/canvasSlice';
-import { useAppDispatch } from '@/redux/store';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useRef } from 'react';
-import { z } from 'zod';
-import { useMeta } from './useMeta';
+import { API_URL, dispatchPreset } from "@/lib/utils";
+import { CanvasActions } from "@/redux/slices/canvasSlice";
+import { useAppDispatch } from "@/redux/store";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { z } from "zod";
+import { useMeta } from "./useMeta";
 
 export const useGetPresets = () => {
   const getPresetQuery = useQuery({
-    queryKey: ['presets'],
+    queryKey: ["presets"],
     queryFn: async () => {
-      const res = await axios.get(API_URL + '/playground/preset/get');
+      const res = await axios.get(API_URL + "/playground/preset/get");
       const dataSchema = z.array(
         z.object({
           id: z.string(),
@@ -27,7 +27,7 @@ export const useGetPresets = () => {
           startNode: z.string().optional().nullable(),
         })
       );
-      console.log('data wee', res.data);
+
       const data = z.object({ presets: dataSchema }).parse(res.data);
       return data;
     },

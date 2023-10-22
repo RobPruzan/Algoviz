@@ -138,9 +138,9 @@ const CanvasDisplay = ({
     (store) => store.codeExec
   );
 
-  if (error) {
-    console.error("error", error);
-  }
+  // if (error) {
+  //   console.error("error", error);
+  // }
   const isContextMenuActiveRef = useRef(false);
 
   const searchParams = useSearchParams();

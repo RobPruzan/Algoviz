@@ -57,11 +57,9 @@ const Frame = z.object({
 });
 
 const VisualizerOutput = z.object({
-  type: z.literal("Visualizer"),
   frames: z.array(Frame),
   line: z.number(),
   tag: z.string(),
-  logs: z.string().optional(),
   output: z
     .array(z.union([VisualizationElement, z.array(VisualizationElement)]))
     .optional(),
@@ -78,7 +76,7 @@ const validatorSchema = z.object({
 
 const visualizerSchema = z.object({
   type: z.literal("Visualizer"),
-  output: VisualizerOutput,
+  output: z.array(VisualizerOutput),
   logs: z.string().optional(),
 });
 
@@ -98,7 +96,10 @@ const unFlattened = (parsedOutput: z.infer<typeof dataSchema>) => {
       ? {
           ...parsedOutput,
           output: (
-            parsedOutput.output.visualization as Array<any> | null | undefined
+            parsedOutput.output.map((opt) => opt.visualization) as
+              | Array<any>
+              | null
+              | undefined
           )?.map((o) => (o instanceof Array ? o.map((o) => o.ID) : [o.ID])),
         }
       : parsedOutput
@@ -304,7 +305,9 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
             );
           }
         })
+
         .with({ type: AlgoType.Visualizer }, ({ output, logs }) => {
+          console.log("dispatching output", output);
           dispatch(CodeExecActions.setVisitedVisualization(output));
         })
         .with({ type: "error" }, (errorInfo) => {
