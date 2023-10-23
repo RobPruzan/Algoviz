@@ -420,6 +420,7 @@ const CodeExecutionControlBar = ({
                       });
                       return;
                     }
+                    setTabValue("output");
                     if (!selectedIds) {
                       const code = getCode(userAlgorithm, presetCode);
                       // console.log('hola amigo', code);
@@ -474,6 +475,7 @@ const CodeExecutionControlBar = ({
                         })
                       );
                     }
+                    setTabValue("output");
                     const code = getCode(userAlgorithm, presetCode);
                     const currentCacheKey = JSON.stringify([
                       getAdjacenyList(attachableLines, circles),
