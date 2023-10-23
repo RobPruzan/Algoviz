@@ -83,6 +83,7 @@ const CanvasControlBar = ({
     if ([...searchParams.entries()].length === 0) {
       // means its an empty playground
       // doing a cleanup for all playgrounds is too messy unforunately
+
       dispatch(CanvasActions.resetCircles(undefined));
       dispatch(CanvasActions.resetLines(undefined));
       dispatch(CanvasActions.resetCurrentZoomFactor());
@@ -97,11 +98,12 @@ const CanvasControlBar = ({
       const preset = getPresetsQuery.data?.presets.find(
         (p) => p.name === currentPresetName
       );
-      dispatch(CanvasActions.resetCircles(undefined));
-      dispatch(CanvasActions.resetLines(undefined));
+
       if (!preset) {
         return;
       }
+      dispatch(CanvasActions.resetCircles(undefined));
+      dispatch(CanvasActions.resetLines(undefined));
 
       dispatchPreset({
         currentZoomFactor,
@@ -109,6 +111,7 @@ const CanvasControlBar = ({
         preset,
         // cause next sux
         dispatcher: (data: unknown) => {
+          console.log("sending this data", data);
           dispatch(CanvasActions.addPreset(data as any, meta));
         },
       });

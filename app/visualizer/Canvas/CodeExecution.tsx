@@ -27,6 +27,7 @@ import {
   getCode,
   getSelectedItems,
   run,
+  toStackSnapshotAtVisUpdate,
 } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Algorithm } from "@prisma/client";
@@ -45,6 +46,7 @@ import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
 import Loading from "../loading";
 import { CodeStorage } from "@/hooks/codeStorage";
 import { defaultAlgo } from "../ContentWrapper";
+import { toast, useToast } from "@/components/ui/use-toast";
 
 type Props = {
   setUserAlgorithm: React.Dispatch<React.SetStateAction<RealMessedUpAlgoType>>;
@@ -82,37 +84,20 @@ const CodeExecution = ({
   );
   const presetCode = useAppSelector((store) => store.canvas.present.presetCode);
   const frameRef = useRef<HTMLDivElement>(null);
-  // const ioPanelRef = useRef<ElementRef<'div'>>(null);
-
-  // const width = ioPanelRef.current?.offsetWidth;
-  // const height = ioPanelRef.current?.offsetHeight;
-
   const selectedAlgorithm = useAppSelector(
     (store) => store.codeExec.selectedAlgorithm
   );
 
   const circles = useAppSelector((store) => store.canvas.present.circles);
 
-  // const { selectedAttachableLines, selectedCircles } = getSelectedItems({
-  //   attachableLines,
-  //   circles,
-  //   selectedGeometryInfo,
-  // });
-
   const themeInfo = useTheme();
 
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
 
-  const currentAlgorithm = getAlgorithmsQuery.data?.find(
-    (d) => d.id === selectedAlgorithm
-  );
-
-  // const code = userAlgorithm.code ? languageSnippets[language] : '';
-
-  // const execMode = useAppSelector((store) => store.codeExec.mode);
-  // // if (codeMutation.data?.type === 'error') {
-  // //   console.log(codeMutation.data.output.map((o) => o.split('\n')));
-  // // }
+  // const currentAlgorithm = getAlgorithmsQuery.data?.find(
+  //   (d) => d.id === selectedAlgorithm
+  // );
+  const { toast } = useToast();
   const visualizationPointer = useAppSelector(
     (store) => store.codeExec.visualizationPointer
   );
@@ -192,20 +177,6 @@ const CodeExecution = ({
               className="max-w-[95%]  w-full  h-full"
             >
               <Editor
-                //             ={(editor, monaco) => {
-
-                // editorRef.current = editor;
-                // monacoRef.current = monaco;  // Store the monaco instance
-
-                //             }}
-
-                className="flex items-center justify-center"
-                beforeMount={(m) => {
-                  // vercel thing, basename type gets widened when building prod
-                  m.editor.defineTheme("night-owl", nightOwlTheme as any);
-
-                  // monacoRef.current = m.monaco; // Store the monaco instance
-                }}
                 language={run(() => {
                   if (typeof window === "undefined") {
                     return userAlgorithm.language;
@@ -216,6 +187,11 @@ const CodeExecution = ({
                     return userAlgorithm.language;
                   }
                 })}
+                className="flex items-center justify-center"
+                beforeMount={(m) => {
+                  // vercel thing, basename type gets widened when building prod
+                  m.editor.defineTheme("night-owl", nightOwlTheme as any);
+                }}
                 theme={
                   themeInfo.theme === "dark"
                     ? "vs-dark"
@@ -223,6 +199,14 @@ const CodeExecution = ({
                     ? "light"
                     : "vs-dark"
                 }
+                options={{
+                  minimap: { enabled: false },
+                  folding: false,
+                  scrollbar: {
+                    vertical: "hidden",
+                    horizontal: "hidden", // This hides the horizontal scrollbar
+                  },
+                }}
                 value={getCode(userAlgorithm, presetCode)}
                 // this doesn't make sense without edit functionality will do that next
                 onChange={(value) => {
@@ -237,14 +221,6 @@ const CodeExecution = ({
                   }
                 }}
                 // defaultLanguage="typescript"
-                options={{
-                  minimap: { enabled: false },
-                  folding: false,
-                  scrollbar: {
-                    vertical: "hidden",
-                    horizontal: "hidden", // This hides the horizontal scrollbar
-                  },
-                }}
               />
             </div>
           </div>
@@ -253,9 +229,10 @@ const CodeExecution = ({
           <div className="h-full w-full     flex flex-col justify-start overflow-x-scroll overflow-y-hidden items-center">
             <Tabs
               value={tabValue}
-              onValueChange={(v) =>
-                setTabValue(() => v as "input" | "output" | "stack")
-              }
+              onValueChange={(v) => {
+                console.log({ v });
+                setTabValue(() => v as "input" | "output" | "stack");
+              }}
               defaultValue="input"
               className=" flex p-1 justify-evenly items-center  w-full  "
             >
@@ -289,10 +266,20 @@ const CodeExecution = ({
                   }`}
                   value="stack"
                 >
-                  Stack
+                  Stacks
                 </TabsTrigger>
+                {/* <TabsTrigger
+                  className={`w-1/5 ${
+                    tabValue === "stack"
+                      ? "border-2 rounded-md  bg-secondary"
+                      : "border-2 rounded-md border-secondary"
+                  }`}
+                  value="stack"
+                >
+                  Variable Stack
+                </TabsTrigger> */}
                 {/* Lines will be for stepping through the program */}
-                <TabsTrigger
+                {/* <TabsTrigger
                   className={`w-1/5 ${
                     tabValue === "stack"
                       ? "border-2 rounded-md  bg-secondary"
@@ -301,40 +288,51 @@ const CodeExecution = ({
                   value="stack"
                 >
                   Lines
-                </TabsTrigger>
+                </TabsTrigger> */}
               </TabsList>
             </Tabs>
             {/* should represent the input of the adjlist as interactivable divs with data with examples on how to access them */}
-            <div className="  pl-5 pt-3 w-full border-t-2   border-secondary flex flex-col items-start justify-start text-white  h-full overflow-y-scroll">
+            <div className="  pt-3 w-full border-t-2   border-secondary flex flex-col items-start justify-start text-white  h-full overflow-y-scroll">
               {match(tabValue)
                 .with("input", () => (
-                  <>
-                    {Object.entries(adjacencyList).length === 0 && (
-                      <>
-                        <div className="w-full  h-full flex-col flex items-center font-bold text-xl justify-start text-gray-500">
-                          <p>No graph selected in playground</p>
-                          <div className="flex  justify-evenly w-1/3"></div>
-                        </div>
-                      </>
-                    )}
-                    {Object.entries({ ...adjacencyList })
-                      .sort((a, b) => Number(a[0]) - Number(b[0]))
-                      .map(([k, v]) => (
-                        <div className="flex text-2xl" key={k}>
-                          <div className="">
-                            {circles.find((c) => c.id === k)?.value}
-                          </div>
-                          :
-                          <div className="">
-                            {JSON.stringify(
-                              v.map(
-                                (v) => circles.find((c) => c.id === v)?.value
-                              )
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                  </>
+                  <Editor
+                    className="flex items-center justify-center"
+                    beforeMount={(m) => {
+                      // vercel thing, basename type gets widened when building prod
+                      m.editor.defineTheme("night-owl", nightOwlTheme as any);
+                    }}
+                    theme={
+                      themeInfo.theme === "dark"
+                        ? "vs-dark"
+                        : themeInfo.theme === "light"
+                        ? "light"
+                        : "vs-dark"
+                    }
+                    language="python"
+                    value={JSON.stringify(
+                      Object.fromEntries(
+                        Object.entries(adjacencyList).map(([k, v]) => {
+                          return [
+                            circles.find((c) => c.id === k)?.value,
+                            v.map(
+                              (v) => circles.find((c) => c.id === v)?.value
+                            ),
+                          ];
+                        })
+                      )
+                    ).replaceAll("],", "]\n ")}
+                    options={{
+                      minimap: { enabled: false },
+                      folding: false,
+                      lineNumbers: "off",
+                      fontSize: 14,
+                      readOnly: true,
+                      scrollbar: {
+                        vertical: "hidden",
+                        horizontal: "hidden", // This hides the horizontal scrollbar
+                      },
+                    }}
+                  />
                 ))
                 .with("output", () =>
                   codeMutation.isLoading ? (
@@ -383,7 +381,7 @@ const CodeExecution = ({
                             <>
                               <div
                                 key={index}
-                                className="flex items-center justify-start "
+                                className="flex px-3 items-center justify-start "
                               >
                                 <div className="text-sm text-red-500">
                                   {JSON.stringify(log)
@@ -406,72 +404,138 @@ const CodeExecution = ({
                   )
                 )
                 .with("stack", () => {
-                  if (codeMutation.isLoading) {
-                    return <Loader className="animate-spin" />;
-                  }
-                  if (codeMutation.data?.flattenedVis.type === "error") {
-                    setTabValue("output");
-                  }
-                  return codeMutation.data?.flattenedVis.type ===
-                    AlgoType.Visualizer ? (
+                  return (
                     <>
-                      {codeMutation.data.flattenedVis.fullOutput
-                        .slice(0, visualizationPointer)
-                        .map((output, index) => {
-                          // need [0] because of lame serialization, its only every gonna be [data] form
-                          const currentFrame = output.frames[0];
-                          // console.log(output.tag);
-                          if (output.tag === "Return") {
-                            <div
-                              ref={frameRef}
-                              key={
-                                currentFrame.name +
-                                currentFrame.line +
-                                JSON.stringify(currentFrame.args)
-                              }
-                              className={`
-                            flex flex-col bg-red-700 rounded-md p-3 w-full items-center justify-center border-2 text-sm`}
-                            >
-                              <div>Line: {output.line}</div>
-                              {/* {output.tag} */}
-                              <div>
-                                {getLinesChanged().some(
-                                  (line) => line === index
-                                ) && <>Updated Vis</>}
-                              </div>
+                      <div className="w-full h-10 border-b ">hi</div>
+                      {run(() => {
+                        if (codeMutation.isLoading) {
+                          return <Loader className="animate-spin" />;
+                        }
+                        if (codeMutation.data?.flattenedVis.type === "error") {
+                          setTabValue(() => {
+                            toast({
+                              title:
+                                "Code has errors, can't view your stacks just yet",
+                              variant: "destructive",
+                            });
+                            return "output";
+                          });
+                        }
+                        return codeMutation.data?.flattenedVis.type ===
+                          AlgoType.Visualizer ? (
+                          <>
+                            {console.log(
+                              "what dis dis",
+                              toStackSnapshotAtVisUpdate(
+                                codeMutation.data.flattenedVis.fullOutput
+                              ),
+                              codeMutation.data.flattenedVis.flattenedOutput
+                            )}
+                            {toStackSnapshotAtVisUpdate(
+                              codeMutation.data.flattenedVis.fullOutput
+                            ).map((output, index) => {
+                              // need [0] because of lame serialization, its only every gonna be [data] form
+                              const currentFrame = output.frames[0];
+                              // console.log(output.tag);
+                              // if (output.tag === "Return") {
+                              //   <div
+                              //     ref={frameRef}
+                              //     key={
+                              //       currentFrame.name +
+                              //       currentFrame.line +
+                              //       JSON.stringify(currentFrame.args)
+                              //     }
+                              //     className={`
+                              //     flex flex-col bg-red-700 rounded-md p-3 w-full items-center justify-center border-2 text-sm`}
+                              //   >
+                              //     <div>Line: {output.line}</div>
+                              //     {/* {output.tag} */}
+                              //     <div>
+                              //       {getLinesChanged().some(
+                              //         (line) => line === index
+                              //       ) && <>Updated Vis</>}
+                              //     </div>
 
-                              {/* {JSON.stringify(output.frames[0].args.locals)} */}
-                            </div>;
-                          }
-                          if (output.tag === "Line") {
-                            return (
-                              <div
-                                ref={frameRef}
-                                key={`outter-${index} ${currentFrame.line}`}
-                                className={`
+                              //     {/* {JSON.stringify(output.frames[0].args.locals)} */}
+                              //   </div>;
+                              // }
+                              // if (output.tag === "Line") {
+                              //   return (
+                              //     <div
+                              //       ref={frameRef}
+                              //       key={`outter-${index} ${currentFrame.line}`}
+                              //       className={`
 
-                                ${
-                                  getLinesChanged().some(
-                                    (line) => line === index
-                                  )
-                                    ? "bg-green-700"
-                                    : ""
-                                }
-                                flex   mt-2 flex-col rounded-md p-2 w-full items-center justify-center border-2 text-xs`}
-                              >
-                                <div className="text-md font-bold">
-                                  Line: {output.line}
-                                </div>
-                                {/* {output.tag} */}
-                                <div>
-                                  {getLinesChanged().some(
-                                    (line) => line === index
-                                  ) && <>Updated Vis</>}
-                                </div>
-                                <div className="flex mt-2 flex-col  items-center justify-center text-xs gap-2 overflow-x-scroll">
-                                  <p className="text-md font-bold">Locals:</p>
-                                  {Object.entries(currentFrame.args.locals).map(
-                                    ([k, v], index) => (
+                              //       ${
+                              //         getLinesChanged().some(
+                              //           (line) => line === index
+                              //         )
+                              //           ? "bg-green-700"
+                              //           : ""
+                              //       }
+                              //       flex   mt-2 flex-col rounded-md p-2 w-full items-center justify-center border-2 text-xs`}
+                              //     >
+                              //       <div className="text-md font-bold">
+                              //         Line: {output.line}
+                              //       </div>
+                              //       {/* {output.tag} */}
+                              //       <div>
+                              //         {getLinesChanged().some(
+                              //           (line) => line === index
+                              //         ) && <>Updated Vis</>}
+                              //       </div>
+                              //       <div className="flex mt-2 flex-col  items-center justify-center text-xs gap-2 overflow-x-scroll">
+                              //         <p className="text-md font-bold">Locals:</p>
+                              //         {Object.entries(currentFrame.args.locals).map(
+                              //           ([k, v], index) => (
+                              //             <div
+                              //               className="w-full flex border rounded-md p-3"
+                              //               key={`${k} ${index}`}
+                              //             >
+                              //               <div className="font-bold text-md flex w-1/2 ">
+                              //                 {k}
+                              //               </div>
+                              //               <div className="flex w-1/2 h-12 overflow-y-scroll">
+                              //                 {JSON.stringify(v)}
+                              //               </div>
+                              //             </div>
+                              //           )
+                              //         )}
+                              //       </div>
+
+                              //       {/* {JSON.stringify(output.frames[0].args.locals)} */}
+                              //     </div>
+                              //   );
+                              // }
+                              // const currentFrame = output.frames[0];
+                              // if (output.tag === 'Line') {
+                              // return
+                              // }
+
+                              return (
+                                <div
+                                  ref={frameRef}
+                                  key={`inner-${index} ${currentFrame.line}`}
+                                  className="flex  rounded-md flex-col items-center justify-center border-2 w-full bg-secondary"
+                                >
+                                  <div className="flex items-center justify-center font-bold text-xl ">
+                                    Function Name: {currentFrame.name}
+                                  </div>
+                                  <div className="flex flex-col items-center justify-center text-xs p-3 gap-2 ">
+                                    <p className="text-lg font-bold">Locals:</p>
+                                    {
+                                      // weird
+                                      // Object.entries(currentFrame.args.locals).map(
+                                      //   ([k, v]) => (
+                                      //     <div key={k}>
+                                      //       {k}={v}
+                                      //     </div>
+                                      //   )
+                                      // )
+                                    }
+                                    {Object.entries(
+                                      currentFrame.args.locals
+                                    ).map(([k, v], index) => (
                                       <div
                                         className="w-full flex border rounded-md p-3"
                                         key={`${k} ${index}`}
@@ -479,73 +543,28 @@ const CodeExecution = ({
                                         <div className="font-bold text-md flex w-1/2 ">
                                           {k}
                                         </div>
-                                        <div className="flex w-1/2 h-12 overflow-y-scroll">
+                                        <div className="flex w-1/2  h-16 overflow-y-scroll">
                                           {JSON.stringify(v)}
                                         </div>
                                       </div>
-                                    )
-                                  )}
+                                    ))}
+                                  </div>
+                                  <div className="w-full flex items-center justify-center">
+                                    Line Number:
+                                    {index}
+                                  </div>
                                 </div>
+                              );
+                            })}
+                          </>
+                        ) : undefined;
 
-                                {/* {JSON.stringify(output.frames[0].args.locals)} */}
-                              </div>
-                            );
-                          }
-                          // const currentFrame = output.frames[0];
-                          // if (output.tag === 'Line') {
-                          // return
-                          // }
+                        // return codeMutation.data?.flattenedVis.type === AlgoType.Visualizer ? (
 
-                          return (
-                            <div
-                              ref={frameRef}
-                              key={`inner-${index} ${currentFrame.line}`}
-                              className="flex  rounded-md flex-col items-center justify-center border-2 w-full bg-secondary"
-                            >
-                              <div className="flex items-center justify-center font-bold text-xl ">
-                                Function Name: {currentFrame.name}
-                              </div>
-                              <div className="flex flex-col items-center justify-center text-xs p-3 gap-2 ">
-                                <p className="text-lg font-bold">Locals:</p>
-                                {
-                                  // weird
-                                  // Object.entries(currentFrame.args.locals).map(
-                                  //   ([k, v]) => (
-                                  //     <div key={k}>
-                                  //       {k}={v}
-                                  //     </div>
-                                  //   )
-                                  // )
-                                }
-                                {Object.entries(currentFrame.args.locals).map(
-                                  ([k, v], index) => (
-                                    <div
-                                      className="w-full flex border rounded-md p-3"
-                                      key={`${k} ${index}`}
-                                    >
-                                      <div className="font-bold text-md flex w-1/2 ">
-                                        {k}
-                                      </div>
-                                      <div className="flex w-1/2  h-16 overflow-y-scroll">
-                                        {JSON.stringify(v)}
-                                      </div>
-                                    </div>
-                                  )
-                                )}
-                              </div>
-                              <div className="w-full flex items-center justify-center">
-                                Line Number:
-                                {index}
-                              </div>
-                            </div>
-                          );
-                        })}
+                        //   ) : <></>
+                      })}
                     </>
-                  ) : undefined;
-
-                  // return codeMutation.data?.flattenedVis.type === AlgoType.Visualizer ? (
-
-                  //   ) : <></>
+                  );
                 })
 
                 .run()}

@@ -23,6 +23,7 @@ import { CodeStorage } from "@/hooks/codeStorage";
 import { defaultAlgo } from "@/app/visualizer/ContentWrapper";
 // import { type AppDispatch } from '@/redux/store';
 import { useGetPresets } from "@/hooks/useGetPresets";
+import { ParsedVisOutput } from "@/hooks/useCodeMutation";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -324,3 +325,21 @@ export const getValidatorLensSelectedIds = ({
 };
 
 export const run = <T>(f: () => T): T => f();
+
+export const toStackSnapshotAtVisUpdate = (trace: Array<ParsedVisOutput>) => {
+  let previous = JSON.stringify(trace.at(0) ?? "");
+  let snapshots: typeof trace = [];
+
+  for (const frame of trace) {
+    const stringified = JSON.stringify(frame.visualization);
+    if (
+      stringified !== previous ||
+      // && frame.tag == "Call"
+      frame.tag === "Return"
+    ) {
+      snapshots.push(frame);
+    }
+    if (frame.tag) previous = stringified;
+  }
+  return snapshots;
+};

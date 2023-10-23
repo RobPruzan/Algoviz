@@ -110,12 +110,12 @@ const unFlattened = (parsedOutput: z.infer<typeof dataSchema>) => {
     parsedOutput.type === AlgoType.Visualizer
       ? run(() => {
           const flat = (
-            parsedOutput.output.map((opt) => opt.visualization) as
+            parsedOutput.output.at(-1)?.visualization as
               | Array<any>
               | null
               | undefined
           )?.map((o) => (o instanceof Array ? o.map((o) => o.ID) : [o.ID]));
-          const logs = parsedOutput.output.map((opt) => opt.frames);
+          // const logs = parsedOutput.output.map((opt) => opt.frames);
           return {
             flattenedVis: {
               ...parsedOutput,
@@ -321,7 +321,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         console.log("code output", outputWithType);
       }
       const parsedOutput = dataSchema.parse(outputWithType);
-
+      console.log("hi", parsedOutput);
       return unFlattened(parsedOutput);
       // }
     },
