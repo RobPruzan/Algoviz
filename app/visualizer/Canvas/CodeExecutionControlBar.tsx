@@ -421,20 +421,23 @@ const CodeExecutionControlBar = ({
                       return;
                     }
                     if (!selectedIds) {
-                      setTabValue("stack");
                       const code = getCode(userAlgorithm, presetCode);
                       // console.log('hola amigo', code);
-                      codeMutation.mutate({
-                        type:
-                          codeInfo.type === AlgoType.Validator
-                            ? AlgoType.Validator
-                            : AlgoType.Visualizer,
-                        algo: { code: code },
-                        language,
-                        selectAll: autoSelectAll,
-                        endNode,
-                        startNode,
-                      });
+                      codeMutation
+                        .mutateAsync({
+                          type:
+                            codeInfo.type === AlgoType.Validator
+                              ? AlgoType.Validator
+                              : AlgoType.Visualizer,
+                          algo: { code: code },
+                          language,
+                          selectAll: autoSelectAll,
+                          endNode,
+                          startNode,
+                        })
+                        .then((res) => {
+                          setTabValue("stack");
+                        });
                     } else {
                       toast({
                         title: "No graph selected",
@@ -460,7 +463,6 @@ const CodeExecutionControlBar = ({
                 <Button
                   aria-label="toggle-algorithm-visualization"
                   onClick={async (e) => {
-                    setTabValue("stack");
                     const presetResult = searchParams.get("preset");
                     if (presetResult) {
                       setShouldBounceGreen(false);
@@ -498,6 +500,8 @@ const CodeExecutionControlBar = ({
 
                         return;
                       }
+
+                      setTabValue("stack");
 
                       // literally a cache key
                       lastInput.current = JSON.stringify([

@@ -420,7 +420,6 @@ const CodeExecution = ({
                 .with("stack", () => {
                   return (
                     <>
-                      <div className="w-full h-10 border-b ">hi</div>
                       {run(() => {
                         if (codeMutation.isLoading) {
                           return <Loader className="animate-spin" />;

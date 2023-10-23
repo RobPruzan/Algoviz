@@ -351,6 +351,15 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
           dispatch(CodeExecActions.setVisitedVisualization(null));
           dispatch(CodeExecActions.setIsApplyingAlgorithm(false));
           dispatch(CodeExecActions.resetVisitedPointer());
+          if (ctx.startNode) {
+            toast({
+              variant: "destructive",
+              title: "Did you forget to mark a start node?",
+              description:
+                "Right click the node and select as start-node to do this",
+            });
+          }
+
           dispatch(
             CodeExecActions.setError({
               logs: errorInfo.flattenedVis.logs.map((log) =>
