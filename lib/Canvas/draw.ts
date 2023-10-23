@@ -1,4 +1,4 @@
-import { RefObject } from 'react';
+import { RefObject } from "react";
 import {
   CircleReceiver,
   Edge,
@@ -6,12 +6,12 @@ import {
   SelectBox,
   PencilCoordinates,
   SelectedValidatorLens,
-} from '../types';
-import { NodeValidation } from '@/redux/slices/codeExecSlice';
-import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
-import { RESIZE_CIRCLE_RADIUS } from '../utils';
-import { match } from 'ts-pattern';
-import { useGetAlgorithmsQuery } from '@/hooks/useGetAlgorithmsQuery';
+} from "../types";
+import { NodeValidation } from "@/redux/slices/codeExecSlice";
+import { ValidatorLensInfo } from "@/redux/slices/canvasSlice";
+import { RESIZE_CIRCLE_RADIUS } from "../utils";
+import { match } from "ts-pattern";
+import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
 
 export const drawNodes = ({
   nodes,
@@ -41,22 +41,22 @@ export const drawNodes = ({
     ctx.arc(node.center[0], node.center[1], node.radius, 0, 2 * Math.PI, false);
 
     ctx.fillStyle =
-      theme === 'dark'
+      theme === "dark"
         ? node.color
-        : theme === 'light'
-        ? '#DADADA'
+        : theme === "light"
+        ? "#DADADA"
         : node.color;
 
     if (visualizationNodes.includes(node.id)) {
-      ctx.fillStyle = 'green';
+      ctx.fillStyle = "green";
     }
 
     if (node.id === startNode) {
-      ctx.fillStyle = 'blue';
+      ctx.fillStyle = "blue";
     }
 
     if (node.id === endNode) {
-      ctx.fillStyle = 'red';
+      ctx.fillStyle = "red";
     }
 
     const currentLens = validatorLensContainer.find((lens) =>
@@ -65,11 +65,11 @@ export const drawNodes = ({
 
     // if (selectedIDs?.includes(node.id)) {
     switch (typeof currentLens?.result) {
-      case 'boolean':
+      case "boolean":
         if (!currentLens.result) {
-          ctx.fillStyle = 'red';
+          ctx.fillStyle = "red";
         } else {
-          ctx.fillStyle = 'green';
+          ctx.fillStyle = "green";
           // ctx.fillText(
           //   'valid',
           //   node.center[0] - 10,
@@ -77,12 +77,12 @@ export const drawNodes = ({
           // );
         }
         break;
-      case 'object':
+      case "object":
         if (currentLens.result && currentLens.result.length > 0) {
           if (currentLens.result.find((vNode) => vNode.id === node.id)?.valid) {
-            ctx.fillStyle = 'green';
+            ctx.fillStyle = "green";
           } else {
-            ctx.fillStyle === 'red';
+            ctx.fillStyle === "red";
           }
         }
         break;
@@ -94,7 +94,7 @@ export const drawNodes = ({
     ctx.fill();
     if (selectedCircleID === node.id || selectedIDs?.includes(node.id)) {
       ctx.lineWidth = 1;
-      ctx.strokeStyle = 'white';
+      ctx.strokeStyle = "white";
       ctx.stroke();
     }
   });
@@ -121,7 +121,7 @@ export const drawEdges = ({
 
       ctx.moveTo(Math.floor(edge.x1), Math.floor(edge.y1));
       ctx.lineTo(Math.floor(edge.x2), Math.floor(edge.y2));
-      ctx.strokeStyle = '#23ddff';
+      ctx.strokeStyle = "#23ddff";
 
       ctx.lineWidth = Math.floor(edge.width * 1.6);
       ctx.stroke();
@@ -130,7 +130,7 @@ export const drawEdges = ({
 
     ctx.moveTo(Math.floor(edge.x1), Math.floor(edge.y1));
     ctx.lineTo(Math.floor(edge.x2), Math.floor(edge.y2));
-    ctx.strokeStyle = '#D8DAE1';
+    ctx.strokeStyle = "#D8DAE1";
 
     ctx.lineWidth = Math.floor(edge.width);
     ctx.stroke();
@@ -156,7 +156,7 @@ export const drawEdgeConnectors = ({
         2 * Math.PI,
         false
       );
-      ctx.fillStyle = circle.directed ? '#D8DAE1' : circle.color;
+      ctx.fillStyle = circle.directed ? "#D8DAE1" : circle.color;
       ctx.fill();
     });
   edges.forEach((edge) => {
@@ -205,27 +205,27 @@ export const drawNodeReceivers = ({
     );
     // ctx.fillStyle = nodeReceiver.color;
     ctx.fillStyle =
-      theme === 'dark' ? '#45506C' : theme === 'light' ? 'white' : '#45506C';
+      theme === "dark" ? "#45506C" : theme === "light" ? "white" : "#45506C";
     ctx.fill();
 
     if (nodeReceiver.attachedIds.length > 0) {
       ctx.lineWidth = 1;
-      ctx.strokeStyle = 'white';
+      ctx.strokeStyle = "white";
       ctx.stroke();
     }
     // set the text style
     ctx.font = `${node.radius / 2}px Arial`; // change to whatever font style you want
     ctx.fillStyle =
-      theme === 'dark' ? 'white' : theme === 'light' ? 'black' : 'white';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+      theme === "dark" ? "white" : theme === "light" ? "black" : "white";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
 
     // Draw the text
     // This will draw the text in the center of the node
-    var text = node.value.toString() === 'NaN' ? '0' : node.value.toString();
+    var text = node.value.toString() === "NaN" ? "0" : node.value.toString();
 
     ctx.fillText(text, Math.floor(node.center[0]), Math.floor(node.center[1]));
-    ctx.canvas.style.zIndex = '100';
+    ctx.canvas.style.zIndex = "100";
   });
 };
 export const drawValidatorLens = ({
@@ -241,7 +241,7 @@ export const drawValidatorLens = ({
   theme: string;
   selectedIds: string[] | undefined;
   selectedValidatorLens: SelectedValidatorLens | null;
-  algos: ReturnType<typeof useGetAlgorithmsQuery>['data'];
+  algos: ReturnType<typeof useGetAlgorithmsQuery>["data"];
 }) => {
   validatorLensContainer.forEach((lens, index) => {
     const [leftX, topY] = lens.rect.topLeft;
@@ -306,10 +306,10 @@ export const drawValidatorLens = ({
     // // Draw the text
     // ctx.fillText(text, textX, textY);
 
-    ctx.font = '20px Arial';
+    ctx.font = "20px Arial";
 
     const text =
-      algos?.find((algo) => algo.algoID === lens.algoID)?.title || 'unknown';
+      algos?.find((algo) => algo.algoID === lens.algoID)?.title || "unknown";
 
     // Assume we have the rectangle's corners as rect.lens.topLeft and rect.lens.bottomRight
     const topLeft = lens.rect.topLeft;
@@ -332,19 +332,19 @@ export const drawValidatorLens = ({
     const textY = maxY - 10;
 
     ctx.fillStyle =
-      theme === 'dark' ? 'white' : theme === 'light' ? 'black' : 'white';
+      theme === "dark" ? "white" : theme === "light" ? "black" : "white";
 
     ctx.fillText(text, textX, textY);
     ctx.lineWidth = 1;
     // text color black
 
     ctx.strokeStyle =
-      theme === 'light' ? '#ADD8E6' : theme === 'dark' ? 'white' : 'white';
+      theme === "light" ? "#ADD8E6" : theme === "dark" ? "white" : "white";
 
     if (selectedValidatorLens?.id === lens.id) {
-      ctx.fillStyle = 'white';
+      ctx.fillStyle = "white";
     } else {
-      ctx.fillStyle = '#F1EDED';
+      ctx.fillStyle = "#F1EDED";
     }
     ctx.globalAlpha = 0.05;
     ctx.fill();
@@ -365,7 +365,7 @@ export const drawValidatorLens = ({
       2 * Math.PI,
       false
     );
-    ctx.fillStyle = '#c5c5c5';
+    ctx.fillStyle = "#c5c5c5";
     ctx.fill();
     ctx.closePath();
     ctx.beginPath();
@@ -377,7 +377,7 @@ export const drawValidatorLens = ({
       2 * Math.PI,
       false
     );
-    ctx.fillStyle = '#c5c5c5';
+    ctx.fillStyle = "#c5c5c5";
     ctx.fill();
     ctx.closePath();
     ctx.beginPath();
@@ -389,7 +389,7 @@ export const drawValidatorLens = ({
       2 * Math.PI,
       false
     );
-    ctx.fillStyle = '#c5c5c5';
+    ctx.fillStyle = "#c5c5c5";
     ctx.fill();
     ctx.closePath();
     ctx.beginPath();
@@ -401,7 +401,7 @@ export const drawValidatorLens = ({
       2 * Math.PI,
       false
     );
-    ctx.fillStyle = '#c5c5c5';
+    ctx.fillStyle = "#c5c5c5";
     ctx.fill();
     ctx.closePath();
     ctx.beginPath();
@@ -413,7 +413,7 @@ export const drawValidatorLens = ({
       2 * Math.PI,
       false
     );
-    ctx.fillStyle = '#c5c5c5';
+    ctx.fillStyle = "#c5c5c5";
     ctx.fill();
     ctx.closePath();
   });
@@ -425,7 +425,7 @@ export const drawBox = ({
   fill,
   theme,
 }: {
-  box: Omit<SelectBox, 'type'>;
+  box: Omit<SelectBox, "type">;
   ctx: CanvasRenderingContext2D;
   fill?: boolean;
   theme: string;
@@ -457,18 +457,18 @@ export const drawBox = ({
   // ---
 
   ctx.strokeStyle =
-    theme === 'light' ? '#ADD8E6' : theme === 'dark' ? 'white' : 'white';
+    theme === "light" ? "#ADD8E6" : theme === "dark" ? "white" : "white";
   ctx.lineWidth = 1;
 
   ctx.closePath(); // This ensures the path is closed and can be filled
 
   // Set the fill color
   if (fill) {
-    const darkTheme = 'rgba(173, 216, 230, 0.15)';
-    const lightTheme = 'rgba(173, 216, 230, 0.15)';
+    const darkTheme = "rgba(173, 216, 230, 0.15)";
+    const lightTheme = "rgba(173, 216, 230, 0.15)";
     // ctx.fillStyle = 'rgba(173, 216, 230, 0.15)';
     ctx.fillStyle =
-      theme === 'dark' ? darkTheme : theme === 'light' ? lightTheme : darkTheme;
+      theme === "dark" ? darkTheme : theme === "light" ? lightTheme : darkTheme;
 
     // Fill the square
     ctx.fill();
@@ -542,7 +542,7 @@ export const drawPencil = ({
   pencilCoordinates: PencilCoordinates;
 }) => {
   ctx.lineWidth = 2;
-  ctx.strokeStyle = 'white';
+  ctx.strokeStyle = "white";
   // ctx.save();
   pencilCoordinates.drawingCoordinates.reduce<[number, number] | null>(
     (prev, curr) => {
@@ -691,15 +691,19 @@ export const drawTriangle = ({
       triangleBaseCenterPointCord[0] - direction[0] * triangleBaseLength,
       triangleBaseCenterPointCord[1] - direction[1] * triangleBaseLength,
     ];
-
+    ctx.save();
+    ctx.globalAlpha = 0.55;
     ctx.beginPath();
     ctx.moveTo(base1[0], base1[1]);
     ctx.lineTo(base2[0], base2[1]);
     ctx.lineTo(tip[0], tip[1]);
     ctx.closePath();
-    ctx.fillStyle = '#D8DAE1';
+    ctx.fillStyle = "red";
+    // change border style to green
+    ctx.strokeStyle = "gray";
     ctx.fill();
-    ctx.stroke();
+    // ctx.stroke();
+    ctx.restore();
   });
 };
 
