@@ -437,7 +437,7 @@ const CodeExecutionControlBar = ({
                           startNode,
                         })
                         .then((res) => {
-                          setTabValue("stack");
+                          // setTabValue("stack");
                         });
                     } else {
                       toast({
@@ -503,7 +503,7 @@ const CodeExecutionControlBar = ({
                         return;
                       }
 
-                      setTabValue("stack");
+                      // setTabValue("stack");
 
                       // literally a cache key
                       lastInput.current = JSON.stringify([
