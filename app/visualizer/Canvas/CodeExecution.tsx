@@ -230,7 +230,6 @@ const CodeExecution = ({
             <Tabs
               value={tabValue}
               onValueChange={(v) => {
-                console.log({ v });
                 setTabValue(() => v as "input" | "output" | "stack");
               }}
               defaultValue="input"
@@ -292,7 +291,12 @@ const CodeExecution = ({
               </TabsList>
             </Tabs>
             {/* should represent the input of the adjlist as interactivable divs with data with examples on how to access them */}
-            <div className="  pt-3 w-full border-t-2   border-secondary flex flex-col items-start justify-start text-white  h-full overflow-y-scroll">
+            <div
+              className={`
+              pt-3 w-full border-t-2   border-secondary flex flex-col items-start justify-start text-white  h-full overflow-y-scroll
+            ${tabValue === "output" ? "bg-black" : ""}
+            `}
+            >
               {match(tabValue)
                 .with("input", () => (
                   <Editor
@@ -313,23 +317,42 @@ const CodeExecution = ({
                       Object.fromEntries(
                         Object.entries(adjacencyList).map(([k, v]) => {
                           return [
-                            circles.find((c) => c.id === k)?.value,
+                            `Node(ID='${k.slice(0, 10)}${
+                              k.length > 10 ? "..." : ""
+                            }', value: ${
+                              circles.find((c) => c.id === k)?.value
+                            })`,
+                            // {
+                            //   ID: k,
+                            //   value: circles.find((c) => c.id === k)?.value,
+                            // }
+
                             v.map(
-                              (v) => circles.find((c) => c.id === v)?.value
+                              (i) =>
+                                `Node(ID='${i.slice(0, 10)}${
+                                  i.length > 10 ? "..." : ""
+                                }', value=${
+                                  circles.find((c) => c.id === i)?.value
+                                })`
+                              // {
+                              // ID: i,
+                              // value: circles.find((c) => c.id === i)?.value,
+                              // }
                             ),
                           ];
                         })
                       )
-                    ).replaceAll("],", "]\n ")}
+                    )
+                      .replaceAll("],", "]\n ")
+                      .replace(/"Node\(([^"]+)\)"/g, "Node($1)")}
                     options={{
                       minimap: { enabled: false },
                       folding: false,
                       lineNumbers: "off",
-                      fontSize: 14,
                       readOnly: true,
                       scrollbar: {
                         vertical: "hidden",
-                        horizontal: "hidden", // This hides the horizontal scrollbar
+                        horizontal: "hidden",
                       },
                     }}
                   />
@@ -340,40 +363,14 @@ const CodeExecution = ({
                       <Loader className="animate-spin" />
                     </div>
                   ) : (
-                    <div>
+                    <aside className="bg-black pl-2 text-white  rounded-lg max-w-lg text-sm font-mono w-full h-full">
                       {codeMutation.data?.flattenedVis.type === "Validator" ||
                         (codeMutation.data?.flattenedVis.type ===
                           "Visualizer" && (
-                          <div className="flex flex-col items-start justify-start text-sm">
-                            {codeMutation.data?.flattenedVis.logs}
+                          <div className="flex flex-col items-start justify-start text-sm text-white">
+                            {codeMutation.data?.flattenedVis.logs.slice(0, -1)}
                           </div>
                         ))}
-                      {/* {codeMutation.data?.flattenedVis.type === "Validator" ||
-                        (codeMutation.data?.flattenedVis.type ===
-                          "Visualizer" &&
-                          codeMutation.data?.flattenedVis.flattenedOutput.map(
-                            (log, indexxx) => (
-                              <div
-                                key={indexxx}
-                                className="flex items-center justify-start "
-                              >
-                                <div className="text-md flex flex-col">
-                                  {log
-                                    .map(
-                                      (id) =>
-                                        circles.find((c) => c.id === id)?.value
-                                    )
-                                    .filter(Boolean)
-
-                                    .map((l, index) => (
-                                      <div className="mt-2" key={indexxx}>
-                                        {l}
-                                      </div>
-                                    ))}
-                                </div>
-                              </div>
-                            )
-                          ))} */}
 
                       {codeMutation.data?.flattenedVis.type === "error" &&
                         codeMutation.data?.flattenedVis.logs.map(
@@ -387,7 +384,9 @@ const CodeExecution = ({
                                   {JSON.stringify(log)
                                     .replace(`"`, "")
                                     .trim()
+                                    .slice(0, -1)
                                     .split("\\n")
+
                                     .map((l, idx) => {
                                       return (
                                         <div key={idx} className="mt-2">
@@ -400,7 +399,7 @@ const CodeExecution = ({
                             </>
                           )
                         )}
-                    </div>
+                    </aside>
                   )
                 )
                 .with("stack", () => {
@@ -424,13 +423,6 @@ const CodeExecution = ({
                         return codeMutation.data?.flattenedVis.type ===
                           AlgoType.Visualizer ? (
                           <>
-                            {console.log(
-                              "what dis dis",
-                              toStackSnapshotAtVisUpdate(
-                                codeMutation.data.flattenedVis.fullOutput
-                              ),
-                              codeMutation.data.flattenedVis.flattenedOutput
-                            )}
                             {toStackSnapshotAtVisUpdate(
                               codeMutation.data.flattenedVis.fullOutput
                             ).map((output, index) => {
