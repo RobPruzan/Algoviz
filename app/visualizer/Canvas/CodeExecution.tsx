@@ -315,32 +315,47 @@ const CodeExecution = ({
                     language="python"
                     value={JSON.stringify(
                       Object.fromEntries(
-                        Object.entries(adjacencyList).map(([k, v]) => {
-                          return [
-                            `Node(ID='${k.slice(0, 10)}${
-                              k.length > 10 ? "..." : ""
-                            }', value: ${
-                              circles.find((c) => c.id === k)?.value
-                            })`,
-                            // {
-                            //   ID: k,
-                            //   value: circles.find((c) => c.id === k)?.value,
-                            // }
-
-                            v.map(
-                              (i) =>
-                                `Node(ID='${i.slice(0, 10)}${
-                                  i.length > 10 ? "..." : ""
-                                }', value=${
-                                  circles.find((c) => c.id === i)?.value
-                                })`
+                        Object.entries(adjacencyList)
+                          .sort((a, b) => {
+                            const [aK, aV] = a;
+                            const [bK, bV] = b;
+                            const aNodeValue = circles.find(
+                              (c) => c.id === aK
+                            )?.value;
+                            const bNodeValue = circles.find(
+                              (c) => c.id === bK
+                            )?.value;
+                            if (aNodeValue && bNodeValue) {
+                              return aNodeValue - bNodeValue;
+                            }
+                            return 0;
+                          })
+                          .map(([k, v]) => {
+                            return [
+                              `Node(ID='${k.slice(0, 10)}${
+                                k.length > 10 ? "..." : ""
+                              }', value: ${
+                                circles.find((c) => c.id === k)?.value
+                              })`,
                               // {
-                              // ID: i,
-                              // value: circles.find((c) => c.id === i)?.value,
+                              //   ID: k,
+                              //   value: circles.find((c) => c.id === k)?.value,
                               // }
-                            ),
-                          ];
-                        })
+
+                              v.map(
+                                (i) =>
+                                  `Node(ID='${i.slice(0, 10)}${
+                                    i.length > 10 ? "..." : ""
+                                  }', value=${
+                                    circles.find((c) => c.id === i)?.value
+                                  })`
+                                // {
+                                // ID: i,
+                                // value: circles.find((c) => c.id === i)?.value,
+                                // }
+                              ),
+                            ];
+                          })
                       )
                     )
                       .replaceAll("],", "]\n ")
