@@ -125,6 +125,17 @@ const CanvasControlBar = ({
     meta,
     searchParams,
   ]);
+
+  useEffect(() => {
+    document.addEventListener("keydown", (e) => {
+      if (e.metaKey && e.key === "z") {
+        dispatch(ActionCreators.undo());
+      }
+      if (e.metaKey && e.key === "y") {
+        dispatch(ActionCreators.redo());
+      }
+    });
+  }, []);
   return (
     <>
       <div className="w-full items-center overflow-x-scroll overflow-y-hidden  h-14 flex justify-evenly ">
