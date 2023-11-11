@@ -79,6 +79,12 @@ const CodeExecution = ({
   setTabValue,
   adjacencyList,
 }: Props) => {
+  const [variablesSideBarWidth, setVariableSideBarWidth] = useState<
+    number | Percentage
+  >("20%");
+  const [stackViewWidth, setStackViewWidth] = useState<number | Percentage>(
+    "80%"
+  );
   const [editorHeight, setEditorHeight] = useState<number | Percentage>("60%");
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
     // to really fix this need to do it in the css with a calc minus for the h-10 and padding
@@ -86,6 +92,7 @@ const CodeExecution = ({
   );
   const presetCode = useAppSelector((store) => store.canvas.present.presetCode);
   const frameRef = useRef<HTMLDivElement>(null);
+
   const selectedAlgorithm = useAppSelector(
     (store) => store.codeExec.selectedAlgorithm
   );
@@ -95,11 +102,6 @@ const CodeExecution = ({
   const themeInfo = useTheme();
 
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
-
-  // const currentAlgorithm = getAlgorithmsQuery.data?.find(
-  //   (d) => d.id === selectedAlgorithm
-  // );
-  const { toast } = useToast();
   const visualizationPointer = useAppSelector(
     (store) => store.codeExec.visualizationPointer
   );
@@ -116,22 +118,21 @@ const CodeExecution = ({
     }
   }, [visualizationPointer]);
 
-  const editorContainerRef = useRef<any>(null);
-  const monacoRef = useRef<any>(null); // Reference to store the monaco subset
-  const [editorInstance, setEditorInstance] = useState(null);
+  // const editorContainerRef = useRef<any>(null);
+  // const [editorInstance, setEditorInstance] = useState(null);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Attempt to find the editor instance
-      const editor = editorContainerRef.current?.__editorInstance;
-      if (editor) {
-        setEditorInstance(editor);
-        clearInterval(interval);
-      }
-    }, 100); // poll every 100ms
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     // Attempt to find the editor instance
+  //     const editor = editorContainerRef.current?.__editorInstance;
+  //     if (editor) {
+  //       setEditorInstance(editor);
+  //       clearInterval(interval);
+  //     }
+  //   }, 100); // poll every 100ms
 
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, []);
+  //   return () => clearInterval(interval); // Cleanup on unmount
+  // }, []);
 
   const getLinesChanged = () => {
     const lines: Array<number> = [];
@@ -159,10 +160,10 @@ const CodeExecution = ({
   return (
     <div style={{ height: "calc(100% - 60px)" }} className="w-full ">
       <Resizable
-        canvasSize={editorHeight}
-        codeExecSize={outputHeight}
-        setCanvasSize={setEditorHeight}
-        setCodeExecSize={setCodeExecHeight}
+        divOneSize={editorHeight}
+        divTwoSize={outputHeight}
+        serDiveOneSize={setEditorHeight}
+        setDivTwoSize={setCodeExecHeight}
         type="vertical"
         topDiv={
           <div
@@ -394,74 +395,89 @@ const CodeExecution = ({
                 )
                 .with("stack", () => {
                   return (
-                    <div className="w-full h-full flex ">
-                      <div className="w-1/4 min-w-fit border-r flex flex-col overflow-y-scroll rounded-none">
-                        <p className="text-lg font-bold w-full text-center p-3">
-                          Variables
-                        </p>
-                        <Button
-                          className="w-full rounded-none border-0 border-b border-t min-w-[8rem]"
-                          variant={"outline"}
-                        >
-                          test
-                        </Button>
-                        <Button
-                          className="w-full rounded-none border-0 border-b"
-                          variant={"outline"}
-                        >
-                          test
-                        </Button>
-                        <Button
-                          className="w-full rounded-none border-0 border-b"
-                          variant={"outline"}
-                        >
-                          test
-                        </Button>
-                        <Button
-                          className="w-full rounded-none border-0 border-b"
-                          variant={"outline"}
-                        >
-                          test
-                        </Button>
-                        <Button
-                          className="w-full rounded-none border-0 border-b"
-                          variant={"outline"}
-                        >
-                          test
-                        </Button>
-                        <Button
-                          className="w-full rounded-none border-0 border-b"
-                          variant={"outline"}
-                        >
-                          test
-                        </Button>
-                        <Button
-                          className="w-full rounded-none border-0 border-b"
-                          variant={"outline"}
-                        >
-                          test
-                        </Button>
-                      </div>
-                      <div className="w-3/4">
-                        <div className="flex items-end w-full">
-                          <Button variant={"ghost"} size={"icon"}>
-                            <Link />
-                          </Button>
+                    <>
+                      <Resizable
+                        divOneSize={variablesSideBarWidth}
+                        divTwoSize={stackViewWidth}
+                        serDiveOneSize={setVariableSideBarWidth}
+                        setDivTwoSize={setStackViewWidth}
+                        type="horizontal"
+                        leftDiv={
+                          <div className="w-full h-full bg-red-500"></div>
+                        }
+                        rightDiv={
+                          <div className="w-full h-full bg-green-500"></div>
+                        }
+                      />
+                    </>
+                    //   <div className="w-full h-full flex ">
+                    //     <div className="w-1/4 min-w-fit border-r flex flex-col overflow-y-scroll gap-y-5 rounded-none p-3">
+                    //       <p className="text-lg font-bold w-full text-center p-3">
+                    //         Variables
+                    //       </p>
+                    //       <Button
+                    //         className="w-full rounded-3xl min-w-[8rem]"
+                    //         variant={"outline"}
+                    //       >
+                    //         test
+                    //       </Button>
+                    //       <Button
+                    //         className="w-full rounded-3xl min-w-[8rem]"
+                    //         variant={"outline"}
+                    //       >
+                    //         test
+                    //       </Button>
+                    //       <Button
+                    //         className="w-full rounded-3xl min-w-[8rem]"
+                    //         variant={"outline"}
+                    //       >
+                    //         test
+                    //       </Button>
+                    //       <Button
+                    //         className="w-full rounded-3xl min-w-[8rem]"
+                    //         variant={"outline"}
+                    //       >
+                    //         test
+                    //       </Button>
+                    //       <Button
+                    //         className="w-full rounded-3xl min-w-[8rem]"
+                    //         variant={"outline"}
+                    //       >
+                    //         test
+                    //       </Button>
+                    //       <Button
+                    //         className="w-full rounded-3xl min-w-[8rem]"
+                    //         variant={"outline"}
+                    //       >
+                    //         test
+                    //       </Button>
+                    //       <Button
+                    //         className="w-full rounded-3xl min-w-[8rem]"
+                    //         variant={"outline"}
+                    //       >
+                    //         test
+                    //       </Button>
+                    //     </div>
+                    //     <div className="w-3/4">
+                    //       <div className="flex items-end w-full">
+                    //         <Button variant={"ghost"} size={"icon"}>
+                    //           <Link />
+                    //         </Button>
 
-                          <StackHistorySlider />
-                        </div>
-                        <div className="border">
-                          <Button size={"icon"}>
-                            <PlusCircle />
-                          </Button>
-                        </div>
-                        <div className="flex flex-col w-full p-3">
-                          <div className="flex items-center justify-center border p-4">
-                            fdsf
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    //         <StackHistorySlider />
+                    //       </div>
+                    //       <div className="border">
+                    //         <Button size={"icon"}>
+                    //           <PlusCircle />
+                    //         </Button>
+                    //       </div>
+                    //       <div className="flex flex-col w-full p-3">
+                    //         <div className="flex items-center justify-center border p-4">
+                    //           fdsf
+                    //         </div>
+                    //       </div>
+                    //     </div>
+                    //   </div>
                   );
                 })
 

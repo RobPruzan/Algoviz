@@ -163,10 +163,10 @@ const ContentWrapper = ({ data }: Props) => {
   }, []);
   return (
     <Resizable
-      canvasSize={canvasWidth}
-      codeExecSize={codeExecWidth}
-      setCanvasSize={setCanvasWidth}
-      setCodeExecSize={setCodeExecWidth}
+      divOneSize={canvasWidth}
+      divTwoSize={codeExecWidth}
+      serDiveOneSize={setCanvasWidth}
+      setDivTwoSize={setCodeExecWidth}
       type="horizontal"
       leftDiv={
         <>
