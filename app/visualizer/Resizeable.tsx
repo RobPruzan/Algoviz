@@ -20,7 +20,7 @@ type Props = (
     }
 ) & {
   divOneSize: Percentage | number;
-  serDiveOneSize: React.Dispatch<React.SetStateAction<Percentage | number>>;
+  setDiveOneSize: React.Dispatch<React.SetStateAction<Percentage | number>>;
   divTwoSize: Percentage | number;
   setDivTwoSize: React.Dispatch<React.SetStateAction<Percentage | number>>;
   resizeBarClassName?: string;
@@ -47,7 +47,7 @@ const Resizable = (props: Props) => {
 
           const newDiv2Width = parentDiv.offsetWidth - newDiv1Width;
 
-          props.serDiveOneSize(newDiv1Width - resizeBarSize / 2);
+          props.setDiveOneSize(newDiv1Width - resizeBarSize / 2);
           props.setDivTwoSize(newDiv2Width - resizeBarSize / 2);
         })
         .with({ type: "vertical" }, (props) => {
@@ -55,7 +55,7 @@ const Resizable = (props: Props) => {
           newDiv1Height = Math.max(0, newDiv1Height);
           newDiv1Height = Math.min(parentDiv.offsetHeight, newDiv1Height);
           const newDiv2Width = parentDiv.offsetHeight - newDiv1Height;
-          props.serDiveOneSize(newDiv1Height - resizeBarSize / 2);
+          props.setDiveOneSize(newDiv1Height - resizeBarSize / 2);
           props.setDivTwoSize(newDiv2Width - resizeBarSize / 2);
         })
         .exhaustive();
@@ -77,47 +77,46 @@ const Resizable = (props: Props) => {
   }, [resizing]);
 
   const handleResize = () => {
+    const domElementWidth = parentDivRef.current?.clientWidth;
+    let domElementHeight = parentDivRef.current?.offsetWidth;
+    if (!domElementWidth || !domElementHeight) {
+      return;
+    }
     match(props)
       .with({ type: "horizontal" }, (props) => {
         if (
           typeof props.divOneSize === "number" &&
           typeof props.divTwoSize === "number"
         ) {
-          // take the ratio split the parent, multiply be their ratio, boom
-          if (
-            !childRefOne.current ||
-            !childRefTwo.current ||
-            !parentDivRef.current
-          ) {
+          if (!childRefOne.current || !childRefTwo.current) {
             // will be defined, ran as an effect, so just terminate
             return;
           }
-          let div1ratio =
-            props.divTwoSize === 0 ? props.divOneSize / props.divTwoSize : 0;
-          let halfOfParent = parentDivRef.current.offsetWidth / 2;
+          let parentScaledBy =
+            domElementWidth / (props.divOneSize + props.divTwoSize);
 
-          let div1size = halfOfParent * div1ratio;
-          let div2size = parentDivRef.current.offsetWidth - div1size;
-
-          props.serDiveOneSize(div1size);
-          props.setDivTwoSize(div2size);
+          const scale = (prev: number | `${string}%`) => {
+            if (typeof prev === "number") {
+              return prev * parentScaledBy;
+            } else {
+              return prev;
+            }
+          };
+          props.setDiveOneSize(scale);
+          props.setDivTwoSize(scale);
 
           // ...
         } else {
-          if (
-            !childRefOne.current ||
-            !childRefTwo.current ||
-            !parentDivRef.current
-          ) {
+          if (!childRefOne.current || !childRefTwo.current) {
             return;
           }
           // quite simple don't over complicate it
           let newDiv1Height =
-            (parentDivRef.current.offsetWidth *
+            (domElementWidth *
               Number((props.divOneSize as string).split("%").at(0))) /
             100;
-          const newDiv2Width = parentDivRef.current.offsetWidth - newDiv1Height;
-          props.serDiveOneSize(newDiv1Height);
+          const newDiv2Width = domElementWidth - newDiv1Height;
+          props.setDiveOneSize(newDiv1Height);
           props.setDivTwoSize(newDiv2Width - resizeBarSize);
         }
       })
@@ -127,24 +126,24 @@ const Resizable = (props: Props) => {
           typeof props.divOneSize === "number" &&
           typeof props.divTwoSize === "number"
         ) {
-          // take the ratio split the parent, multiply be their ratio, boom
-          if (
-            !childRefOne.current ||
-            !childRefTwo.current ||
-            !parentDivRef.current
-          ) {
+          if (!childRefOne.current || !childRefTwo.current) {
             // will be defined, ran as an effect, so just terminate
             return;
           }
-          let div1ratio =
-            props.divTwoSize === 0 ? props.divOneSize / props.divTwoSize : 0;
-          let halfOfParent = parentDivRef.current.offsetHeight / 2;
+          let parentScaledBy =
+            domElementHeight! / (props.divOneSize + props.divTwoSize);
 
-          let div1size = halfOfParent * div1ratio;
-          let div2size = parentDivRef.current.offsetHeight - div1size;
+          const scale = (prev: number | `${string}%`) => {
+            if (typeof prev === "number") {
+              return prev * parentScaledBy;
+            } else {
+              return prev;
+            }
+          };
+          props.setDiveOneSize(scale);
+          props.setDivTwoSize(scale);
 
-          props.serDiveOneSize(div1size);
-          props.setDivTwoSize(div2size);
+          // ...
         } else {
           if (
             !childRefOne.current ||
@@ -160,7 +159,7 @@ const Resizable = (props: Props) => {
             100;
           const newDiv2Width =
             parentDivRef.current.offsetHeight - newDiv1Height;
-          props.serDiveOneSize(newDiv1Height);
+          props.setDiveOneSize(newDiv1Height);
           props.setDivTwoSize(newDiv2Width - resizeBarSize);
         }
       })

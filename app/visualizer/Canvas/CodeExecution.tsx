@@ -85,6 +85,7 @@ const CodeExecution = ({
   const [stackViewWidth, setStackViewWidth] = useState<number | Percentage>(
     "70%"
   );
+
   const [editorHeight, setEditorHeight] = useState<number | Percentage>("60%");
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
     // to really fix this need to do it in the css with a calc minus for the h-10 and padding
@@ -160,7 +161,7 @@ const CodeExecution = ({
       <Resizable
         divOneSize={editorHeight}
         divTwoSize={outputHeight}
-        serDiveOneSize={setEditorHeight}
+        setDiveOneSize={setEditorHeight}
         setDivTwoSize={setCodeExecHeight}
         type="vertical"
         topDiv={
@@ -395,11 +396,17 @@ const CodeExecution = ({
                 .with("stack", () => {
                   return (
                     <>
+                      {/* {run(() => {
+                        console.table({
+                          variablesSideBarWidth,
+                          stackViewWidth,
+                        });
+                      })} */}
                       <Resizable
                         resizeBarClassName="border-x-2 border-y-0"
                         divOneSize={variablesSideBarWidth}
                         divTwoSize={stackViewWidth}
-                        serDiveOneSize={setVariableSideBarWidth}
+                        setDiveOneSize={setVariableSideBarWidth}
                         setDivTwoSize={setStackViewWidth}
                         type="horizontal"
                         leftDiv={
@@ -408,43 +415,43 @@ const CodeExecution = ({
                               Variables
                             </p>
                             <Button
-                              className="rounded-3xl w-[6rem] "
+                              className="rounded-3xl w-[6rem] select-none "
                               variant={"outline"}
                             >
                               test
                             </Button>
                             <Button
-                              className="rounded-3xl w-[6rem]"
+                              className="rounded-3xl w-[6rem] select-none"
                               variant={"outline"}
                             >
                               test
                             </Button>
                             <Button
-                              className="rounded-3xl w-[6rem]"
+                              className="rounded-3xl w-[6rem] select-none"
                               variant={"outline"}
                             >
                               test
                             </Button>
                             <Button
-                              className="rounded-3xl w-[6rem]"
+                              className="rounded-3xl w-[6rem] select-none"
                               variant={"outline"}
                             >
                               test
                             </Button>
                             <Button
-                              className="rounded-3xl w-[6rem]"
+                              className="rounded-3xl w-[6rem] select-none"
                               variant={"outline"}
                             >
                               test
                             </Button>
                             <Button
-                              className="rounded-3xl w-[6rem]"
+                              className="rounded-3xl w-[6rem] select-none"
                               variant={"outline"}
                             >
                               test
                             </Button>
                             <Button
-                              className="rounded-3xl w-[6rem]"
+                              className="rounded-3xl w-[6rem] select-none"
                               variant={"outline"}
                             >
                               test

@@ -165,7 +165,7 @@ const ContentWrapper = ({ data }: Props) => {
     <Resizable
       divOneSize={canvasWidth}
       divTwoSize={codeExecWidth}
-      serDiveOneSize={setCanvasWidth}
+      setDiveOneSize={setCanvasWidth}
       setDivTwoSize={setCodeExecWidth}
       type="horizontal"
       leftDiv={
