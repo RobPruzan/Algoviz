@@ -36,7 +36,7 @@ import Resizable from "../Resizeable";
 import { useTheme } from "next-themes";
 
 import { Switch } from "@/components/ui/switch";
-import { Check, Loader } from "lucide-react";
+import { Check, Link, Loader, PlusCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { LanguageComboBox } from "../LanguageComboBox";
@@ -48,6 +48,7 @@ import { CodeStorage } from "@/hooks/codeStorage";
 import { defaultAlgo } from "../ContentWrapper";
 import { toast, useToast } from "@/components/ui/use-toast";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { StackHistorySlider } from "./StackHistorySlider";
 
 type Props = {
   setUserAlgorithm: React.Dispatch<React.SetStateAction<RealMessedUpAlgoType>>;
@@ -393,34 +394,13 @@ const CodeExecution = ({
                 )
                 .with("stack", () => {
                   return (
-                    // <div className="w-full h-full flex ">
-                    //   <div className="h-full border-r-2 border-accent  w-20 bg-secondary">
-                    //     {codeMutation.data?.flattenedVis.type ===
-                    //       AlgoType.Visualizer && (
-                    //       <>
-                    //         {run(() => {
-                    //           console.log(codeMutation.data?.flattenedVis);
-                    //         })}
-                    //         {/* {Object.entries(
-                    //           codeMutation.data.flattenedVis.fullOutput
-                    //             .at(visualizationPointer)
-                    //             ?.frames.at(-1)?.args.locals ?? {}
-                    //         ).map(([k, v]) => (
-                    //           <div key={k}>
-                    //             {k}|{JSON.stringify(v)}
-                    //           </div>
-                    //         ))} */}
-                    //       </>
-                    //     )}
-                    //   </div>
-                    //   <div className="w-[calc(100%-20rem)] overflow-y-scroll">
-                    //     fdsfs
-                    //   </div>
-                    // </div>
                     <div className="w-full h-full flex ">
                       <div className="w-1/4 min-w-fit border-r flex flex-col overflow-y-scroll rounded-none">
+                        <p className="text-lg font-bold w-full text-center p-3">
+                          Variables
+                        </p>
                         <Button
-                          className="w-full rounded-none border-0 border-b min-w-[8rem]"
+                          className="w-full rounded-none border-0 border-b border-t min-w-[8rem]"
                           variant={"outline"}
                         >
                           test
@@ -462,7 +442,25 @@ const CodeExecution = ({
                           test
                         </Button>
                       </div>
-                      <div className="w-3/4"></div>
+                      <div className="w-3/4">
+                        <div className="flex items-end w-full">
+                          <Button variant={"ghost"} size={"icon"}>
+                            <Link />
+                          </Button>
+
+                          <StackHistorySlider />
+                        </div>
+                        <div className="border">
+                          <Button size={"icon"}>
+                            <PlusCircle />
+                          </Button>
+                        </div>
+                        <div className="flex flex-col w-full p-3">
+                          <div className="flex items-center justify-center border p-4">
+                            fdsf
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   );
                 })
