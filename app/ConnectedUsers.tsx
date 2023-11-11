@@ -1,20 +1,20 @@
-'use client';
-import { useAppDispatch, useAppSelector } from '@/redux/store';
-import React, { useEffect } from 'react';
-import Image from 'next/image';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { socketManager } from '@/lib/socket/socket-utils';
-import { CollaborationActions } from '@/redux/slices/colloborationSlice';
-import { useSession } from 'next-auth/react';
-import { useMeta } from '@/hooks/useMeta';
-import { ObjectState } from '@/redux/slices/canvasSlice';
+"use client";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
+import React, { useEffect } from "react";
+import Image from "next/image";
+import { usePathname, useSearchParams } from "next/navigation";
+import { socketManager } from "@/lib/socket/socket-utils";
+import { CollaborationActions } from "@/redux/slices/colloborationSlice";
+import { useSession } from "next-auth/react";
+import { useMeta } from "@/hooks/useMeta";
+import { ObjectState } from "@/redux/slices/canvasSlice";
 
 const ConnectedUsers = () => {
   const collabInfoState = useAppSelector((store) =>
     store.collaborationState.collabInfos.map((c) => c.user)
   );
   const pathname = usePathname();
-  const playgroundID = useSearchParams().get('playground-id');
+  const playgroundID = useSearchParams().get("playground-id");
   const dispatch = useAppDispatch();
   const session = useSession();
   const meta = useMeta();
@@ -27,7 +27,7 @@ const ConnectedUsers = () => {
     (store) => store.canvas.present.currentZoomFactor
   );
   useEffect(() => {
-    if (playgroundID && session.status !== 'loading') {
+    if (playgroundID && session.status !== "loading") {
       socketManager.getConnectedUsers(playgroundID).then((users) => {
         users.forEach((user) => dispatch(CollaborationActions.addUser(user)));
       });
@@ -50,10 +50,10 @@ const ConnectedUsers = () => {
   const usersAboveThree = totalUsers - 3;
   // const isAboveThreeUsers = usersAboveThree > 0;
 
-  if (pathname !== '/visualizer') return null;
+  if (pathname !== "/visualizer") return null;
 
   return (
-    <div className="mx-2">
+    <div className="hidden md:flex mx-2">
       <div className="flex  items-center justify-center overflow-y-scroll border-2 h-[40px] min-w-[40px]  rounded-md px-2">
         {collabInfoState.map((collab, index) =>
           index > 3 ? null : index > 2 ? (
@@ -66,7 +66,7 @@ const ConnectedUsers = () => {
               <Image
                 className="mx-1"
                 alt="user avatar"
-                src={collab.image ?? '/default-avatar.png'}
+                src={collab.image ?? "/default-avatar.png"}
                 width={25}
                 height={25}
               />

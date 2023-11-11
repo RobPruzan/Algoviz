@@ -3,8 +3,8 @@ import {
   HistoryNode,
   NodeMetadata,
   UseSortParams,
-} from '@/lib/types';
-
+} from "@/lib/types";
+import { nanoid } from "nanoid";
 export type NodeRowState = { nodes: NodeMetadata[]; context: string };
 
 export const useQuickSort = ({
@@ -46,7 +46,7 @@ export const useQuickSort = ({
       if (arr[j].value < pivot.value) {
         pivotPointer++;
         pushNewHistoryNode({
-          stateContext: 'Incrementing pivot pointer',
+          stateContext: "Incrementing pivot pointer",
           arr,
           pivotId: pivot.id,
           pivotPointerPosition: pivotPointer,
@@ -78,7 +78,7 @@ export const useQuickSort = ({
       swap: [swap1, swap2],
       pivotId: pivot.id,
       stateContext: `${
-        swappedWithAnyElements ? '' : 'All nodes already greater than pivot. '
+        swappedWithAnyElements ? "" : "All nodes already greater than pivot. "
       }Moving pivot node to pivot pointer location by swapping: ${
         arr[pivotPointer + 1].value
       } with ${arr[high].value}`,
@@ -113,15 +113,15 @@ export const useQuickSort = ({
       next: null,
       element: copiedArray.map((node) => {
         if (swap?.includes(node.id)) {
-          return { ...node, color: 'green' };
+          return { ...node, color: "green" };
         }
         if (node.id === pivotId) {
-          return { ...node, color: 'red' };
+          return { ...node, color: "red" };
         }
 
         return node;
       }),
-      id: crypto.randomUUID(),
+      id: nanoid(),
       stateContext,
       pivotPointerPosition,
       fakeArrayBounds,
@@ -136,7 +136,7 @@ export const useQuickSort = ({
     const sorted = quicksort(arr);
     currentHistory.length > 0 &&
       pushNewHistoryNode({
-        stateContext: 'Completed Sort',
+        stateContext: "Completed Sort",
         arr: sorted,
         pivotPointerPosition: -2,
         fakeArrayBounds: [-1, -1],

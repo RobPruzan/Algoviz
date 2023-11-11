@@ -267,33 +267,12 @@ const CodeExecution = ({
                 >
                   Stacks
                 </TabsTrigger>
-                {/* <TabsTrigger
-                  className={`w-1/5 ${
-                    tabValue === "stack"
-                      ? "border-2 rounded-md  bg-secondary"
-                      : "border-2 rounded-md border-secondary"
-                  }`}
-                  value="stack"
-                >
-                  Variable Stack
-                </TabsTrigger> */}
-                {/* Lines will be for stepping through the program */}
-                {/* <TabsTrigger
-                  className={`w-1/5 ${
-                    tabValue === "stack"
-                      ? "border-2 rounded-md  bg-secondary"
-                      : "border-2 rounded-md border-secondary"
-                  }`}
-                  value="stack"
-                >
-                  Lines
-                </TabsTrigger> */}
               </TabsList>
             </Tabs>
             {/* should represent the input of the adjlist as interactivable divs with data with examples on how to access them */}
             <div
               className={`
-              pt-3 w-full border-t-2   border-secondary flex flex-col items-start justify-start text-white  h-full overflow-y-scroll
+              w-full border-t-2   border-secondary flex flex-col items-start justify-start text-white  h-full overflow-y-scroll
             ${tabValue === "output" ? "bg-black" : ""}
             `}
             >
@@ -337,10 +316,6 @@ const CodeExecution = ({
                               }', value: ${
                                 circles.find((c) => c.id === k)?.value
                               })`,
-                              // {
-                              //   ID: k,
-                              //   value: circles.find((c) => c.id === k)?.value,
-                              // }
 
                               v.map(
                                 (i) =>
@@ -349,10 +324,6 @@ const CodeExecution = ({
                                   }', value=${
                                     circles.find((c) => c.id === i)?.value
                                   })`
-                                // {
-                                // ID: i,
-                                // value: circles.find((c) => c.id === i)?.value,
-                                // }
                               ),
                             ];
                           })
@@ -419,8 +390,27 @@ const CodeExecution = ({
                 )
                 .with("stack", () => {
                   return (
-                    <>
-                      {run(() => {
+                    <div className="w-full h-full flex ">
+                      <div className="h-full border-r-2 border-accent  w-20 bg-secondary">
+                        {codeMutation.data?.flattenedVis.type ===
+                          AlgoType.Visualizer && (
+                          <>
+                            {/* {Object.entries(
+                              codeMutation.data.flattenedVis.fullOutput
+                                .at(visualizationPointer)
+                                ?.frames.at(-1)?.args.locals ?? {}
+                            ).map(([k, v]) => (
+                              <div key={k}>
+                                {k}|{JSON.stringify(v)}
+                              </div>
+                            ))} */}
+                          </>
+                        )}
+                      </div>
+                      <div className="w-[calc(100%-20rem)] overflow-y-scroll">
+                        fdsfs
+                      </div>
+                      {/* {run(() => {
                         if (codeMutation.isLoading) {
                           return <Loader className="animate-spin" />;
                         }
@@ -436,140 +426,10 @@ const CodeExecution = ({
                         }
                         return codeMutation.data?.flattenedVis.type ===
                           AlgoType.Visualizer ? (
-                          <>
-                            {toStackSnapshotAtVisUpdate(
-                              codeMutation.data.flattenedVis.fullOutput
-                            ).map((output, index) => {
-                              // need [0] because of lame serialization, its only every gonna be [data] form
-                              const currentFrame = output.frames[0];
-                              // console.log(output.tag);
-                              // if (output.tag === "Return") {
-                              //   <div
-                              //     ref={frameRef}
-                              //     key={
-                              //       currentFrame.name +
-                              //       currentFrame.line +
-                              //       JSON.stringify(currentFrame.args)
-                              //     }
-                              //     className={`
-                              //     flex flex-col bg-red-700 rounded-md p-3 w-full items-center justify-center border-2 text-sm`}
-                              //   >
-                              //     <div>Line: {output.line}</div>
-                              //     {/* {output.tag} */}
-                              //     <div>
-                              //       {getLinesChanged().some(
-                              //         (line) => line === index
-                              //       ) && <>Updated Vis</>}
-                              //     </div>
-
-                              //     {/* {JSON.stringify(output.frames[0].args.locals)} */}
-                              //   </div>;
-                              // }
-                              // if (output.tag === "Line") {
-                              //   return (
-                              //     <div
-                              //       ref={frameRef}
-                              //       key={`outter-${index} ${currentFrame.line}`}
-                              //       className={`
-
-                              //       ${
-                              //         getLinesChanged().some(
-                              //           (line) => line === index
-                              //         )
-                              //           ? "bg-green-700"
-                              //           : ""
-                              //       }
-                              //       flex   mt-2 flex-col rounded-md p-2 w-full items-center justify-center border-2 text-xs`}
-                              //     >
-                              //       <div className="text-md font-bold">
-                              //         Line: {output.line}
-                              //       </div>
-                              //       {/* {output.tag} */}
-                              //       <div>
-                              //         {getLinesChanged().some(
-                              //           (line) => line === index
-                              //         ) && <>Updated Vis</>}
-                              //       </div>
-                              //       <div className="flex mt-2 flex-col  items-center justify-center text-xs gap-2 overflow-x-scroll">
-                              //         <p className="text-md font-bold">Locals:</p>
-                              //         {Object.entries(currentFrame.args.locals).map(
-                              //           ([k, v], index) => (
-                              //             <div
-                              //               className="w-full flex border rounded-md p-3"
-                              //               key={`${k} ${index}`}
-                              //             >
-                              //               <div className="font-bold text-md flex w-1/2 ">
-                              //                 {k}
-                              //               </div>
-                              //               <div className="flex w-1/2 h-12 overflow-y-scroll">
-                              //                 {JSON.stringify(v)}
-                              //               </div>
-                              //             </div>
-                              //           )
-                              //         )}
-                              //       </div>
-
-                              //       {/* {JSON.stringify(output.frames[0].args.locals)} */}
-                              //     </div>
-                              //   );
-                              // }
-                              // const currentFrame = output.frames[0];
-                              // if (output.tag === 'Line') {
-                              // return
-                              // }
-
-                              return (
-                                <div
-                                  ref={frameRef}
-                                  key={`inner-${index} ${currentFrame.line}`}
-                                  className="flex  rounded-md flex-col items-center justify-center border-2 w-full bg-secondary"
-                                >
-                                  <div className="flex items-center justify-center font-bold text-xl ">
-                                    Function Name: {currentFrame.name}
-                                  </div>
-                                  <div className="flex flex-col items-center justify-center text-xs p-3 gap-2 ">
-                                    <p className="text-lg font-bold">Locals:</p>
-                                    {
-                                      // weird
-                                      // Object.entries(currentFrame.args.locals).map(
-                                      //   ([k, v]) => (
-                                      //     <div key={k}>
-                                      //       {k}={v}
-                                      //     </div>
-                                      //   )
-                                      // )
-                                    }
-                                    {Object.entries(
-                                      currentFrame.args.locals
-                                    ).map(([k, v], index) => (
-                                      <div
-                                        className="w-full flex border rounded-md p-3"
-                                        key={`${k} ${index}`}
-                                      >
-                                        <div className="font-bold text-md flex w-1/2 ">
-                                          {k}
-                                        </div>
-                                        <div className="flex w-1/2  h-16 overflow-y-scroll">
-                                          {JSON.stringify(v)}
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                  <div className="w-full flex items-center justify-center">
-                                    Line Number:
-                                    {index}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </>
+                          <>hello</>
                         ) : undefined;
-
-                        // return codeMutation.data?.flattenedVis.type === AlgoType.Visualizer ? (
-
-                        //   ) : <></>
-                      })}
-                    </>
+                      })} */}
+                    </div>
                   );
                 })
 

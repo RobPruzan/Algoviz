@@ -102,6 +102,23 @@ export const dataSchema = z.union([
   errorSchema,
 ]);
 
+export const snapshotsToVariableSnapshot = (
+  variableName: string,
+  snapshots: AlgoFlattenedVis
+) => {
+  const framesArr = snapshots.fullOutput
+    .map((output) => {
+      const variable = {
+        ...output.frames.at(0),
+        variable: output.frames.at(0)?.args.locals[variableName],
+      };
+      return variable;
+    })
+    .filter(Boolean);
+
+  console.log(framesArr);
+};
+
 type ParsedOutput = z.infer<typeof dataSchema>;
 
 // const dataSchema = z.union([visualizerSchema, validatorSchema, errorSchema]);
@@ -343,7 +360,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         .with(
           { flattenedVis: { type: AlgoType.Visualizer } },
           ({ flattenedVis }) => {
-            flattenedVis.fullOutput;
+            snapshotsToVariableSnapshot("queue", flattenedVis);
             dispatch(CodeExecActions.setVisitedVisualization(flattenedVis));
           }
         )

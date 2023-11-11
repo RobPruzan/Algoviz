@@ -8,6 +8,7 @@ import {
   SelectedGeometryInfo,
   SelectedValidatorLens,
 } from "@/lib/types";
+import { nanoid } from "nanoid";
 import React, { useEffect, useState } from "react";
 import CodeExecution from "./Canvas/CodeExecution";
 import Resizable from "./Resizeable";
@@ -101,7 +102,7 @@ const ContentWrapper = ({ data }: Props) => {
       !(session.status === "loading") &&
       session.status === "unauthenticated"
     ) {
-      dispatch(CanvasActions.setNotSignedInUserId(crypto.randomUUID()));
+      dispatch(CanvasActions.setNotSignedInUserId(nanoid()));
     }
   }, [dispatch, notSignedInUserId, session.status]);
 

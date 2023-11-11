@@ -1,27 +1,19 @@
 /** @type {import('next').NextConfig} */
+
 const isTauriBuild = process.env.IS_TAURI_BUILD;
 
 const baseNextConfig =
-  isTauriBuild === 'true'
+  isTauriBuild === "true"
     ? {
-        output: 'export',
-
-        experimental: {
-          appDir: true,
-          serverActions: true,
-        },
+        output: "export",
       }
-    : {
-        experimental: {
-          appDir: true,
-          serverActions: true,
-        },
-      };
+    : {};
 
 const nextConfig = {
   ...baseNextConfig,
+
   images: {
-    domains: ['lh3.googleusercontent.com', 'upload.wikimedia.org'],
+    domains: ["lh3.googleusercontent.com", "upload.wikimedia.org"],
   },
 };
 

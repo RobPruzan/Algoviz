@@ -3,8 +3,8 @@ import {
   HistoryNode,
   NodeMetadata,
   UseSortParams,
-} from '@/lib/types';
-
+} from "@/lib/types";
+import { nanoid } from "nanoid";
 export const useMergeSort = ({
   currentHistory,
   tempHistoryArrayList,
@@ -74,7 +74,7 @@ export const useMergeSort = ({
       prev: null,
       // TODO determine what this is doing
       element: copiedFullArray ?? arr,
-      id: crypto.randomUUID(),
+      id: nanoid(),
       stateContext,
     };
     tempHistoryArrayList.current.push(newNode);
@@ -83,7 +83,7 @@ export const useMergeSort = ({
   const handleMergeSort = ({ arr, onFinish }: HandleSortParams) => {
     const sorted = mergeSort(arr);
     pushNewHistoryNode({
-      stateContext: 'Completed Sort',
+      stateContext: "Completed Sort",
       arr: sorted,
     });
     onFinish(tempHistoryArrayList.current);

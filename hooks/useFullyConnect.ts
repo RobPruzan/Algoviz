@@ -1,9 +1,9 @@
-import { CircleReceiver, Edge, SelectedGeometryInfo } from '@/lib/types';
-import { CanvasActions, Meta } from '@/redux/slices/canvasSlice';
-import { useAppDispatch, useAppSelector } from '@/redux/store';
-import { Dispatch, SetStateAction } from 'react';
-import * as Graph from '@/lib/graph';
-
+import { CircleReceiver, Edge, SelectedGeometryInfo } from "@/lib/types";
+import { CanvasActions, Meta } from "@/redux/slices/canvasSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { Dispatch, SetStateAction } from "react";
+import * as Graph from "@/lib/graph";
+import { nanoid } from "nanoid";
 export const useFullyConnect = (meta: Meta) => {
   const {
     circles,
@@ -32,7 +32,7 @@ export const useFullyConnect = (meta: Meta) => {
         const storeCircleA = circles.find((circle) => circle.id == circleA.id);
         const storeCircleB = circles.find((circle) => circle.id == circleB.id);
         if (!storeCircleA || !storeCircleB) {
-          throw new Error('Something is wrong with the store');
+          throw new Error("Something is wrong with the store");
         }
         if (
           visited.has(storeCircleA.id + storeCircleB.id) ||
@@ -53,25 +53,25 @@ export const useFullyConnect = (meta: Meta) => {
           y1,
           x2,
           y2,
-          id: crypto.randomUUID(),
-          type: 'rect',
+          id: nanoid(),
+          type: "rect",
           width: 4 * creationZoomFactor,
           directed: false,
-          color: '#8A8A8A',
+          color: "#8A8A8A",
           attachNodeOne: {
             center: [x1, y1],
             radius: 15 * creationZoomFactor,
-            color: '#42506e',
-            id: crypto.randomUUID(),
-            type: 'node1',
+            color: "#42506e",
+            id: nanoid(),
+            type: "node1",
             connectedToId: storeCircleA.nodeReceiver.id,
           },
           attachNodeTwo: {
             center: [x2, y2],
             radius: 15 * creationZoomFactor,
-            color: '#42506e',
-            id: crypto.randomUUID(),
-            type: 'node2',
+            color: "#42506e",
+            id: nanoid(),
+            type: "node2",
             connectedToId: storeCircleB.nodeReceiver.id,
           },
         };

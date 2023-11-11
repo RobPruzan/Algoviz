@@ -343,3 +343,9 @@ export const toStackSnapshotAtVisUpdate = (trace: Array<ParsedVisOutput>) => {
   }
   return snapshots;
 };
+
+// export const variableToStack = ({ variable, trace }: { variable: string, trace: Array<ParsedVisOutput> }) => {
+//   trace.map(stack => {
+//     const current = stack.frames.at(-1)
+//   }))
+// }

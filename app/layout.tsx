@@ -1,36 +1,36 @@
-import { cn } from '@/lib/utils';
-import AuthProvider from './AuthProvider';
-import './globals.css';
-import { Inter } from 'next/font/google';
-import { fontSans } from '@/lib/fonts';
-import { SignInButton } from '@/components/Auth/AuthButtons';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { cn } from "@/lib/utils";
+import AuthProvider from "./AuthProvider";
+import "./globals.css";
+import { Inter } from "next/font/google";
+import { fontSans } from "@/lib/fonts";
+import { SignInButton } from "@/components/Auth/AuthButtons";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
-import { ModeToggle } from '@/components/ui/mode-toggle';
-import ShareableLink from '@/components/ShareableLink';
-import React from 'react';
+import { ModeToggle } from "@/components/ui/mode-toggle";
+import ShareableLink from "@/components/ShareableLink";
+import React from "react";
 
-import { QueryProvider } from './QueryProvider';
-import { Provider } from 'react-redux';
-import { store } from '@/redux/store';
-import ReduxProvider from './ReduxProvider';
-import PlaygroundsButton from './PlaygroundsButton';
-import { Toaster } from '@/components/ui/toaster';
-import ConnectedUsers from './ConnectedUsers';
-import { CanvasContext } from '@/context/CanvasContext';
-import { Providers } from './Providers';
-import AdminNav from '@/components/AdminNav';
-import HomeButton from './HomeButton';
-import { Github } from 'lucide-react';
-import UpgradePlayground from './UpgradePlayground';
-import { CommandDialogDemo } from '@/components/ui/CommandDialog';
+import { QueryProvider } from "./QueryProvider";
+import { Provider } from "react-redux";
+import { store } from "@/redux/store";
+import ReduxProvider from "./ReduxProvider";
+import PlaygroundsButton from "./PlaygroundsButton";
+import { Toaster } from "@/components/ui/toaster";
+import ConnectedUsers from "./ConnectedUsers";
+import { CanvasContext } from "@/context/CanvasContext";
+import { Providers } from "./Providers";
+import AdminNav from "@/components/AdminNav";
+import HomeButton from "./HomeButton";
+import { Github } from "lucide-react";
+import UpgradePlayground from "./UpgradePlayground";
+import { CommandDialogDemo } from "@/components/ui/CommandDialog";
 // const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'AlgoViz',
+  title: "AlgoViz",
   description:
-    'A custom playground to visualize your algorithms in the browser',
+    "A custom playground to visualize your algorithms in the browser",
 };
 
 export default function RootLayout({
@@ -42,7 +42,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          'min-h-screen bg-background  font-sans antialiased ',
+          "min-h-screen bg-background  font-sans antialiased ",
           fontSans.variable
         )}
       >
@@ -64,8 +64,8 @@ export default function RootLayout({
                   <UpgradePlayground />
                   <Link
                     aria-label="github-repo"
-                    href={'https://github.com/RobPruzan/Algoviz'}
-                    className="w-fit h-fit  p-[.4rem] mx-2 border-2 rounded-md hover:bg-accent"
+                    href={"https://github.com/RobPruzan/Algoviz"}
+                    className="hidden md:flex w-fit h-fit  p-[.4rem] mx-2 border-2 rounded-md hover:bg-accent"
                   >
                     <Github />
                   </Link>

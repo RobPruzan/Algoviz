@@ -1,5 +1,5 @@
-'use client';
-import React, { useState } from 'react';
+"use client";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,21 +8,21 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-import { Button } from './ui/button';
-import { usePathname, useSearchParams } from 'next/navigation';
-import CopyButton from './CopyButton';
-import { useMutation } from '@tanstack/react-query';
-import ky from 'ky';
-import { z } from 'zod';
-import { useSession } from 'next-auth/react';
-import { API_URL } from '@/lib/utils';
-const VISUALIZE_PATH = '/visualizer';
+import { Button } from "./ui/button";
+import { usePathname, useSearchParams } from "next/navigation";
+import CopyButton from "./CopyButton";
+import { useMutation } from "@tanstack/react-query";
+import ky from "ky";
+import { z } from "zod";
+import { useSession } from "next-auth/react";
+import { API_URL } from "@/lib/utils";
+const VISUALIZE_PATH = "/visualizer";
 
-const PERMISSIONS = ['EDIT', 'READ-ONLY'] as const;
+const PERMISSIONS = ["EDIT", "READ-ONLY"] as const;
 type Permissions = (typeof PERMISSIONS)[number];
 
 const isPermission = (value: string): value is Permissions => {
@@ -34,7 +34,7 @@ const ShareableLink = () => {
   const searchParams = useSearchParams();
   const session = useSession();
 
-  const [permissions, setPermissions] = useState<Permissions>('EDIT');
+  const [permissions, setPermissions] = useState<Permissions>("EDIT");
 
   const generateLinkMutation = useMutation({
     mutationFn: async (permission: string) => {
@@ -42,7 +42,7 @@ const ShareableLink = () => {
         await ky.post(`${API_URL}/playground/link/create`, {
           json: {
             permission,
-            roomId: searchParams.get('playground-id'),
+            roomId: searchParams.get("playground-id"),
           },
         })
       ).json();
@@ -57,9 +57,9 @@ const ShareableLink = () => {
   });
 
   return pathname === VISUALIZE_PATH &&
-    session.status === 'authenticated' &&
-    Boolean(searchParams.get('playground-id')) ? (
-    <div className="mx-2 min-w-fit">
+    session.status === "authenticated" &&
+    Boolean(searchParams.get("playground-id")) ? (
+    <div className="mx-2 min-w-fit hidden md:flex">
       <Dialog>
         <DialogTrigger aria-label="generate-shareable-link" asChild>
           <Button variant="outline">Generate Sharable Link</Button>
@@ -89,7 +89,7 @@ const ShareableLink = () => {
             <div className="grid grid-cols-4 items-center gap-4">
               <CopyButton
                 isLoading={generateLinkMutation.isLoading}
-                copyText={generateLinkMutation.data ?? ''}
+                copyText={generateLinkMutation.data ?? ""}
               />
             </div>
           </div>

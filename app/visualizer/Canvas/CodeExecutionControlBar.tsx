@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-
+import { nanoid } from "nanoid";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 
@@ -621,7 +621,7 @@ const CodeExecutionControlBar = ({
                       ...userAlgorithm,
                       type,
                       language,
-                      algoID: crypto.randomUUID(),
+                      algoID: nanoid(),
                     });
                     setOpen(false);
 
