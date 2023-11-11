@@ -12,7 +12,7 @@ export const StackHistorySlider = (props: Props) => {
 
   return (
     <div
-      className={`w-full animate-in fade-in duration-500 border-secondary   flex items-center justify-evenly  min-h-[40px] max-h-[40px] border-t-2 `}
+      className={`w-full animate-in fade-in duration-500 border-secondary   flex items-center justify-evenly  min-h-[40px] max-h-[40px]  `}
     >
       {/* https://www.radix-ui.com/docs/primitives/components/slider */}
       <SpeedSlider

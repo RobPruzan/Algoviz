@@ -77,7 +77,7 @@ const Resizable = (props: Props) => {
   }, [resizing]);
 
   const handleResize = () => {
-    const domElementWidth = parentDivRef.current?.clientWidth;
+    const domElementWidth = parentDivRef.current?.offsetWidth;
     let domElementHeight = parentDivRef.current?.offsetWidth;
     if (!domElementWidth || !domElementHeight) {
       return;
@@ -93,7 +93,9 @@ const Resizable = (props: Props) => {
             return;
           }
           let parentScaledBy =
-            domElementWidth / (props.divOneSize + props.divTwoSize);
+            domElementWidth /
+            // who woulda known, resizebar is important
+            (props.divOneSize + props.divTwoSize + resizeBarSize);
 
           const scale = (prev: number | `${string}%`) => {
             if (typeof prev === "number") {
@@ -108,16 +110,21 @@ const Resizable = (props: Props) => {
           // ...
         } else {
           if (!childRefOne.current || !childRefTwo.current) {
+            // will be defined, ran as an effect, so just terminate
             return;
           }
-          // quite simple don't over complicate it
-          let newDiv1Height =
-            (domElementWidth *
-              Number((props.divOneSize as string).split("%").at(0))) /
-            100;
-          const newDiv2Width = domElementWidth - newDiv1Height;
-          props.setDiveOneSize(newDiv1Height);
-          props.setDivTwoSize(newDiv2Width - resizeBarSize);
+          let div1percent = Number(
+            (props.divOneSize as string).split("%").at(0)
+          );
+          let div2percent = Number(
+            (props.divTwoSize as string).split("%").at(0)
+          );
+          let divOneSize = domElementWidth * (div1percent / 100);
+          let divOneTwo = domElementWidth * (div2percent / 100);
+          props.setDiveOneSize(divOneSize);
+          props.setDivTwoSize(divOneTwo);
+
+          // ...
         }
       })
       // only one that works, but for now have no need for the other version
