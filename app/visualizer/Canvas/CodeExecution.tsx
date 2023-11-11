@@ -47,6 +47,7 @@ import Loading from "../loading";
 import { CodeStorage } from "@/hooks/codeStorage";
 import { defaultAlgo } from "../ContentWrapper";
 import { toast, useToast } from "@/components/ui/use-toast";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 type Props = {
   setUserAlgorithm: React.Dispatch<React.SetStateAction<RealMessedUpAlgoType>>;
@@ -151,6 +152,8 @@ const CodeExecution = ({
 
     return lines;
   };
+
+  console.log;
 
   return (
     <div style={{ height: "calc(100% - 60px)" }} className="w-full ">
@@ -390,45 +393,76 @@ const CodeExecution = ({
                 )
                 .with("stack", () => {
                   return (
+                    // <div className="w-full h-full flex ">
+                    //   <div className="h-full border-r-2 border-accent  w-20 bg-secondary">
+                    //     {codeMutation.data?.flattenedVis.type ===
+                    //       AlgoType.Visualizer && (
+                    //       <>
+                    //         {run(() => {
+                    //           console.log(codeMutation.data?.flattenedVis);
+                    //         })}
+                    //         {/* {Object.entries(
+                    //           codeMutation.data.flattenedVis.fullOutput
+                    //             .at(visualizationPointer)
+                    //             ?.frames.at(-1)?.args.locals ?? {}
+                    //         ).map(([k, v]) => (
+                    //           <div key={k}>
+                    //             {k}|{JSON.stringify(v)}
+                    //           </div>
+                    //         ))} */}
+                    //       </>
+                    //     )}
+                    //   </div>
+                    //   <div className="w-[calc(100%-20rem)] overflow-y-scroll">
+                    //     fdsfs
+                    //   </div>
+                    // </div>
                     <div className="w-full h-full flex ">
-                      <div className="h-full border-r-2 border-accent  w-20 bg-secondary">
-                        {codeMutation.data?.flattenedVis.type ===
-                          AlgoType.Visualizer && (
-                          <>
-                            {/* {Object.entries(
-                              codeMutation.data.flattenedVis.fullOutput
-                                .at(visualizationPointer)
-                                ?.frames.at(-1)?.args.locals ?? {}
-                            ).map(([k, v]) => (
-                              <div key={k}>
-                                {k}|{JSON.stringify(v)}
-                              </div>
-                            ))} */}
-                          </>
-                        )}
+                      <div className="w-1/4 min-w-fit border-r flex flex-col overflow-y-scroll rounded-none">
+                        <Button
+                          className="w-full rounded-none border-0 border-b min-w-[8rem]"
+                          variant={"outline"}
+                        >
+                          test
+                        </Button>
+                        <Button
+                          className="w-full rounded-none border-0 border-b"
+                          variant={"outline"}
+                        >
+                          test
+                        </Button>
+                        <Button
+                          className="w-full rounded-none border-0 border-b"
+                          variant={"outline"}
+                        >
+                          test
+                        </Button>
+                        <Button
+                          className="w-full rounded-none border-0 border-b"
+                          variant={"outline"}
+                        >
+                          test
+                        </Button>
+                        <Button
+                          className="w-full rounded-none border-0 border-b"
+                          variant={"outline"}
+                        >
+                          test
+                        </Button>
+                        <Button
+                          className="w-full rounded-none border-0 border-b"
+                          variant={"outline"}
+                        >
+                          test
+                        </Button>
+                        <Button
+                          className="w-full rounded-none border-0 border-b"
+                          variant={"outline"}
+                        >
+                          test
+                        </Button>
                       </div>
-                      <div className="w-[calc(100%-20rem)] overflow-y-scroll">
-                        fdsfs
-                      </div>
-                      {/* {run(() => {
-                        if (codeMutation.isLoading) {
-                          return <Loader className="animate-spin" />;
-                        }
-                        if (codeMutation.data?.flattenedVis.type === "error") {
-                          setTabValue(() => {
-                            toast({
-                              title:
-                                "Code has errors, can't view your stacks just yet",
-                              variant: "destructive",
-                            });
-                            return "output";
-                          });
-                        }
-                        return codeMutation.data?.flattenedVis.type ===
-                          AlgoType.Visualizer ? (
-                          <>hello</>
-                        ) : undefined;
-                      })} */}
+                      <div className="w-3/4"></div>
                     </div>
                   );
                 })
