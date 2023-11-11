@@ -130,37 +130,54 @@ export const socketMiddleware =
 
     return next(action);
   };
+
+// const updateMiddleware: Middleware<{}, any> =
+//   ({
+//     dispatch,
+//     getState,
+//   }: {
+//     dispatch: typeof store.dispatch;
+//     getState: typeof store.getState;
+//   }) =>
+//   (next) =>
+//   (action) => {
+//     if (action.type !== "canvas/update") {
+//       if (Date.now() - getState().canvas.present.lastUpdate > 500) {
+//         // console.log("saving...");
+//         dispatch(CanvasActions.update());
+//       }
+//     }
+
+//     return next(action);
+//   };
 const undoableCanvasReducer = undoable(
   canvasReducer,
   // NEEDS FILTER TO DEBOUNCE UPDATING CORDS
   {
     limit: 100,
-    filter: (action, state) => {
+    filter: (action, _, withHistory) => {
       if (action.type.split("/")[0] != "canvas") return false;
 
-      const debounceReducerNames = [
-        "handleMoveCircle",
-        "setPencilDrawingCoordinates",
-        "shiftLines",
-        "shiftSelectBox",
-        "resizeValidatorLens",
-        "setValidatorLensSelectedIds",
-        "shiftValidatorLens",
-        "handleMoveLine",
-        "handleMoveNodeOne",
-        "handleMoveNodeTwo",
-        "staticLensSetValidatorLensIds",
-        "setSelectedGeometryInfo",
-        "update",
-        "setSelectedAction",
+      const doNotUpdate = [
+        "canvas/staticLensSetValidatorLensIds",
+        "canvas/update",
       ];
 
-      const debouncedActionTypes = debounceReducerNames.map(
-        (name) => `canvas/${name}`
-      );
+      if (action.type.includes("zoom")) {
+        return false;
+      }
 
-      if (debouncedActionTypes.includes(action.type)) return false;
-      return true;
+      if (doNotUpdate.includes(action.type)) {
+        return false;
+      }
+      const lastItem = withHistory.past.at(-1);
+      if (!lastItem) {
+        return true;
+      }
+      if (Date.now() - lastItem.lastUpdate > 500) {
+        return true;
+      }
+      return false;
     },
   }
 );

@@ -133,6 +133,7 @@ const canvasSlice = createSlice({
     ),
     update: (state) => {
       state.lastUpdate = Date.now();
+      // nothing for now
     },
     addPreset: withCanvasMeta<{
       circles: CircleReceiver[];

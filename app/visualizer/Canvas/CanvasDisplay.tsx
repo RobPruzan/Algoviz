@@ -115,6 +115,9 @@ const CanvasDisplay = ({
   const selectedGeometryInfo = useAppSelector(
     (store) => store.canvas.present.selectedGeometryInfo
   );
+
+  const canvasHistory = useAppSelector((state) => state.canvas);
+
   const dispatch = useAppDispatch();
   const {
     attachableLines,
@@ -158,6 +161,8 @@ const CanvasDisplay = ({
   const currentCircleValue = useMemo(() => {
     return circles.find((c) => c.id === selectedCircleID)?.value;
   }, [circles, selectedCircleID]);
+
+  console.log();
 
   useEffect(() => {
     setTempCircleValue(currentCircleValue ? String(currentCircleValue) : "");
