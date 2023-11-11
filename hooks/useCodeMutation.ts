@@ -115,8 +115,6 @@ export const snapshotsToVariableSnapshot = (
       return variable;
     })
     .filter(Boolean);
-
-  console.log(framesArr);
 };
 
 type ParsedOutput = z.infer<typeof dataSchema>;

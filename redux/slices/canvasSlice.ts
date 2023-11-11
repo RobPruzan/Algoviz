@@ -74,7 +74,7 @@ const initialState: CanvasState = {
   attachableLines: [],
   circles: [],
   validatorLensContainer: [],
-  currentZoomFactor: 0.75,
+  currentZoomFactor: 0.6,
   selectedGeometryInfo: null,
   pencilCoordinates: {
     drawingCoordinates: [],
@@ -143,7 +143,6 @@ const canvasSlice = createSlice({
       zoomAmount: number;
       startNode?: string;
     }>((state, action) => {
-      console.log("got the action!", action.payload);
       state.attachableLines.push(...action.payload.attachableLines);
       state.currentZoomFactor = action.payload.zoomAmount;
       state.circles.push(...action.payload.circles);
@@ -451,6 +450,7 @@ const canvasSlice = createSlice({
           : action.payload.shift[1];
 
         // this needs to be cleaned up
+
         const newCircle: CircleReceiver = {
           ...activeCircle,
           center: [
@@ -465,29 +465,40 @@ const canvasSlice = createSlice({
             ],
           },
         };
-        if (nodeOneConnectedLine) {
-          const newAttachedLine = Canvas.builtUpdatedAttachedLine({
-            circleReciever: newCircle,
-            currentLine: nodeOneConnectedLine,
-            nodeRecieverType: "one",
-          });
 
-          state.attachableLines = Canvas.replaceCanvasElement({
-            oldArray: state.attachableLines,
-            newElement: newAttachedLine,
+        if (nodeOneConnectedLine?.nodeConnectedSide === "one") {
+          nodeOneConnectedLine.edges.forEach((e1) => {
+            const newAttachedLine = Canvas.builtUpdatedAttachedLine({
+              circleReciever: newCircle,
+              currentLine: e1,
+              nodeRecieverType: "one",
+            });
+
+            state.attachableLines = Canvas.replaceCanvasElement({
+              oldArray: state.attachableLines,
+              newElement: newAttachedLine,
+            });
           });
         }
-        if (nodeTwoConnectedLine) {
-          const newAttachedLine = Canvas.builtUpdatedAttachedLine({
-            circleReciever: newCircle,
-            currentLine: nodeTwoConnectedLine,
-            nodeRecieverType: "two",
-          });
-          state.attachableLines = Canvas.replaceCanvasElement({
-            oldArray: state.attachableLines,
-            newElement: newAttachedLine,
+        if (nodeTwoConnectedLine?.nodeConnectedSide === "two") {
+          nodeTwoConnectedLine.edges.forEach((e2) => {
+            const newAttachedLine = Canvas.builtUpdatedAttachedLine({
+              circleReciever: newCircle,
+              currentLine: e2,
+              nodeRecieverType: "two",
+            });
+            state.attachableLines = Canvas.replaceCanvasElement({
+              oldArray: state.attachableLines,
+              newElement: newAttachedLine,
+            });
           });
         }
+
+        // console.log(
+        //   "should be identical",
+        //   newCircle.center,
+        //   newCircle.nodeReceiver.center
+        // );
 
         // dispatch(CanvasActions.replaceCircle(newCircle, meta));
         state.circles = Canvas.replaceCanvasElement({
@@ -744,7 +755,7 @@ const canvasSlice = createSlice({
       state.currentZoomFactor *= action.payload;
     },
     resetCurrentZoomFactor: (state) => {
-      state.currentZoomFactor = 1;
+      state.currentZoomFactor = initialState.currentZoomFactor;
     },
     deleteCircle: withCanvasMeta<string>(
       (state, action: PayloadAction<string>) => {

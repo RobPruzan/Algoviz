@@ -111,7 +111,6 @@ const CanvasControlBar = ({
         preset,
         // cause next sux
         dispatcher: (data: unknown) => {
-          console.log("sending this data", data);
           dispatch(CanvasActions.addPreset(data as any, meta));
         },
       });

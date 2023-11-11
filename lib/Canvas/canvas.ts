@@ -1,4 +1,4 @@
-import { P } from 'ts-pattern';
+import { P } from "ts-pattern";
 import {
   Edge,
   CircleConnector,
@@ -16,10 +16,10 @@ import {
   SelectedValidatorLens,
   SelectedValidatorLensResizeCircle,
   TaggedDrawTypes,
-} from '../types';
-import * as Utils from '@/lib/utils';
-import { RefObject, type MouseEvent } from 'react';
-import { ValidatorLensInfo } from '@/redux/slices/canvasSlice';
+} from "../types";
+import * as Utils from "@/lib/utils";
+import { RefObject, type MouseEvent } from "react";
+import { ValidatorLensInfo } from "@/redux/slices/canvasSlice";
 export const replaceCanvasElement = <T extends { id: string }>({
   oldArray,
   newElement,
@@ -96,7 +96,7 @@ const getActiveLensResizeCircle = ({
       ) {
         return {
           lens,
-          type: 'bottom-left' as const,
+          type: "bottom-left" as const,
         };
       }
 
@@ -111,14 +111,14 @@ const getActiveLensResizeCircle = ({
       ) {
         return {
           lens,
-          type: 'bottom-right' as const,
+          type: "bottom-right" as const,
         };
       }
 
       if (isPointInCircle(x, y, topLeft[0], topLeft[1], RESIZE_CIRCLE_RADIUS)) {
         return {
           lens,
-          type: 'top-left' as const,
+          type: "top-left" as const,
         };
       }
 
@@ -127,7 +127,7 @@ const getActiveLensResizeCircle = ({
       ) {
         return {
           lens,
-          type: 'top-right' as const,
+          type: "top-right" as const,
         };
       }
 
@@ -479,7 +479,7 @@ export const getActiveGeometry = ({
   selectedCircleID: string | null;
   selectedAttachableLine: {
     id: string;
-    selected: 'line' | 'node1' | 'node2';
+    selected: "line" | "node1" | "node2";
   } | null;
   selectedValidatorLens: SelectedValidatorLens | null;
   selectedResizeValidatorLensCircle: SelectedValidatorLensResizeCircle | null;
@@ -498,15 +498,15 @@ export const getActiveGeometry = ({
     selectedGeometryInfo != null &&
     selectedGeometryInfo.selectedIds.length != 0
   ) {
-    return 'selectBox';
+    return "selectBox";
   }
   if (selectedCircleID !== null) {
-    return 'circle';
+    return "circle";
   }
   return selectedAttachableLine?.selected;
 };
 
-export const getLineAttachedToNodeReciever = <T extends 'one' | 'two'>({
+export const getLineAttachedToNodeReciever = <T extends "one" | "two">({
   activeCircle,
   attachableLines,
   nodeConnectedSide,
@@ -514,38 +514,31 @@ export const getLineAttachedToNodeReciever = <T extends 'one' | 'two'>({
   attachableLines: Edge[];
   activeCircle: CircleReceiver;
   nodeConnectedSide: T;
-}): (Edge & { nodeConnectedSide: 'one' | 'two' }) | undefined => {
+}): ({ edges: Edge[] } & { nodeConnectedSide: "one" | "two" }) | undefined => {
   switch (nodeConnectedSide) {
-    case 'one':
+    case "one":
       // #TODO findLast breaks it, why?
-      const connectedToNodeOneContainer = attachableLines.find((line) =>
-        activeCircle.nodeReceiver.attachedIds.some(
-          (id) => id === line.attachNodeOne.id
-        )
+
+      const connectedToNodeOneContainer = attachableLines.filter(
+        (line) =>
+          line.attachNodeOne.connectedToId === activeCircle.nodeReceiver.id
       );
 
-      if (connectedToNodeOneContainer) {
-        return {
-          nodeConnectedSide,
-          ...connectedToNodeOneContainer,
-        };
-      }
+      return {
+        nodeConnectedSide,
+        edges: connectedToNodeOneContainer,
+      };
 
-      break;
-    case 'two':
-      const connectedToNodeTwoContainer = attachableLines.find((line) =>
-        activeCircle.nodeReceiver.attachedIds.some(
-          (id) => id === line.attachNodeTwo.id
-        )
+    case "two":
+      const connectedToNodeTwoContainer = attachableLines.filter(
+        (line) =>
+          line.attachNodeTwo.connectedToId === activeCircle.nodeReceiver.id
       );
-      if (connectedToNodeTwoContainer) {
-        return {
-          nodeConnectedSide,
-          ...connectedToNodeTwoContainer,
-        };
-      }
 
-      break;
+      return {
+        nodeConnectedSide,
+        edges: connectedToNodeTwoContainer,
+      };
   }
 };
 
@@ -556,9 +549,9 @@ export const builtUpdatedAttachedLine = ({
 }: {
   currentLine: Edge;
   circleReciever: CircleReceiver;
-  nodeRecieverType: 'one' | 'two';
+  nodeRecieverType: "one" | "two";
 }): Edge => {
-  if (nodeRecieverType === 'one') {
+  if (nodeRecieverType === "one") {
     return {
       ...currentLine,
       x1: circleReciever.center[0],
@@ -731,18 +724,18 @@ export const getMouseUpActiveItem = ({
   const activeCircle = circles.find((circle) => circle.id === selectedCircleID);
 
   const activeRect =
-    selectedAttachableLine?.selected === 'line'
+    selectedAttachableLine?.selected === "line"
       ? attachableLines.find((rect) => rect.id === selectedAttachableLine?.id)
       : null;
 
   const activeRectContainerOne =
-    selectedAttachableLine?.selected === 'node1'
+    selectedAttachableLine?.selected === "node1"
       ? attachableLines.find(
           (rect) => rect.attachNodeOne.id === selectedAttachableLine?.id
         )
       : null;
   const activeRectContainerTwo =
-    selectedAttachableLine?.selected === 'node2'
+    selectedAttachableLine?.selected === "node2"
       ? attachableLines.find(
           (rect) => rect.attachNodeTwo.id === selectedAttachableLine?.id
         )

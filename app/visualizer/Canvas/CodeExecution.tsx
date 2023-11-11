@@ -81,9 +81,9 @@ const CodeExecution = ({
 }: Props) => {
   const [variablesSideBarWidth, setVariableSideBarWidth] = useState<
     number | Percentage
-  >("20%");
+  >("30%");
   const [stackViewWidth, setStackViewWidth] = useState<number | Percentage>(
-    "80%"
+    "70%"
   );
   const [editorHeight, setEditorHeight] = useState<number | Percentage>("60%");
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
@@ -154,8 +154,6 @@ const CodeExecution = ({
 
     return lines;
   };
-
-  console.log;
 
   return (
     <div style={{ height: "calc(100% - 60px)" }} className="w-full ">
@@ -315,17 +313,18 @@ const CodeExecution = ({
                             return 0;
                           })
                           .map(([k, v]) => {
+                            // just remove the slice its useless
                             return [
-                              `Node(ID='${k.slice(0, 10)}${
-                                k.length > 10 ? "..." : ""
+                              `Node(ID='${k.slice(0, 30)}${
+                                k.length > 30 ? "..." : ""
                               }', value: ${
                                 circles.find((c) => c.id === k)?.value
                               })`,
 
                               v.map(
                                 (i) =>
-                                  `Node(ID='${i.slice(0, 10)}${
-                                    i.length > 10 ? "..." : ""
+                                  `Node(ID='${i.slice(0, 30)}${
+                                    i.length > 30 ? "..." : ""
                                   }', value=${
                                     circles.find((c) => c.id === i)?.value
                                   })`
@@ -397,87 +396,86 @@ const CodeExecution = ({
                   return (
                     <>
                       <Resizable
+                        resizeBarClassName="border-x-2 border-y-0"
                         divOneSize={variablesSideBarWidth}
                         divTwoSize={stackViewWidth}
                         serDiveOneSize={setVariableSideBarWidth}
                         setDivTwoSize={setStackViewWidth}
                         type="horizontal"
                         leftDiv={
-                          <div className="w-full h-full bg-red-500"></div>
+                          <div className="w-full h-full overflow-y-scroll flex flex-col items-center gap-4">
+                            <p className="text-lg font-bold w-full text-center p-3">
+                              Variables
+                            </p>
+                            <Button
+                              className="rounded-3xl w-[6rem] "
+                              variant={"outline"}
+                            >
+                              test
+                            </Button>
+                            <Button
+                              className="rounded-3xl w-[6rem]"
+                              variant={"outline"}
+                            >
+                              test
+                            </Button>
+                            <Button
+                              className="rounded-3xl w-[6rem]"
+                              variant={"outline"}
+                            >
+                              test
+                            </Button>
+                            <Button
+                              className="rounded-3xl w-[6rem]"
+                              variant={"outline"}
+                            >
+                              test
+                            </Button>
+                            <Button
+                              className="rounded-3xl w-[6rem]"
+                              variant={"outline"}
+                            >
+                              test
+                            </Button>
+                            <Button
+                              className="rounded-3xl w-[6rem]"
+                              variant={"outline"}
+                            >
+                              test
+                            </Button>
+                            <Button
+                              className="rounded-3xl w-[6rem]"
+                              variant={"outline"}
+                            >
+                              test
+                            </Button>
+                          </div>
                         }
                         rightDiv={
-                          <div className="w-full h-full bg-green-500"></div>
+                          // <div className="w-full h-full bg-green-500"></div>
+                          <div className="w-full h-full flex  ">
+                            <StackHistorySlider />
+                            {/* <div className="flex items-end w-full">
+                              <Button variant={"ghost"} size={"icon"}>
+                                <Link />
+                              </Button>
+
+                    
+                            </div>
+                            <div className="border">
+                              <Button size={"icon"}>
+                                <PlusCircle />
+                              </Button>
+                            </div>
+                            <div className="flex flex-col w-full p-3">
+                              <div className="flex items-center justify-center border p-4">
+                                fdsf
+                              </div>
+                            </div> */}
+                          </div>
                         }
                       />
                     </>
-                    //   <div className="w-full h-full flex ">
-                    //     <div className="w-1/4 min-w-fit border-r flex flex-col overflow-y-scroll gap-y-5 rounded-none p-3">
-                    //       <p className="text-lg font-bold w-full text-center p-3">
-                    //         Variables
-                    //       </p>
-                    //       <Button
-                    //         className="w-full rounded-3xl min-w-[8rem]"
-                    //         variant={"outline"}
-                    //       >
-                    //         test
-                    //       </Button>
-                    //       <Button
-                    //         className="w-full rounded-3xl min-w-[8rem]"
-                    //         variant={"outline"}
-                    //       >
-                    //         test
-                    //       </Button>
-                    //       <Button
-                    //         className="w-full rounded-3xl min-w-[8rem]"
-                    //         variant={"outline"}
-                    //       >
-                    //         test
-                    //       </Button>
-                    //       <Button
-                    //         className="w-full rounded-3xl min-w-[8rem]"
-                    //         variant={"outline"}
-                    //       >
-                    //         test
-                    //       </Button>
-                    //       <Button
-                    //         className="w-full rounded-3xl min-w-[8rem]"
-                    //         variant={"outline"}
-                    //       >
-                    //         test
-                    //       </Button>
-                    //       <Button
-                    //         className="w-full rounded-3xl min-w-[8rem]"
-                    //         variant={"outline"}
-                    //       >
-                    //         test
-                    //       </Button>
-                    //       <Button
-                    //         className="w-full rounded-3xl min-w-[8rem]"
-                    //         variant={"outline"}
-                    //       >
-                    //         test
-                    //       </Button>
-                    //     </div>
-                    //     <div className="w-3/4">
-                    //       <div className="flex items-end w-full">
-                    //         <Button variant={"ghost"} size={"icon"}>
-                    //           <Link />
-                    //         </Button>
-
-                    //         <StackHistorySlider />
-                    //       </div>
-                    //       <div className="border">
-                    //         <Button size={"icon"}>
-                    //           <PlusCircle />
-                    //         </Button>
-                    //       </div>
-                    //       <div className="flex flex-col w-full p-3">
-                    //         <div className="flex items-center justify-center border p-4">
-                    //           fdsf
-                    //         </div>
-                    //       </div>
-                    //     </div>
-                    //   </div>
                   );
                 })
 

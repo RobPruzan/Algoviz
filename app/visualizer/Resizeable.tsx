@@ -5,6 +5,7 @@ import CodeExecution from "./Canvas/CodeExecution";
 import Visualize from "./Visualize";
 import { Algorithm } from "@prisma/client";
 import { match } from "ts-pattern";
+import { cn } from "@/lib/utils";
 
 type Props = (
   | {
@@ -22,6 +23,7 @@ type Props = (
   serDiveOneSize: React.Dispatch<React.SetStateAction<Percentage | number>>;
   divTwoSize: Percentage | number;
   setDivTwoSize: React.Dispatch<React.SetStateAction<Percentage | number>>;
+  resizeBarClassName?: string;
 };
 const Resizable = (props: Props) => {
   const [resizing, setResizing] = useState(false);
@@ -198,7 +200,10 @@ const Resizable = (props: Props) => {
         style={{
           minWidth: resizeBarSize,
         }}
-        className={"cursor-col-resize border-y-2 border-secondary"}
+        className={cn([
+          "cursor-col-resize border-y-2 border-secondary",
+          props.resizeBarClassName,
+        ])}
         onMouseDown={() => setResizing(true)}
       />
       <div
@@ -238,7 +243,10 @@ const Resizable = (props: Props) => {
         style={{
           minHeight: resizeBarSize,
         }}
-        className={"cursor-row-resize  border-y-2 border-secondary"}
+        className={cn([
+          "cursor-row-resize  border-y-2 border-secondary",
+          props.resizeBarClassName,
+        ])}
         onMouseDown={() => setResizing(true)}
       />
       <div

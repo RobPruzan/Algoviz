@@ -12,12 +12,8 @@ import { useShapeUpdateMutation } from "./useShapeUpdateMutation";
 import { useSearchParams } from "next/navigation";
 import { nanoid } from "nanoid";
 export const useAddGeometry = () => {
-  const {
-    circles,
-    currentZoomFactor: creationZoomFactor,
-    attachableLines,
-    cameraCoordinate,
-  } = useAppSelector((store) => store.canvas.present);
+  const { circles, currentZoomFactor, attachableLines, cameraCoordinate } =
+    useAppSelector((store) => store.canvas.present);
   const dispatch = useAppDispatch();
   const meta = useMeta();
   const shapeUpdateMutation = useShapeUpdateMutation();
@@ -46,12 +42,12 @@ export const useAddGeometry = () => {
       y1,
       x2: x1 - 10,
       y2: y1 - 50,
-      width: 4 * creationZoomFactor,
+      width: 4 * currentZoomFactor,
       directed: false,
       color: "#ACACAC",
       attachNodeOne: {
         center: [x1, y1],
-        radius: 15 * creationZoomFactor,
+        radius: 15 * currentZoomFactor,
         color: "#42506e",
         id: nanoid(),
         type: "node1",
@@ -59,7 +55,7 @@ export const useAddGeometry = () => {
       },
       attachNodeTwo: {
         center: [x1 - 10, y1 - 50],
-        radius: 15 * creationZoomFactor,
+        radius: 15 * currentZoomFactor,
         color: "#42506e",
         id: nanoid(),
         type: "node2",
@@ -68,7 +64,7 @@ export const useAddGeometry = () => {
     };
     validShapeUpdateMutation({
       lines: [...attachableLines, newLine],
-      zoomAmount: creationZoomFactor,
+      zoomAmount: currentZoomFactor,
     });
     dispatch(CanvasActions.addLine(newLine, meta));
     dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
@@ -93,12 +89,12 @@ export const useAddGeometry = () => {
       y1,
       x2: x1 - 10,
       y2: y1 - 50,
-      width: 7 * creationZoomFactor,
+      width: 7 * currentZoomFactor,
       directed: true,
       color: "white",
       attachNodeOne: {
         center: [x1, y1],
-        radius: 10 * creationZoomFactor,
+        radius: 10 * currentZoomFactor,
         color: "#42506e",
         id: nanoid(),
         type: "node1",
@@ -106,7 +102,7 @@ export const useAddGeometry = () => {
       },
       attachNodeTwo: {
         center: [x1 - 10, y1 - 50],
-        radius: 10 * creationZoomFactor,
+        radius: 10 * currentZoomFactor,
         color: "#42506e",
         id: nanoid(),
         type: "node2",
@@ -132,7 +128,7 @@ export const useAddGeometry = () => {
     const newNodeConnector: CircleReceiver["nodeReceiver"] = {
       id: nanoid(),
       center: circleCenter,
-      radius: circleRadius * 0.4 * creationZoomFactor,
+      radius: circleRadius * 0.4 * currentZoomFactor,
       color: "#262D3F",
       type: "circle",
       attachedIds: [],
@@ -145,14 +141,14 @@ export const useAddGeometry = () => {
       value: Math.floor(Math.random() * 100),
       type: "circle",
       center: circleCenter,
-      radius: circleRadius * creationZoomFactor,
+      radius: circleRadius * currentZoomFactor,
       color: "rgb(24, 30, 43, .85)",
       nodeReceiver: newNodeConnector,
     };
 
     validShapeUpdateMutation({
       circles: [...circles, newCircle],
-      zoomAmount: creationZoomFactor,
+      zoomAmount: currentZoomFactor,
     });
 
     dispatch(CanvasActions.addCircle(newCircle, meta));

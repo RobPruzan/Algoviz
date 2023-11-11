@@ -1,12 +1,12 @@
-import { useAppDispatch, useAppSelector } from '@/redux/store';
+import { useAppDispatch, useAppSelector } from "@/redux/store";
 import React, {
   Dispatch,
   MouseEvent,
   MutableRefObject,
   SetStateAction,
   useRef,
-} from 'react';
-import * as Canvas from '@/lib/Canvas/canvas';
+} from "react";
+import * as Canvas from "@/lib/Canvas/canvas";
 import {
   CircleReceiver,
   DrawTypes,
@@ -18,14 +18,14 @@ import {
   SelectedValidatorLens,
   SelectedValidatorLensResizeCircle,
   TaggedDrawTypes,
-} from '@/lib/types';
-import { match } from 'ts-pattern';
+} from "@/lib/types";
+import { match } from "ts-pattern";
 import {
   CanvasActions,
   Meta,
   ValidatorLensInfo,
-} from '@/redux/slices/canvasSlice';
-import { CollaborationActions } from '@/redux/slices/colloborationSlice';
+} from "@/redux/slices/canvasSlice";
+import { CollaborationActions } from "@/redux/slices/colloborationSlice";
 type UseCanvasMouseMoveProps = {
   isMouseDownRef: MutableRefObject<boolean>;
   selectBox: SelectBox | null;
@@ -129,7 +129,7 @@ export const useCanvasMouseMove = ({
         // this should be a case obviously just doing this for quick measures
         if (isSelectBoxSet && isMouseDownRef.current) {
           // dispatch(CanvasActions.update());
-
+          console.log("shifting circl");
           dispatch(
             CanvasActions.shiftCircles(
               {
@@ -148,10 +148,10 @@ export const useCanvasMouseMove = ({
         }
 
         switch (activeTask) {
-          case 'bottom-left':
-          case 'bottom-right':
-          case 'top-left':
-          case 'top-right':
+          case "bottom-left":
+          case "bottom-right":
+          case "top-left":
+          case "top-right":
             const lens = validatorLensContainer.find(
               (lens) => selectedResizeValidatorLensCircle?.id === lens.id
             );
@@ -171,7 +171,7 @@ export const useCanvasMouseMove = ({
               )
             );
             dispatch(CanvasActions.update());
-          case 'validator-lens':
+          case "validator-lens":
             const activeLens = validatorLensContainer.find(
               (lens) => lens.id === selectedValidatorLens?.id
             );
@@ -190,7 +190,7 @@ export const useCanvasMouseMove = ({
             );
             dispatch(CanvasActions.update());
             break;
-          case 'circle':
+          case "circle":
             selectedCircleID &&
               dispatch(
                 CanvasActions.handleMoveCircle(
@@ -200,7 +200,7 @@ export const useCanvasMouseMove = ({
               );
             dispatch(CanvasActions.update());
             break;
-          case 'line':
+          case "line":
             selectedAttachableLine?.id &&
               dispatch(
                 CanvasActions.handleMoveLine(
@@ -213,7 +213,7 @@ export const useCanvasMouseMove = ({
               );
             dispatch(CanvasActions.update());
             break;
-          case 'node1':
+          case "node1":
             selectedAttachableLine?.id &&
               dispatch(
                 CanvasActions.handleMoveNodeOne(
@@ -227,7 +227,7 @@ export const useCanvasMouseMove = ({
               );
             dispatch(CanvasActions.update());
             break;
-          case 'node2':
+          case "node2":
             selectedAttachableLine?.id &&
               dispatch(
                 CanvasActions.handleMoveNodeTwo(
