@@ -518,7 +518,7 @@ const CodeExecution = ({
                                                 ID
                                               </div>
                                               <div className="h-3/4 w-full flex justify-center items-center">
-                                                {v.id}
+                                                {v.id.slice(0, 20)}
                                               </div>
                                             </div>
                                             <div className="w-1/2 h-full">
