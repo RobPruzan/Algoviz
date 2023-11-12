@@ -13,6 +13,7 @@ import {
 } from "./types";
 import { z } from "zod";
 import ky from "ky";
+
 import { useRef } from "react";
 import {
   CanvasActions,
@@ -349,3 +350,116 @@ export const toStackSnapshotAtVisUpdate = (trace: Array<ParsedVisOutput>) => {
 //     const current = stack.frames.at(-1)
 //   }))
 // }
+type SerializedNode = { id: string; value: number };
+type AutoParseResult<T> =
+  | { value: Record<string, string>; type: "table" }
+  | { value: string; type: "string" }
+  | { type: "array-of-nodes"; value: Array<{ id: string; value: number }> }
+  | { type: "error"; value: T; message: string };
+
+export const parseNodeRepr = (nodeRepr: string): SerializedNode => {
+  //ex: Node(ID='22ad2d09-7ba7-4f52-8fd9-c305dd06b9c716979603557661699757050353', value=43)
+  let id = "";
+  let valueStrRepresentation = "";
+  let insideIdQuote = false;
+  let insideValueEquals = false;
+  let prevChar = "";
+
+  for (const char of nodeRepr) {
+    if (prevChar === "'" && id === "") {
+      insideIdQuote = true;
+    }
+
+    if (char === "'" && id !== "") {
+      insideIdQuote = false;
+      prevChar = char;
+      continue;
+    }
+
+    if (prevChar === "=" && id !== "") {
+      insideValueEquals = true;
+    }
+    if (char === ")" && valueStrRepresentation !== "") {
+      insideValueEquals = false;
+    }
+
+    if (insideIdQuote) {
+      id += char;
+    }
+    if (insideValueEquals) {
+      valueStrRepresentation += char;
+    }
+    prevChar = char;
+  }
+
+  return {
+    id,
+    value: +valueStrRepresentation,
+  };
+};
+
+export const wrapNodeInString = (someStr: string) => {
+  const regex = /Node\(.*?\)/g;
+  const matches = someStr.match(regex);
+
+  console.log(matches);
+  return matches ?? [];
+};
+
+export const autoParseVariable = <
+  T extends string | Record<string, unknown> | Array<unknown>
+>(
+  variable: T
+): AutoParseResult<T> => {
+  try {
+    if (variable instanceof Array) {
+      return {
+        type: "array-of-nodes",
+        value: variable.map((variable) => {
+          const typedVariable = variable as [string, number];
+          return { id: typedVariable[0], value: typedVariable[1] };
+        }),
+      };
+    }
+    if (typeof variable === "string") {
+      if (variable.slice(0, 5) === "deque") {
+        // const;
+
+        const nodes = wrapNodeInString(variable).map(parseNodeRepr);
+        return {
+          type: "array-of-nodes",
+          value: nodes,
+        };
+      }
+      return { type: "string", value: variable };
+    }
+    if (typeof variable === "object") {
+      return {
+        type: "table",
+        value: Object.fromEntries(
+          Object.entries(variable).map(([k, v]) => [k, , JSON.stringify(v)])
+        ),
+      };
+    }
+
+    return {
+      type: "error",
+      value: variable,
+      message: "wadu",
+    };
+  } catch (e) {
+    let typedE = e as Error;
+
+    return {
+      type: "error",
+      value: variable,
+      message: typedE.message,
+    };
+  }
+
+  // the certain cases
+  // a node gets serialized as a tuple: [id, value]
+  // a deque will be used often, so deque([...]) needs to be parsed
+  // just a string can just be left alone
+  // an object can be shown as a table, so we'll just return that
+};

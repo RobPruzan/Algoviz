@@ -24,6 +24,7 @@ import {
 import {
   DEFAULT_VALIDATOR_CODE,
   DEFAULT_VISUALIZATION_CODE,
+  autoParseVariable,
   cn,
   getCode,
   getSelectedItems,
@@ -145,7 +146,20 @@ const CodeExecution = ({
 
     return [...locals.values()];
   };
-
+  const errorProne = () => {
+    try {
+      console.log(
+        autoParseVariable(
+          toStackSnapshotAtVisUpdate(
+            (codeMutation.data!.flattenedVis as any).fullOutput
+          ).at(visualizationPointer)?.frames[0].args.locals[
+            selectedLocal as string
+          ]
+        )
+      );
+    } catch {}
+  };
+  errorProne();
   return (
     <div style={{ height: "calc(100% - 60px)" }} className="w-full ">
       <Resizable
@@ -441,12 +455,82 @@ const CodeExecution = ({
                               {selectedLocal &&
                               codeMutation.data?.flattenedVis.type ===
                                 AlgoType.Visualizer
-                                ? JSON.stringify(
-                                    toStackSnapshotAtVisUpdate(
-                                      codeMutation.data.flattenedVis.fullOutput
-                                    ).at(visualizationPointer)?.frames[0].args
-                                      .locals[selectedLocal]
+                                ? match(
+                                    autoParseVariable(
+                                      toStackSnapshotAtVisUpdate(
+                                        codeMutation.data.flattenedVis
+                                          .fullOutput
+                                      ).at(visualizationPointer)?.frames[0].args
+                                        .locals[selectedLocal]
+                                    )
                                   )
+                                    .with(
+                                      { type: "array-of-nodes" },
+                                      ({ value }) =>
+                                        value.map((v) => (
+                                          <div
+                                            className={cn([
+                                              "border rounded-md p-4 flex text-xs",
+                                              run(() => {
+                                                if (
+                                                  codeMutation.data
+                                                    ?.flattenedVis.type ===
+                                                  AlgoType.Visualizer
+                                                ) {
+                                                  const res = autoParseVariable(
+                                                    toStackSnapshotAtVisUpdate(
+                                                      codeMutation.data
+                                                        .flattenedVis.fullOutput
+                                                    ).at(
+                                                      visualizationPointer - 1
+                                                    )?.frames[0].args.locals[
+                                                      selectedLocal
+                                                    ]
+                                                  );
+
+                                                  if (
+                                                    res.type ===
+                                                    "array-of-nodes"
+                                                  ) {
+                                                    let diff: any = null;
+
+                                                    if (
+                                                      !res.value.some((r) => {
+                                                        return (
+                                                          r.id === v.id &&
+                                                          r.value === v.value
+                                                        );
+                                                      })
+                                                    ) {
+                                                      return "bg-green-500";
+                                                    }
+                                                  }
+                                                }
+
+                                                return "";
+                                              }),
+                                            ])}
+                                          >
+                                            <div className="w-1/2 h-full ">
+                                              <div className="h-1/4 w-full font-bold flex justify-center items-center">
+                                                ID
+                                              </div>
+                                              <div className="h-3/4 w-full flex justify-center items-center">
+                                                {v.id}
+                                              </div>
+                                            </div>
+                                            <div className="w-1/2 h-full">
+                                              <div className="h-1/4 w-full font-bold flex justify-center items-center">
+                                                Value
+                                              </div>
+                                              <div className="h-3/4 w-full flex justify-center items-center">
+                                                {v.value}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))
+                                    )
+                                    .otherwise(() => <></>)
                                 : "Nothing to show!"}
                             </div>
 
