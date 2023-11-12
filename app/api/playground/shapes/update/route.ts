@@ -1,17 +1,17 @@
-import { prisma } from '@/lib/prisma';
+import { prisma } from "@/lib/prisma";
 
-import { getServerSession } from 'next-auth';
-import { z } from 'zod';
+import { getServerSession } from "next-auth";
+import { z } from "zod";
 
-import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { P, match } from 'ts-pattern';
+import { NextRequest, NextResponse } from "next/server";
+import { authOptions } from "@/app/api/auth/[...nextauth]/auth-options";
+import { P, match } from "ts-pattern";
 
 export async function PUT(request: NextRequest, context: unknown) {
   const session = await getServerSession(authOptions);
   if (!session?.user)
     return NextResponse.json({
-      msg: 'Must be signed in',
+      msg: "Must be signed in",
       status: 401,
     });
   const json = await request.json();
@@ -51,7 +51,7 @@ export async function PUT(request: NextRequest, context: unknown) {
   }
 
   return NextResponse.json({
-    msg: 'Successfully updated shapes',
+    msg: "Successfully updated shapes",
     status: 200,
   });
 }

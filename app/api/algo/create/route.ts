@@ -1,8 +1,8 @@
-import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { NextResponse } from 'next/server';
-import { z } from 'zod';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { authOptions } from "../../auth/[...nextauth]/auth-options";
 
 export async function POST(request: Request) {
   const algoSchema = z.object({
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user)
     return NextResponse.json({
-      msg: 'Must be signed in',
+      msg: "Must be signed in",
       status: 401,
     });
   try {
@@ -38,10 +38,10 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({
-      msg: 'Successfully created new algo: ' + algo,
+      msg: "Successfully created new algo: " + algo,
       status: 200,
     });
   } catch (e) {
-    console.error('error is', e);
+    console.error("error is", e);
   }
 }

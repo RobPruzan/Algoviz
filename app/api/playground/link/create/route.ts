@@ -1,8 +1,8 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth';
-import { NextResponse } from 'next/server';
+import { authOptions } from "@/app/api/auth/[...nextauth]/auth-options";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const jwtSecret = process.env.NEXTAUTH_SECRET;
 
@@ -17,9 +17,9 @@ function generateRoomUrl(roomId: string, permission: string, headers: Headers) {
   const token = jwt.sign(payload, jwtSecret);
 
   return `${
-    process.env.NODE_ENV === 'production' ? 'https' : 'http'
+    process.env.NODE_ENV === "production" ? "https" : "http"
   }://${headers.get(
-    'host'
+    "host"
   )}/visualizer?playground-id=${roomId}&share-id=${token}`;
 }
 
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user)
     return NextResponse.json({
-      msg: 'Must be signed in',
+      msg: "Must be signed in",
       status: 401,
     });
 

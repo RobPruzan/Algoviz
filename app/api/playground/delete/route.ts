@@ -1,15 +1,15 @@
-import { prisma } from '@/lib/prisma';
+import { prisma } from "@/lib/prisma";
 
-import { getServerSession } from 'next-auth';
-import { z } from 'zod';
-import { authOptions } from '../../auth/[...nextauth]/route';
-import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from "next-auth";
+import { z } from "zod";
+import { authOptions } from "../../auth/[...nextauth]/auth-options";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({
-      msg: 'Must be signed in',
+      msg: "Must be signed in",
       status: 401,
     });
   }
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   });
 
   return NextResponse.json({
-    msg: 'Deleted playground: ' + playground.id,
+    msg: "Deleted playground: " + playground.id,
     status: 200,
     playgroundId: playground.id,
   });

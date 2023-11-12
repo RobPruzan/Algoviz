@@ -2,7 +2,7 @@
 import { Button, buttonVariants } from "@/components/ui/button";
 
 import Image from "next/image";
-import { siteConfig } from "@/config/site";
+
 import Link from "next/link";
 import { NavigationMenu } from "@radix-ui/react-navigation-menu";
 

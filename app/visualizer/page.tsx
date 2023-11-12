@@ -1,22 +1,22 @@
-import ContentWrapper from './ContentWrapper';
-import { prisma } from '@/lib/prisma';
-import { PickedPlayground } from '@/lib/types';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../api/auth/[...nextauth]/route';
-import { z } from 'zod';
-const jwt = require('jsonwebtoken');
+import ContentWrapper from "./ContentWrapper";
+import { prisma } from "@/lib/prisma";
+import { PickedPlayground } from "@/lib/types";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]/auth-options";
+import { z } from "zod";
+const jwt = require("jsonwebtoken");
 
 export const metadata = {};
 
 type Discriminate =
-  | { type: 'NO_VERIFICATION_NEEDED'; data: null }
+  | { type: "NO_VERIFICATION_NEEDED"; data: null }
   | {
-      type: 'IS_OWNER';
+      type: "IS_OWNER";
       data: PickedPlayground;
     }
-  | { type: 'VALID_LINK'; data: PickedPlayground }
-  | { type: 'DENIED'; data: null }
-  | { type: 'NO_PLAYGROUND_FOUND'; data: null };
+  | { type: "VALID_LINK"; data: PickedPlayground }
+  | { type: "DENIED"; data: null }
+  | { type: "NO_PLAYGROUND_FOUND"; data: null };
 
 const jwtSecret = process.env.NEXTAUTH_SECRET;
 const jsonSchema = z.object({
@@ -36,12 +36,12 @@ const getCases = async ({
   // const parsedJSON = jsonSchema.parse(json);
 
   if (!playgroundID) {
-    return { type: 'NO_VERIFICATION_NEEDED', data: null };
+    return { type: "NO_VERIFICATION_NEEDED", data: null };
   }
 
   let playgrounds = session?.user.id
     ? ({
-        type: 'signed_in',
+        type: "signed_in",
         data: await prisma.playground.findMany({
           where: {
             userId: session.user.id,
@@ -57,7 +57,7 @@ const getCases = async ({
         }),
       } as const)
     : ({
-        type: 'linked',
+        type: "linked",
         data: await prisma.playground.findUnique({
           where: {
             id: playgroundID,
@@ -74,41 +74,41 @@ const getCases = async ({
       } as const);
 
   switch (playgrounds.type) {
-    case 'signed_in':
+    case "signed_in":
       const playground = playgrounds.data?.find(
         (playground) => playground.id === playgroundID
       );
       if (playground) {
-        return { type: 'IS_OWNER', data: playground };
+        return { type: "IS_OWNER", data: playground };
       }
       break;
-    case 'linked':
+    case "linked":
       try {
         if (!playgrounds.data) {
-          return { type: 'NO_PLAYGROUND_FOUND', data: null };
+          return { type: "NO_PLAYGROUND_FOUND", data: null };
         }
         jwt.verify(shareID, jwtSecret);
-        return { type: 'VALID_LINK', data: playgrounds.data };
+        return { type: "VALID_LINK", data: playgrounds.data };
       } catch (error) {
-        return { type: 'DENIED', data: null };
+        return { type: "DENIED", data: null };
       }
     default:
-      return { type: 'DENIED', data: null };
+      return { type: "DENIED", data: null };
   }
 
-  return { type: 'DENIED', data: null };
+  return { type: "DENIED", data: null };
 };
 
 type Props = {
   searchParams?: {
-    ['playground-id']?: string;
-    ['share-id']?: string;
+    ["playground-id"]?: string;
+    ["share-id"]?: string;
   };
 };
 
 const page = async ({ searchParams }: Props) => {
-  const shareID = searchParams?.['share-id'];
-  const playgroundID = searchParams?.['playground-id'];
+  const shareID = searchParams?.["share-id"];
+  const playgroundID = searchParams?.["playground-id"];
   const body = shareID
     ? playgroundID
       ? { shareID, playgroundID: +playgroundID }

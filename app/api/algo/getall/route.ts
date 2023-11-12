@@ -1,7 +1,7 @@
-import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { NextResponse } from 'next/server';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
+import { authOptions } from "../../auth/[...nextauth]/auth-options";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -11,12 +11,12 @@ export async function GET() {
       OR: [{ userId: session?.user.id }, { isGodMode: true }],
     },
     orderBy: {
-      createdAt: 'desc',
+      createdAt: "desc",
     },
   });
 
   const res = NextResponse.json(
-    data.map((d) => ({ ...d, algoID: d.algoID ?? 'default' }))
+    data.map((d) => ({ ...d, algoID: d.algoID ?? "default" }))
   );
 
   return res;
