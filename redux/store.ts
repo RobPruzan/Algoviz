@@ -157,11 +157,14 @@ const undoableCanvasReducer = undoable(
     limit: 100,
     filter: (action, _, withHistory) => {
       if (action.type.split("/")[0] != "canvas") return false;
-
       const doNotUpdate = [
         "canvas/staticLensSetValidatorLensIds",
         "canvas/update",
+        "canvas/shiftCamera",
       ];
+
+      if (typeof action.type === "string" && action.type.includes("zoom"))
+        return false;
 
       if (action.type.includes("zoom")) {
         return false;

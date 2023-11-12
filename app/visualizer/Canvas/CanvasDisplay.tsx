@@ -174,6 +174,7 @@ const CanvasDisplay = ({
     ],
   };
   const { toast } = useToast();
+  //
 
   // useEffect(() => {
   //   dispatch(CanvasActions.resetCircles(undefined));

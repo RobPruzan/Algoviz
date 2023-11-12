@@ -1,14 +1,14 @@
-'use client';
+"use client";
 import React, {
   Dispatch,
   SetStateAction,
   useContext,
   useRef,
   useState,
-} from 'react';
+} from "react";
 
-import CanvasDisplay from './Canvas/CanvasDisplay';
-import CanvasControlBar from './Canvas/CanvasControlBar';
+import CanvasDisplay from "./Canvas/CanvasDisplay";
+import CanvasControlBar from "./Canvas/CanvasControlBar";
 import {
   CircleReceiver,
   DrawTypes,
@@ -19,19 +19,23 @@ import {
   SelectedValidatorLens,
   TaggedDrawTypes,
   UndirectedEdge,
-} from '@/lib/types';
-import { useAppSelector } from '@/redux/store';
+} from "@/lib/types";
+import { useAppSelector } from "@/redux/store";
 
-import { useDepthFirstSearch } from '@/hooks/useDepthFirstSearch';
-import { getSelectedItems } from '@/lib/utils';
-import { SpeedSlider } from './Sort/SpeedSlider';
-import { RedoIcon, Undo } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useDispatch } from 'react-redux';
-import { CanvasActions, canvasReducer } from '@/redux/slices/canvasSlice';
-import { ActionCreators } from 'redux-undo';
+import { useDepthFirstSearch } from "@/hooks/useDepthFirstSearch";
+import { getSelectedItems } from "@/lib/utils";
+import { SpeedSlider } from "./Sort/SpeedSlider";
+import { RedoIcon, Undo } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useDispatch } from "react-redux";
+import { CanvasActions, canvasReducer } from "@/redux/slices/canvasSlice";
+import { ActionCreators } from "redux-undo";
 
-import { Algorithm } from '@prisma/client';
+import { Algorithm } from "@prisma/client";
+import {
+  ErrorBoundary,
+  ErrorComponent,
+} from "next/dist/client/components/error-boundary";
 type Props = {
   setSelectedValidatorLens: React.Dispatch<
     React.SetStateAction<SelectedValidatorLens | null>
@@ -72,18 +76,35 @@ const Visualize = ({
         tabIndex={-1}
         className=" w-full overflow-y-scroll rounded-t-none h-full border-2 border-secondary border-t-0"
       >
-        <CanvasDisplay
-          setUserAlgorithm={setUserAlgorithm}
-          setSelectedControlBarAction={setSelectedControlBarAction}
-          selectedValidatorLens={selectedValidatorLens}
-          setSelectedValidatorLens={setSelectedValidatorLens}
-          canvasWrapperRef={canvasWrapperRef}
-          userAlgorithm={userAlgorithm}
-          canvasWidth={width ?? 1000}
-          canvasHeight={height ?? 1000}
-          selectedControlBarAction={selectedControlBarAction}
-        />
+        <ErrorBoundary errorComponent={CanvasError}>
+          <CanvasDisplay
+            setUserAlgorithm={setUserAlgorithm}
+            setSelectedControlBarAction={setSelectedControlBarAction}
+            selectedValidatorLens={selectedValidatorLens}
+            setSelectedValidatorLens={setSelectedValidatorLens}
+            canvasWrapperRef={canvasWrapperRef}
+            userAlgorithm={userAlgorithm}
+            canvasWidth={width ?? 1000}
+            canvasHeight={height ?? 1000}
+            selectedControlBarAction={selectedControlBarAction}
+          />
+        </ErrorBoundary>
       </div>
+    </div>
+  );
+};
+
+const CanvasError: ErrorComponent = ({ error, reset }) => {
+  return (
+    <div className="w-full h-full flex flex-col items-center justify-center">
+      <div className="mb-5 text-red-500 text-lg font-bold">
+        {" "}
+        Something went wrong...
+      </div>
+      <Button onClick={reset} variant={"outline"}>
+        {" "}
+        Reload{" "}
+      </Button>
     </div>
   );
 };
