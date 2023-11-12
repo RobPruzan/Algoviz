@@ -11,7 +11,7 @@ import {
   SelectedGeometryInfo,
   SerializedPlayground,
 } from "./types";
-import { z } from "zod";
+import { map, z } from "zod";
 import ky from "ky";
 
 import { useRef } from "react";
@@ -25,6 +25,7 @@ import { defaultAlgo } from "@/app/visualizer/ContentWrapper";
 // import { type AppDispatch } from '@/redux/store';
 import { useGetPresets } from "@/hooks/useGetPresets";
 import { ParsedVisOutput } from "@/hooks/useCodeMutation";
+import { match } from "ts-pattern";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -327,6 +328,46 @@ export const getValidatorLensSelectedIds = ({
 
 export const run = <T>(f: () => T): T => f();
 
+export function parseDictOrSet(
+  inputString: string,
+  mapper: (variable: string) => SerializedNode
+):
+  | { type: "table"; value: Record<string, Array<SerializedNode>> }
+  | { type: "set"; value: Array<SerializedNode> }
+  | { type: "unknown" } {
+  const setPattern = /^\{(?:\s*Node\(.*?\)\s*,\s*)*\s*Node\(.*?\)\s*\}$/;
+  const dictPattern =
+    /^\{(?:\s*Node\(.*?\)\s*:\s*\[.*?\]\s*,\s*)*\s*Node\(.*?\)\s*:\s*\[.*?\]\s*\}$/;
+
+  if (setPattern.test(inputString)) {
+    const elements = inputString.match(/Node\(.*?\)/g);
+    return elements
+      ? { type: "set", value: elements.map(mapper) }
+      : { type: "unknown" };
+  }
+
+  if (dictPattern.test(inputString)) {
+    const dictElements = [
+      ...inputString.matchAll(/(Node\(.*?\)):\s*\[(.*?)\]/g),
+    ];
+    if (!dictElements) return { type: "unknown" };
+
+    const parsedDict: { [key: string]: Array<SerializedNode> } = {};
+
+    dictElements.forEach((match) => {
+      const key = match[1].trim();
+      const nodeMatches = match[2].match(/Node\(.*?\)/g);
+      if (nodeMatches) {
+        parsedDict[key] = nodeMatches.map((s) => mapper(s.trim()));
+      }
+    });
+
+    return { type: "table", value: parsedDict };
+  }
+
+  return { type: "unknown" };
+}
+
 export const toStackSnapshotAtVisUpdate = (trace: Array<ParsedVisOutput>) => {
   let previous = JSON.stringify(trace.at(0) ?? "");
   let snapshots: typeof trace = [];
@@ -350,59 +391,29 @@ export const toStackSnapshotAtVisUpdate = (trace: Array<ParsedVisOutput>) => {
 //     const current = stack.frames.at(-1)
 //   }))
 // }
-type SerializedNode = { id: string; value: number };
+type SerializedNode = { ID: string; value: number };
 export type AutoParseResult<T> =
-  | { value: Record<string, string>; type: "table" }
+  | { value: Record<string, Array<SerializedNode>>; type: "table" }
   | { value: string; type: "string" }
-  | { type: "array-of-nodes"; value: Array<{ id: string; value: number }> }
-  | { type: "error"; value: T; message: string };
+  | { type: "array-of-nodes"; value: Array<SerializedNode> }
+  | { type: "error"; value: T; message: string }
+  | { type: "singleton"; value: SerializedNode };
 
 export const parseNodeRepr = (nodeRepr: string): SerializedNode => {
-  //ex: Node(ID='22ad2d09-7ba7-4f52-8fd9-c305dd06b9c716979603557661699757050353', value=43)
-  let id = "";
-  let valueStrRepresentation = "";
-  let insideIdQuote = false;
-  let insideValueEquals = false;
-  let prevChar = "";
+  const regex = /Node\(ID='(.*?)',\s*value=(\d+)\)/;
 
-  for (const char of nodeRepr) {
-    if (prevChar === "'" && id === "") {
-      insideIdQuote = true;
-    }
-
-    if (char === "'" && id !== "") {
-      insideIdQuote = false;
-      prevChar = char;
-      continue;
-    }
-
-    if (prevChar === "=" && id !== "") {
-      insideValueEquals = true;
-    }
-    if (char === ")" && valueStrRepresentation !== "") {
-      insideValueEquals = false;
-    }
-
-    if (insideIdQuote) {
-      id += char;
-    }
-    if (insideValueEquals) {
-      valueStrRepresentation += char;
-    }
-    prevChar = char;
+  const match = nodeRepr.match(regex);
+  if (!match) {
+    throw new Error("invalid node type");
   }
-
-  return {
-    id,
-    value: +valueStrRepresentation,
-  };
+  const [, ID, value] = match;
+  return { ID, value: parseInt(value) };
 };
 
 export const wrapNodeInString = (someStr: string) => {
   const regex = /Node\(.*?\)/g;
   const matches = someStr.match(regex);
 
-  console.log(matches);
   return matches ?? [];
 };
 
@@ -413,11 +424,24 @@ export const autoParseVariable = <
 ): AutoParseResult<T> => {
   try {
     if (variable instanceof Array) {
+      if (
+        variable.length == 2 &&
+        typeof variable.at(0) === "string" &&
+        typeof variable.at(1) === "number"
+      ) {
+        return {
+          type: "singleton",
+          value: {
+            ID: variable.at(0) as string,
+            value: variable.at(1) as number,
+          },
+        };
+      }
       return {
         type: "array-of-nodes",
         value: variable.map((variable) => {
           const typedVariable = variable as [string, number];
-          return { id: typedVariable[0], value: typedVariable[1] };
+          return { ID: typedVariable[0], value: typedVariable[1] };
         }),
       };
     }
@@ -429,6 +453,38 @@ export const autoParseVariable = <
         return {
           type: "array-of-nodes",
           value: nodes,
+        };
+      }
+
+      try {
+        const dictOSet = parseDictOrSet(variable, parseNodeRepr);
+
+        switch (dictOSet.type) {
+          case "set": {
+            return {
+              type: "array-of-nodes",
+              value: dictOSet.value,
+            };
+          }
+          case "table": {
+            return {
+              type: "table",
+              value: dictOSet.value,
+            };
+          }
+          case "unknown": {
+            return {
+              type: "error",
+              message: dictOSet.type,
+              value: variable,
+            };
+          }
+        }
+      } catch (e) {
+        return {
+          type: "error",
+          message: "something went wrong",
+          value: variable,
         };
       }
       return { type: "string", value: variable };

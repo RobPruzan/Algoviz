@@ -162,8 +162,6 @@ const CanvasDisplay = ({
     return circles.find((c) => c.id === selectedCircleID)?.value;
   }, [circles, selectedCircleID]);
 
-  console.log();
-
   useEffect(() => {
     setTempCircleValue(currentCircleValue ? String(currentCircleValue) : "");
   }, [currentCircleValue]);

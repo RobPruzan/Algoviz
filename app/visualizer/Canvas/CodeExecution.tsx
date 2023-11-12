@@ -29,6 +29,7 @@ import {
   cn,
   getCode,
   getSelectedItems,
+  parseNodeRepr,
   run,
   toStackSnapshotAtVisUpdate,
 } from "@/lib/utils";
@@ -140,14 +141,6 @@ const CodeExecution = ({
     }
   }, [visualizationPointer]);
 
-  const getWhatINeed = () => {
-    if (codeMutation.data?.flattenedVis.type !== AlgoType.Visualizer) {
-      return [];
-    }
-
-    console.log(codeMutation.data?.flattenedVis.fullOutput);
-  };
-
   const allLocals = () => {
     const locals = new Set<string>();
     codeMutation.data?.flattenedVis.type === AlgoType.Visualizer &&
@@ -169,6 +162,7 @@ const CodeExecution = ({
       const snap = toStackSnapshotAtVisUpdate(
         codeMutation.data.flattenedVis.fullOutput
       );
+
       return autoParseVariable(
         snap.at(visualizationPointer)?.frames.at(0)?.args.locals[
           selectedLocal
@@ -177,6 +171,8 @@ const CodeExecution = ({
     }
     return { type: "error", value: null, message: "Could not parse" };
   };
+
+  const localSnapshot = getLocalSnapshot();
 
   return (
     <div style={{ height: "calc(100% - 60px)" }} className="w-full ">
@@ -477,90 +473,151 @@ const CodeExecution = ({
                               <p className="text-xl font-bold mb-4">
                                 {selectedLocal}
                               </p>
-                              {match(getLocalSnapshot())
+                              {match(localSnapshot)
                                 .with({ type: "array-of-nodes" }, ({ value }) =>
-                                  value?.map((v, index) => (
-                                    <div
-                                      key={index}
-                                      className={cn([
-                                        "border rounded-md p-4 flex text-xs",
-                                        run(() => {
-                                          if (
-                                            codeMutation.data?.flattenedVis
-                                              .type === AlgoType.Visualizer &&
-                                            selectedLocal
-                                          ) {
-                                            const res = autoParseVariable(
-                                              toStackSnapshotAtVisUpdate(
-                                                codeMutation.data.flattenedVis
-                                                  .fullOutput
-                                              ).at(visualizationPointer - 1)
-                                                ?.frames[0].args.locals[
-                                                selectedLocal
-                                              ]
-                                            );
-
-                                            if (res.type === "array-of-nodes") {
-                                              let diff: any = null;
-
+                                  value?.length === 0
+                                    ? "Empty!"
+                                    : value?.map((v, index) => (
+                                        <div
+                                          key={index}
+                                          className={cn([
+                                            "border rounded-md p-4 flex text-xs",
+                                            run(() => {
                                               if (
-                                                !res.value.some((r) => {
-                                                  return (
-                                                    r.id === v.id &&
-                                                    r.value === v.value
-                                                  );
-                                                })
+                                                codeMutation.data?.flattenedVis
+                                                  .type ===
+                                                  AlgoType.Visualizer &&
+                                                selectedLocal
                                               ) {
-                                                return "bg-green-500";
-                                              }
-                                            }
-                                          }
+                                                const res = autoParseVariable(
+                                                  toStackSnapshotAtVisUpdate(
+                                                    codeMutation.data
+                                                      .flattenedVis.fullOutput
+                                                  ).at(visualizationPointer - 1)
+                                                    ?.frames[0].args.locals[
+                                                    selectedLocal
+                                                  ]
+                                                );
 
-                                          return "";
-                                        }),
-                                      ])}
-                                    >
-                                      <div className="w-1/2 h-full ">
-                                        <div className="h-1/4 w-full font-bold flex justify-center items-center">
-                                          ID
+                                                if (
+                                                  res.type === "array-of-nodes"
+                                                ) {
+                                                  if (
+                                                    !res.value.some((r) => {
+                                                      return (
+                                                        r.ID === v.ID &&
+                                                        r.value === v.value
+                                                      );
+                                                    })
+                                                  ) {
+                                                    return "bg-green-500";
+                                                  }
+                                                }
+                                              }
+
+                                              return "";
+                                            }),
+                                          ])}
+                                        >
+                                          <div className="w-1/2 h-full ">
+                                            <div className="h-1/4 w-full font-bold flex justify-center items-center">
+                                              ID
+                                            </div>
+                                            <div className="h-3/4 w-full flex justify-center items-center">
+                                              {(v.ID ?? "").slice(0, 20)}
+                                            </div>
+                                          </div>
+                                          <div className="w-1/2 h-full">
+                                            <div className="h-1/4 w-full font-bold flex justify-center items-center">
+                                              Value
+                                            </div>
+                                            <div className="h-3/4 w-full flex justify-center items-center">
+                                              {v.value}
+                                            </div>
+                                          </div>
                                         </div>
-                                        <div className="h-3/4 w-full flex justify-center items-center">
-                                          {(v.id ?? "").slice(0, 20)}
-                                        </div>
+                                      ))
+                                )
+                                .with({ type: "table" }, ({ value }) =>
+                                  value === null ? (
+                                    <>Nothing to see (yet!) </>
+                                  ) : (
+                                    <div className="flex-col w-full h-full text-sm">
+                                      {Object.entries(value ?? {}).map(
+                                        ([k, v]) => (
+                                          <div className="flex w-full ">
+                                            <div className="h-36 overflow-y-scroll w-full flex flex-col items-center justify-center border ">
+                                              <div className="h-1/5 w-full flex">
+                                                <div className="w-1/2 h-full text-center underline font-bold">
+                                                  ID
+                                                </div>
+                                                <div className="w-1/2 h-full text-center underline font-bold">
+                                                  Value
+                                                </div>
+                                              </div>
+                                              <div className="h-4/5 w-full flex">
+                                                <div className="w-1/2 h-full text-center ">
+                                                  {parseNodeRepr(k).ID.slice(
+                                                    0,
+                                                    15
+                                                  )}
+                                                </div>
+                                                <div className="w-1/2 h-full text-center ">
+                                                  {parseNodeRepr(k).value}
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <div className="h-36 overflow-y-scroll w-full flex flex-col border">
+                                              <div className="w-full h-1/5  underline font-bold text-center">
+                                                Values
+                                              </div>
+                                              <div className="w-full h-4/5 flex flex-wrap">
+                                                {v.map((entry) => (
+                                                  <div className="h-fit w-fit p-3 border rounded-lg shadow-md">
+                                                    {entry.value}
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        )
+                                      )}
+                                    </div>
+                                  )
+                                )
+                                .with({ type: "string" }, ({ value }) => (
+                                  <div className="w-full h-full flex-col text-sm p-2">
+                                    {value}
+                                  </div>
+                                ))
+                                .with({ type: "singleton" }, ({ value }) => (
+                                  <div
+                                    className={cn([
+                                      "border rounded-md p-4 flex text-xs",
+                                    ])}
+                                  >
+                                    <div className="w-1/2 h-full ">
+                                      <div className="h-1/4 w-full font-bold flex justify-center items-center">
+                                        ID
                                       </div>
-                                      <div className="w-1/2 h-full">
-                                        <div className="h-1/4 w-full font-bold flex justify-center items-center">
-                                          Value
-                                        </div>
-                                        <div className="h-3/4 w-full flex justify-center items-center">
-                                          {v.value}
-                                        </div>
+                                      <div className="h-3/4 w-full flex justify-center items-center">
+                                        {(value?.ID ?? "").slice(0, 20)}
                                       </div>
                                     </div>
-                                  ))
-                                )
+                                    <div className="w-1/2 h-full">
+                                      <div className="h-1/4 w-full font-bold flex justify-center items-center">
+                                        Value
+                                      </div>
+                                      <div className="h-3/4 w-full flex justify-center items-center">
+                                        {value?.value}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))
                                 .otherwise(() => (
                                   <>Nothing to show (for now)!</>
                                 ))}
                             </div>
-
-                            {/* <div className="flex items-end w-full">
-                              <Button variant={"ghost"} size={"icon"}>
-                                <Link />
-                              </Button>
-
-                    
-                            </div>
-                            <div className="border">
-                              <Button size={"icon"}>
-                                <PlusCircle />
-                              </Button>
-                            </div>
-                            <div className="flex flex-col w-full p-3">
-                              <div className="flex items-center justify-center border p-4">
-                                fdsf
-                              </div>
-                            </div> */}
                           </div>
                         }
                       />
