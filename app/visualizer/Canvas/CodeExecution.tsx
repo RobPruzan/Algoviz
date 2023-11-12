@@ -159,20 +159,7 @@ const CodeExecution = ({
 
     return [...locals.values()];
   };
-  const errorProne = () => {
-    try {
-      console.log(
-        autoParseVariable(
-          toStackSnapshotAtVisUpdate(
-            (codeMutation.data!.flattenedVis as any).fullOutput
-          ).at(visualizationPointer)?.frames[0].args.locals[
-            selectedLocal as string
-          ]
-        )
-      );
-    } catch {}
-  };
-  errorProne();
+
   return (
     <div style={{ height: "calc(100% - 60px)" }} className="w-full ">
       <Resizable
