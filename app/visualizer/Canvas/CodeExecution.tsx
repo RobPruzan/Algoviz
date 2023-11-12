@@ -544,8 +544,11 @@ const CodeExecution = ({
                                   ) : (
                                     <div className="flex-col w-full h-full text-sm">
                                       {Object.entries(value ?? {}).map(
-                                        ([k, v]) => (
-                                          <div className="flex w-full ">
+                                        ([k, v], index) => (
+                                          <div
+                                            key={index}
+                                            className="flex w-full "
+                                          >
                                             <div className="h-36 overflow-y-scroll w-full flex flex-col items-center justify-center border ">
                                               <div className="h-1/5 w-full flex">
                                                 <div className="w-1/2 h-full text-center underline font-bold">
@@ -572,8 +575,11 @@ const CodeExecution = ({
                                                 Values
                                               </div>
                                               <div className="w-full h-4/5 flex flex-wrap">
-                                                {v.map((entry) => (
-                                                  <div className="h-fit w-fit p-3 border rounded-lg shadow-md">
+                                                {v.map((entry, index) => (
+                                                  <div
+                                                    key={index}
+                                                    className="h-fit w-fit p-3 border rounded-lg shadow-md"
+                                                  >
                                                     {entry.value}
                                                   </div>
                                                 ))}
