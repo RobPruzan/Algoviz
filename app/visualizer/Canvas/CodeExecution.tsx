@@ -89,6 +89,8 @@ const CodeExecution = ({
     "70%"
   );
 
+  const scrollToRef = useRef<HTMLDivElement>(null);
+
   const [editorHeight, setEditorHeight] = useState<number | Percentage>("60%");
   const [outputHeight, setCodeExecHeight] = useState<number | Percentage>(
     // to really fix this need to do it in the css with a calc minus for the h-10 and padding
@@ -121,6 +123,17 @@ const CodeExecution = ({
           behavior: "auto",
           block: "end",
           inline: "nearest",
+        });
+      }
+    }
+  }, [visualizationPointer]);
+
+  useEffect(() => {
+    if (scrollToRef.current) {
+      const lastChild = scrollToRef.current.lastElementChild;
+      if (lastChild) {
+        lastChild.scrollIntoView({
+          behavior: "smooth",
         });
       }
     }
@@ -420,6 +433,7 @@ const CodeExecution = ({
                             </p>
                             {allLocals().map((local) => (
                               <Button
+                                key={local}
                                 onClick={() => {
                                   setSelectedLocal(local);
                                 }}
@@ -451,7 +465,7 @@ const CodeExecution = ({
                                 }
                               />
                             </div>
-                            <div className="p-4 text-sm whit">
+                            <div ref={scrollToRef} className="p-4 text-sm whit">
                               {selectedLocal &&
                               codeMutation.data?.flattenedVis.type ===
                                 AlgoType.Visualizer
@@ -467,8 +481,9 @@ const CodeExecution = ({
                                     .with(
                                       { type: "array-of-nodes" },
                                       ({ value }) =>
-                                        value.map((v) => (
+                                        value.map((v, index) => (
                                           <div
+                                            key={index}
                                             className={cn([
                                               "border rounded-md p-4 flex text-xs",
                                               run(() => {
