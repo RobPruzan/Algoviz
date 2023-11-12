@@ -27,6 +27,7 @@ import {
 import { io } from "socket.io-client";
 import { type User } from "next-auth";
 import undoable from "redux-undo";
+import { run } from "@/lib/utils";
 
 export function withMeta<TPayload, TState>(
   reducer: (
@@ -131,25 +132,22 @@ export const socketMiddleware =
     return next(action);
   };
 
-// const updateMiddleware: Middleware<{}, any> =
-//   ({
-//     dispatch,
-//     getState,
-//   }: {
-//     dispatch: typeof store.dispatch;
-//     getState: typeof store.getState;
-//   }) =>
-//   (next) =>
-//   (action) => {
-//     if (action.type !== "canvas/update") {
-//       if (Date.now() - getState().canvas.present.lastUpdate > 500) {
-//         // console.log("saving...");
-//         dispatch(CanvasActions.update());
-//       }
-//     }
+const updateMiddleware: Middleware<{}, any> =
+  ({
+    dispatch,
+    getState,
+  }: {
+    dispatch: typeof store.dispatch;
+    getState: typeof store.getState;
+  }) =>
+  (next) =>
+  (action) => {
+    if (action.type !== "canvas/update") {
+      dispatch(CanvasActions.update());
+    }
 
-//     return next(action);
-//   };
+    return next(action);
+  };
 const undoableCanvasReducer = undoable(
   canvasReducer,
   // NEEDS FILTER TO DEBOUNCE UPDATING CORDS
@@ -162,9 +160,6 @@ const undoableCanvasReducer = undoable(
         "canvas/update",
         "canvas/shiftCamera",
       ];
-
-      if (typeof action.type === "string" && action.type.includes("zoom"))
-        return false;
 
       if (action.type.includes("zoom")) {
         return false;
@@ -193,7 +188,9 @@ export const store = configureStore({
   },
 
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(socketMiddleware(socketManager)),
+    getDefaultMiddleware()
+      .concat(socketMiddleware(socketManager))
+      .concat(updateMiddleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
