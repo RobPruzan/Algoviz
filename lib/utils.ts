@@ -351,7 +351,7 @@ export const toStackSnapshotAtVisUpdate = (trace: Array<ParsedVisOutput>) => {
 //   }))
 // }
 type SerializedNode = { id: string; value: number };
-type AutoParseResult<T> =
+export type AutoParseResult<T> =
   | { value: Record<string, string>; type: "table" }
   | { value: string; type: "string" }
   | { type: "array-of-nodes"; value: Array<{ id: string; value: number }> }

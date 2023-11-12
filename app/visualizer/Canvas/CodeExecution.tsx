@@ -22,6 +22,7 @@ import {
   SelectedValidatorLens,
 } from "@/lib/types";
 import {
+  AutoParseResult,
   DEFAULT_VALIDATOR_CODE,
   DEFAULT_VISUALIZATION_CODE,
   autoParseVariable,
@@ -158,6 +159,23 @@ const CodeExecution = ({
       );
 
     return [...locals.values()];
+  };
+
+  const getLocalSnapshot = () => {
+    if (
+      selectedLocal &&
+      codeMutation.data?.flattenedVis.type === AlgoType.Visualizer
+    ) {
+      const snap = toStackSnapshotAtVisUpdate(
+        codeMutation.data.flattenedVis.fullOutput
+      );
+      return autoParseVariable(
+        snap.at(visualizationPointer)?.frames.at(0)?.args.locals[
+          selectedLocal
+        ] ?? ""
+      );
+    }
+    return { type: "error", value: null, message: "Could not parse" };
   };
 
   return (
@@ -452,88 +470,78 @@ const CodeExecution = ({
                                 }
                               />
                             </div>
-                            <div ref={scrollToRef} className="p-4 text-sm whit">
-                              {selectedLocal &&
-                              codeMutation.data?.flattenedVis.type ===
-                                AlgoType.Visualizer
-                                ? match(
-                                    autoParseVariable(
-                                      toStackSnapshotAtVisUpdate(
-                                        codeMutation.data.flattenedVis
-                                          .fullOutput
-                                      ).at(visualizationPointer)?.frames[0].args
-                                        .locals[selectedLocal]
-                                    )
-                                  )
-                                    .with(
-                                      { type: "array-of-nodes" },
-                                      ({ value }) =>
-                                        value.map((v, index) => (
-                                          <div
-                                            key={index}
-                                            className={cn([
-                                              "border rounded-md p-4 flex text-xs",
-                                              run(() => {
-                                                if (
-                                                  codeMutation.data
-                                                    ?.flattenedVis.type ===
-                                                  AlgoType.Visualizer
-                                                ) {
-                                                  const res = autoParseVariable(
-                                                    toStackSnapshotAtVisUpdate(
-                                                      codeMutation.data
-                                                        .flattenedVis.fullOutput
-                                                    ).at(
-                                                      visualizationPointer - 1
-                                                    )?.frames[0].args.locals[
-                                                      selectedLocal
-                                                    ]
+                            <div
+                              ref={scrollToRef}
+                              className="p-4 text-sm text-center"
+                            >
+                              <p className="text-xl font-bold mb-4">
+                                {selectedLocal}
+                              </p>
+                              {match(getLocalSnapshot())
+                                .with({ type: "array-of-nodes" }, ({ value }) =>
+                                  value?.map((v, index) => (
+                                    <div
+                                      key={index}
+                                      className={cn([
+                                        "border rounded-md p-4 flex text-xs",
+                                        run(() => {
+                                          if (
+                                            codeMutation.data?.flattenedVis
+                                              .type === AlgoType.Visualizer &&
+                                            selectedLocal
+                                          ) {
+                                            const res = autoParseVariable(
+                                              toStackSnapshotAtVisUpdate(
+                                                codeMutation.data.flattenedVis
+                                                  .fullOutput
+                                              ).at(visualizationPointer - 1)
+                                                ?.frames[0].args.locals[
+                                                selectedLocal
+                                              ]
+                                            );
+
+                                            if (res.type === "array-of-nodes") {
+                                              let diff: any = null;
+
+                                              if (
+                                                !res.value.some((r) => {
+                                                  return (
+                                                    r.id === v.id &&
+                                                    r.value === v.value
                                                   );
+                                                })
+                                              ) {
+                                                return "bg-green-500";
+                                              }
+                                            }
+                                          }
 
-                                                  if (
-                                                    res.type ===
-                                                    "array-of-nodes"
-                                                  ) {
-                                                    let diff: any = null;
-
-                                                    if (
-                                                      !res.value.some((r) => {
-                                                        return (
-                                                          r.id === v.id &&
-                                                          r.value === v.value
-                                                        );
-                                                      })
-                                                    ) {
-                                                      return "bg-green-500";
-                                                    }
-                                                  }
-                                                }
-
-                                                return "";
-                                              }),
-                                            ])}
-                                          >
-                                            <div className="w-1/2 h-full ">
-                                              <div className="h-1/4 w-full font-bold flex justify-center items-center">
-                                                ID
-                                              </div>
-                                              <div className="h-3/4 w-full flex justify-center items-center">
-                                                {v.id.slice(0, 20)}
-                                              </div>
-                                            </div>
-                                            <div className="w-1/2 h-full">
-                                              <div className="h-1/4 w-full font-bold flex justify-center items-center">
-                                                Value
-                                              </div>
-                                              <div className="h-3/4 w-full flex justify-center items-center">
-                                                {v.value}
-                                              </div>
-                                            </div>
-                                          </div>
-                                        ))
-                                    )
-                                    .otherwise(() => <></>)
-                                : "Nothing to show!"}
+                                          return "";
+                                        }),
+                                      ])}
+                                    >
+                                      <div className="w-1/2 h-full ">
+                                        <div className="h-1/4 w-full font-bold flex justify-center items-center">
+                                          ID
+                                        </div>
+                                        <div className="h-3/4 w-full flex justify-center items-center">
+                                          {(v.id ?? "").slice(0, 20)}
+                                        </div>
+                                      </div>
+                                      <div className="w-1/2 h-full">
+                                        <div className="h-1/4 w-full font-bold flex justify-center items-center">
+                                          Value
+                                        </div>
+                                        <div className="h-3/4 w-full flex justify-center items-center">
+                                          {v.value}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))
+                                )
+                                .otherwise(() => (
+                                  <>Nothing to show (for now)!</>
+                                ))}
                             </div>
 
                             {/* <div className="flex items-end w-full">
