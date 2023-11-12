@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppSelector } from "@/redux/store";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
 import Editor from "@monaco-editor/react";
 
 import * as Graph from "@/lib/graph";
@@ -24,6 +24,7 @@ import {
 import {
   DEFAULT_VALIDATOR_CODE,
   DEFAULT_VISUALIZATION_CODE,
+  cn,
   getCode,
   getSelectedItems,
   run,
@@ -49,6 +50,7 @@ import { defaultAlgo } from "../ContentWrapper";
 import { toast, useToast } from "@/components/ui/use-toast";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { StackHistorySlider } from "./StackHistorySlider";
+import { CodeExecActions } from "@/redux/slices/codeExecSlice";
 
 type Props = {
   setUserAlgorithm: React.Dispatch<React.SetStateAction<RealMessedUpAlgoType>>;
@@ -94,14 +96,18 @@ const CodeExecution = ({
   const presetCode = useAppSelector((store) => store.canvas.present.presetCode);
   const frameRef = useRef<HTMLDivElement>(null);
 
-  const selectedAlgorithm = useAppSelector(
-    (store) => store.codeExec.selectedAlgorithm
-  );
+  // const selectedAlgorithm = useAppSelector(
+  //   (store) => store.codeExec.selectedAlgorithm
+  // );
 
+  const [selectedLocal, setSelectedLocal] = useState<string | null>(null);
   const circles = useAppSelector((store) => store.canvas.present.circles);
 
   const themeInfo = useTheme();
-
+  const dispatch = useAppDispatch();
+  const visualizationLength = useAppSelector(
+    (store) => store.codeExec.algoOutput?.flattenedOutput.length
+  );
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
   const visualizationPointer = useAppSelector(
     (store) => store.codeExec.visualizationPointer
@@ -119,41 +125,25 @@ const CodeExecution = ({
     }
   }, [visualizationPointer]);
 
-  // const editorContainerRef = useRef<any>(null);
-  // const [editorInstance, setEditorInstance] = useState(null);
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     // Attempt to find the editor instance
-  //     const editor = editorContainerRef.current?.__editorInstance;
-  //     if (editor) {
-  //       setEditorInstance(editor);
-  //       clearInterval(interval);
-  //     }
-  //   }, 100); // poll every 100ms
-
-  //   return () => clearInterval(interval); // Cleanup on unmount
-  // }, []);
-
-  const getLinesChanged = () => {
-    const lines: Array<number> = [];
-    let prev = "";
+  const getWhatINeed = () => {
     if (codeMutation.data?.flattenedVis.type !== AlgoType.Visualizer) {
       return [];
     }
 
-    codeMutation.data?.flattenedVis.fullOutput
-      .slice(0, visualizationPointer)
-      .forEach((frame, idx) => {
-        // frame.visualization.map(v => v.)
-        const currVis = JSON.stringify(frame.visualization);
-        if (prev !== currVis) {
-          lines.push(idx);
-        }
-        prev = currVis;
-      });
+    console.log(codeMutation.data?.flattenedVis.fullOutput);
+  };
 
-    return lines;
+  const allLocals = () => {
+    const locals = new Set<string>();
+    codeMutation.data?.flattenedVis.type === AlgoType.Visualizer &&
+      toStackSnapshotAtVisUpdate(codeMutation.data.flattenedVis.fullOutput).map(
+        (change) =>
+          Object.keys(change.frames[0].args.locals).forEach((i) =>
+            locals.add(i)
+          )
+      );
+
+    return [...locals.values()];
   };
 
   return (
@@ -414,54 +404,52 @@ const CodeExecution = ({
                             <p className="text-lg font-bold w-full text-center p-3">
                               Variables
                             </p>
-                            <Button
-                              className="rounded-3xl w-[6rem] select-none "
-                              variant={"outline"}
-                            >
-                              test
-                            </Button>
-                            <Button
-                              className="rounded-3xl w-[6rem] select-none"
-                              variant={"outline"}
-                            >
-                              test
-                            </Button>
-                            <Button
-                              className="rounded-3xl w-[6rem] select-none"
-                              variant={"outline"}
-                            >
-                              test
-                            </Button>
-                            <Button
-                              className="rounded-3xl w-[6rem] select-none"
-                              variant={"outline"}
-                            >
-                              test
-                            </Button>
-                            <Button
-                              className="rounded-3xl w-[6rem] select-none"
-                              variant={"outline"}
-                            >
-                              test
-                            </Button>
-                            <Button
-                              className="rounded-3xl w-[6rem] select-none"
-                              variant={"outline"}
-                            >
-                              test
-                            </Button>
-                            <Button
-                              className="rounded-3xl w-[6rem] select-none"
-                              variant={"outline"}
-                            >
-                              test
-                            </Button>
+                            {allLocals().map((local) => (
+                              <Button
+                                onClick={() => {
+                                  setSelectedLocal(local);
+                                }}
+                                className={cn(
+                                  "rounded-3xl w-[6rem] select-none ",
+                                  [selectedLocal === local ? "bg-accent" : ""]
+                                )}
+                                variant={"outline"}
+                              >
+                                {local}
+                              </Button>
+                            ))}
                           </div>
                         }
                         rightDiv={
                           // <div className="w-full h-full bg-green-500"></div>
-                          <div className="w-full h-full flex  ">
-                            <StackHistorySlider />
+                          <div className="w-full h-full flex flex-col gapy-4  overflow-y-scroll">
+                            <div>
+                              <StackHistorySlider
+                                value={[visualizationPointer]}
+                                min={0}
+                                max={visualizationLength}
+                                onValueChange={(v) =>
+                                  dispatch(
+                                    CodeExecActions.setVisualizationPointer(
+                                      v[0]
+                                    )
+                                  )
+                                }
+                              />
+                            </div>
+                            <div className="p-4 text-sm whit">
+                              {selectedLocal &&
+                              codeMutation.data?.flattenedVis.type ===
+                                AlgoType.Visualizer
+                                ? JSON.stringify(
+                                    toStackSnapshotAtVisUpdate(
+                                      codeMutation.data.flattenedVis.fullOutput
+                                    ).at(visualizationPointer)?.frames[0].args
+                                      .locals[selectedLocal]
+                                  )
+                                : "Nothing to show!"}
+                            </div>
+
                             {/* <div className="flex items-end w-full">
                               <Button variant={"ghost"} size={"icon"}>
                                 <Link />

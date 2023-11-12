@@ -1,13 +1,12 @@
 import { CodeExecActions } from "@/redux/slices/codeExecSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { SpeedSlider } from "../Sort/SpeedSlider";
+import { cn } from "@/lib/utils";
 
-type Props = {};
-
-export const StackHistorySlider = (props: Props) => {
-  const dispatch = useAppDispatch();
-
+export const StackHistorySlider = (
+  props: React.ComponentPropsWithoutRef<typeof SpeedSlider>
+) => {
   // if (!show) return null;
 
   return (
@@ -16,13 +15,15 @@ export const StackHistorySlider = (props: Props) => {
     >
       {/* https://www.radix-ui.com/docs/primitives/components/slider */}
       <SpeedSlider
-        min={0}
-        // value={[0]}
-        max={10}
-        // need min and max
-        // need to be able to set point to that value
-        onValueChange={(value) => {}}
-        className="w-[85%]"
+        // min={0}
+        // value={[value]}
+        // max={10}
+        // // need min and max
+        // // need to be able to set point to that value
+        // onValueChange={(value) => {}}
+        // className="w-[85%]"
+        {...props}
+        className={cn(["w-[85%]", props.className])}
       />
     </div>
   );

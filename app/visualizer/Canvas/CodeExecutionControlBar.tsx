@@ -420,7 +420,7 @@ const CodeExecutionControlBar = ({
                       });
                       return;
                     }
-                    setTabValue("output");
+                    setTabValue((prev) => (prev !== "stack" ? "output" : prev));
                     if (!selectedIds) {
                       const code = getCode(userAlgorithm, presetCode);
                       // console.log('hola amigo', code);
@@ -475,7 +475,8 @@ const CodeExecutionControlBar = ({
                         })
                       );
                     }
-                    setTabValue("output");
+
+                    setTabValue((prev) => (prev !== "stack" ? "output" : prev));
                     const code = getCode(userAlgorithm, presetCode);
                     const currentCacheKey = JSON.stringify([
                       getAdjacenyList(attachableLines, circles),

@@ -570,7 +570,7 @@ const CanvasDisplay = ({
 
           <div
             style={{
-              // 12 is resize bar size - 4, should just export (4 is because the gnome requires a 4 shmeckle toll to let the code compile)) :p
+              // 12 is resize bar size - 4, should just export (4 is because the gnome requires a 4 shmeckle toll)
               left: canvasWidth - 96 + 12 - 4,
             }}
             className=" absolute text-sm   w-28 text-md  font-bold text-foreground flex items-center justify-center h-12 -translate-y-12 border-l-2 border-t-2   rounded-r-none rounded-t-md border-secondary"
