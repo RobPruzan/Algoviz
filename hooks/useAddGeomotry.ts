@@ -3,6 +3,7 @@ import {
   UndirectedEdge,
   DirectedEdge,
   CircleReceiver,
+  Edge,
 } from "@/lib/types";
 
 import { CanvasActions, ValidatorLensInfo } from "@/redux/slices/canvasSlice";
@@ -23,7 +24,10 @@ export const useAddGeometry = () => {
     ...args: Parameters<typeof shapeUpdateMutation.mutate>
   ) => searchParams.get("playground-id") && shapeUpdateMutation.mutate(...args);
 
-  const handleAddUndirectedEdge = (c1: [number, number]) => {
+  const handleAddUndirectedEdge = (
+    c1: [number, number],
+    options?: { attachTo?: CircleReceiver }
+  ) => {
     dispatch(
       CanvasActions.setSelectedAction(
         {
@@ -38,15 +42,15 @@ export const useAddGeometry = () => {
       id: nanoid(),
 
       type: "rect",
-      x1,
-      y1,
-      x2: x1 - 10,
-      y2: y1 - 50,
+      x1: x1,
+      y1: y1 + 50,
+      x2: x1,
+      y2: y1,
       width: 4 * currentZoomFactor,
-      directed: false,
+      directed: false, // probably doesn't do anything
       color: "#ACACAC",
       attachNodeOne: {
-        center: [x1, y1],
+        center: [x1, y1 + 50],
         radius: 15 * currentZoomFactor,
         color: "#42506e",
         id: nanoid(),
@@ -54,20 +58,36 @@ export const useAddGeometry = () => {
         connectedToId: null,
       },
       attachNodeTwo: {
-        center: [x1 - 10, y1 - 50],
+        center: [x1, y1],
         radius: 15 * currentZoomFactor,
         color: "#42506e",
         id: nanoid(),
         type: "node2",
-        connectedToId: null,
+        connectedToId: options?.attachTo?.nodeReceiver.id ?? null,
       },
     };
     validShapeUpdateMutation({
       lines: [...attachableLines, newLine],
       zoomAmount: currentZoomFactor,
     });
+    // should make this a function since its used in both undirected and directed creation
+    if (options?.attachTo) {
+      const newAttachTo: typeof options.attachTo = {
+        ...options.attachTo,
+        nodeReceiver: {
+          ...options.attachTo.nodeReceiver,
+          attachedIds: options.attachTo.nodeReceiver.attachedIds.concat([
+            newLine.attachNodeOne.id,
+          ]),
+        },
+      };
+
+      dispatch(CanvasActions.replaceCircle(newAttachTo));
+    }
+
     dispatch(CanvasActions.addLine(newLine, meta));
     dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
+    return newLine;
   };
 
   const handleAddDirectedEdge = (
@@ -90,16 +110,16 @@ export const useAddGeometry = () => {
       id: nanoid(),
       type: "rect",
 
-      x1: x1 - 10,
-      y1: y1 - 50,
+      x1: x1,
+      y1: y1 + 50,
       x2: x1,
       y2: y1,
       width: 7 * currentZoomFactor,
       directed: true,
       color: "white",
       attachNodeOne: {
-        center: [x1 - 10, y1 - 50],
-        radius: 10 * currentZoomFactor,
+        center: [x1, y1 + 50],
+        radius: 15 * currentZoomFactor,
         color: "#42506e",
         id: nanoid(),
         type: "node1",
@@ -107,7 +127,7 @@ export const useAddGeometry = () => {
       },
       attachNodeTwo: {
         center: [x1, y1],
-        radius: 10 * currentZoomFactor,
+        radius: 15 * currentZoomFactor,
         color: "#42506e",
         id: nanoid(),
         type: "node2",
@@ -133,7 +153,10 @@ export const useAddGeometry = () => {
     return newLine;
   };
 
-  const handleAddCircle = (circleCenter: [number, number]) => {
+  const handleAddCircle = (
+    circleCenter: [number, number],
+    options?: { value?: number; attachTo?: Edge }
+  ) => {
     dispatch(
       CanvasActions.setSelectedAction(
         {
@@ -150,14 +173,14 @@ export const useAddGeometry = () => {
       radius: circleRadius * 0.4 * currentZoomFactor,
       color: "#262D3F",
       type: "circle",
-      attachedIds: [],
+      attachedIds: options?.attachTo ? [options.attachTo.attachNodeOne.id] : [],
     };
     const newCircle: CircleReceiver = {
       id: nanoid(),
       algorithmMetadata: {
         active: false,
       },
-      value: Math.floor(Math.random() * 100),
+      value: options?.value ?? Math.floor(Math.random() * 100),
       type: "circle",
       center: circleCenter,
       radius: circleRadius * currentZoomFactor,
@@ -172,6 +195,7 @@ export const useAddGeometry = () => {
 
     dispatch(CanvasActions.addCircle(newCircle, meta));
     dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
+    return newCircle;
   };
 
   const handleAddValidatorLens = (id: string, c1: [number, number]) => {

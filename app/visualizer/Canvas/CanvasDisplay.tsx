@@ -676,7 +676,6 @@ const CanvasDisplay = ({
             {selectedCircleID && (
               <ContextMenuItem
                 onClick={() => {
-                  console.log("cleek");
                   const selectedCircle = circles.find(
                     (circle) => circle.id === selectedCircleID
                   );
@@ -690,18 +689,21 @@ const CanvasDisplay = ({
                     selectedCircle.center,
                     selectedCircle
                   );
-                  console.log(newLine);
-                  // const unImportantDelta = 0.001;
-                  // dispatch(
-                  //   CanvasActions.handleMoveLine(
-                  //     {
-                  //       shift: [unImportantDelta, unImportantDelta],
-                  //       selectedAttachableLineID: newLine.id,
-                  //       edge: newLine,
-                  //     },
-                  //     meta
-                  //   )
-                  // );
+
+                  const newCircle = handleAddCircle(
+                    newLine.attachNodeOne.center,
+                    { attachTo: newLine }
+                  );
+
+                  dispatch(
+                    CanvasActions.replaceAttachableLine({
+                      ...newLine,
+                      attachNodeOne: {
+                        ...newLine.attachNodeOne,
+                        connectedToId: newCircle.nodeReceiver.id,
+                      },
+                    })
+                  );
                 }}
                 inset
               >
@@ -709,7 +711,39 @@ const CanvasDisplay = ({
               </ContextMenuItem>
             )}
             {selectedCircleID && (
-              <ContextMenuItem onClick={() => {}} inset>
+              <ContextMenuItem
+                onClick={() => {
+                  const selectedCircle = circles.find(
+                    (circle) => circle.id === selectedCircleID
+                  );
+                  if (!selectedCircle) {
+                    if (process.env.NODE_ENV === "development") {
+                      throw new Error("Something really went wrong here");
+                    }
+                    return;
+                  }
+                  const newLine = handleAddUndirectedEdge(
+                    selectedCircle.center,
+                    { attachTo: selectedCircle }
+                  );
+
+                  const newCircle = handleAddCircle(
+                    newLine.attachNodeOne.center,
+                    { attachTo: newLine }
+                  );
+
+                  dispatch(
+                    CanvasActions.replaceAttachableLine({
+                      ...newLine,
+                      attachNodeOne: {
+                        ...newLine.attachNodeOne,
+                        connectedToId: newCircle.nodeReceiver.id,
+                      },
+                    })
+                  );
+                }}
+                inset
+              >
                 Add undirected edge
               </ContextMenuItem>
             )}
