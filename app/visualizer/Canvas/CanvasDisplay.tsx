@@ -673,8 +673,48 @@ const CanvasDisplay = ({
                 Fully Connect Nodes
               </ContextMenuItem>
             )}
+            {selectedCircleID && (
+              <ContextMenuItem
+                onClick={() => {
+                  console.log("cleek");
+                  const selectedCircle = circles.find(
+                    (circle) => circle.id === selectedCircleID
+                  );
+                  if (!selectedCircle) {
+                    if (process.env.NODE_ENV === "development") {
+                      throw new Error("Something really went wrong here");
+                    }
+                    return;
+                  }
+                  const newLine = handleAddDirectedEdge(
+                    selectedCircle.center,
+                    selectedCircle
+                  );
+                  console.log(newLine);
+                  // const unImportantDelta = 0.001;
+                  // dispatch(
+                  //   CanvasActions.handleMoveLine(
+                  //     {
+                  //       shift: [unImportantDelta, unImportantDelta],
+                  //       selectedAttachableLineID: newLine.id,
+                  //       edge: newLine,
+                  //     },
+                  //     meta
+                  //   )
+                  // );
+                }}
+                inset
+              >
+                Add directed edge
+              </ContextMenuItem>
+            )}
+            {selectedCircleID && (
+              <ContextMenuItem onClick={() => {}} inset>
+                Add undirected edge
+              </ContextMenuItem>
+            )}
 
-            {!!selectedValidatorLens && (
+            {selectedValidatorLens && (
               <ContextMenuItem
                 onClick={() => {
                   const validatorLens = validatorLensContainer.find(

@@ -70,7 +70,10 @@ export const useAddGeometry = () => {
     dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
   };
 
-  const handleAddDirectedEdge = (lineCenter: [number, number]) => {
+  const handleAddDirectedEdge = (
+    lineCenter: [number, number],
+    attachTo?: CircleReceiver
+  ) => {
     dispatch(
       CanvasActions.setSelectedAction(
         {
@@ -80,20 +83,22 @@ export const useAddGeometry = () => {
         meta
       )
     );
-    const [x1, y1] = lineCenter;
+    const [x1, y1] = attachTo?.center ?? lineCenter;
+
     const newLine: DirectedEdge = {
       // gotta change this iz so weird
       id: nanoid(),
       type: "rect",
-      x1,
-      y1,
-      x2: x1 - 10,
-      y2: y1 - 50,
+
+      x1: x1 - 10,
+      y1: y1 - 50,
+      x2: x1,
+      y2: y1,
       width: 7 * currentZoomFactor,
       directed: true,
       color: "white",
       attachNodeOne: {
-        center: [x1, y1],
+        center: [x1 - 10, y1 - 50],
         radius: 10 * currentZoomFactor,
         color: "#42506e",
         id: nanoid(),
@@ -101,17 +106,31 @@ export const useAddGeometry = () => {
         connectedToId: null,
       },
       attachNodeTwo: {
-        center: [x1 - 10, y1 - 50],
+        center: [x1, y1],
         radius: 10 * currentZoomFactor,
         color: "#42506e",
         id: nanoid(),
         type: "node2",
-        connectedToId: null,
+        connectedToId: attachTo?.nodeReceiver.id ?? null,
       },
     };
 
+    if (attachTo) {
+      const newAttachTo: typeof attachTo = {
+        ...attachTo,
+        nodeReceiver: {
+          ...attachTo.nodeReceiver,
+          attachedIds: attachTo.nodeReceiver.attachedIds.concat([
+            newLine.attachNodeOne.id,
+          ]),
+        },
+      };
+
+      dispatch(CanvasActions.replaceCircle(newAttachTo));
+    }
     dispatch(CanvasActions.addLine(newLine, meta));
     dispatch(CanvasActions.staticLensSetValidatorLensIds(undefined, meta));
+    return newLine;
   };
 
   const handleAddCircle = (circleCenter: [number, number]) => {

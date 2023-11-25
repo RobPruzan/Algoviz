@@ -359,12 +359,14 @@ const canvasSlice = createSlice({
     }),
 
     handleMoveLine: withCanvasMeta<
-      Shift & { selectedAttachableLineID: string }
+      Shift & { selectedAttachableLineID: string; edge?: Edge }
     >((state, action) => {
       // why am i still normal shifting this??
-      const activeRect = state.attachableLines.find(
-        (rect) => rect.id === action.payload.selectedAttachableLineID
-      );
+      const activeRect =
+        // action.payload.edge ??
+        state.attachableLines.find(
+          (rect) => rect.id === action.payload.selectedAttachableLineID
+        );
 
       const shiftX = action.meta?.scaleFactor
         ? (action.payload.shift[0] / action.meta?.scaleFactor) *
