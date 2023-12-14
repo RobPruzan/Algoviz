@@ -17,34 +17,6 @@ const CreatePlayground = () => {
   const [items, setItems] = useState<Array<{ name: string }>>([]);
   return (
     <>
-      <div className="bg-white border-red-500 text-black">
-        <button
-          className="border rounded-md"
-          onClick={() =>
-            setItems((prev) => [
-              ...prev,
-              { name: crypto.randomUUID().slice(0, 10) },
-            ])
-          }
-        >
-          add
-        </button>
-        {items.map((item, idx) => (
-          <div key={item.name}>
-            <p>{item.name}</p>
-            <button
-              className="border rounded-md"
-              onClick={() =>
-                setItems((prev) => prev.filter((i) => i.name !== item.name))
-              }
-            >
-              delete
-            </button>
-            <textarea className="rounded-lg border-4 text-white" />
-          </div>
-        ))}
-      </div>
-
       <Card className="w-72 h-64 ml-5 mt-5 border-dashed flex items-center justify-center">
         <Button
           disabled={createPlaygroundMutation.isLoading}

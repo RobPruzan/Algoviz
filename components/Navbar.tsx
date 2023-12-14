@@ -1,12 +1,12 @@
-'use client';
-import Link from 'next/link';
-import React from 'react';
-import { Button } from './ui/button';
-import ShareableLink from './ShareableLink';
-import { ModeToggle } from './ui/mode-toggle';
-import { SignInButton } from './Auth/AuthButtons';
-import { useSession } from 'next-auth/react';
-import { usePathname } from 'next/navigation';
+"use client";
+import Link from "next/link";
+import React from "react";
+import { Button } from "./ui/button";
+import ShareableLink from "./ShareableLink";
+import { ModeToggle } from "./ui/mode-toggle";
+import { SignInButton } from "./Auth/AuthButtons";
+import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
 type Props = {};
 
@@ -23,7 +23,7 @@ const NavBar = (props: Props) => {
           </Button>
         </Link>
         {/* should make these proper protected routes */}
-        {session.status === 'authenticated' && (
+        {session.status === "authenticated" && (
           <Link href="/create">
             <Button className="mx-2" variant="outline">
               Playgrounds

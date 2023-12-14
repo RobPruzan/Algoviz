@@ -25,6 +25,7 @@ import HomeButton from "./HomeButton";
 import { Github } from "lucide-react";
 import UpgradePlayground from "./UpgradePlayground";
 import { CommandDialogDemo } from "@/components/ui/CommandDialog";
+import { EditorNav } from "@/components/EditorNav";
 // const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
@@ -55,6 +56,7 @@ export default function RootLayout({
 
                   <PlaygroundsButton />
                   <AdminNav className="mx-2" />
+                  <EditorNav />
                 </div>
 
                 <div className="w-2/6 " />

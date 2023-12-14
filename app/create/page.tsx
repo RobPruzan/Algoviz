@@ -1,12 +1,8 @@
-import PageWrapper from './PageWrapper';
+import PageWrapper from "./PageWrapper";
 
 export const revalidate = 0;
 const page = () => {
-  return (
-    <>
-      <PageWrapper />
-    </>
-  );
+  return <PageWrapper />;
 };
 
 export default page;
