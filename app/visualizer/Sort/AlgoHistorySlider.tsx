@@ -13,7 +13,7 @@ type Props = {
 const AlgoHistorySlider = ({ show = false }: Props) => {
   const dispatch = useAppDispatch();
   const visualizationLength = useAppSelector(
-    (store) => store.codeExec.algoOutput?.flattenedOutput.length
+    (store) => (store.codeExec.algoOutput?.flattenedOutput.length ?? 0) - 1
   );
   const visualizationPointer = useAppSelector(
     (store) => store.codeExec.visualizationPointer

@@ -116,7 +116,7 @@ const CanvasDisplay = ({
     (store) => store.canvas.present.selectedGeometryInfo
   );
 
-  const canvasHistory = useAppSelector((state) => state.canvas);
+  // const canvasHistory = useAppSelector((state) => state.canvas);
 
   const dispatch = useAppDispatch();
   const {
@@ -347,9 +347,10 @@ const CanvasDisplay = ({
   const themeInfo = useTheme();
   // don't mutate anything or query/disable them if the playground is is undefined (unless they are joining a playground)
   useEffect(() => {
+    console.log(visualization?.flattenedOutput);
     const visualizationNodes =
       visualization?.flattenedOutput.at(visualizationPointer);
-
+    console.log("ooga", visualizationNodes, visualizationPointer);
     const canvas = canvasRef?.current;
     const ctx = canvas?.getContext("2d");
     if (!ctx) return;
@@ -420,7 +421,7 @@ const CanvasDisplay = ({
     });
     // first written, first rendered
     // meaning items written later will layer over the previous
-
+    console.log({ visualizationNodes });
     Draw.drawNodes({
       ctx,
       nodes: circles,

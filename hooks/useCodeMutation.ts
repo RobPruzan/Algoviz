@@ -336,6 +336,7 @@ export const useCodeMutation = (onError?: (error: unknown) => any) => {
         console.log("code output", outputWithType);
       }
       const parsedOutput = dataSchema.parse(outputWithType);
+      console.log({ parsedOutput });
       return unFlattened(parsedOutput);
       // }
     },

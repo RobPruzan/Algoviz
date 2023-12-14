@@ -111,7 +111,7 @@ const CodeExecution = ({
   const themeInfo = useTheme();
   const dispatch = useAppDispatch();
   const visualizationLength = useAppSelector(
-    (store) => store.codeExec.algoOutput?.flattenedOutput.length
+    (store) => (store.codeExec.algoOutput?.flattenedOutput.length ?? 0) - 1
   );
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
   const visualizationPointer = useAppSelector(

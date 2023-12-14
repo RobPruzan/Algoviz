@@ -46,11 +46,14 @@ export const drawNodes = ({
         : theme === "light"
         ? "#DADADA"
         : node.color;
-
+    console.log({ visualizationNodes });
     if (visualizationNodes.includes(node.id)) {
-      ctx.fillStyle = "green";
+      if (visualizationNodes.at(-1) === node.id) {
+        ctx.fillStyle = "green";
+      } else {
+        ctx.fillStyle = "#86efac";
+      }
     }
-
     if (node.id === startNode) {
       ctx.fillStyle = "blue";
     }

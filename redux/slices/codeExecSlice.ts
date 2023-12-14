@@ -46,7 +46,7 @@ const codeExecSlice = createSlice({
     setVisualizationPointer: (state, action: PayloadAction<number>) => {
       if (
         action.payload >= 0 &&
-        action.payload <= (state.algoOutput?.flattenedOutput.length ?? 0)
+        action.payload <= (state.algoOutput?.flattenedOutput.length ?? 0) - 1
       ) {
         state.visualizationPointer = action.payload;
       }
@@ -70,7 +70,7 @@ const codeExecSlice = createSlice({
       // const TEMP_FILTERED_REVERT_THIS = state.algoOutput?.fullOutput.filter(o => o.tag !== 'Line')
       if (
         state.visualizationPointer <
-        (state.algoOutput?.flattenedOutput.length ?? 0)
+        (state.algoOutput?.flattenedOutput.length ?? 0) - 1
       ) {
         state.visualizationPointer++;
       }
