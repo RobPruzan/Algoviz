@@ -46,7 +46,7 @@ export const drawNodes = ({
         : theme === "light"
         ? "#DADADA"
         : node.color;
-    console.log({ visualizationNodes });
+
     if (visualizationNodes.includes(node.id)) {
       if (visualizationNodes.at(-1) === node.id) {
         ctx.fillStyle = "green";

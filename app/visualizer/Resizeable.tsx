@@ -47,13 +47,6 @@ const Resizable = (props: Props) => {
 
           const newDiv2Width = parentDiv.offsetWidth - newDiv1Width;
 
-          // if (
-          //   newDiv1Width - resizeBarSize / 2 === 0 ||
-          //   newDiv2Width - resizeBarSize / 2 === 0
-          // ) {
-          //   console.log("aint no way");
-          // }
-
           props.setDiveOneSize(newDiv1Width - resizeBarSize / 2);
           props.setDivTwoSize(newDiv2Width - resizeBarSize / 2);
         })

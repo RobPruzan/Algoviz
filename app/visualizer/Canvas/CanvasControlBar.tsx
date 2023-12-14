@@ -73,7 +73,7 @@ const CanvasControlBar = ({
   );
 
   const getAlgorithmsQuery = useGetAlgorithmsQuery();
-  // console.log('hola', getAlgorithmsQuery);
+
   const meta = useMeta();
   const { handleAddValidatorLens } = useAddGeometry();
 
