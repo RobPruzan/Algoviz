@@ -1,31 +1,31 @@
-import * as React from 'react';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import * as React from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
 
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from '@/components/ui/command';
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { SetStateAction, useState } from 'react';
+} from "@/components/ui/popover";
+import { SetStateAction, useState } from "react";
 
-import { Algorithm } from '@prisma/client';
-import { twMerge } from 'tailwind-merge';
+import { Algorithm } from "@prisma/client";
+import { twMerge } from "tailwind-merge";
 
 type Props = {
   className?: string;
   value: string | null;
   setValue: (value: string) => void;
   defaultPlaceholder: string;
-  algorithms: (Omit<Algorithm, 'createdAt'> & { createdAt: string })[];
+  algorithms: Omit<Algorithm, "createdAt">[];
 };
 
 export function AlgoComboBox({
@@ -44,13 +44,13 @@ export function AlgoComboBox({
           role="combobox"
           aria-expanded={open}
           className={twMerge(
-            'w-[125px] h-[30px] justify-between font-bold',
+            "w-[125px] h-[30px] justify-between font-bold",
             className
           )}
         >
           {(value
             ? algorithms.find((a) => a.id === value)?.title
-            : defaultPlaceholder ?? 'Select Algorithm'
+            : defaultPlaceholder ?? "Select Algorithm"
           )?.slice(0, 15)}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -72,8 +72,8 @@ export function AlgoComboBox({
               >
                 <Check
                   className={cn(
-                    'mr-2 h-4 w-4',
-                    value === algo.id ? 'opacity-100' : 'opacity-0'
+                    "mr-2 h-4 w-4",
+                    value === algo.id ? "opacity-100" : "opacity-0"
                   )}
                 />
                 {algo.title.slice(0, 15)}
