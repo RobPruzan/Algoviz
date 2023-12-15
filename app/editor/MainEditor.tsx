@@ -5,7 +5,11 @@ import { useTheme } from "next-themes";
 import React, { useContext, useRef, useSyncExternalStore } from "react";
 import { nightOwlTheme } from "../visualizer/Canvas/theme";
 import Resizable from "../visualizer/Resizeable";
-import { AlgoContext } from "./algo-context";
+import {
+  AlgoContext,
+  CurrentCodeContext,
+  useGetCurrentAlgo,
+} from "./algo-context";
 import { useGetJoinedAlgos } from "./use-get-joined-algos";
 import { match } from "ts-pattern";
 import { Percentage } from "@/lib/types";
@@ -16,20 +20,10 @@ export const MainEditor = ({
   parentHeight: number | Percentage;
 }) => {
   const themeInfo = useTheme();
-  const { algo, setAlgo } = useContext(AlgoContext);
-  const joinedAlgos = useGetJoinedAlgos();
-  const parent = useRef<HTMLDivElement | null>(null);
 
-  const currentAlgo = joinedAlgos.find((joinedAlgo) =>
-    match(joinedAlgo)
-      .with({ type: "preset" }, ({ name }) => {
-        return name === algo;
-      })
-      .with({ type: "algo" }, ({ title }) => {
-        return title === algo;
-      })
-      .run()
-  );
+  const parent = useRef<HTMLDivElement | null>(null);
+  // const currentAlgo = useGetCurrentAlgo();
+  const { code, setCode } = useContext(CurrentCodeContext);
 
   const tempParentHeight = useSyncExternalStore(
     (subscribe) => () => {
@@ -39,7 +33,7 @@ export const MainEditor = ({
     () => parent.current?.offsetHeight ?? 0,
     () => parent.current?.offsetHeight ?? 0
   );
-  console.log({ currentAlgo });
+
   return (
     <div ref={parent} className="w-full h-full">
       <Editor
@@ -60,8 +54,9 @@ export const MainEditor = ({
             : "vs-dark"
         }
         language="python"
+        onChange={(v) => setCode(v ?? "")}
         // because monaco sucks
-        value={currentAlgo?.code ?? (null as unknown as undefined)}
+        value={code}
         options={{
           minimap: { enabled: false },
           lineNumbers: "on",

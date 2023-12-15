@@ -1,28 +1,28 @@
-import { API_URL } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { z } from 'zod';
+import { API_URL } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { z } from "zod";
 
 export const useGetAlgorithmsQuery = () =>
   useQuery({
-    queryKey: ['getallAlgorithms'],
+    queryKey: ["getallAlgorithms"],
     queryFn: async () => {
       const algorithmSchema = z.object({
         id: z.string(),
-        algoID: z.string(),
+        algoID: z.string().nullable(),
         userId: z.string(),
         title: z.string(),
         code: z.string(),
         description: z.string(),
-        createdAt: z.string(),
+        createdAt: z.string().or(z.date()),
         type: z.string(),
         isGodMode: z.boolean(),
         language: z.union([
-          z.literal('javascript'),
-          z.literal('typescript'),
-          z.literal('python'),
-          z.literal('java'),
-          z.literal('rust'),
+          z.literal("javascript"),
+          z.literal("typescript"),
+          z.literal("python"),
+          z.literal("java"),
+          z.literal("rust"),
           // z.literal('go'),
         ]),
       });

@@ -16,6 +16,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_CODE_RUNNER: z.string(),
   NEXT_PUBLIC_SOCKET_SERVER_URL: z.string(),
   NEXT_PUBLIC_GOD_MODE: z.string(),
+  NEXT_PUBLIC_DIRECT_EXECUTION: z.string(),
 });
 
 declare global {

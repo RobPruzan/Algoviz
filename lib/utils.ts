@@ -14,7 +14,7 @@ import {
 import { map, z } from "zod";
 import ky from "ky";
 
-import { useRef } from "react";
+import { useContext, useRef } from "react";
 import {
   CanvasActions,
   Meta,
@@ -26,6 +26,8 @@ import { defaultAlgo } from "@/app/visualizer/ContentWrapper";
 import { useGetPresets } from "@/hooks/useGetPresets";
 import { ParsedVisOutput } from "@/hooks/useCodeMutation";
 import { match } from "ts-pattern";
+import { useGetJoinedAlgos } from "@/app/editor/use-get-joined-algos";
+import { AlgoContext } from "@/app/editor/algo-context";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

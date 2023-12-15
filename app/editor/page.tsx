@@ -4,7 +4,10 @@ import { EditPage } from "./EditPage";
 import getQueryClient from "@/lib/getQueryClient";
 import { Hydrate, dehydrate } from "@tanstack/react-query";
 import { Suspense } from "react";
-import { AlgoContextProvider } from "./algo-context";
+import {
+  AlgoContextProvider,
+  CurrentCodeContextProvider,
+} from "./algo-context";
 
 export default async function Editor() {
   const queryClient = getQueryClient();
@@ -24,12 +27,14 @@ export default async function Editor() {
   const dehydratedState = dehydrate(queryClient);
 
   return (
-    <div className="h-full w-full mt-5 p-5 ">
-      <AlgoContextProvider>
-        <Hydrate state={dehydratedState}>
-          <EditPage />
-        </Hydrate>
-      </AlgoContextProvider>
+    <div className="h-full w-full  px-5 py-8">
+      <CurrentCodeContextProvider>
+        <AlgoContextProvider>
+          <Hydrate state={dehydratedState}>
+            <EditPage />
+          </Hydrate>
+        </AlgoContextProvider>
+      </CurrentCodeContextProvider>
     </div>
   );
 }

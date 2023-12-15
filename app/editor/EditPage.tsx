@@ -14,8 +14,12 @@ import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
 import { useGetPresets } from "@/hooks/useGetPresets";
 import Resizable from "../visualizer/Resizeable";
 import { Button } from "@/components/ui/button";
-import { AlgoContext } from "./algo-context";
-import { Save, Trash } from "lucide-react";
+import {
+  AlgoContext,
+  CurrentCodeContext,
+  useGetCurrentAlgo,
+} from "./algo-context";
+import { Loader, Play, Save, Trash } from "lucide-react";
 import { useGetJoinedAlgos } from "./use-get-joined-algos";
 import { cn, run } from "@/lib/utils";
 import { Python } from "@/components/svgs/python";
@@ -25,24 +29,32 @@ import { Command, CommandInput } from "@/components/ui/command";
 import { CircleSlash } from "lucide-react";
 import { XCircle } from "lucide-react";
 import { CodeOutput } from "../CodeOutput";
-import { useCodeMutation } from "@/hooks/useCodeMutation";
+import { useDirectCodeMutation } from "@/hooks/useDirectCodeMutation";
+import { useEditAlgorithm } from "@/hooks/useEditAlgorithm";
+import { useEditPreset } from "@/hooks/useEditPreset";
 
 export const EditPage = () => {
   const { algo, setAlgo } = useContext(AlgoContext);
   const [search, setSearch] = useState("");
 
-  const { codeMutation } = useCodeMutation();
+  const directCodeMutation = useDirectCodeMutation();
 
-  const joinedAlgos = useGetJoinedAlgos();
-  const parent = useRef<HTMLDivElement | null>(null);
+  const { joinedAlgos, revalidate } = useGetJoinedAlgos();
+  const currentAlgo = useGetCurrentAlgo();
+  console.log({ joinedAlgos });
+  const { code, setCode } = useContext(CurrentCodeContext);
+  const editAlgorithmMutation = useEditAlgorithm();
+  const editPresetMutation = useEditPreset();
+
   const [editorHeight, setEditorHeight] = useState<Percentage | number>("68%");
   const [outputHeight, setOutputHeight] = useState<Percentage | number>("30%");
+
   return (
     <Resizable
       initialState={{
         divOneSize: "59.2%",
       }}
-      className="border-2 prevent-select"
+      className="border-2 prevent-select h-full"
       leftDiv={
         <Resizable
           divOneSize={editorHeight}
@@ -51,20 +63,104 @@ export const EditPage = () => {
           setDivTwoSize={setOutputHeight}
           topDiv={
             <>
-              <div className="h-14 p-4 flex items-center font-bold justify-center text-lg border-b-2 ">
-                <Button
-                  className="font-bold text-base flex gap-x-4 justify-evenly"
-                  variant={"outline"}
-                >
-                  Save <Save />
-                </Button>
+              <div className="h-14 flex justify-evenly items-center font-bold text-lg border-b-2 ">
+                {currentAlgo.type !== "none" && (
+                  <div className="w-1/3 flex items-center justify-center h-full">
+                    {run(() => {
+                      switch (currentAlgo.type) {
+                        case "algo": {
+                          return currentAlgo.title;
+                        }
+                        case "preset": {
+                          return (
+                            <div className="rounded-md border px-2 py-1">
+                              {" "}
+                              {currentAlgo.name}
+                            </div>
+                          );
+                        }
+                      }
+                    })}
+                  </div>
+                )}
+
+                <div className="w-1/3 flex items-center justify-center h-full">
+                  <Button
+                    onClick={() => {
+                      directCodeMutation.mutate({
+                        code,
+                      });
+                    }}
+                    variant={"outline"}
+                  >
+                    <Play />
+                  </Button>
+                </div>
+                <div className="w-1/3 flex items-center justify-center h-full">
+                  <Button
+                    onClick={() => {
+                      if (!currentAlgo) {
+                        return;
+                      }
+
+                      switch (currentAlgo.type) {
+                        case "algo": {
+                          editAlgorithmMutation.mutate({
+                            newAlgorithm: { ...currentAlgo, code },
+                          });
+                          revalidate();
+                          return;
+                        }
+                        case "preset": {
+                          editPresetMutation.mutate({
+                            newPreset: { ...currentAlgo, code },
+                          });
+                          revalidate();
+                          return;
+                        }
+                        case "none": {
+                          console.log("none case");
+                          return;
+                        }
+                      }
+                    }}
+                    className="font-bold text-base flex gap-x-4 justify-evenly"
+                    variant={"outline"}
+                  >
+                    {editAlgorithmMutation.isLoading ||
+                    editPresetMutation.isLoading ? (
+                      <Loader className="animate-spin" />
+                    ) : (
+                      "Save"
+                    )}
+
+                    <Save />
+                  </Button>
+                </div>
               </div>
               <MainEditor parentHeight={editorHeight} />
             </>
           }
           bottomDiv={
-            <div className="h-full w-full bg-black">
-              <CodeOutput className="w-full " codeMutation={codeMutation} />
+            <div className="h-full w-full bg">
+              {run(() => {
+                return directCodeMutation.isLoading ? (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Loader className="animate-spin" />
+                  </div>
+                ) : (
+                  <aside
+                    className={cn([
+                      "bg pl-2 text-white  text-sm font-mono w-full h-full",
+                    ])}
+                  >
+                    <div className="text-red-500">
+                      {directCodeMutation.data?.stderr}
+                    </div>
+                    <div>{directCodeMutation.data?.stdout}</div>
+                  </aside>
+                );
+              })}
             </div>
           }
           type="vertical"
@@ -82,6 +178,7 @@ export const EditPage = () => {
               <div className="flex items-center gap-x-2 font-bold text-lg border rounded-md py-1 px-2">
                 <Button
                   onClick={() => {
+                    setCode("");
                     setAlgo(null);
                   }}
                   className="p-0 w-fit h-fit hover:scale-105 transition"
@@ -95,52 +192,70 @@ export const EditPage = () => {
             )}
           </div>
           <div className="grid p-4 auto-cols gap-x-[50px] gap-y-[50px] max-w-full overflow-y-scroll h-full">
-            {joinedAlgos.map((joinedAlgo) => (
-              <div
-                key={joinedAlgo.id}
-                className="rounded-md border h-32 w-full"
-              >
-                <Button
-                  onClick={() => {
-                    setAlgo(
-                      joinedAlgo.type === "algo"
-                        ? joinedAlgo.title
-                        : joinedAlgo.name
-                    );
-                  }}
-                  variant={"outline"}
-                  className="h-[calc(100%-48px)] border-0 rounded-b-none w-full p-4 font-bold text-lg text-center"
-                >
-                  {run(() => {
-                    switch (joinedAlgo.type) {
-                      case "algo": {
-                        return joinedAlgo.title.toUpperCase();
-                      }
-                      case "preset": {
-                        return joinedAlgo.name.toUpperCase();
-                      }
-                    }
-                    joinedAlgo satisfies never;
-                  })}
-                </Button>
+            {joinedAlgos
+              .filter((joinedAlgo) =>
+                search === ""
+                  ? joinedAlgo
+                  : search
+                      .toLowerCase()
+                      .trim()
+                      .includes(
+                        joinedAlgo.type === "algo"
+                          ? joinedAlgo.title.toLowerCase().trim()
+                          : joinedAlgo.name
+                      ) ||
+                    search
+                      .toLowerCase()
+                      .trim()
+                      .includes((joinedAlgo.code ?? "").toLowerCase().trim())
+              )
+              .map((joinedAlgo) => (
                 <div
-                  className="
-                h-12 border-t w-full flex items-center px-2 justify-evenly"
+                  key={joinedAlgo.id}
+                  className="rounded-md border h-32 w-full"
                 >
-                  <LanguageLogo joinedAlgo={joinedAlgo} />
-                  <div className="px-2 rounded-lg font-bold border ">
-                    {joinedAlgo.code?.split("\n").length} lines
-                  </div>
                   <Button
-                    size={"sm"}
-                    className="border px-2"
+                    onClick={() => {
+                      setCode(joinedAlgo.code ?? "");
+                      setAlgo(
+                        joinedAlgo.type === "algo"
+                          ? joinedAlgo.title
+                          : joinedAlgo.name
+                      );
+                    }}
                     variant={"outline"}
+                    className="h-[calc(100%-48px)] border-0 rounded-b-none w-full p-4 font-bold text-lg text-center"
                   >
-                    <Trash size={20} className="text-red-500" />
+                    {run(() => {
+                      switch (joinedAlgo.type) {
+                        case "algo": {
+                          return joinedAlgo.title.toUpperCase();
+                        }
+                        case "preset": {
+                          return joinedAlgo.name.toUpperCase();
+                        }
+                      }
+                      joinedAlgo satisfies never;
+                    })}
                   </Button>
+                  <div
+                    className="
+                h-12 border-t w-full flex items-center px-2 justify-evenly"
+                  >
+                    <LanguageLogo joinedAlgo={joinedAlgo} />
+                    <div className="px-2 rounded-lg font-bold border ">
+                      {joinedAlgo.code?.split("\n").length} lines
+                    </div>
+                    <Button
+                      size={"sm"}
+                      className="border px-2"
+                      variant={"outline"}
+                    >
+                      <Trash size={20} className="text-red-500" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       }
@@ -153,7 +268,7 @@ export const EditPage = () => {
 const LanguageLogo = ({
   joinedAlgo,
 }: {
-  joinedAlgo: ArrayItem<ReturnType<typeof useGetJoinedAlgos>>;
+  joinedAlgo: ArrayItem<ReturnType<typeof useGetJoinedAlgos>["joinedAlgos"]>;
 }) => {
   switch (joinedAlgo.type) {
     case "algo": {
