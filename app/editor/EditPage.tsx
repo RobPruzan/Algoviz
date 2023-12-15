@@ -32,6 +32,19 @@ import { CodeOutput } from "../CodeOutput";
 import { useDirectCodeMutation } from "@/hooks/useDirectCodeMutation";
 import { useEditAlgorithm } from "@/hooks/useEditAlgorithm";
 import { useEditPreset } from "@/hooks/useEditPreset";
+import { useDeleteAlgorithm } from "@/hooks/useDeleteAlgorithm";
+import { useDeletePreset } from "@/hooks/useDeletePreset";
+import CopyButton from "@/components/CopyButton";
+import {
+  DialogHeader,
+  DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { RadioGroup } from "@radix-ui/react-context-menu";
 
 export const EditPage = () => {
   const { algo, setAlgo } = useContext(AlgoContext);
@@ -45,6 +58,8 @@ export const EditPage = () => {
   const { code, setCode } = useContext(CurrentCodeContext);
   const editAlgorithmMutation = useEditAlgorithm();
   const editPresetMutation = useEditPreset();
+  const deleteAlgorithmMutation = useDeleteAlgorithm();
+  const deletePresetMutation = useDeletePreset();
 
   const [editorHeight, setEditorHeight] = useState<Percentage | number>("68%");
   const [outputHeight, setOutputHeight] = useState<Percentage | number>("30%");
@@ -246,13 +261,49 @@ export const EditPage = () => {
                     <div className="px-2 rounded-lg font-bold border ">
                       {joinedAlgo.code?.split("\n").length} lines
                     </div>
-                    <Button
-                      size={"sm"}
-                      className="border px-2"
-                      variant={"outline"}
-                    >
-                      <Trash size={20} className="text-red-500" />
-                    </Button>
+
+                    <Dialog>
+                      <DialogTrigger
+                        aria-label={`delete-${joinedAlgo.type}`}
+                        asChild
+                      >
+                        <Button
+                          size={"sm"}
+                          className="border px-2"
+                          variant={"outline"}
+                        >
+                          <Trash size={20} className="text-red-500" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px] bg-opacity-100">
+                        <DialogHeader>
+                          <DialogTitle>
+                            Are you sure you want to delete?
+                          </DialogTitle>
+                          <DialogDescription></DialogDescription>
+                        </DialogHeader>
+
+                        <DialogFooter className="flex items-center justify-center">
+                          <Button
+                            // onClick={() => {}}
+                            onClick={() => {
+                              switch (joinedAlgo.type) {
+                                case "algo": {
+                                  deleteAlgorithmMutation.mutate(joinedAlgo.id);
+                                }
+                                case "preset": {
+                                  deletePresetMutation.mutate(joinedAlgo.id);
+                                }
+                              }
+                            }}
+                            variant="destructive"
+                            type="submit"
+                          >
+                            Confirm Delete
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
               ))}

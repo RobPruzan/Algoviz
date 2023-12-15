@@ -25,7 +25,7 @@ export const useEditPreset = () => {
           };
         }
       );
-      return axios.post("/api/algo/edit", {
+      return axios.post("/api/playground/preset", {
         newPreset,
       });
     },
