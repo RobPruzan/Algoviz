@@ -1,8 +1,8 @@
-import { Meta } from '@/redux/slices/canvasSlice';
-import { Algorithm, Playground } from '@prisma/client';
-import { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { io } from 'socket.io-client';
-import { string } from 'zod';
+import { Meta } from "@/redux/slices/canvasSlice";
+import { Algorithm, Playground } from "@prisma/client";
+import { Dispatch, MutableRefObject, SetStateAction } from "react";
+import { io } from "socket.io-client";
+import { string } from "zod";
 
 export type NodeMetadata = {
   value: number;
@@ -14,7 +14,7 @@ export type NodeMetadata = {
 
 export type RealMessedUpAlgoType = Pick<
   Algorithm,
-  'title' | 'code' | 'description' | 'type' | 'language'
+  "title" | "code" | "description" | "type" | "language"
 >;
 // Array list of array lists, each inner array list is a specific state during the sort
 // in inner array list links represent if they are split into new arrays or not
@@ -46,29 +46,29 @@ export type FirstLetterUpperCase<S extends string> =
     ? `${Uppercase<L1>}${L2} ${FirstLetterUpperCase<Rest>}`
     : BaseFirstLetterUpperCase<S>;
 
-export const DISPLAY_TYPES = ['nodes', 'canvas', 'bar'] as const;
+export const DISPLAY_TYPES = ["nodes", "canvas", "bar"] as const;
 
 export type DisplayTypes = (typeof DISPLAY_TYPES)[number];
 
 export type NodeConnector = Omit<
   CircleConnector,
-  'nodeConnector' | 'type' | 'value'
+  "nodeConnector" | "type" | "value"
 > & {
-  type: 'node1' | 'node2';
+  type: "node1" | "node2";
   connectedToId: string | null;
 };
 
 export type NodeReceiver = Omit<
   CircleConnector,
-  'nodeConnector' | 'type' | 'value'
+  "nodeConnector" | "type" | "value"
 > & {
-  type: 'circle';
+  type: "circle";
   attachedIds: string[];
 };
 
 export type CircleConnector = {
   id: string;
-  type: 'circle';
+  type: "circle";
   value: number;
   color: string;
   nodeConnector: NodeConnector;
@@ -79,7 +79,7 @@ export type GeoCircle = {
   radius: number;
 };
 
-export type CircleReceiver = Omit<CircleConnector, 'nodeConnector'> & {
+export type CircleReceiver = Omit<CircleConnector, "nodeConnector"> & {
   nodeReceiver: NodeReceiver;
   algorithmMetadata: AlgorithmMetadata;
 };
@@ -87,7 +87,7 @@ export type CircleReceiver = Omit<CircleConnector, 'nodeConnector'> & {
 
 export type Rect = {
   id: string;
-  type: 'rect';
+  type: "rect";
   x1: number;
   y1: number;
   x2: number;
@@ -99,7 +99,7 @@ export type Rect = {
 export type UndirectedEdge = Rect & {
   attachNodeOne: NodeConnector;
   attachNodeTwo: NodeConnector;
-  nodeConnectedSide?: 'one' | 'two';
+  nodeConnectedSide?: "one" | "two";
 
   directed: false;
 };
@@ -107,7 +107,7 @@ export type UndirectedEdge = Rect & {
 export type DirectedEdge = Rect & {
   attachNodeOne: NodeConnector;
   attachNodeTwo: NodeConnector;
-  nodeConnectedSide?: 'one' | 'two';
+  nodeConnectedSide?: "one" | "two";
   directed: true;
 };
 
@@ -123,21 +123,21 @@ export type AlgorithmMetadata = {
 
 export type SelectedAttachableLine = {
   id: string;
-  selected: 'line' | 'node1' | 'node2';
+  selected: "line" | "node1" | "node2";
 };
 
 export type SelectedValidatorLens = {
   id: string;
-  selected: 'validator-lens';
+  selected: "validator-lens";
 };
 export type SelectedValidatorLensResizeCircle = {
   id: string;
-  type: 'bottom-right' | 'top-left' | 'top-right' | 'bottom-left';
+  type: "bottom-right" | "top-left" | "top-right" | "bottom-left";
 };
 export type SelectBox = {
   p1: [number, number];
   p2: [number, number];
-  type: 'selectBox';
+  type: "selectBox";
 };
 export type MaxPoints = {
   closestToOrigin: [number, number];
@@ -153,11 +153,11 @@ export type SelectedGeometryInfo = {
 };
 
 export const DRAW_TYPES = [
-  'pencil',
-  'circle-toggle',
-  'directed-edge-toggle',
-  'undirected-edge-toggle',
-  'validator-lens-select',
+  "pencil",
+  "circle-toggle",
+  "directed-edge-toggle",
+  "undirected-edge-toggle",
+  "validator-lens-select",
 ] as const;
 export type DrawTypes = (typeof DRAW_TYPES)[number];
 export type TaggedDrawTypes = { tag: DrawTypes; state?: string } | null;
@@ -172,13 +172,13 @@ export type Prettify<T> = {
   [Key in keyof T]: T[Key];
 } & {};
 
-export type SerializedPlayground = Omit<Playground, 'createdAt'> & {
+export type SerializedPlayground = Omit<Playground, "createdAt"> & {
   createdAt: string;
 };
 export type IO = ReturnType<typeof io>;
 export type UntypedData =
-  | { roomID: string; type: 'circleReciever'; state: any; senderID: string }
-  | { roomID: string; type: 'edge'; state: any; senderID: string };
+  | { roomID: string; type: "circleReciever"; state: any; senderID: string }
+  | { roomID: string; type: "edge"; state: any; senderID: string };
 export type SocketAction = { type: string; payload: any; meta: Meta };
 
 export type FirstParameter<T> = T extends (arg: infer R, ...rest: any[]) => any
@@ -186,24 +186,34 @@ export type FirstParameter<T> = T extends (arg: infer R, ...rest: any[]) => any
   : T;
 
 export enum AlgoType {
-  Visualizer = 'Visualizer',
-  Validator = 'Validator',
+  Visualizer = "Visualizer",
+  Validator = "Validator",
 }
 
 export enum CanvasControlBarActions {
-  Clear = 'Clear',
-  Node = 'Node',
-  UndirectedEdge = 'UndirectedEdge',
-  DirectedEdge = 'DirectedEdge',
-  Pencil = 'Pencil',
-  Validators = 'Validators',
-  Eraser = 'Eraser',
+  Clear = "Clear",
+  Node = "Node",
+  UndirectedEdge = "UndirectedEdge",
+  DirectedEdge = "DirectedEdge",
+  Pencil = "Pencil",
+  Validators = "Validators",
+  Eraser = "Eraser",
 }
 
 export type ArrayItem<T> = T extends (infer U)[] ? U : never;
 
 export type PickedPlayground = Pick<
   Playground,
-  'id' | 'circles' | 'lines' | 'pencil' | 'userId' | 'validatorLens'
+  "id" | "circles" | "lines" | "pencil" | "userId" | "validatorLens"
 >;
 let test = {} as PickedPlayground;
+
+export type Setter<T> = Dispatch<SetStateAction<T>>;
+
+export type DateToString<T extends Record<string, unknown>> = {
+  [K in keyof T]: T[K] extends Date | infer R
+    ? T[K] extends infer _ | Date
+      ? string | R
+      : string
+    : T[K];
+};

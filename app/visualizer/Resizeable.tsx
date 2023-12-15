@@ -19,17 +19,44 @@ type Props = (
       bottomDiv: React.ReactNode;
     }
 ) & {
-  divOneSize: Percentage | number;
-  setDiveOneSize: React.Dispatch<React.SetStateAction<Percentage | number>>;
-  divTwoSize: Percentage | number;
-  setDivTwoSize: React.Dispatch<React.SetStateAction<Percentage | number>>;
+  className?: string;
+  divOneSize?: Percentage | number;
+  setDiveOneSize?: React.Dispatch<React.SetStateAction<Percentage | number>>;
+  divTwoSize?: Percentage | number;
+  setDivTwoSize?: React.Dispatch<React.SetStateAction<Percentage | number>>;
   resizeBarClassName?: string;
+  initialState?: {
+    divOneSize?: Props["divOneSize"];
+    divTwoSize?: Props["divTwoSize"];
+  };
 };
 const Resizable = (props: Props) => {
   const [resizing, setResizing] = useState(false);
   const parentDivRef = useRef<HTMLDivElement | null>(null);
   const childRefOne = useRef<HTMLDivElement | null>(null);
   const childRefTwo = useRef<HTMLDivElement | null>(null);
+
+  const [_divOneSize, _setDivOneSize] = useState<
+    Props["divOneSize"] extends infer R | null | undefined
+      ? R
+      : Props["divOneSize"]
+  >(props.initialState?.divOneSize ?? "60%");
+  const [_divTwoSize, _setDivTwoSize] = useState<
+    Props["divOneSize"] extends infer R | null | undefined
+      ? R
+      : Props["divTwoSize"]
+  >(props.initialState?.divTwoSize ?? "40%");
+
+  const [divOneSize, setDivOneSize] = [
+    props.divOneSize ?? _divOneSize,
+    props.setDiveOneSize ?? _setDivOneSize,
+  ];
+
+  const [divTwoSize, setDivTwoSize] = [
+    props.divTwoSize ?? _divTwoSize,
+    props.setDivTwoSize ?? _setDivTwoSize,
+  ];
+
   const resizeBarSize = 12;
 
   useEffect(() => {
@@ -47,16 +74,16 @@ const Resizable = (props: Props) => {
 
           const newDiv2Width = parentDiv.offsetWidth - newDiv1Width;
 
-          props.setDiveOneSize(newDiv1Width - resizeBarSize / 2);
-          props.setDivTwoSize(newDiv2Width - resizeBarSize / 2);
+          setDivOneSize(newDiv1Width - resizeBarSize / 2);
+          setDivTwoSize(newDiv2Width - resizeBarSize / 2);
         })
         .with({ type: "vertical" }, (props) => {
           let newDiv1Height = e.clientY - parentDiv.offsetTop;
           newDiv1Height = Math.max(0, newDiv1Height);
           newDiv1Height = Math.min(parentDiv.offsetHeight, newDiv1Height);
           const newDiv2Width = parentDiv.offsetHeight - newDiv1Height;
-          props.setDiveOneSize(newDiv1Height - resizeBarSize / 2);
-          props.setDivTwoSize(newDiv2Width - resizeBarSize / 2);
+          setDivOneSize(newDiv1Height - resizeBarSize / 2);
+          setDivTwoSize(newDiv2Width - resizeBarSize / 2);
         })
         .exhaustive();
     };
@@ -79,10 +106,7 @@ const Resizable = (props: Props) => {
   const handleResize = () => {
     match(props)
       .with({ type: "horizontal" }, (props) => {
-        if (
-          typeof props.divOneSize === "number" &&
-          typeof props.divTwoSize === "number"
-        ) {
+        if (typeof divOneSize === "number" && typeof divTwoSize === "number") {
           if (
             !childRefOne.current ||
             !childRefTwo.current ||
@@ -94,7 +118,7 @@ const Resizable = (props: Props) => {
           let parentScaledBy =
             parentDivRef.current.offsetWidth /
             // who woulda known, resizebar is important
-            (props.divOneSize + props.divTwoSize + resizeBarSize);
+            (divOneSize + divTwoSize + resizeBarSize);
 
           const scale = (prev: number | `${string}%`) => {
             if (typeof prev === "number") {
@@ -107,8 +131,8 @@ const Resizable = (props: Props) => {
             }
           };
 
-          props.setDiveOneSize(scale);
-          props.setDivTwoSize(scale);
+          setDivOneSize(scale);
+          setDivTwoSize(scale);
 
           // ...
         } else {
@@ -117,17 +141,14 @@ const Resizable = (props: Props) => {
       })
       // only one that works, but for now have no need for the other version
       .with({ type: "vertical" }, (props) => {
-        if (
-          typeof props.divOneSize === "number" &&
-          typeof props.divTwoSize === "number"
-        ) {
+        if (typeof divOneSize === "number" && typeof divTwoSize === "number") {
           if (!childRefOne.current || !childRefTwo.current) {
             // will be defined, ran as an effect, so just terminate
             return;
           }
           let parentScaledBy =
             parentDivRef.current?.offsetHeight! /
-            (props.divOneSize + props.divTwoSize + resizeBarSize);
+            (divOneSize + divTwoSize + resizeBarSize);
           const scale = (prev: number | `${string}%`) => {
             if (typeof prev === "number") {
               return `${
@@ -139,8 +160,8 @@ const Resizable = (props: Props) => {
             }
           };
 
-          props.setDiveOneSize(scale);
-          props.setDivTwoSize(scale);
+          setDivOneSize(scale);
+          setDivTwoSize(scale);
 
           // ...
         } else {
@@ -153,7 +174,7 @@ const Resizable = (props: Props) => {
   useEffect(() => {
     new ResizeObserver(handleResize).observe(parentDivRef.current!);
     // kinda hacky, forces pixels to be percentages when possible
-  }, [props.divOneSize, props.divTwoSize]);
+  }, [divOneSize, divTwoSize]);
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
@@ -163,6 +184,7 @@ const Resizable = (props: Props) => {
 
   return props.type === "horizontal" ? (
     <div
+      className={cn([props.className, ""])}
       style={{
         display: "flex",
         width: "100%",
@@ -173,8 +195,8 @@ const Resizable = (props: Props) => {
       <div
         ref={childRefOne}
         style={{
-          maxWidth: props.divOneSize ?? undefined,
-          minWidth: props.divOneSize ?? undefined,
+          maxWidth: divOneSize ?? undefined,
+          minWidth: divOneSize ?? undefined,
           height: "100%",
         }}
       >
@@ -185,7 +207,7 @@ const Resizable = (props: Props) => {
           minWidth: resizeBarSize,
         }}
         className={cn([
-          "cursor-col-resize border-y-2 border-secondary",
+          "cursor-col-resize border-y-2 border-secondary h-full sticky top-0",
           props.resizeBarClassName,
         ])}
         onMouseDown={() => setResizing(true)}
@@ -194,9 +216,9 @@ const Resizable = (props: Props) => {
         ref={childRefTwo}
         className="flex items-center justify-center"
         style={{
-          width: props.divTwoSize ?? undefined,
-          maxWidth: props.divTwoSize ?? undefined,
-          minWidth: props.divTwoSize ?? undefined,
+          width: divTwoSize ?? undefined,
+          maxWidth: divTwoSize ?? undefined,
+          minWidth: divTwoSize ?? undefined,
         }}
       >
         {props.rightDiv}
@@ -217,8 +239,8 @@ const Resizable = (props: Props) => {
         ref={childRefOne}
         style={{
           width: "100%",
-          maxHeight: props.divOneSize ?? undefined,
-          minHeight: props.divOneSize ?? undefined,
+          maxHeight: divOneSize ?? undefined,
+          minHeight: divOneSize ?? undefined,
         }}
       >
         {props.topDiv}
@@ -237,8 +259,8 @@ const Resizable = (props: Props) => {
         ref={childRefTwo}
         className="flex items-center justify-center flex-col"
         style={{
-          maxHeight: props.divTwoSize ?? undefined,
-          minHeight: props.divTwoSize ?? undefined,
+          maxHeight: divTwoSize ?? undefined,
+          minHeight: divTwoSize ?? undefined,
         }}
       >
         {props.bottomDiv}
