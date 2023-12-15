@@ -324,7 +324,7 @@ const CanvasControlBar = ({
                       setItemChecked(algo.algoID);
                       setSelectedControlBarAction({
                         tag: "validator-lens-select",
-                        state: algo.algoID,
+                        state: algo.algoID ?? undefined,
                       });
                     }}
                   >
