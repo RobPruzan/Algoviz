@@ -6,7 +6,7 @@ import { fontSans } from "@/lib/fonts";
 import { SignInButton } from "@/components/Auth/AuthButtons";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import ShareableLink from "@/components/ShareableLink";
 import React from "react";
@@ -90,6 +90,7 @@ export default function RootLayout({
             </div>
           </div>
         </Providers>
+        <SpeedInsights />
       </body>
     </html>
   );
