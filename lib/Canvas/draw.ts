@@ -286,60 +286,29 @@ export const drawValidatorLens = ({
     // |  |
     // ---
 
-    // // text above the top y, middle x rect is in the form of topleft, bottom right
-    // ctx.font = '20px Arial';
-
-    // // Define your rectangle corners
-    // let topLeft = lens.rect.topLeft;
-    // let bottomRight = lens.rect.bottomRight;
-
-    // // Calculate middle X of the rectangle
-    // let middleX = (topLeft[0] + bottomRight[0]) / 2;
-
-    // // Measure the text width
-    // let textWidth = ctx.measureText(text).width;
-
-    // // Calculate the position where the text should be drawn to be centered above the rectangle
-    // let textX = middleX - textWidth / 2;
-
-    // // Choose an appropriate offset to position the text above the rectangle,
-    // // here we arbitrarily chose 10 units above the top of the rectangle
-    // let textY = topLeft[1] - 10;
-
-    // // Draw the text
-    // ctx.fillText(text, textX, textY);
-
     ctx.font = "20px Arial";
 
     const text =
       algos?.find((algo) => algo.algoID === lens.algoID)?.title || "unknown";
 
-    // Assume we have the rectangle's corners as rect.lens.topLeft and rect.lens.bottomRight
     const topLeft = lens.rect.topLeft;
     const bottomRight = lens.rect.bottomRight;
 
-    // Calculate middle X of the rectangle
     const middleX = (topLeft[0] + bottomRight[0]) / 2;
 
-    // Calculate top Y of the rectangle
     const maxY = Math.min(topLeft[1], bottomRight[1]);
 
-    // Measure the text width
     const textWidth = ctx.measureText(text).width;
 
-    // Calculate the position where the text should be drawn to be centered above the rectangle
-    const textX = middleX - textWidth / 2;
+    const textXLocation = middleX - textWidth / 2;
 
-    // Choose an appropriate offset to position the text above the rectangle,
-    // here we arbitrarily chose 10 units above the top of the rectangle
-    const textY = maxY - 10;
+    const textYOffset = maxY - 10;
 
     ctx.fillStyle =
       theme === "dark" ? "white" : theme === "light" ? "black" : "white";
 
-    ctx.fillText(text, textX, textY);
+    ctx.fillText(text, textXLocation, textYOffset);
     ctx.lineWidth = 1;
-    // text color black
 
     ctx.strokeStyle =
       theme === "light" ? "#ADD8E6" : theme === "dark" ? "white" : "white";
@@ -353,10 +322,8 @@ export const drawValidatorLens = ({
     ctx.fill();
     ctx.globalAlpha = 1;
 
-    ctx.closePath(); // This ensures the path is closed and can be filled
+    ctx.closePath();
     ctx.stroke();
-
-    // Set the fill colo
 
     ctx.beginPath();
     ctx.moveTo(Math.floor(leftX), Math.floor(topY));
@@ -480,28 +447,6 @@ export const drawBox = ({
   ctx.stroke();
 };
 
-// export const optimizeCanvas = ({
-//   canvas,
-//   ctx,
-// }: {
-//   canvas: HTMLCanvasElement;
-//   ctx: CanvasRenderingContext2D;
-// }) => {
-//   const dpr = window.devicePixelRatio;
-//   const rect = canvas.getBoundingClientRect();
-
-//   // Set the "actual" size of the canvas
-//   canvas.width = rect.width * dpr;
-//   canvas.height = rect.height * dpr;
-
-//   // Scale the context to ensure correct drawing operations
-//   ctx.scale(dpr, dpr);
-
-//   // Set the "drawn" size of the canvas
-//   canvas.style.width = `${rect.width}px`;
-//   canvas.style.height = `${rect.height}px`;
-//   ctx.clearRect(0, 0, canvas.width, canvas.height);
-// };
 export const updateCanvasEnvironment = ({
   canvas,
   ctx,
@@ -514,21 +459,16 @@ export const updateCanvasEnvironment = ({
   const dpr = window.devicePixelRatio;
   const rect = canvas.getBoundingClientRect();
 
-  // Set the "actual" size of the canvas
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
 
-  // Scale the context to ensure correct drawing operations
   ctx.scale(dpr, dpr);
 
-  // Translate the origin to the camera position
   ctx.translate(cameraPosition[0], cameraPosition[1]);
 
-  // Set the "drawn" size of the canvas
   canvas.style.width = `${rect.width}px`;
   canvas.style.height = `${rect.height}px`;
 
-  // Clear the canvas, taking into account the new origin
   ctx.clearRect(
     -cameraPosition[0],
     -cameraPosition[1],

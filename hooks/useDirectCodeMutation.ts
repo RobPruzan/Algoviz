@@ -7,6 +7,7 @@ export const useDirectCodeMutation = () => {
   const { toast } = useToast();
   const simpleCodeMutation = useMutation({
     onError: (e) => {
+      console.log(e);
       toast({
         variant: "destructive",
         title: "Something went wrong",
