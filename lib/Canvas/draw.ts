@@ -11,7 +11,7 @@ import { NodeValidation } from "@/redux/slices/codeExecSlice";
 import { ValidatorLensInfo } from "@/redux/slices/canvasSlice";
 import { RESIZE_CIRCLE_RADIUS } from "../utils";
 import { match } from "ts-pattern";
-import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
+import { useGetAlgorithmsQuery } from "@/hooks/network/useGetAlgorithmsQuery";
 
 export const drawNodes = ({
   nodes,

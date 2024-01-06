@@ -28,7 +28,7 @@ import { CollaborationActions } from "@/redux/slices/colloborationSlice";
 import { useMeta } from "@/hooks/useMeta";
 import { useToast } from "@/components/ui/use-toast";
 import { Languages, languageSnippets } from "@/lib/language-snippets";
-import { useCodeMutation } from "@/hooks/useCodeMutation";
+import { useCodeMutation } from "@/hooks/network/useCodeMutation";
 import { AxiosError } from "axios";
 import { useIsGodMode } from "@/hooks/isGodMode";
 import { useSession } from "next-auth/react";

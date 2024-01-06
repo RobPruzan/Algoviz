@@ -17,7 +17,7 @@ import { useMeta } from "@/hooks/useMeta";
 import { Languages, runJavascriptWithWorker } from "@/lib/language-snippets";
 import _logger from "next-auth/utils/logger";
 import { useState } from "react";
-import { useGetSelectedItems } from "./useGetSelectedItems";
+import { useGetSelectedItems } from "../useGetSelectedItems";
 import { useToast } from "@/components/ui/use-toast";
 import { start } from "repl";
 type AlteredOutputUnion = {

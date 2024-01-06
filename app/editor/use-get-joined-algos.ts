@@ -1,4 +1,4 @@
-import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
+import { useGetAlgorithmsQuery } from "@/hooks/network/useGetAlgorithmsQuery";
 import { useGetPresets } from "@/hooks/useGetPresets";
 import { ArrayItem, DateToString } from "@/lib/types";
 import { Algorithm } from "@prisma/client";

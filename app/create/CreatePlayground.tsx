@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useCreatePlaygroundMutation } from "@/hooks/useCreatePlaygroundMutation";
+import { useCreatePlaygroundMutation } from "@/hooks/network/useCreatePlaygroundMutation";
 import { SerializedPlayground } from "@/lib/types";
 import { API_URL, serializedPlaygroundSchema } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

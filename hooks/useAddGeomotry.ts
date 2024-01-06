@@ -9,7 +9,7 @@ import {
 import { CanvasActions, ValidatorLensInfo } from "@/redux/slices/canvasSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { useMeta } from "./useMeta";
-import { useShapeUpdateMutation } from "./useShapeUpdateMutation";
+import { useShapeUpdateMutation } from "./network/useShapeUpdateMutation";
 import { useSearchParams } from "next/navigation";
 import { nanoid } from "nanoid";
 export const useAddGeometry = () => {

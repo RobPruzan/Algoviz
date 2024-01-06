@@ -66,9 +66,9 @@ import {
 import { ChevronUp } from "lucide-react";
 import { LanguageComboBox } from "../LanguageComboBox";
 import { Languages, languageSnippets } from "@/lib/language-snippets";
-import { useCodeMutation } from "@/hooks/useCodeMutation";
-import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
-import { useSaveAlgorithmMutation } from "@/hooks/useSaveAlgorithmMutation";
+import { useCodeMutation } from "@/hooks/network/useCodeMutation";
+import { useGetAlgorithmsQuery } from "@/hooks/network/useGetAlgorithmsQuery";
+import { useSaveAlgorithmMutation } from "@/hooks/network/useSaveAlgorithmMutation";
 import { AlgoComboBox } from "../Sort/AlgoComboBox";
 import { CodeStorage } from "@/hooks/codeStorage";
 import { usePathname, useSearchParams } from "next/navigation";

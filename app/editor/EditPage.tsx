@@ -10,7 +10,7 @@ import React, {
 import { MainEditor } from "./MainEditor";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
+import { useGetAlgorithmsQuery } from "@/hooks/network/useGetAlgorithmsQuery";
 import { useGetPresets } from "@/hooks/useGetPresets";
 import Resizable from "../visualizer/Resizeable";
 import { Button } from "@/components/ui/button";
@@ -30,9 +30,9 @@ import { CircleSlash } from "lucide-react";
 import { XCircle } from "lucide-react";
 import { CodeOutput } from "../CodeOutput";
 import { useDirectCodeMutation } from "@/hooks/useDirectCodeMutation";
-import { useEditAlgorithm } from "@/hooks/useEditAlgorithm";
+import { useEditAlgorithm } from "@/hooks/network/useEditAlgorithm";
 import { useEditPreset } from "@/hooks/useEditPreset";
-import { useDeleteAlgorithm } from "@/hooks/useDeleteAlgorithm";
+import { useDeleteAlgorithm } from "@/hooks/network/useDeleteAlgorithm";
 import { useDeletePreset } from "@/hooks/useDeletePreset";
 import CopyButton from "@/components/CopyButton";
 import {

@@ -62,8 +62,8 @@ import { useCanvasMouseMove } from "@/hooks/useCanvasMouseMove";
 import { useCanvasWheel } from "@/hooks/useCanvasWheel";
 
 import { useFullyConnect } from "@/hooks/useFullyConnect";
-import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
-import { useServerUpdateShapes } from "@/hooks/useServerUpdateShapes";
+import { useGetAlgorithmsQuery } from "@/hooks/network/useGetAlgorithmsQuery";
+import { useServerUpdateShapes } from "@/hooks/network/useServerUpdateShapes";
 import { useAddGeometry } from "@/hooks/useAddGeomotry";
 import { useCanvasRef } from "@/hooks/useCanvasRef";
 import { Algorithm } from "@prisma/client";
@@ -71,7 +71,7 @@ import { useIsGodMode } from "@/hooks/isGodMode";
 import {
   PresetType,
   useSaveAsPresetMutation,
-} from "@/hooks/useSaveAsPresetMutation";
+} from "@/hooks/network/useSaveAsPresetMutation";
 import { useGetSelectedItems } from "@/hooks/useGetSelectedItems";
 import { useGetPresets } from "@/hooks/useGetPresets";
 import { Input } from "@/components/ui/input";

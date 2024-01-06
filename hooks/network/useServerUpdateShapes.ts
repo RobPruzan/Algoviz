@@ -1,8 +1,8 @@
-import useDebounce from '@/hooks/useDebounce';
-import { useEffect } from 'react';
-import { useShapeUpdateMutation } from './useShapeUpdateMutation';
-import { useAppSelector } from '@/redux/store';
-import { useSearchParams } from 'next/navigation';
+import useDebounce from "@/hooks/useDebounce";
+import { useEffect } from "react";
+import { useShapeUpdateMutation } from "./useShapeUpdateMutation";
+import { useAppSelector } from "@/redux/store";
+import { useSearchParams } from "next/navigation";
 
 export const useServerUpdateShapes = () => {
   const {
@@ -14,7 +14,7 @@ export const useServerUpdateShapes = () => {
   const debouncedLines = useDebounce(attachableLines, 500);
   const searchParams = useSearchParams();
   const shapeUpdateMutation = useShapeUpdateMutation();
-  const playgroundID = searchParams.get('playground-id');
+  const playgroundID = searchParams.get("playground-id");
   useEffect(() => {
     if (playgroundID) {
       shapeUpdateMutation.mutate({

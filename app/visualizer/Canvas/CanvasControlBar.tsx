@@ -44,7 +44,7 @@ import { UndirectedEdgeIcon } from "@/components/icons/UndirectedEdge";
 import { BINARY_SEARCH_TREE } from "@/lib/presets/binary-search-tree";
 import { ActionCreators } from "redux-undo";
 import AlgoHistorySlider from "../Sort/AlgoHistorySlider";
-import { useGetAlgorithmsQuery } from "@/hooks/useGetAlgorithmsQuery";
+import { useGetAlgorithmsQuery } from "@/hooks/network/useGetAlgorithmsQuery";
 import { useAddGeometry } from "@/hooks/useAddGeomotry";
 import { CanvasContext } from "@/context/CanvasContext";
 import { useCanvasRef } from "@/hooks/useCanvasRef";

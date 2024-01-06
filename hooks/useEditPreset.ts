@@ -3,7 +3,7 @@ import { DateToString } from "@/lib/types";
 import { Algorithm, Preset } from "@prisma/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useGetAlgorithmsQuery } from "./useGetAlgorithmsQuery";
+import { useGetAlgorithmsQuery } from "./network/useGetAlgorithmsQuery";
 import { useGetPresets } from "./useGetPresets";
 
 export const useEditPreset = () => {

@@ -24,7 +24,7 @@ import { CodeStorage } from "@/hooks/codeStorage";
 import { defaultAlgo } from "@/app/visualizer/ContentWrapper";
 // import { type AppDispatch } from '@/redux/store';
 import { useGetPresets } from "@/hooks/useGetPresets";
-import { ParsedVisOutput } from "@/hooks/useCodeMutation";
+import { ParsedVisOutput } from "@/hooks/network/useCodeMutation";
 import { match } from "ts-pattern";
 import { useGetJoinedAlgos } from "@/app/editor/use-get-joined-algos";
 import { AlgoContext } from "@/app/editor/algo-context";

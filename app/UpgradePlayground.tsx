@@ -1,16 +1,16 @@
-'use client';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
-import { useCreatePlaygroundMutation } from '@/hooks/useCreatePlaygroundMutation';
-import { useSession } from 'next-auth/react';
+"use client";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { useCreatePlaygroundMutation } from "@/hooks/network/useCreatePlaygroundMutation";
+import { useSession } from "next-auth/react";
 import {
   useParams,
   usePathname,
   useRouter,
   useSearchParams,
-} from 'next/navigation';
+} from "next/navigation";
 
-import React from 'react';
+import React from "react";
 
 type Props = {};
 
@@ -19,7 +19,7 @@ const UpgradePlayground = (props: Props) => {
   const router = useRouter();
   const params = useParams();
   const searchP = useSearchParams();
-  const pathname = usePathname().split('/');
+  const pathname = usePathname().split("/");
 
   const session = useSession();
 
@@ -31,11 +31,11 @@ const UpgradePlayground = (props: Props) => {
     return;
   }
 
-  if (searchP.get('playground-id')) {
+  if (searchP.get("playground-id")) {
     return;
   }
 
-  if (!pathname.includes('visualizer')) {
+  if (!pathname.includes("visualizer")) {
     return;
   }
   return (
@@ -47,19 +47,19 @@ const UpgradePlayground = (props: Props) => {
 
         const res = await createPlaygroundMutation.mutateAsync();
 
-        url.searchParams.set('playground-id', String(res.playground.id));
+        url.searchParams.set("playground-id", String(res.playground.id));
         router.push(url.toString());
         toast({
-          title: 'Playground created!',
+          title: "Playground created!",
           description:
-            'All changes will now be saved, you will always be able to see this playground when navigating to playgrounds',
+            "All changes will now be saved, you will always be able to see this playground when navigating to playgrounds",
         });
       }}
-      variant={'outline'}
+      variant={"outline"}
     >
       {createPlaygroundMutation.isLoading
-        ? 'Converting...'
-        : 'Convert to playground'}
+        ? "Converting..."
+        : "Convert to playground"}
     </Button>
   );
 };

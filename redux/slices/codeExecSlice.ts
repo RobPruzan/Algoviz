@@ -1,4 +1,7 @@
-import { AlgoFlattenedVis, ParsedVisOutput } from "@/hooks/useCodeMutation";
+import {
+  AlgoFlattenedVis,
+  ParsedVisOutput,
+} from "@/hooks/network/useCodeMutation";
 import { SelectedValidatorLens } from "@/lib/types";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { boolean } from "zod";
