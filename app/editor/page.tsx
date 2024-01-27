@@ -8,19 +8,28 @@ import {
   AlgoContextProvider,
   CurrentCodeContextProvider,
 } from "./algo-context";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]/auth-options";
 
 export default async function Editor() {
   const queryClient = getQueryClient();
+  const session = await getServerSession(authOptions);
   await Promise.all([
     queryClient.prefetchQuery(["getallAlgorithms"], () =>
       prisma.algorithm.findMany({
         orderBy: {
           createdAt: "desc",
         },
+        where: {
+          userId: session?.user.id
+        }
       })
     ),
     queryClient.prefetchQuery(["presets"], async () => ({
       presets: await prisma.preset.findMany(),
+      where: {
+        userId: session?.user.id
+      }
     })),
   ]);
 

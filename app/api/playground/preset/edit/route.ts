@@ -15,11 +15,22 @@ export async function POST(request: Request) {
 
   const session = await getServerSession(authOptions);
 
-  if (!session?.user)
+  if (!session?.user) {
     return NextResponse.json({
-      msg: "Must be signed in",
+      msg: "Not logged in",
       status: 401,
     });
+  }
+
+  if (!(session?.user.email === process.env.NEXT_PUBLIC_GOD_MODE)) {
+    return NextResponse.json({
+      msg: "Must be admin to edit preset",
+      status: 403,
+    });
+  }
+
+  
+    
 
   try {
     const preset = await prisma.preset.update({
